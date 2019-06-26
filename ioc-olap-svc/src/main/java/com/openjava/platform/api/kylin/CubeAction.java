@@ -5,6 +5,8 @@ import com.openjava.platform.common.Response;
 import com.openjava.platform.mapper.kylin.CubeMapper;
 import com.openjava.platform.mapper.kylin.UserMapper;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +24,10 @@ public class CubeAction extends KylinAction{
 
     @ApiOperation(value = "获取所有的CUBE数据")
     @RequestMapping(value="/list",method= RequestMethod.GET)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
+            @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
+    })
     public Response<ArrayList<CubeMapper>> list(Integer limit, Integer offset) {
         String url= MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}",config.address,limit.toString(),offset.toString());
         Class<ArrayList<CubeMapper>> clazz=(Class<ArrayList<CubeMapper>>)new ArrayList<CubeMapper>().getClass();
