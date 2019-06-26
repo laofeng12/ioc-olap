@@ -1,0 +1,91 @@
+
+.el-card{
+  margin-bottom: 30px;
+  &.delete-app-card-wrapper {
+    border: 1px solid red;
+  }
+  /deep/.el-card__body {
+    .content-wrapper {
+      padding: 20px;
+      .title-wrapper {
+        position: relative;
+        .title{
+          display: inline-block;
+          font-size: 16px;
+          color: rgba(0,0,0,0.85);
+          margin-bottom: 20px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        .ch-el-icon-close {
+          position: absolute;
+          right: 0;
+          top: 0;
+          cursor: pointer;
+          &:hover {
+            color: red;
+          }
+        }
+      }
+      img{
+        flex: 0 0 50px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-size: cover;
+      }
+    }
+  }
+  .el-form{
+    flex: 1;
+    overflow: hidden;
+    .el-form-item{
+      margin-bottom: 0;
+      /deep/.el-form-item__label{
+        color: rgba(0,0,0,0.45);
+        font-size: 14px;
+      }
+      /deep/.el-form-item__content{
+        color: rgba(0,0,0,0.45);
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .card-bottom{
+    height: 50px;
+    background: #E9E9E9;
+    border: 1px solid #cccccc;
+    display: flex;
+    padding: 10px 0;
+    .el-button{
+      flex: 1;
+      text-align: center;
+      color: rgba(0,0,0,0.45);
+      border-radius: 0;
+      color: #0486FE;
+      padding: 0;
+    }
+    .el-button + .el-button {
+      margin-left: 0;
+    }
+    .ch-button-list-border-r {
+      &::after {
+        right: 0;
+        top: 0;
+        height: 100%;
+        border-color: #ccc;
+      }
+    }
+    /deep/.subChecked{
+      color: #989898;
+    }
+    /deep/.nosubChecked{
+      color: #0486FE;
+    }
+  }
+}
