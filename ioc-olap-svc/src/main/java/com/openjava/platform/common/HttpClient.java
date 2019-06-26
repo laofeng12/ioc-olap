@@ -16,38 +16,51 @@ import java.util.List;
 
 public class HttpClient {
 
-    public static <T> T get(String url,Class<T> clazz){
-        RestTemplate rest = new RestTemplate();
-        T result= rest.getForObject(url, clazz);
-        return result;
+    public static <T> Response<T> get(String url,String authorization,Class<T> clazz){
+        return exeute(url,HttpMethod.GET,authorization,"",clazz,"");
     }
 
-    public static <T> ResponseEntity<T> post(String url,String requestJson,Class<T> clazz){
-        RestTemplate rest = new RestTemplate();
-        rest.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-        ResponseEntity<T> response = rest.exchange(url, HttpMethod.POST,entity,clazz);
-        return response;
+    public static <T> Response<T> post(String url,String requestJson,String authorization,Class<T> clazz,String successMsg){
+        return exeute(url,HttpMethod.POST,authorization,requestJson,clazz,successMsg);
     }
 
-    public static <T> ResponseEntity<T> put(String url,String requestJson,Class<T> clazz){
-        RestTemplate rest = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-        ResponseEntity<T> response = rest.exchange(url, HttpMethod.PUT,entity,clazz);
-        return response;
+    public static <T> Response<T> post(String url,String requestJson,String authorization,Class<T> clazz){
+        return exeute(url,HttpMethod.POST,authorization,requestJson,clazz,"");
     }
 
-    public static <T> ResponseEntity<T> delete(String url,String requestJson,Class<T> clazz){
-        RestTemplate rest = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-        ResponseEntity<T> response = rest.exchange(url, HttpMethod.DELETE,entity,clazz);
-        return response;
+    public static <T> Response<T> put(String url,String requestJson,String authorization,Class<T> clazz,String successMsg){
+        return exeute(url,HttpMethod.PUT,authorization,requestJson,clazz,successMsg);
+    }
+
+    public static <T> Response<T> put(String url,String requestJson,String authorization,Class<T> clazz){
+        return exeute(url,HttpMethod.PUT,authorization,requestJson,clazz,"");
+    }
+
+    public static <T> Response<T> delete(String url,String requestJson,String authorization,Class<T> clazz,String successMsg){
+        return exeute(url,HttpMethod.DELETE,authorization,requestJson,clazz,successMsg);
+    }
+
+    public static <T> Response<T> delete(String url,String requestJson,String authorization,Class<T> clazz){
+        return exeute(url,HttpMethod.DELETE,authorization,requestJson,clazz,"");
+    }
+
+    private static <T> Response<T> exeute(String url,HttpMethod method,String authorization,String requestJson,Class<T> clazz,String successMsg){
+        try {
+            RestTemplate rest = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            if(headers.containsKey("Authorization")){
+                headers.set("Authorization",authorization);
+            }
+            else{
+                headers.add("Authorization",authorization);
+            }
+            HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+            ResponseEntity<T> response = rest.exchange(url, method,entity,clazz);
+            return  Response.success(successMsg,response.getBody());
+        }
+        catch (Exception ex){
+            return Response.error();
+        }
     }
 }

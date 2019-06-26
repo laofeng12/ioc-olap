@@ -87,7 +87,8 @@ ljdp:
       skey: abdefghijklmnopqrstuvwxyz1234567890
 
 kylin:
-    address:  http://19.104.59.1:7070/
+    address:  http://19.104.59.1:7070
     account:  ADMIN
     pwd:  KYLIN
+    authorization:  Basic QURNSU46S1lMSU4=
 

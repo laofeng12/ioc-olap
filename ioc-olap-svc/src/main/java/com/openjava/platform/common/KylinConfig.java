@@ -15,4 +15,5 @@ public class KylinConfig {
     public String address;
     public String account;
     public String pwd;
+    public String authorization;
 }
