@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,7 +19,7 @@ public class ProjectDescDataMapper {
     @JSONField(name = "name")
     public String name;
     @JSONField(name = "tables")
-    public List<String> tables;
+    public ArrayList<String> tables;
     @JSONField(name = "owner")
     public String owner;
     @JSONField(name = "status")
@@ -30,11 +31,17 @@ public class ProjectDescDataMapper {
     @JSONField(name = "description")
     public String description;
     @JSONField(name = "realizations")
-    public List<String> realizations;
+    public Realizations realizations;
     @JSONField(name = "models")
-    public List<String> models;
+    public ArrayList<String> models;
     @JSONField(name = "ext_filters")
-    public List<String> ext_filters;
+    public ArrayList<String> ext_filters;
     @JSONField(name = "override_kylin_properties")
     public OverrideKylinPropertiesMapper override_kylin_properties;
+    @JSONField(name = "accessLoading")
+    public boolean accessLoading;
+    @JSONField(name = "visiblePage")
+    public String visiblePage;
+    @JSONField(name = "accessEntities")
+    public ArrayList<AccessEntitiesMapper> accessEntities;
 }
