@@ -1,16 +1,14 @@
-package com.openjava.platform.mapper;
+package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class ProjectManageDto {
+public class ProjectMapper {
     @JSONField(name = "formerProjectName")
     public String formerProjectName;
     @JSONField(name = "projectDescData")
-    public ProjectDescDataDto projectDescData;
+    public ProjectDescDataMapper projectDescData;
 }

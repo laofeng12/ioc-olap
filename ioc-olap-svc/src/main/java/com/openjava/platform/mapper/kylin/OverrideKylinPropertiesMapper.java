@@ -1,4 +1,4 @@
-package com.openjava.platform.mapper;
+package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OverrideKylinPropertiesDto {
+public class OverrideKylinPropertiesMapper {
     @JSONField(name = "author")
     public String author;
 }
