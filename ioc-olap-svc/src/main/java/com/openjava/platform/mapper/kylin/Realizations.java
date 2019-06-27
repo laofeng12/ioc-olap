@@ -1,4 +1,4 @@
-package com.openjava.platform.mapper;
+package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class RealizationsDto {
+public class Realizations {
     @JSONField(name = "type")
     public String type;
     @JSONField(name = "realization")

@@ -1,4 +1,4 @@
-package com.openjava.platform.mapper;
+package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProjectDescDataDto {
+public class ProjectDescData {
     @JSONField(name = "uuid")
     public String uuid;
     @JSONField(name = "last_modified")
@@ -30,11 +30,11 @@ public class ProjectDescDataDto {
     @JSONField(name = "description")
     public String description;
     @JSONField(name = "realizations")
-    public UserTypeDto realizations;
+    public List<String> realizations;
     @JSONField(name = "models")
     public List<String> models;
     @JSONField(name = "ext_filters")
     public List<String> ext_filters;
     @JSONField(name = "override_kylin_properties")
-    public OverrideKylinPropertiesDto override_kylin_properties;
+    public OverrideKylinProperties override_kylin_properties;
 }
