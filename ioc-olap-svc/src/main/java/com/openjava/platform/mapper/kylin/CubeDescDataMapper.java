@@ -9,6 +9,10 @@ import java.util.HashMap;
 @Getter
 @Setter
 public class CubeDescDataMapper {
+    public String uuid;
+    public String last_modified;
+    public String version;
+    public boolean is_draft;
     public String name;
     public String model_name;
     public String description;

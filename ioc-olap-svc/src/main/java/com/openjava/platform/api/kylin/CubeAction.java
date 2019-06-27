@@ -28,7 +28,7 @@ import java.util.List;
 @RequestMapping("/olap/apis/cube")
 public class CubeAction extends KylinAction{
 
-    @ApiOperation(value = "获取所有的CUBE数据")
+    @ApiOperation(value = "获取所有的立方体")
     @RequestMapping(value="/list",method= RequestMethod.GET)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
@@ -42,8 +42,8 @@ public class CubeAction extends KylinAction{
     }
 
     @ApiOperation(value = "创建立方体")
-    @RequestMapping(value="/Create",method= RequestMethod.POST)
-    public Response<CubeDescMapper> Create(CubeDescMapper cube) {
+    @RequestMapping(value="/create",method= RequestMethod.POST)
+    public Response<CubeDescMapper> create(CubeDescMapper cube) {
         String url=config.address+"/kylin/api/cubes";
         HashMap hash=new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
@@ -55,6 +55,28 @@ public class CubeAction extends KylinAction{
             mapper.cubeDescData=JSON.parseObject(result.data.get("cubeDescData").toString(), CubeDescDataMapper.class);
             mapper.uuid=result.data.get("uuid").toString();
             return Response.success("创建成功！",mapper);
+        }
+        else{
+            return Response.error();
+        }
+    }
+
+    @ApiOperation(value = "修改立方体")
+    @RequestMapping(value="update",method= RequestMethod.PUT)
+    public Response<CubeDescMapper> update(CubeDescMapper cube) {
+        String url=config.address+"/kylin/api/cubes";
+        HashMap hash=new HashMap();
+        hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
+        hash.put("project",cube.project);
+        hash.put("cubeName",cube.cubeName);
+        Response<HashMap> result=HttpClient.put(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
+        if(result.code==Response.SUCCESS_CODE){
+            CubeDescMapper mapper=new CubeDescMapper();
+            mapper.project=result.data.get("project").toString();
+            mapper.cubeDescData=JSON.parseObject(result.data.get("cubeDescData").toString(), CubeDescDataMapper.class);
+            mapper.uuid=result.data.get("uuid").toString();
+            mapper.cubeName=result.data.get("cubeName").toString();
+            return Response.success("修改成功！",mapper);
         }
         else{
             return Response.error();
