@@ -9,7 +9,7 @@
 </template>
 
 <script>
-const cityOptions = ['表名称表名称表名称1', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4']
+const cityOptions = ['表名称表名称表名称1', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4']
 export default {
   data () {
     return {
@@ -36,7 +36,7 @@ export default {
 
 <style lang="stylus" scoped>
 .serchTable{
-  width 300px
+  width 240px
   float left
   padding 0 25px
   >>>.el-checkbox{
@@ -45,11 +45,30 @@ export default {
     line-height 30px
   }
   >>>.el-input{
-    width 300px
+    // width 300px
     height 50px
     .el-input__inner{
       height 30px
     }
+  }
+  >>>.el-checkbox-group{
+    height 90%
+    overflow-y auto
+  }
+  >>>.el-checkbox-group::-webkit-scrollbar{
+    width 8px
+    height 8px
+    background #fff
+  }
+  >>>.el-checkbox-group::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color:#fff;
+  }
+  >>>.el-checkbox-group::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #B5D2DE;
   }
 }
 </style>
