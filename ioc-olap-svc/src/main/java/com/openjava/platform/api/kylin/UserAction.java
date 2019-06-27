@@ -22,8 +22,8 @@ import java.util.HashMap;
 public class UserAction extends KylinAction
 {
     @ApiOperation(value = "鉴权")
-    @RequestMapping(value="/Authentication",method= RequestMethod.POST)
-    public Response<UserMapper> Authentication() {
+    @RequestMapping(value="/authentication",method= RequestMethod.POST)
+    public Response<UserMapper> authentication() {
         String url=config.address+"/kylin/api/user/authentication";
         Class<HashMap<String,UserMapper>> clazz=(Class<HashMap<String,UserMapper>>)new HashMap<String,UserMapper>().getClass();
         Response<HashMap<String,UserMapper>> result=HttpClient.post(url,"",config.authorization,clazz);
