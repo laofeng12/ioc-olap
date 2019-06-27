@@ -1,7 +1,13 @@
 package com.openjava.platform.api.kylin;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openjava.platform.common.HttpClient;
 import com.openjava.platform.common.Response;
+import com.openjava.platform.mapper.kylin.CubeDescDataMapper;
+import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.mapper.kylin.CubeMapper;
 import com.openjava.platform.mapper.kylin.UserMapper;
 import io.swagger.annotations.Api;
@@ -33,5 +39,25 @@ public class CubeAction extends KylinAction{
         Class<ArrayList<CubeMapper>> clazz=(Class<ArrayList<CubeMapper>>)new ArrayList<CubeMapper>().getClass();
         Response<ArrayList<CubeMapper>> result= HttpClient.get(url,config.authorization,clazz);
         return result;
+    }
+
+    @ApiOperation(value = "创建立方体")
+    @RequestMapping(value="/Create",method= RequestMethod.POST)
+    public Response<CubeDescMapper> Create(CubeDescMapper cube) {
+        String url=config.address+"/kylin/api/cubes";
+        HashMap hash=new HashMap();
+        hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
+        hash.put("project",cube.project);
+        Response<HashMap> result=HttpClient.post(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
+        if(result.code==Response.SUCCESS_CODE){
+            CubeDescMapper mapper=new CubeDescMapper();
+            mapper.project=result.data.get("project").toString();
+            mapper.cubeDescData=JSON.parseObject(result.data.get("cubeDescData").toString(), CubeDescDataMapper.class);
+            mapper.uuid=result.data.get("uuid").toString();
+            return Response.success("创建成功！",mapper);
+        }
+        else{
+            return Response.error();
+        }
     }
 }
