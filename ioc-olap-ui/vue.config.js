@@ -7,15 +7,13 @@ module.exports = {
   devServer: {
     proxy: {
       '/platformweb/admin/': {
-        // target: 'http://47.107.56.144:8081',
-        // target: 'http://19.104.40.36:31880', // 政务内网
         target: 'http://183.6.55.26:31075', // 公司测试环境
-        // target: 'http://183.6.55.26:32001',
-        // target: 'http://192.168.8.117:8080',
-        // target: 'http://192.168.8.159:8081',
-        // target: 'http://183.6.55.26:31012',
         pathRewrite: { '^/platformweb/admin/': '/admin/' },
         changeOrigin: true
+      },
+      '/platformweb/gateway/': {
+        target: 'http://183.6.55.26:31012', // 公司测试环境
+        pathRewrite: { '^/platformweb/gateway/': '/gateway/' }
       },
       '/platformweb/ljdp/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境

@@ -26,6 +26,26 @@ export default new Router({
       ]
     },
     {
+      path: '/olap',
+      name: 'olap',
+      component: ContainerWrapper,
+      redirect: '/olap/olapList',
+      children: [
+        {
+          path: 'olapList',
+          name: 'olapList',
+          meta: { title: 'OLAP分析' },
+          component: () => import('@/views/olap/olapList.vue')
+        },
+        {
+          path: 'createolap',
+          name: 'createolap',
+          meta: { title: '新建OLAP模型' },
+          component: () => import('@/views/olap/createolap.vue')
+        }
+      ]
+    },
+    {
       path: '/system',
       name: 'system',
       component: ContainerWrapper,

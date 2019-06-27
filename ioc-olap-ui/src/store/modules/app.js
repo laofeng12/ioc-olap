@@ -9,21 +9,34 @@ const app = {
     },
     device: 'desktop',
     menuList: [{
-      resId: 'asdasdasdasd',
-      index: 'asdasdasdasd',
-      resName: 'OLAP',
-      resURL: '',
+      resId: 'vccvb',
+      index: '1',
+      resName: '首页',
+      resURL: 'nolinkpath11',
       resIcon: '',
       subResList: [{
         resId: 'asdasdasdasd',
-        index: 'asdasdasdasd',
-        resName: 'OLAP分析',
+        index: '2',
+        resName: '首页列表',
         resURL: '/home',
         resIcon: 'fa fa-columns',
-        subResList: []      
+        subResList: []
+      }]
+    }, {
+      resId: 'asdasdasdasd1111',
+      index: '3',
+      resName: 'OLAP',
+      resURL: 'nolinkpath222',
+      resIcon: '',
+      subResList: [{
+        resId: 'asdasdasdasdasd',
+        index: '4',
+        resName: 'OLAP分析',
+        resURL: '/olap',
+        resIcon: 'fa fa-columns',
+        subResList: []
       }]
     }],
-    TIMENUM: '6000',
     catalogmenuList: [],
     myRoutes: [],
     serviceData: {}

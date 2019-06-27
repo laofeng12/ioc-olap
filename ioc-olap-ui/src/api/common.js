@@ -57,3 +57,11 @@ export async function retrys (data) {
     data
   })
 }
+
+export function getApiList (params) {
+  return request({
+    url: '/gateway/apis/spInstanceApi/search',
+    method: 'GET',
+    params
+  })
+}

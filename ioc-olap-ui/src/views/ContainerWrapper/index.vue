@@ -4,7 +4,6 @@
       :toggleSideBar="toggleSideBar"
       @handleClickOutside="handleClickOutside"
       :logout="logout"
-      @getMenuItem="getMenuItem"
       :sidebar="sidebar"
       :device="device"
       :routes="menuList"
@@ -25,7 +24,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import ResizeMixin from '../../mixin/ResizeHandler'
-import { isExternal } from '@/utils/validate.js'
 export default {
   // 这个mixins是为了初始化状态栏的状态，具体见原文件
   mixins: [ResizeMixin],
@@ -73,28 +71,6 @@ export default {
           location.reload() // 为了重新实例化vue-router对象 避免bug
         }, 1000)
       })
-    },
-    getMenuItem (item) {
-      if (!item) {
-        console.log('啦啦啦啦啦', item)
-        return this.$message.warning('无可用的跳转链接')
-      }
-      const id = item.resId
-      if (isExternal(item.resURL)) {
-        let params = { catalogid: id }
-        this.$api.getLinkCode(params).then(res => {
-          let url = item.resURL.indexOf('?') !== -1 ? `${item.resURL}&code=${res.message}` : `${item.resURL}?code=${res.message}`
-          window.open(url)
-        }).catch(err => {
-          console.log(err)
-          this.$message({
-            type: 'error',
-            message: '页面跳转失败'
-          })
-        })
-      } else if (item.type === 'noDrump') {
-        return false
-      }
     }
   }
 }
