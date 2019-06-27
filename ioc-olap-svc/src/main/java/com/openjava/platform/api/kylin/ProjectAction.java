@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Api(tags = "项目接口")
 @RestController
@@ -31,10 +32,12 @@ public class ProjectAction extends KylinAction {
     @RequestMapping(value = "/Create", method = RequestMethod.POST)
     public Response Create(@RequestBody ProjectDescDataMapper body) {
         String url = config.address + "/kylin/api/projects";
-        String ProjectDescDataJson = JSON.toJSONString(body, SerializerFeature.DisableCircularReferenceDetect);
-        Class<ProjectDescDataMapper> clazz = (Class<ProjectDescDataMapper>) new ProjectDescDataMapper().getClass();
 
-        Response<ProjectDescDataMapper> result = HttpClient.post(url, ProjectDescDataJson, config.authorization, clazz);
+        HashMap hash = new HashMap();
+        hash.put("projectDescData", JSON.toJSONString(body));
+
+        Class<ProjectDescDataMapper> clazz = (Class<ProjectDescDataMapper>) new ProjectDescDataMapper().getClass();
+        Response<ProjectDescDataMapper> result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
 
         return result;
     }
@@ -42,16 +45,15 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "修改project")
     @RequestMapping(value = "/Update", method = RequestMethod.POST)
-    public Response Update(@RequestBody ProjectMapper body) {
-//        String url = config.address + "/kylin/api/projects";
-        String url = "http://19.104.59.1:7070/kylin/api/projects";
+    public Response<ProjectDescDataMapper> Update(@RequestBody ProjectMapper body) {
+        String url = config.address + "/kylin/api/projects";
 
+        HashMap hash = new HashMap();
+        hash.put("formerProjectName", body.formerProjectName);
+        hash.put("projectDescData", JSON.toJSONString(body.projectDescData));
 
-        String ProjectManageJson = JSON.toJSONString(body, SerializerFeature.DisableCircularReferenceDetect);
-
-        Class<ProjectMapper> clazz = (Class<ProjectMapper>) new ProjectMapper().getClass();
-        Response<ProjectMapper> result = HttpClient.post(url, ProjectManageJson, config.authorization, clazz);
-
+        Class<ProjectDescDataMapper> clazz = (Class<ProjectDescDataMapper>) new ProjectDescDataMapper().getClass();
+        Response<ProjectDescDataMapper> result = HttpClient.put(url, JSON.toJSONString(hash), config.authorization, clazz);
         return result;
     }
 
@@ -59,7 +61,7 @@ public class ProjectAction extends KylinAction {
     @ApiOperation(value = "删除project")
     @RequestMapping(value = "/Delete", method = RequestMethod.POST)
     public Response Delete(@RequestParam("prj_name") String prj_name) {
-        String url = config.address + "/kylin/api/projects";
+        String url = config.address + "/kylin/api/projects=" + prj_name;
 
         Class<ProjectMapper> clazz = (Class<ProjectMapper>) new ProjectMapper().getClass();
         Response<ProjectMapper> result = HttpClient.delete(url, "", config.authorization, clazz);
