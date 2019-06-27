@@ -6,9 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProjectManage {
+public class ProjectMapper {
     @JSONField(name = "formerProjectName")
     public String formerProjectName;
     @JSONField(name = "projectDescData")
-    public ProjectDescData projectDescData;
+    public ProjectDescDataMapper projectDescData;
 }

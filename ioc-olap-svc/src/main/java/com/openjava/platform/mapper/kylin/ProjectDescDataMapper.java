@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProjectDescData {
+public class ProjectDescDataMapper {
     @JSONField(name = "uuid")
     public String uuid;
     @JSONField(name = "last_modified")
@@ -36,5 +36,5 @@ public class ProjectDescData {
     @JSONField(name = "ext_filters")
     public List<String> ext_filters;
     @JSONField(name = "override_kylin_properties")
-    public OverrideKylinProperties override_kylin_properties;
+    public OverrideKylinPropertiesMapper override_kylin_properties;
 }

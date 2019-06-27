@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OverrideKylinProperties {
+public class OverrideKylinPropertiesMapper {
     @JSONField(name = "author")
     public String author;
 }
