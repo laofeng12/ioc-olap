@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
-@Api(tags = "项目管理")
+@Api(tags = "项目接口")
 @RestController
-@RequestMapping("/platform/api/ProjectManage")
-public class ProjectAction extends KylinAction{
+@RequestMapping("/olap/apis/Project")
+public class ProjectAction extends KylinAction {
 
-    @ApiOperation(value = "列表分页查询")
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public Response<ArrayList<ProjectDescDataMapper>> search() {
-
+    @ApiOperation(value = "获取所有的project数据")
+    @RequestMapping(value = "/List", method = RequestMethod.GET)
+    public Response<ArrayList<ProjectDescDataMapper>> List() {
         String url = config.address + "/kylin/api/projects";
         Class<ArrayList<ProjectDescDataMapper>> clazz = (Class<ArrayList<ProjectDescDataMapper>>) new ArrayList<ProjectDescDataMapper>().getClass();
         Response<ArrayList<ProjectDescDataMapper>> result = HttpClient.get(url, "", clazz);
@@ -28,11 +27,8 @@ public class ProjectAction extends KylinAction{
     }
 
 
-    /**
-     * 保存
-     */
-    @ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
-    @RequestMapping(method = RequestMethod.POST)
+    @ApiOperation(value = "创建project")
+    @RequestMapping(value = "/Create", method = RequestMethod.POST)
     public Response Create(@RequestBody ProjectDescDataMapper body) {
         String url = config.address + "/kylin/api/projects";
         String ProjectDescDataJson = JSON.toJSONString(body, SerializerFeature.DisableCircularReferenceDetect);
@@ -44,11 +40,8 @@ public class ProjectAction extends KylinAction{
     }
 
 
-    /**
-     * 修改
-     */
-    @ApiOperation(value = "修改", nickname = "Update", notes = "报文格式：content-type=application/json")
-    @RequestMapping(method = RequestMethod.POST)
+    @ApiOperation(value = "修改project")
+    @RequestMapping(value = "/Update", method = RequestMethod.POST)
     public Response Update(@RequestBody ProjectMapper body) {
 //        String url = config.address + "/kylin/api/projects";
         String url = "http://19.104.59.1:7070/kylin/api/projects";
@@ -63,8 +56,8 @@ public class ProjectAction extends KylinAction{
     }
 
 
-    @ApiOperation(value = "删除", nickname = "delete")
-    @RequestMapping(method = RequestMethod.POST)
+    @ApiOperation(value = "删除project")
+    @RequestMapping(value = "/Delete", method = RequestMethod.POST)
     public Response Delete(@RequestParam("prj_name") String prj_name) {
         String url = config.address + "/kylin/api/projects";
 
