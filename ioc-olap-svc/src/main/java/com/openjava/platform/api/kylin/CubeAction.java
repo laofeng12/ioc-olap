@@ -115,4 +115,11 @@ public class CubeAction extends KylinAction{
         String url=MessageFormat.format("{0}/kylin/api/cubes/{1}/disable",config.address,cubeName);
         HttpClient.put(url,"",config.authorization,void.class);
     }
+
+    @ApiOperation(value = "启用CUBE")
+    @RequestMapping(value="enable",method= RequestMethod.PUT)
+    public void enable(String cubeName) {
+        String url=MessageFormat.format("{0}/kylin/api/cubes/{1}/enable",config.address,cubeName);
+        HttpClient.put(url,"",config.authorization,void.class);
+    }
 }
