@@ -84,4 +84,14 @@ public class CubeAction extends KylinAction{
         CubeDescDataMapper result=HttpClient.get(url,config.authorization,CubeDescDataMapper.class);
         return result;
     }
+
+    @ApiOperation(value = "克隆CUBE")
+    @RequestMapping(value="clone",method= RequestMethod.POST)
+    public void clone(String cubeName,String projectName) {
+        String url=config.address+"/kylin/api/cubes/myCube/clone";
+        HashMap<String,String> hash=new HashMap<String,String>();
+        hash.put("cubeName",cubeName);
+        hash.put("project",projectName);
+        HttpClient.put(url,JSON.toJSONString(hash),config.authorization,void.class);
+    }
 }
