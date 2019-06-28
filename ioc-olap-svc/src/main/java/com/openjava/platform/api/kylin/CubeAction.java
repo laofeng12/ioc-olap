@@ -14,6 +14,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.ljdp.component.exception.APIException;
+import org.ljdp.component.result.DataApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,52 +38,42 @@ public class CubeAction extends KylinAction{
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-    public Response<ArrayList<CubeMapper>> list(Integer limit, Integer offset) {
+    public ArrayList<CubeMapper> list(Integer limit, Integer offset) {
         String url= MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}",config.address,limit.toString(),offset.toString());
         Class<ArrayList<CubeMapper>> clazz=(Class<ArrayList<CubeMapper>>)new ArrayList<CubeMapper>().getClass();
-        Response<ArrayList<CubeMapper>> result= HttpClient.get(url,config.authorization,clazz);
+        ArrayList<CubeMapper> result= HttpClient.get(url,config.authorization,clazz);
         return result;
     }
 
     @ApiOperation(value = "创建立方体")
     @RequestMapping(value="/create",method= RequestMethod.POST)
-    public Response<CubeDescMapper> create(CubeDescMapper cube) {
+    public CubeDescMapper create(CubeDescMapper cube) {
         String url=config.address+"/kylin/api/cubes";
         HashMap hash=new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project",cube.project);
-        Response<HashMap> result=HttpClient.post(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
-        if(result.code==Response.SUCCESS_CODE){
-            CubeDescMapper mapper=new CubeDescMapper();
-            mapper.project=result.data.get("project").toString();
-            mapper.cubeDescData=JSON.parseObject(result.data.get("cubeDescData").toString(), CubeDescDataMapper.class);
-            mapper.uuid=result.data.get("uuid").toString();
-            return Response.success("创建成功！",mapper);
-        }
-        else{
-            return Response.error();
-        }
+        HashMap result=HttpClient.post(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
+        CubeDescMapper mapper=new CubeDescMapper();
+        mapper.project=result.get("project").toString();
+        mapper.cubeDescData=JSON.parseObject(result.get("cubeDescData").toString(), CubeDescDataMapper.class);
+        mapper.uuid=result.get("uuid").toString();
+        return mapper;
     }
 
     @ApiOperation(value = "修改立方体")
     @RequestMapping(value="update",method= RequestMethod.PUT)
-    public Response<CubeDescMapper> update(CubeDescMapper cube) {
+    public CubeDescMapper update(CubeDescMapper cube) {
         String url=config.address+"/kylin/api/cubes";
         HashMap hash=new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project",cube.project);
         hash.put("cubeName",cube.cubeName);
-        Response<HashMap> result=HttpClient.put(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
-        if(result.code==Response.SUCCESS_CODE){
-            CubeDescMapper mapper=new CubeDescMapper();
-            mapper.project=result.data.get("project").toString();
-            mapper.cubeDescData=JSON.parseObject(result.data.get("cubeDescData").toString(), CubeDescDataMapper.class);
-            mapper.uuid=result.data.get("uuid").toString();
-            mapper.cubeName=result.data.get("cubeName").toString();
-            return Response.success("修改成功！",mapper);
-        }
-        else{
-            return Response.error();
-        }
+        HashMap result=HttpClient.put(url,JSON.toJSONString(hash),config.authorization,HashMap.class);
+        CubeDescMapper mapper=new CubeDescMapper();
+        mapper.project=result.get("project").toString();
+        mapper.cubeDescData=JSON.parseObject(result.get("cubeDescData").toString(), CubeDescDataMapper.class);
+        mapper.uuid=result.get("uuid").toString();
+        mapper.cubeName=result.get("cubeName").toString();
+        return mapper;
     }
 }

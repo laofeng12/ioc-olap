@@ -23,15 +23,10 @@ public class UserAction extends KylinAction
 {
     @ApiOperation(value = "鉴权")
     @RequestMapping(value="/authentication",method= RequestMethod.POST)
-    public Response<UserMapper> authentication() {
+    public UserMapper authentication() {
         String url=config.address+"/kylin/api/user/authentication";
         Class<HashMap<String,UserMapper>> clazz=(Class<HashMap<String,UserMapper>>)new HashMap<String,UserMapper>().getClass();
-        Response<HashMap<String,UserMapper>> result=HttpClient.post(url,"",config.authorization,clazz);
-        if(result.code==Response.SUCCESS_CODE){
-            return Response.success("鉴权成功！",result.data.get("userDetails"));
-        }
-        else{
-            return Response.error();
-        }
+        HashMap<String,UserMapper> result=HttpClient.post(url,"",config.authorization,clazz);
+        return result.get("userDetails");
     }
 }
