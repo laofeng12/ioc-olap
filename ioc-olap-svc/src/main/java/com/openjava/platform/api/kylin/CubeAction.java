@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import jxl.write.DateTime;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.result.DataApiResponse;
 import org.slf4j.Logger;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -86,12 +89,23 @@ public class CubeAction extends KylinAction{
     }
 
     @ApiOperation(value = "克隆CUBE")
-    @RequestMapping(value="clone",method= RequestMethod.POST)
+    @RequestMapping(value="clone",method= RequestMethod.PUT)
     public void clone(String cubeName,String projectName) {
         String url=config.address+"/kylin/api/cubes/myCube/clone";
         HashMap<String,String> hash=new HashMap<String,String>();
         hash.put("cubeName",cubeName);
         hash.put("project",projectName);
+        HttpClient.put(url,JSON.toJSONString(hash),config.authorization,void.class);
+    }
+
+    @ApiOperation(value = "编译CUBE")
+    @RequestMapping(value="build",method= RequestMethod.PUT)
+    public void build(String cubeName, Date start, Date end) {
+        String url=MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild",config.address,cubeName);
+        HashMap hash=new HashMap();
+        hash.put("buildType","BUILD");
+        hash.put("startTime",start.getTime());
+        hash.put("endTime",end.getTime());
         HttpClient.put(url,JSON.toJSONString(hash),config.authorization,void.class);
     }
 }
