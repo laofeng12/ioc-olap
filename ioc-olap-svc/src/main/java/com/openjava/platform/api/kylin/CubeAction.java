@@ -76,4 +76,12 @@ public class CubeAction extends KylinAction{
         mapper.cubeName=result.get("cubeName").toString();
         return mapper;
     }
+
+    @ApiOperation(value = "获取CUBE描述信息")
+    @RequestMapping(value="desc",method= RequestMethod.GET)
+    public CubeDescDataMapper desc(String cubeName) {
+        String url=config.address+"/kylin/api/cube_desc/"+cubeName;
+        CubeDescDataMapper result=HttpClient.get(url,config.authorization,CubeDescDataMapper.class);
+        return result;
+    }
 }
