@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openjava.platform.common.HttpClient;
 import com.openjava.platform.common.Response;
-import com.openjava.platform.mapper.kylin.CubeDescDataMapper;
-import com.openjava.platform.mapper.kylin.CubeDescMapper;
-import com.openjava.platform.mapper.kylin.CubeMapper;
-import com.openjava.platform.mapper.kylin.UserMapper;
+import com.openjava.platform.mapper.kylin.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -121,5 +118,19 @@ public class CubeAction extends KylinAction{
     public void enable(String cubeName) {
         String url=MessageFormat.format("{0}/kylin/api/cubes/{1}/enable",config.address,cubeName);
         HttpClient.put(url,"",config.authorization,void.class);
+    }
+
+    @ApiOperation(value = "查询立方体数据")
+    @RequestMapping(value="query",method= RequestMethod.POST)
+    public QueryResultMapper query(String sql, Integer offset, Integer limit, String project) {
+        HashMap hash=new HashMap();
+        hash.put("sql",sql);
+        hash.put("offset",offset);
+        hash.put("limit",limit);
+        hash.put("project",project);
+        hash.put("acceptPartial",true);
+        String url=MessageFormat.format("{0}/kylin/api/query",config.address);
+        QueryResultMapper mapper=HttpClient.post(url,JSON.toJSONString(hash),config.authorization,QueryResultMapper.class);
+        return mapper;
     }
 }
