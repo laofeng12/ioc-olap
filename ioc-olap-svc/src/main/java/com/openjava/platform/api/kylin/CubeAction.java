@@ -108,4 +108,11 @@ public class CubeAction extends KylinAction{
         hash.put("endTime",end.getTime());
         HttpClient.put(url,JSON.toJSONString(hash),config.authorization,void.class);
     }
+
+    @ApiOperation(value = "禁用CUBE")
+    @RequestMapping(value="disable",method= RequestMethod.PUT)
+    public void disable(String cubeName) {
+        String url=MessageFormat.format("{0}/kylin/api/cubes/{1}/disable",config.address,cubeName);
+        HttpClient.put(url,"",config.authorization,void.class);
+    }
 }
