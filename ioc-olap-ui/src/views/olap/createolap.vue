@@ -12,3 +12,12 @@ export default {
   components: { headBox, selectStep }
 }
 </script>
+  
+<style lang="stylus" scoped>
+.creates{
+  position relative
+  width 100%
+  overflow auto
+}
+</style>
+  

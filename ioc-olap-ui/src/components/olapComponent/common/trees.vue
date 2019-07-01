@@ -109,12 +109,12 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     height 98%
-    width 300px
-    float left
-    min-width 300px
+    width 20%
+    // float left
+    // min-width 300px
     .trees{
-      height 90%
-      overflow auto
+      height 100%
+      overflow-y auto
     }
     >>>.el-tree{
       min-width 500px
@@ -144,7 +144,7 @@ export default {
     }
   }
     >>>.el-input{
-      width 300px
+      // width 300px
       height 50px
       .el-input__inner{
         height 30px
