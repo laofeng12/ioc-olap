@@ -11,15 +11,17 @@
         <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>10</i></span>
       </el-tab-pane>
     </el-tabs>
+    <steps :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
 
 <script>
 import dataLake from '@/components/olapComponent/createComponent/selectStepComponent/datalake'
 import localUpload from '@/components/olapComponent/createComponent/selectStepComponent/localUpload'
+import steps from '@/components/olapComponent/common/steps'
 export default {
   components: {
-    dataLake, localUpload
+    dataLake, localUpload, steps
   },
   data () {
     return {
@@ -29,6 +31,9 @@ export default {
   methods: {
     cahngges (val) {
       this.$message.success('还剩10条哦~~~~')
+    },
+    nextModel (val) {
+      this.$parent.getStepCountAdd(val)
     }
   }
 }
@@ -36,14 +41,12 @@ export default {
 
 <style lang="stylus" scoped>
 .selectStep{
+  margin-top 30px
+  background #ffffff
   >>>.el-tabs__content{
     height calc(100vh - 150px)
     padding 20px 5px
     overflow-x auto
-  }
-  >>>.el-tabs__header{
-    margin-top 15px
-    border-top 1px solid #cccccc
   }
   >>>.selctNum{
     i{

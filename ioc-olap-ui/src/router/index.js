@@ -44,66 +44,6 @@ export default new Router({
           component: () => import('@/views/olap/createolap.vue')
         }
       ]
-    },
-    {
-      path: '/system',
-      name: 'system',
-      component: ContainerWrapper,
-      redirect: '/system/role',
-      meta: { title: '系统管理' },
-      children: [
-        {
-          path: 'user-list',
-          name: 'userList',
-          meta: { title: '用户管理' },
-          component: () => import(/* webpackChunkName: "user" */ '@/views/system/UserList.vue')
-        },
-        {
-          path: 'role',
-          meta: { title: '角色管理' },
-          name: 'role',
-          // route level code-splitting
-          // this generates a separate chunk (about.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import(/* webpackChunkName: "role" */ '@/views/system/Role.vue')
-        },
-        {
-          path: 'resource',
-          name: 'resource',
-          meta: { title: '资源管理' },
-          component: () => import(/* webpackChunkName: "resource" */ '@/views/system/Resource.vue')
-        },
-        {
-          path: 'mechanismManage',
-          name: 'mechanismManage',
-          meta: { title: '组织机构管理' },
-          component: () => import(/* webpackChunkName: "resource" */ '@/views/system/mechanismManage.vue')
-        },
-        {
-          path: 'user-edit/:id',
-          name: 'eidtUser',
-          meta: { title: '编辑用户' },
-          component: () => import(/* webpackChunkName: "eidtUser" */ '@/views/system/AddUser.vue')
-        },
-        {
-          path: 'user-info/:id',
-          name: 'userInfo',
-          meta: { title: '编辑用户' },
-          component: () => import(/* webpackChunkName: "userInfo" */ '@/views/system/UserInfo.vue')
-        },
-        {
-          path: 'user-add',
-          name: 'addUser',
-          meta: { title: '编辑用户' },
-          component: () => import(/* webpackChunkName: "addUser" */ '@/views/system/AddUser.vue')
-        },
-        {
-          path: 'child-system',
-          name: 'childSystem',
-          meta: { title: '子系统管理' },
-          component: () => import(/* webpackChunkName: "childSystem" */ '@/views/system/ChildSystem.vue')
-        }
-      ]
     }
   ]
 })

@@ -110,8 +110,6 @@ export default {
   .mechanism{
     height 98%
     width 20%
-    // float left
-    // min-width 300px
     .trees{
       height 100%
       overflow-y auto

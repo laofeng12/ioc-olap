@@ -2,7 +2,7 @@
  <div class="datalake">
   <trees></trees>
   <serch-table></serch-table>
-  <div class="step1_tab">
+  <div class="step_tab">
     <el-tabs v-model="activeName">
         <el-tab-pane label="表数据" name="1">
           <element-table :tableData="managementData" :colConfigs="managementHead"></element-table>
@@ -31,8 +31,20 @@ export default {
         { index: '2', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
         { index: '3', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
         { index: '4', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
-        { index: '5', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' }
-      
+        { index: '5', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '6', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '7', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '8', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '9', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '10', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '11', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
+        { index: '12', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' }
       ],
       managementHead: [
         { prop: 'index', label: '字段名称' },
@@ -53,12 +65,12 @@ export default {
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' }
-        ],
-        managementHead2: [
+      ],
+      managementHead2: [
         { prop: 'userAccount', label: '字段名称' },
         { prop: 'userAccount1', label: '字段类型' },
         { prop: 'userAccount2', label: '字段描述' }
-      ],
+      ]
     }
   }
 }
@@ -67,12 +79,11 @@ export default {
 <style lang="stylus" scoped>
 .datalake {
   position absolute
-  height 80%
+  height 95%
   width 100%
   display flex
   padding-bottom 50px
-  // overflow-x auto
-  .step1_tab{
+  .step_tab{
     flex 1
     >>>.el-tabs__header{
       margin-top 0px
@@ -80,8 +91,8 @@ export default {
     }
     >>>.el-tabs__content{
       padding 10px
-      // overflow hidden
-      height auto!important
+      overflow-y auto
+      padding-bottom 100px
     }
   }
 }

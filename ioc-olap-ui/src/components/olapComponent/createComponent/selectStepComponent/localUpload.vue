@@ -30,7 +30,7 @@ export default {
         { index: '3', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
         { index: '4', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
         { index: '5', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' }
-      
+
       ],
       managementHead: [
         { prop: 'index', label: '字段名称' },
@@ -51,12 +51,12 @@ export default {
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
         { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' }
-        ],
-        managementHead2: [
+      ],
+      managementHead2: [
         { prop: 'userAccount', label: '字段名称' },
         { prop: 'userAccount1', label: '字段类型' },
         { prop: 'userAccount2', label: '字段描述' }
-      ],
+      ]
     }
   }
 }

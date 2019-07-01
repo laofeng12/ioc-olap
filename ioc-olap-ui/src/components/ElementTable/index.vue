@@ -30,34 +30,26 @@ export default {
   }
 }
 </script>
-
 <style lang="stylus" scoped>
-  .my-table >>>
-    .el-table::before
-      height 0!important
-    .el-table--group::after, .el-table--border::after, .el-table::before
-      height 0
-    td, th
-      padding 9px 0
-    thead
-      color: #222222;
-      font-size 14px
-      th
-        background-color: #f4f9fb
-    td,th.is-leaf
-      border-bottom 1px solid #e0ebf7
-    td, th, .el-table__body-wrapper .el-table--border.is-scrolling-left~.el-table__fixed
-      // border-right 1px solid #e0ebf7
-    // hover
-    tr:hover>td
-      background-color: #f0fcff
-    .cell, th div
-      // padding 0 20px
-</style>
-<style lang="stylus" scoped>
-  .my-table >>>
-    >>>.el-table::before
-      height 0!important
-    .el-table--group::after, .el-table--border::after, .el-table::before
-      height 0
+.my-table{
+  >>>.el-table::before{
+    content: ''!important
+    height 0!important
+  }
+  >>>.el-table__body td{
+    border none!important
+    padding 5px 0!important
+  }
+  >>>.el-table__body tr:nth-child(even){
+    background #F2F2F2
+  }
+  >>>.el-table__header th{
+    background #F2F2F2
+    padding 8px 0
+  }
+  >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
+    content: ''
+    height 0!improtant
+  }
+}
 </style>
