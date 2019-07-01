@@ -105,15 +105,6 @@ p {
   }
 }
 
-// 表格第一行背景
-.headClass{
-  .el-table__header-wrapper{
-    th, tr{
-      background: #EEF7FF!important;
-      color: rgba(0,0,0,0.85);
-    } 
-  }
-}
 
 .alertClass{
   width:auto!important

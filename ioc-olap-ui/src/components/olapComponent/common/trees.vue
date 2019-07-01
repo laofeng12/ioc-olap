@@ -157,7 +157,6 @@ export default {
       color transparent
       cursor default
     }
-  }
   .trees::-webkit-scrollbar{
     width 8px
     height 8px
@@ -173,4 +172,5 @@ export default {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: #B5D2DE;
   }
+}
 </style>
