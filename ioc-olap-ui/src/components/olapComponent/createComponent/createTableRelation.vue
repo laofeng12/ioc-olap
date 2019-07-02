@@ -2,6 +2,7 @@
   <div class="tableRelation">
     <div class="containers">
       <serch-table></serch-table>
+      <task-wark></task-wark>
     </div>
     <steps :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
@@ -10,9 +11,10 @@
 <script>
 import serchTable from '@/components/olapComponent/common/serchTable'
 import steps from '@/components/olapComponent/common/steps'
+import taskWark from '@/components/olapComponent/common/taskWark'
 export default {
   components: {
-    serchTable, steps
+    serchTable, steps, taskWark
   },
   data () {
     return {
