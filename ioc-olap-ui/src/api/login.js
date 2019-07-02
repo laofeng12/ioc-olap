@@ -1,4 +1,4 @@
-import { request, requestJsonHttpCode } from '@/utils/request'
+import fetch from '@/utils/fetch'
 
 /**
  * 登录admin项目
@@ -6,9 +6,10 @@ import { request, requestJsonHttpCode } from '@/utils/request'
  * @param {string} userPwd
  */
 export function login (userAccount, userPwd) {
-  return request({
+  return fetch({
     url: '/admin/user/sysUser/login',
     method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
     data: {
       userAccount,
       userPwd
@@ -22,7 +23,7 @@ export function login (userAccount, userPwd) {
  * @param {string} userPwd
  */
 export function loginApiV1 (userAccount, userPwd) {
-  return requestJsonHttpCode({
+  return fetch({
     url: '/api/v1/account/login',
     method: 'post',
     data: {
@@ -36,7 +37,7 @@ export function loginApiV1 (userAccount, userPwd) {
  * 退出登录
  */
 export function logout () {
-  return request({
+  return fetch({
     url: '/admin/user/OA/loginOut',
     method: 'post'
   })

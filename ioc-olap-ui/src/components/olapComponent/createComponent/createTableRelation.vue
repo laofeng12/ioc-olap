@@ -29,3 +29,12 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.tableRelation{
+  .containers{
+    height calc(100vh - 150px)
+    padding 20px 5px
+  }
+}
+</style>

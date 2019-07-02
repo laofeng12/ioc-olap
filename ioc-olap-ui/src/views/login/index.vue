@@ -27,15 +27,7 @@ export default {
       this.loading = true
 
       this.$store.dispatch('Login', data).then((res) => {
-        this.$message({
-          type: 'success',
-          duration: 500,
-          message: '登录成功'
-        })
-
-        setTimeout(() => {
-          this.$router.push({ path: '/' })
-        }, 500)
+        this.$router.push({ path: '/' })
       }).finally(() => {
         this.loading = false
       })

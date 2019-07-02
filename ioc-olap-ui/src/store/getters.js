@@ -6,7 +6,6 @@ const getters = {
   name: state => state.user.name,
   roles: state => state.user.roles,
   menuList: state => state.app.menuList,
-  apiv1Token: state => state.user.apiv1Token,
   imagesList: state => state.dictionary.imagesList,
   catalogmenuList: state => state.app.catalogmenuList
 }
