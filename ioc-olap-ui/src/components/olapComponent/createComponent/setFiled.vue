@@ -1,21 +1,22 @@
 <template>
-  <div class="tableRelation">
+  <div class="setFiled">
     <div class="containers">
       <serch-table></serch-table>
-      <!-- <task-wark></task-wark> -->
+      <main>
+
+      </main>
     </div>
-    <steps :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <steps :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import serchTable from '@/components/olapComponent/common/serchTable'
 import steps from '@/components/olapComponent/common/steps'
-// import taskWark from '@/components/olapComponent/common/taskWark'
 export default {
   components: {
-    serchTable, steps
-    // , taskWark
+    serchTable,
+    steps
   },
   data () {
     return {
@@ -34,7 +35,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.tableRelation{
+.setFiled{
   .containers{
     height calc(100vh - 150px)
     padding 20px 5px

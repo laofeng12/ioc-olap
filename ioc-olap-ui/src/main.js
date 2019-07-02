@@ -11,7 +11,7 @@ import '@/styles/element-variables.scss'
 import '@/permission' // permission control
 import './icons'
 import '@/styles/index.scss'
-import 'vue-task-node/dist/css/iconfont.svg'
+
 import 'vue-task-node/dist/css/vnode.css'
 
 Vue.use(ElementUI)
