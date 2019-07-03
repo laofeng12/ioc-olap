@@ -6,7 +6,6 @@ const defaultAvatar = require('@/assets/img/administrator.png')
 const user = {
   state: {
     token: '',
-    apiv1Token: '',
     name: '',
     userInfo: {},
     roles: []
@@ -15,9 +14,6 @@ const user = {
   mutations: {
     SET_TOKEN: (state, token) => {
       state.token = token
-    },
-    SET_APIV1_TOKEN: (state, token) => {
-      state.apiv1Token = token
     },
     SET_NAME: (state, name) => {
       state.name = name
@@ -57,7 +53,6 @@ const user = {
       return new Promise((resolve, reject) => {
         if (token) {
           commit('SET_TOKEN', token)
-          commit('SET_APIV1_TOKEN', token)
 
           setToken(token)
           return resolve(token)
@@ -83,7 +78,6 @@ const user = {
         removeToken()
         removeUserInfo()
 
-        commit('SET_APIV1_TOKEN', '')
         commit('SET_TOKEN', '')
         commit('SET_USERINFO', {})
         resolve()

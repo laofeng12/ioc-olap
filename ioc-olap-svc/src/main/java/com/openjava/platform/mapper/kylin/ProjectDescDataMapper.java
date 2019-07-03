@@ -27,7 +27,7 @@ public class ProjectDescDataMapper {
     @JSONField(name = "create_time_utc")
     public Long create_time_utc;
     @JSONField(name = "last_update_time")
-    public Long last_update_time;
+    public String last_update_time;
     @JSONField(name = "description")
     public String description;
     @JSONField(name = "realizations")

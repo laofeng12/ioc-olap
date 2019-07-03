@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { getMechanismTree } from '@/api/common'
 export default {
   data () {
     return {
@@ -41,7 +42,7 @@ export default {
     fetchTreeList () {
       try {
         this.treeLoading = true
-        this.$api.getMechanismTree().then(res => {
+        getMechanismTree().then(res => {
           this.setTree(res.resources)
           this.treeLoading = false
           setTimeout(() => {

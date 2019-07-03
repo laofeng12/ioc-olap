@@ -1,16 +1,18 @@
 <template>
   <div class="selectStep">
-    <el-tabs v-model="activeName" type="border-card">
-      <el-tab-pane label="数据湖" name="1">
-        <data-lake></data-lake>
-      </el-tab-pane>
-      <el-tab-pane label="本地上传" name="2">
-        <local-upload></local-upload>
-      </el-tab-pane>
-      <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
-        <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>10</i></span>
-      </el-tab-pane>
-    </el-tabs>
+    <div class="containers">
+        <el-tabs v-model="activeName" type="border-card">
+          <el-tab-pane label="数据湖" name="1">
+            <data-lake></data-lake>
+          </el-tab-pane>
+          <el-tab-pane label="本地上传" name="2">
+            <local-upload></local-upload>
+          </el-tab-pane>
+          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
+            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>10</i></span>
+          </el-tab-pane>
+        </el-tabs>
+    </div>
     <steps :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
@@ -43,14 +45,17 @@ export default {
 .selectStep{
   margin-top 30px
   background #ffffff
-  >>>.el-tabs__content{
+  .containers{
     height calc(100vh - 150px)
-    padding 20px 5px
-    overflow-x auto
-  }
-  >>>.selctNum{
-    i{
-      color green
+    >>>.el-tabs__content{
+      height calc(100vh - 200px)
+      padding 20px 5px
+      overflow-x auto
+    }
+    >>>.selctNum{
+      i{
+        color green
+      }
     }
   }
 }

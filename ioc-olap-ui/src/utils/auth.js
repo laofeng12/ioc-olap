@@ -17,13 +17,11 @@ export function getToken () {
 
 export function setToken (token) {
   setSessionStorage('token', token)
-  setSessionStorage('apiv1Token', token)
 }
 
 export function removeToken () {
   Cookies.remove(TokenKey)
   sessionStorage.removeItem('token')
-  sessionStorage.removeItem('apiv1Token')
 }
 
 export function setUserInfo (userInfo) {
