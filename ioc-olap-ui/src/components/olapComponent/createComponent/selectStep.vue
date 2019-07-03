@@ -36,6 +36,7 @@ export default {
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
+      this.$router.push('/olap/createolap/createTableRelation')
     }
   }
 }

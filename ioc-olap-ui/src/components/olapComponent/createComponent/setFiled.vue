@@ -56,11 +56,11 @@ export default {
       currentPage: 1,
       totalCount: 1,
       tableData: [
-        { apiName: '111', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '222', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '333', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '444', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '555', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
+        { apiName: '111', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '222', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '333', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '444', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '555', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' }
       ]
     }
   },
@@ -69,9 +69,11 @@ export default {
   methods: {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
+      this.$router.push('/olap/createolap/setMeasure')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
+      this.$router.push('/olap/createolap/selectStep')
     },
     handleSelectionChange (val) {
 

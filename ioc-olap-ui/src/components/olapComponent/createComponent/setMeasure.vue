@@ -43,11 +43,11 @@ export default {
   data () {
     return {
       tableData: [
-        { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
+        { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' }
       ]
     }
   },
@@ -58,6 +58,7 @@ export default {
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
+      this.$router.push('/olap/createolap/setFiled')
     },
     handleSelectionChange (val) {
 

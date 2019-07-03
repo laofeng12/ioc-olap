@@ -1,10 +1,15 @@
 <template>
   <div class="creates">
     <head-box :selectId="selectStep"></head-box>
-    <select-step :class="selectStep === 1?'showBox':'hideBox'"></select-step>
+    <!-- <select-step :class="selectStep === 1?'showBox':'hideBox'"></select-step>
     <create-table-relation :class="selectStep === 2?'showBox':'hideBox'"></create-table-relation>
     <set-filed :class="selectStep === 3?'showBox':'hideBox'"></set-filed>
-    <set-measure :class="selectStep === 4?'showBox':'hideBox'"></set-measure>
+    <set-measure :class="selectStep === 4?'showBox':'hideBox'"></set-measure> -->
+    <div>
+      <transition name="fade-transform" mode="out-in">
+        <router-view></router-view>
+      </transition>
+    </div>
   </div>
 </template>
 

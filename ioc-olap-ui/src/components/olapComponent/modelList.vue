@@ -75,7 +75,7 @@ export default {
       console.log(val)
     },
     createolap () {
-      this.$router.push('/olap/createolap')
+      this.$router.push('/olap/createolap/selectStep')
     },
     handleCommand () {
 

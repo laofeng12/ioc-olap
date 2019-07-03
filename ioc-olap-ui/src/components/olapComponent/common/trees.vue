@@ -18,8 +18,7 @@
 </template>
 
 <script>
-import { getResourcedirectoryCategory, getResourcedirectory } from '@/api/common'
-import { mapGetters } from 'vuex'
+import { setTimeout } from 'timers'
 export default {
   data () {
     return {
@@ -49,8 +48,14 @@ export default {
           setTimeout(() => {
             this.$refs.tree.store.nodesMap[this.treeList[0].id].expanded = true
           }, 500)
+          // 默认传递
+          this.defaultFrist(this.treeList)
         }
       })
+    },
+    // 默认点击第一项的递归计算
+    defaultFrist (val) {
+      console.log(val)
     },
     setTree (val) {
       let item = []
@@ -81,10 +86,15 @@ export default {
     // 选中当前修改
     getCurrents (data, node, me) {
       if (data.pId === 0) return
-      this.$store.dispatch('GetSerchTable', data.pId).then(res => {
-        console.log(res)
+      this.$store.dispatch('GetSerchTable', data.id).then(res => {
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res)
+        }
       })
     }
+  },
+  beforeDestroy () {
+    this.$root.eventBus.$off('getserchTableList')
   },
   created () {
     this.fetchTreeList()
@@ -95,8 +105,8 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     height 98%
-    width 20%
     .trees{
+      width 200px
       height 100%
       overflow-y auto
     }

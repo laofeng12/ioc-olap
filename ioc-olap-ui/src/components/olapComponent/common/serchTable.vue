@@ -3,26 +3,39 @@
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
      <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
-       <el-checkbox v-for="city in cities" :label="city" :key="city">{{city}}</el-checkbox>
+       <el-checkbox v-for="(item, index) in dataList" :label="item.name" :key="index">{{item.name}}</el-checkbox>
      </el-checkbox-group>
   </div>
 </template>
 
 <script>
-const cityOptions = ['表名称表名称表名称1', '表名称表名称表名称2', '表名称表名称表名称3', '表名称表名称表名称4', '表名称表名称表名称5', '表名称表名称表名称6', '表名称表名称表名称7', '表名称表名称表名称8', '表名称表名称表名称9', '表名称表名称表名称10', '表名称表名称表名11', '表名称表名称表名称13', '表名称表名称表名称14']
 export default {
   data () {
     return {
       value: '',
       checkAll: false,
       checkedCities: ['表名称表名称表名称1', '表名称表名称表名称3'],
-      cities: cityOptions,
+      dataList: [],
       isIndeterminate: true
     }
   },
+  mounted () {
+    this.$root.eventBus.$on('getserchTableList', res => {
+      this.dataList = []
+      if (res.code === 200) {
+        res.data.map(res => {
+          this.dataList.push({
+            id: res.RD_ID,
+            name: res.DS__DLT_CODE
+          })
+        })
+        console.log(this.dataList)
+      }
+    })
+  },
   methods: {
     handleCheckAllChange (val) {
-      this.checkedCities = val ? cityOptions : []
+      this.checkedCities = val ? this.dataList : []
       this.isIndeterminate = false
     },
     handleCheckedCitiesChange (value) {
@@ -36,9 +49,10 @@ export default {
 
 <style lang="stylus" scoped>
 .serchTable{
-  width 240px
+  width 230px
   float left
   padding 0 25px
+  padding-bottom 50px
   >>>.el-checkbox{
     display block
     height 30px
@@ -52,6 +66,7 @@ export default {
   }
   >>>.el-checkbox-group{
     height 90%
+    width 230px
     overflow-y auto
   }
   >>>.el-checkbox-group::-webkit-scrollbar{

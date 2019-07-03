@@ -25,9 +25,11 @@ export default {
   methods: {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
+      this.$router.push('/olap/createolap/setFiled')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
+      this.$router.push('/olap/createolap/selectStep')
     }
   }
 }

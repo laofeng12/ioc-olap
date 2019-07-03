@@ -1,6 +1,6 @@
 <template>
  <div class="datalake">
-  <trees></trees>
+  <trees class="trees"></trees>
   <serch-table></serch-table>
   <div class="step_tab">
     <el-tabs v-model="activeName">
@@ -82,7 +82,6 @@ export default {
   height 95%
   width 100%
   display flex
-  padding-bottom 50px
   .step_tab{
     flex 1
     >>>.el-tabs__header{
@@ -92,7 +91,7 @@ export default {
     >>>.el-tabs__content{
       padding 10px
       overflow-y auto
-      padding-bottom 100px
+      padding-bottom 100px!important
     }
   }
 }
