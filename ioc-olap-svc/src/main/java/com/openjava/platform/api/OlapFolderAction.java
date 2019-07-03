@@ -119,4 +119,11 @@ public class OlapFolderAction {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return olapFolderService.getListByCreateId(Long.parseLong(userVO.getUserId()));
 	}
+
+	@ApiOperation(value = "根据ID获取单个文件夹信息", nickname="folder")
+	@Security(session=true)
+	@RequestMapping(value="/folder",method=RequestMethod.GET)
+	public  OlapFolder folder(Long id){
+		return olapFolderService.get(id);
+	}
 }
