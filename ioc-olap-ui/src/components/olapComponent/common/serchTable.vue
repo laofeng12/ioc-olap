@@ -15,7 +15,16 @@ export default {
       value: '',
       checkAll: false,
       checkedCities: ['表名称表名称表名称1', '表名称表名称表名称3'],
-      dataList: [],
+      dataList: [
+        { id: '1', name: '测试111' },
+        { id: '2', name: '测试111' },
+        { id: '3', name: '测试111' },
+        { id: '4', name: '测试111' },
+        { id: '5', name: '测试111' },
+        { id: '6', name: '测试111' },
+        { id: '7', name: '测试111' },
+        { id: '8', name: '测试111' }
+      ],
       isIndeterminate: true
     }
   },
@@ -52,6 +61,7 @@ export default {
   width 230px
   float left
   padding 0 25px
+  border-right 1px solid #f0f0f0
   padding-bottom 50px
   >>>.el-checkbox{
     display block

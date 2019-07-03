@@ -7,7 +7,7 @@ import { getSessionStorage } from '@/utils'
 
 NProgress.configure({ showSpinner: false })// NProgress configuration
 
-const whiteList = ['/login'] // 不重定向白名单
+const whiteList = ['/login', '/home', '/olap', '/olap/olapList', '/olap/createolap/selectStep', '/olap/createolap/createTableRelation', '/olap/createolap/setFiled', '/olap/createolap/setMeasure'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
   NProgress.start()
 

@@ -97,7 +97,7 @@ export default {
     this.$root.eventBus.$off('getserchTableList')
   },
   created () {
-    this.fetchTreeList()
+    // this.fetchTreeList()
   }
 }
 </script>
