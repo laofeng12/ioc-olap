@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.common.HttpClient;
 import com.openjava.platform.common.Response;
 import com.openjava.platform.mapper.kylin.*;
@@ -14,12 +15,15 @@ import io.swagger.annotations.ApiOperation;
 import jxl.write.DateTime;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.result.DataApiResponse;
+import org.ljdp.secure.annotation.Security;
+import org.ljdp.secure.sso.SsoContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,7 +91,8 @@ public class CubeAction extends KylinAction{
 
     @ApiOperation(value = "克隆CUBE")
     @RequestMapping(value="clone",method= RequestMethod.PUT)
-    public void clone(String cubeName,String projectName) {
+    public void clone(HttpServletRequest request, String cubeName, String projectName) {
+
         String url=config.address+"/kylin/api/cubes/myCube/clone";
         HashMap<String,String> hash=new HashMap<String,String>();
         hash.put("cubeName",cubeName);
@@ -132,5 +137,12 @@ public class CubeAction extends KylinAction{
         String url=MessageFormat.format("{0}/kylin/api/query",config.address);
         QueryResultMapper mapper=HttpClient.post(url,JSON.toJSONString(hash),config.authorization,QueryResultMapper.class);
         return mapper;
+    }
+
+    @Security(session = true)
+    public  void  queryWithUser(){
+        OaUserVO userVO = (OaUserVO)SsoContext.getUser();
+        String account=userVO.getUserAccount();
+        ArrayList<CubeMapper> cubes=list(1000,0);
     }
 }
