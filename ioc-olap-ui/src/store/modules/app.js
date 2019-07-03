@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { getMenuList, getCatalogMenu } from '@/api/menu'
+import { getMenuList } from '@/api/menu'
 
 const app = {
   state: {
@@ -37,9 +37,7 @@ const app = {
         subResList: []
       }]
     }],
-    catalogmenuList: [],
-    myRoutes: [],
-    serviceData: {}
+    myRoutes: []
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -64,10 +62,6 @@ const app = {
     },
     CHANGE_MY_ROUTES: (state, myRoutes) => {
       state.myRoutes = myRoutes
-    },
-    GET_CATALOG_MENU: (state, catalogmenu) => {
-      // state.catalogmenuList = catalogmenu
-      state.menuList.push(catalogmenu)
     },
     SHOW_SIDBAR: (state) => {
       state.sidebar.opened = true

@@ -18,7 +18,8 @@
 </template>
 
 <script>
-import { getMechanismTree } from '@/api/common'
+import { getResourcedirectoryCategory, getResourcedirectory } from '@/api/common'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -40,28 +41,26 @@ export default {
   },
   methods: {
     fetchTreeList () {
-      try {
-        this.treeLoading = true
-        getMechanismTree().then(res => {
-          this.setTree(res.resources)
+      this.treeLoading = true
+      this.$store.dispatch('GetTreeList').then(res => {
+        if (res.code === 200) {
           this.treeLoading = false
+          this.setTree(res.list)
           setTimeout(() => {
             this.$refs.tree.store.nodesMap[this.treeList[0].id].expanded = true
           }, 500)
-        })
-      } catch (error) {
-        this.$message.error(error || '服务异常')
-      }
+        }
+      })
     },
     setTree (val) {
       let item = []
       val.map((list, i) => {
         let newData = {}
-        newData.label = list.orgName
-        newData.id = list.orgId
-        newData.pId = list.parentId
+        newData.label = list.rdcAme
+        newData.id = list.rdcId
+        newData.pId = list.prdcid
         newData.is_show_add = true
-        newData.children = list.subOrgList ? this.setTree(list.subOrgList) : []
+        newData.children = list.children ? this.setTree(list.children) : []
         item.push(newData)
       })
       this.treeList = item
@@ -81,25 +80,11 @@ export default {
     },
     // 选中当前修改
     getCurrents (data, node, me) {
-      this.resetNode(node)
-      if (data.pId) {
-        this.$root.eventBus.$emit('giveMechanismId', data, this.resetNodeList)
-      }
-    },
-    // 获取父节点的label
-    resetNode (val) {
-      this.resetNodeList = []
-      if (val.parent && val.parent.parent !== null) {
-        this.resetNode(val.parent)
-        this.resetNodeList.push(val.label)
-      } else {
-        this.resetNodeList.push(val.label)
-      }
+      if (data.pId === 0) return
+      this.$store.dispatch('GetSerchTable', data.pId).then(res => {
+        console.log(res)
+      })
     }
-  },
-  // 防止兄弟组件多次通信
-  beforeDestroy () {
-    this.$root.eventBus.$off('giveMechanismId')
   },
   created () {
     this.fetchTreeList()
@@ -116,7 +101,7 @@ export default {
       overflow-y auto
     }
     >>>.el-tree{
-      min-width 500px
+      // min-width 500px
       overflow: initial
     }
     >>>.el-loading-spinner{
