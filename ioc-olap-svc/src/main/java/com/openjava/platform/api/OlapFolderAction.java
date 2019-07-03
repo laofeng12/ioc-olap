@@ -56,7 +56,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Api(tags="文件夹接口")
 @RestController
 @RequestMapping("/olap/apis/olapFolder")
-public class OlapFolderAction {
+public class OlapFolderAction extends BaseAction{
 	
 	@Resource
 	private OlapFolderService olapFolderService;
