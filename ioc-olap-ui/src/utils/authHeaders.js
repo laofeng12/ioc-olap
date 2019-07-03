@@ -1,5 +1,6 @@
 import { WEBSOCKET_TOKEN_PREFIX } from './index'
 import store from '@/store'
+import { getToken } from './utils/auth'
 /* eslint no-underscore-dangle: 0 */
 export function getAuthHeaders () {
   // const currentNamespace = localStorage.getItem('currentNamespace')
@@ -9,7 +10,7 @@ export function getAuthHeaders () {
   // 暂时写死
   const currentNamespace = 'ioc-paas-platform'
 
-  const accessToken = localStorage.getItem('apiv1Token')
+  const accessToken = getToken()
   const headers = {}
   const userInfo = store.getters.userInfo
   headers.namespace = currentNamespace
@@ -25,7 +26,7 @@ export function getAuthProtocol () {
   // }
   // 暂时写死
   let currentNamespace = 'ioc-paas-platform'
-  const accessToken = localStorage.getItem('apiv1Token')
+  const accessToken = getToken()
   const userInfo = store.getters.userInfo
 
   const authProtocol = `${WEBSOCKET_TOKEN_PREFIX}.${accessToken}`

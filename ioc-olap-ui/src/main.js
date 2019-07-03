@@ -11,15 +11,13 @@ import '@/styles/element-variables.scss'
 import '@/permission' // permission control
 import './icons'
 import '@/styles/index.scss'
-import api from '@/api'
-import { isSpecialCharacter } from '@/utils/validate'
+
+import 'vue-task-node/dist/css/vnode.css'
 
 Vue.use(ElementUI)
 
 Vue.use(Layout)
 Vue.config.productionTip = false
-Vue.prototype.$api = api
-Vue.prototype.$isSpecialCharacter = isSpecialCharacter
 
 new Vue({
   router,

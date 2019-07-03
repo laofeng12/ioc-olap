@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import { getApiList } from '@/api/common'
 export default {
   data () {
     return {
@@ -58,7 +59,7 @@ export default {
       sort: 'createtime,desc',
       page: this.currentPage - 1
     }
-    this.$api.getApiList(params).then(res => {
+    getApiList(params).then(res => {
       this.tableData = res.rows
     })
   },
