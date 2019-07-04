@@ -30,7 +30,7 @@
           </el-table-column>
         </el-table>
     </el-form>
-    <steps :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 

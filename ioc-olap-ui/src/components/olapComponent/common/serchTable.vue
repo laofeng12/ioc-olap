@@ -1,36 +1,31 @@
 <template>
   <div class="serchTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-     <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
-       <el-checkbox v-for="(item, index) in dataList" :label="item.name" :key="index">{{item.name}}</el-checkbox>
-     </el-checkbox-group>
+     <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox> -->
+     <el-radio-group v-model="checkedCities" @change="handleCheckedCitiesChange" v-if="dataList && dataList.length" v-loading="loading">
+       <el-radio v-for="(item, index) in dataList" :label="item" :key="index">{{item.name}}</el-radio>
+     </el-radio-group>
+     <div v-else style="width:200px;text-align:center;">暂无数据</div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
       value: '',
       checkAll: false,
-      checkedCities: ['表名称表名称表名称1', '表名称表名称表名称3'],
-      dataList: [
-        { id: '1', name: '测试111' },
-        { id: '2', name: '测试111' },
-        { id: '3', name: '测试111' },
-        { id: '4', name: '测试111' },
-        { id: '5', name: '测试111' },
-        { id: '6', name: '测试111' },
-        { id: '7', name: '测试111' },
-        { id: '8', name: '测试111' }
-      ],
+      loading: false,
+      checkedCities: [],
+      dataList: [],
       isIndeterminate: true
     }
   },
   mounted () {
     this.$root.eventBus.$on('getserchTableList', res => {
       this.dataList = []
+      this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
           this.dataList.push({
@@ -38,20 +33,50 @@ export default {
             name: res.DS__DLT_CODE
           })
         })
-        console.log(this.dataList)
+        setTimeout(() => { this.loading = false }, 300)
+      }
+    })
+    // 接收本地上传传递的信息
+    this.$root.eventBus.$on('getUploadTable', res => {
+      this.dataList = []
+      this.loading = true
+      if (res.code === 200) {
+        res.rows.map(res => {
+          this.dataList.push({
+            id: res.dsUploadTableId,
+            name: res.tableCode
+          })
+        })
+        setTimeout(() => { this.loading = false }, 300)
       }
     })
   },
   methods: {
-    handleCheckAllChange (val) {
-      this.checkedCities = val ? this.dataList : []
-      this.isIndeterminate = false
-    },
     handleCheckedCitiesChange (value) {
+      const parmas = {
+        dsDataSourceId: 10,
+        tableName: value.name
+      }
+      const valparams = {
+        dbType: 3,
+        dsDataSourceId: 10,
+        tableName: value.name
+      }
+      this.$store.dispatch('GetColumnList', parmas).then(data => {
+        data.code === 200 && this.$root.eventBus.$emit('getTableHeadList', data)
+      })
+      this.$store.dispatch('GetTableData', valparams).then(res => {
+        res.code === 200 && this.$root.eventBus.$emit('getTableContentList', res)
+      })
       let checkedCount = value.length
-      this.checkAll = checkedCount === this.cities.length
-      this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length
+      this.checkAll = checkedCount === this.dataList.length
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.dataList.length
     }
+  },
+  beforeDestroy () {
+    this.$root.eventBus.$off('getserchTableList')
+    this.$root.eventBus.$off('getTableHeadList')
+    this.$root.eventBus.$off('getTableContentList')
   }
 }
 </script>
@@ -61,9 +86,10 @@ export default {
   width 230px
   float left
   padding 0 25px
+  height calc(100vh - 150px)
   border-right 1px solid #f0f0f0
   padding-bottom 50px
-  >>>.el-checkbox{
+  >>>.el-radio{
     display block
     height 30px
     line-height 30px
@@ -74,25 +100,13 @@ export default {
       height 30px
     }
   }
-  >>>.el-checkbox-group{
+  >>>.el-input__suffix{
+    margin-top -8px
+  }
+  >>>.el-radio-group{
     height 90%
     width 230px
     overflow-y auto
-  }
-  >>>.el-checkbox-group::-webkit-scrollbar{
-    width 8px
-    height 8px
-    background #fff
-  }
-  >>>.el-checkbox-group::-webkit-scrollbar-track{
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    border-radius: 10px;
-    background-color:#fff;
-  }
-  >>>.el-checkbox-group::-webkit-scrollbar-thumb{
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-    background-color: #B5D2DE;
   }
 }
 </style>

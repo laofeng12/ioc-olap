@@ -38,7 +38,7 @@
         </el-form>
       </div>
     </div>
-    <steps :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <steps class="steps" :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 

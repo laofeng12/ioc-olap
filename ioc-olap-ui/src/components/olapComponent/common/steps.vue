@@ -31,6 +31,5 @@ export default {
 <style lang="stylus" scoped>
 .steps{
   text-align center
-  margin-top 20px
 }
 </style>

@@ -40,7 +40,7 @@ export default {
   width 100%
   overflow hidden
   .tabHead_item{
-    height 36px
+    height 25px
     margin 0 auto
     width 90%
     display:flex;
@@ -48,16 +48,16 @@ export default {
       flex:1;
       // width 200px
       // float left
-      height:36px;
-      line-height 36px
+      height:25px;
+      line-height 25px
       font-size 10px
       text-align center
       background #f5f5f6
       color #8a8a8a
       position relative
       span{
-        width 20px
-        height 20px
+        width 23px
+        height 23px
         line-height 20px
         text-align center
         color #ffffff
@@ -72,9 +72,9 @@ export default {
       content: "";
       position: absolute;
       left: -12px;
-      top: 3px;
-      width: 32px;
-      height: 32px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
       background: #ffffff;
       border-left: 5px solid #ffffff
       border-bottom: 5px solid #ffffff;
@@ -85,9 +85,9 @@ export default {
       content: "";
       position: absolute;
       right: -12px;
-      top: 3px;
-      width: 32px;
-      height: 32px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
       background: #f5f5f6;
       border-left: 5px solid #ffffff
       border-bottom: 5px solid #ffffff;
@@ -105,18 +105,18 @@ export default {
       content: "";
       position: absolute;
       right: -12px;
-      top: 4px;
-      width: 30px;
-      height: 30px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
       background: #59AFF9!important;
     }
     &>div.actives::after{
       content: "";
       position: absolute;
       right: -12px;
-      top: 3px;
-      width: 32px;
-      height: 32px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
       background: #59AFF9!important;
     }
   }

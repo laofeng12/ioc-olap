@@ -4,7 +4,7 @@
       <serch-table></serch-table>
       <!-- <task-wark></task-wark> -->
     </div>
-    <steps :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
@@ -37,8 +37,9 @@ export default {
 
 <style lang="stylus" scoped>
 .tableRelation{
+  height calc(100vh - 150px)
+  position relattive
   .containers{
-    height calc(100vh - 150px)
     padding 20px 5px
   }
 }

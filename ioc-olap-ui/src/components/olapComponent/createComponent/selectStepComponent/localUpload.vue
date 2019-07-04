@@ -1,7 +1,7 @@
 <template>
  <div class="datalake">
   <serch-table></serch-table>
-  <div class="step1_tab">
+  <div class="step_tab">
     <el-tabs v-model="activeName">
         <el-tab-pane label="表数据" name="1">
           <element-table :tableData="managementData" :colConfigs="managementHead"></element-table>
@@ -70,8 +70,9 @@ export default {
   display flex
   padding-bottom 50px
   // overflow-x auto
-  .step1_tab{
+  .step_tab{
     flex 1
+    margin-left 30px
     >>>.el-tabs__header{
       margin-top 0px
       border-top 0px solid #cccccc

@@ -40,3 +40,39 @@ export function getResourcedirectory (id) {
     method: 'get'
   })
 }
+
+/**
+ * 获取数据源表的列名及备注
+ * @param {Object} params
+ */
+export function getColumnList (params) {
+  return fetch({
+    url: '/pds/datasource/dsDataSource/getColumnList',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取列名称table表数据
+ * @param {Object} params
+ */
+export function getTableData (params) {
+  return fetch({
+    url: '/pds/dataset/dsDataSet/getTableData',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 本地上传左侧数据
+ * @param {Object} params
+ */
+export function getdsUploadTable (params) {
+  return fetch({
+    url: '/pds/dataset/dsUploadTable/search',
+    method: 'get',
+    params
+  })
+}

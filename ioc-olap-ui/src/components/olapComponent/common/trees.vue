@@ -87,9 +87,9 @@ export default {
     getCurrents (data, node, me) {
       if (data.pId === 0) return
       this.$store.dispatch('GetSerchTable', data.id).then(res => {
-        if (res.code === 200) {
-          this.$root.eventBus.$emit('getserchTableList', res)
-        }
+        res.code === 200 && this.$root.eventBus.$emit('getserchTableList', res)
+        // 存储当前选择数据源
+        this.$store.dispatch('setSerchTable', res)
       })
     }
   },
@@ -105,20 +105,17 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     height 98%
+    width 200px
+    height calc(100vh - 150px)
+    border-right 1px solid #f0f0f0
     .trees{
-      width 200px
+      width 198px
       height 100%
       overflow-y auto
     }
     >>>.el-tree{
       // min-width 500px
       overflow: initial
-    }
-    >>>.el-loading-spinner{
-      width 35%
-    }
-    >>>.el-tree__empty-block{
-      width 35%
     }
     >>>.el-input__suffix{
       margin-top -10px

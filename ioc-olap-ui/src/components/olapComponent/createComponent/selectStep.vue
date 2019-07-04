@@ -1,7 +1,7 @@
 <template>
   <div class="selectStep">
     <div class="containers">
-        <el-tabs v-model="activeName" type="border-card">
+        <el-tabs v-model="activeName" type="border-card" @tab-click="tabClick">
           <el-tab-pane label="数据湖" name="1">
             <data-lake></data-lake>
           </el-tab-pane>
@@ -13,7 +13,7 @@
           </el-tab-pane>
         </el-tabs>
     </div>
-    <steps :step="1" @nextModel="nextModel"></steps>
+    <steps class="steps" :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
 
@@ -37,27 +37,43 @@ export default {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/createTableRelation')
+    },
+    tabClick (val) {
+      val.name === '2'
+        ? this.$store.dispatch('GetdsUploadTable').then(res => {
+          this.$root.eventBus.$emit('getUploadTable', res)
+        })
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && console.log(this.$store.state.common.serchTableList)
     }
+  },
+
+  beforeDestroy () {
+    this.$root.eventBus.$off('getUploadTable')
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .selectStep{
-  margin-top 30px
+  margin-top 20px
   background #ffffff
+  position relattive
   .containers{
     height calc(100vh - 150px)
     >>>.el-tabs__content{
       height calc(100vh - 200px)
-      padding 20px 5px
+      padding 10px 5px
       overflow-x auto
+      background #ffffff
     }
     >>>.selctNum{
       i{
         color green
       }
     }
+  }
+  .steps{
+    left 60%
   }
 }
 </style>
