@@ -1,0 +1,26 @@
+@import './variables.scss';
+
+$--color-primary: #1877F1;
+
+// button
+$--button-border-radius: 0;
+$--button-small-border-radius: 0;
+
+$--table-border-color: $chTableBorder;
+$--table-row-hover-background-color: $chTableRowHoverBg;
+$--table-current-row-background-color: $chTableCurrentRowHoverBg;
+$--table-header-font-color: $chTableHeaderFont;
+$--table-font-color: $chTableFont;
+
+//card
+$--card-box-shadow: none;
+
+/* Pagination
+-------------------------- */
+$--pagination-border-radius: 4px;
+
+/* 改变 icon 字体路径变量，必需 */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+/* 改变 路径变量，必需 */
+@import "~element-ui/packages/theme-chalk/src/index";

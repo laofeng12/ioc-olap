@@ -1,0 +1,221 @@
+@import './variables.scss';
+
+#app {
+  height: 100%;
+}
+.app-container {
+  min-height: $containerMinHeight;
+  box-sizing: border-box;
+}
+
+.operation-btn-group-wrapper {
+  margin-top: 20px;
+}
+
+.page-wrapper {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+
+.w-info-default {
+  .el-form-item {
+    margin: 0;
+    line-height: 24px;
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+.bottom-button {
+  margin-top: 25px;
+}
+
+ul li {
+  list-style: none;
+}
+
+p {
+  margin: 0;
+}
+.p-t-18 {
+  padding-top: 18px;
+}
+
+.w-link-color {
+  color: $chPrimaryColor;
+}
+
+.editModal{
+  .el-dialog{
+    padding-right:50px;
+  }
+  .el-select{
+    width:100%;
+  }
+  .el-form-item__label{
+    text-align:center;
+  }
+  .looksCls{
+    .el-form-item{
+      border-bottom:1px solid #ccc;
+    }
+    .el-input__suffix{
+      display:none;
+    }
+    .el-input__inner{
+      background:#ffffff;
+      border:none;
+      color:#000000;
+    }
+  }
+}
+
+  .edit-modal.el-dialog{
+    padding-right:50px;
+    .el-select{
+      width:100%;
+    }
+    .el-form-item__label{
+      text-align:center;
+    }
+    .looksCls{
+      .el-form-item{
+        border-bottom:1px solid #ccc;
+      }
+      .el-input__suffix{
+        display:none;
+      }
+      .el-input__inner{
+        background:#ffffff;
+        border:none;
+        color:#000000;
+      }
+    }
+  }
+
+.number-input-l {
+  /deep/ .el-input__inner {
+    text-align: left
+  }
+}
+
+
+.alertClass{
+  width:auto!important
+}
+
+// 头部一个输入框的时候
+.search_head{
+  .el-form-item__content{
+    width: 500px;
+    height: 40px;
+   input{
+     height: 40px;
+     border: 1px solid #D9D9D9;
+   }
+   .el-input-group__append{
+     background: #0486FE;
+     color: #ffffff;
+     border: 1px solid #0486FE;
+   }
+  }
+ }
+
+.el-tabs__header {
+  margin: 0;
+}
+.el-tabs__content {
+  background: #FBFBFB;
+  padding: 24px 32px 41px;
+}
+
+.el-tabs--card > .el-tabs__header .el-tabs__item {
+  color: #2B2E40;
+  &.is-active {
+    background: $chPrimaryColor;
+    color: $w-white
+  }
+}
+
+.p-l-24 {
+  padding-left: 24px;
+}
+.p-r-24 {
+  padding-left: 24px;
+}
+.m-t-16 {
+  margin-top: 16px;
+}
+.ch-button-list-border-r {
+  position: relative;
+  &.el-button + .el-button {
+    margin-left: 16px;
+  }
+  &::after {
+    content: '';
+    width: 0;
+    height: 12px;
+    border-right: 1px solid $chPrimaryColor;
+    position: absolute;
+    top: 14px;
+    right: -9px;
+  }
+  &.el-button--mini::after {
+    height: 10px;
+    top: 8px;
+  }
+  &.el-button--small::after {
+    height: 11px;
+    top: 10px;
+  }
+  &:last-child::after {
+    border: none;
+  }
+}
+.el-button--text {
+  color: #1877F1;
+}
+.ch-button-icon::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 12px;
+  margin-right: 5px;
+}
+.el-icon-ch-subcheck::before {
+  background: url('../assets/img/icon_subscribe.png') no-repeat center center/100% 100%;
+}
+
+.el-icon-ch-subcheck_s::before {
+  background: url('../assets/img/icon_subscribe_s.png') no-repeat center center/100% 100%;
+}
+
+.el-icon-ch-view::before {
+  width: 14px;
+  height: 10px;
+  background: url('../assets/img/icon_check.png') no-repeat center center/100% 100%;
+}
+.el-icon-ch-view_s::before {
+  width: 14px;
+  height: 10px;
+  background: url('../assets/img/icon_check_s.png') no-repeat center center/100% 100%;
+}
+.icon_invisible::before {
+  width: 14px;
+  height: 10px;
+  background: url('../assets/img/icon_invisible.png') no-repeat center center/100% 100%;
+}
+
+.el-form-item.is-success .el-input__inner, .el-form-item.is-success .el-input__inner:focus, .el-form-item.is-success .el-textarea__inner, .el-form-item.is-success .el-textarea__inner:focus{
+  border-color:#DCDFE6;
+}
+
+.f-right {
+  float: right;
+}
