@@ -67,15 +67,15 @@ export default new Router({
               name: 'setMeasure',
               meta: { title: '设置度量字段' },
               component: () => import('@/components/olapComponent/createComponent/setMeasure.vue')
+            },
+            {
+              path: 'reloadSet',
+              name: 'reloadSet',
+              meta: { title: '刷新及过滤设置' },
+              component: () => import('@/components/olapComponent/createComponent/reloadSet.vue')
             }
           ]
         }
-        // {
-        //   path: 'createolap',
-        //   name: 'createolap',
-        //   meta: { title: '新建OLAP模型' },
-        //   component: () => import('@/views/olap/createolap.vue')
-        // }
       ]
     }
   ]

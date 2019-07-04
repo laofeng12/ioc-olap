@@ -42,7 +42,7 @@ export default {
     fetchTreeList () {
       this.treeLoading = true
       this.$store.dispatch('GetTreeList').then(res => {
-        if (res.code === 200) {
+        if (res && res.code === 200) {
           this.treeLoading = false
           this.setTree(res.list)
           setTimeout(() => {

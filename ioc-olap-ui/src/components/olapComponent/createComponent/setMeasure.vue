@@ -23,12 +23,13 @@
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="primary" icon="el-icon-edit" circle></el-button>
-                <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                <el-button type="text" size="mini" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
+        <el-button type="primary">添加度量</el-button>
     </el-form>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
@@ -53,8 +54,8 @@ export default {
   },
   methods: {
     nextModel (val) {
-      // this.$parent.getStepCountAdd(val)
-      this.$message.error('暂未开发')
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/olap/createolap/reloadSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
