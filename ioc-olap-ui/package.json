@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "ch-vue-portal-layout": "^0.0.43",
+    "ch-vue-portal-layout": "^0.0.47",
     "core-js": "^2.6.5",
     "dayjs": "^1.8.14",
     "echarts": "^4.2.1",

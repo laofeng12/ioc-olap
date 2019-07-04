@@ -68,12 +68,12 @@ export default {
   },
   methods: {
     nextModel (val) {
-      this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/setMeasure')
+      this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
+      this.$router.push('/olap/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/selectStep')
     },
     handleSelectionChange (val) {
 
