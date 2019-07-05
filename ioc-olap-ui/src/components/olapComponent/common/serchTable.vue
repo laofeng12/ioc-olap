@@ -1,16 +1,17 @@
 <template>
   <div class="serchTable">
+     <!-- <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
+     <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+     <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange" v-if="dataList && dataList.length" v-loading="loading">
+       <el-checkbox v-for="(item, index) in dataList" :label="item" @change="labelChange()" :key="index">{{item.name}}</el-checkbox>
+     </el-checkbox-group>
+     <div v-else style="width:200px;text-align:center;">暂无数据</div> -->
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox> -->
-     <el-radio-group v-model="checkedCities" @change="handleCheckedCitiesChange" v-if="dataList && dataList.length" v-loading="loading">
-       <el-radio v-for="(item, index) in dataList" :label="item" :key="index">{{item.name}}</el-radio>
-     </el-radio-group>
-     <div v-else style="width:200px;text-align:center;">暂无数据</div>
+     <el-tree :data="dataList" default-expand-all :expand-on-click-node='false' show-checkbox @check-change="handleCheckChange" @node-click="handleNodeClick"></el-tree>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -18,11 +19,25 @@ export default {
       checkAll: false,
       loading: false,
       checkedCities: [],
-      dataList: [],
+      dataList: [{
+        id: 1,
+        label: '全选',
+        children: [
+          {
+            id: 2,
+            label: 'asdasdasd'
+          },
+          {
+            id: 3,
+            label: 'asdasdasdasd'
+          }
+        ]
+      }],
       isIndeterminate: true
     }
   },
   mounted () {
+    // 接收数据湖传递的信息
     this.$root.eventBus.$on('getserchTableList', res => {
       this.dataList = []
       this.loading = true
@@ -30,7 +45,7 @@ export default {
         res.data.map(res => {
           this.dataList.push({
             id: res.RD_ID,
-            name: res.DS__DLT_CODE
+            label: res.DS__DLT_CODE
           })
         })
         setTimeout(() => { this.loading = false }, 300)
@@ -44,7 +59,7 @@ export default {
         res.rows.map(res => {
           this.dataList.push({
             id: res.dsUploadTableId,
-            name: res.tableCode
+            label: res.tableCode
           })
         })
         setTimeout(() => { this.loading = false }, 300)
@@ -52,31 +67,60 @@ export default {
     })
   },
   methods: {
-    handleCheckedCitiesChange (value) {
+    handleNodeClick (value) {
+      console.log(value)
+      let searchType = this.$store.state.common.searchType
+      let dsDataSourceId = searchType === 1 ? 10 : 2
+      let dbType = searchType === 1 ? 3 : 0
+      let tableName = value[0].name
       const parmas = {
-        dsDataSourceId: 10,
-        tableName: value.name
+        dsDataSourceId,
+        tableName
       }
       const valparams = {
-        dbType: 3,
-        dsDataSourceId: 10,
-        tableName: value.name
+        dbType,
+        dsDataSourceId,
+        tableName
       }
       this.$store.dispatch('GetColumnList', parmas).then(data => {
-        data.code === 200 && this.$root.eventBus.$emit('getTableHeadList', data)
+        if (data.code === 200) {
+          switch (searchType) {
+            case 1:
+              this.$root.eventBus.$emit('getTableHeadList', data)
+              break
+            case 2:
+              this.$root.eventBus.$emit('getLocalTableHeadList', data)
+              break
+            default:
+              break
+          }
+        }
       })
       this.$store.dispatch('GetTableData', valparams).then(res => {
-        res.code === 200 && this.$root.eventBus.$emit('getTableContentList', res)
+        if (res.code === 200) {
+          switch (searchType) {
+            case 1:
+              this.$root.eventBus.$emit('getTableContentList', res)
+              break
+            case 2:
+              this.$root.eventBus.$emit('getLocalTableContentList', res)
+              break
+            default:
+              break
+          }
+        }
       })
-      let checkedCount = value.length
-      this.checkAll = checkedCount === this.dataList.length
-      this.isIndeterminate = checkedCount > 0 && checkedCount < this.dataList.length
+    },
+    handleCheckChange (data, type, node) {
+      console.log(type)
     }
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('getTableHeadList')
+    this.$root.eventBus.$off('getLocalTableHeadList')
     this.$root.eventBus.$off('getTableContentList')
+    this.$root.eventBus.$off('getLocalTableContentList')
   }
 }
 </script>
@@ -107,6 +151,16 @@ export default {
     height 90%
     width 230px
     overflow-y auto
+  }
+  >>>.el-tree-node__content{
+    .el-tree-node__expand-icon::before{
+      content: ''
+    }
+  }
+  >>>.el-tree-node__children{
+    .el-tree-node__content{
+      padding-left 0!important
+    }
   }
 }
 </style>

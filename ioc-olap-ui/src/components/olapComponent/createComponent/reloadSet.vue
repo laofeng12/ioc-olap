@@ -7,14 +7,15 @@
           <template>
             <div>
               <el-switch
-                v-model="value"
+                v-model="autoReload"
+                @change="changeUploadNum"
                 active-color="#13ce66"
-                inactive-color="#ff4949">
+                inactive-color="#cccccc">
               </el-switch>
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率">
+        <el-form-item label="更新频率" v-if="autoReload">
           <template>
             <div class="uplaodNum">
               <el-input type="text"></el-input>
@@ -30,27 +31,27 @@
         <el-form-item label="日期字段表">
           <template>
             <div>
-               <el-select v-model="value" placeholder="请选择数据表">
+               <el-select v-model="value1" placeholder="请选择数据表">
                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-              </el-select> 
+              </el-select>
             </div>
           </template>
         </el-form-item>
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="value" placeholder="请选择日期字段">
+               <el-select v-model="value2" placeholder="请选择日期字段">
                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-              </el-select> 
+              </el-select>
             </div>
           </template>
         </el-form-item>
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="value" placeholder="请选择日期格式">
+               <el-select v-model="value3" placeholder="请选择日期格式">
                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-              </el-select> 
+              </el-select>
             </div>
           </template>
         </el-form-item>
@@ -58,13 +59,43 @@
           <template>
             <div>
               <el-switch
-                v-model="value"
+                v-model="dataMany"
                 active-color="#13ce66"
-                inactive-color="#ff4949">
+                @change="changeDataMany"
+                inactive-color="#cccccc">
               </el-switch>
             </div>
           </template>
         </el-form-item>
+        <div v-if="dataMany">
+          <el-form-item label="日期字段表">
+            <template>
+              <div>
+                <el-select v-model="value1" placeholder="请选择数据表">
+                  <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </div>
+            </template>
+          </el-form-item>
+          <el-form-item label="日期字段">
+            <template>
+              <div>
+                <el-select v-model="value2" placeholder="请选择日期字段">
+                  <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </div>
+            </template>
+          </el-form-item>
+          <el-form-item label="日期格式">
+            <template>
+              <div>
+                <el-select v-model="value3" placeholder="请选择日期格式">
+                  <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </div>
+            </template>
+          </el-form-item>
+        </div>
         <el-form-item label="过滤设置" class="item_line"></el-form-item>
         <el-table
           :data="tableData"
@@ -108,8 +139,12 @@ export default {
   },
   data () {
     return {
-      value: false,
+      autoReload: false,
+      dataMany: false,
       radio: 3,
+      value1: '',
+      value2: '',
+      value3: '',
       options: [{
         value: '选项1',
         label: '黄金糕'
@@ -126,7 +161,6 @@ export default {
         value: '选项5',
         label: '北京烤鸭'
       }],
-      value: '',
       tableData: [
         { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
         { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
@@ -148,6 +182,12 @@ export default {
     },
     handleSelectionChange (val) {
 
+    },
+    changeUploadNum (val) {
+      console.log(val)
+    },
+    changeDataMany (val) {
+      console.log(val)
     }
   }
 }
@@ -182,4 +222,3 @@ export default {
   }
 }
 </style>
-

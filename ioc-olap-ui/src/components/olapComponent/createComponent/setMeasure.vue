@@ -7,17 +7,16 @@
           tooltip-effect="dark"
           @selection-change="handleSelectionChange"
           style="margin-top: 10px;">
-          <el-table-column type="selection" prop="全选" align="center"></el-table-column>
+          <el-table-column type="index" prop="序号" align="center"></el-table-column>
           <el-table-column prop="apiName" label="度量名称" align="center"> </el-table-column>
           <el-table-column prop="type" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="catalogName" label="计算值" align="center"> </el-table-column>
-          <el-table-column prop="apiPaths" label="返回类型" align="center">
+          <el-table-column prop="apiPaths" label="计算值" align="center">
             <template slot-scope="scope">
-              <div>
-                <el-input type="text" v-model="scope.row.apiPaths"></el-input>
-              </div>
+              <span style="margin-right:15px;">值：{{scope.row.apiPaths[0].a}}</span>
+              <span>类型：{{scope.row.apiPaths[0].b}}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="catalogName" label="计算类型" align="center"> </el-table-column>
           <el-table-column
             label="操作"
             align="center">
@@ -44,11 +43,11 @@ export default {
   data () {
     return {
       tableData: [
-        { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' }
+        { apiName: '111', type: '递归', catalogName: 'string', apiPaths: [ { a: 123123, b: 'aaaaaa' } ] },
+        { apiName: '222', type: '递归', catalogName: 'string', apiPaths: [ { a: 123123, b: 'aaaaaa' } ] },
+        { apiName: '333', type: '递归', catalogName: 'string', apiPaths: [ { a: 123123, b: 'aaaaaa' } ] },
+        { apiName: '444', type: '递归', catalogName: 'string', apiPaths: [ { a: 123123, b: 'aaaaaa' } ] },
+        { apiName: '555', type: '递归', catalogName: 'string', apiPaths: [ { a: 123123, b: 'aaaaaa' } ] }
       ]
     }
   },

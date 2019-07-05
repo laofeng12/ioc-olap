@@ -3,7 +3,8 @@ import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getT
 const common = {
   state: {
     treeList: [],
-    serchTableList: []
+    serchTableList: [],
+    searchType: 1
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -14,6 +15,9 @@ const common = {
     },
     SET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
+    },
+    CHANGE_SERACHTYPE: (state, val) => {
+      state.searchType = val
     }
   },
   actions: {
@@ -41,6 +45,9 @@ const common = {
     },
     setSerchTable ({ commit }, data) {
       commit('SET_SERCHTABLE_LIST', data)
+    },
+    changeSerachtype ({ commit }, val) {
+      commit('CHANGE_SERACHTYPE', val)
     }
   }
 }
