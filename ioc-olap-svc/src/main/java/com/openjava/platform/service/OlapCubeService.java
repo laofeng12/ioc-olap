@@ -1,5 +1,6 @@
 package com.openjava.platform.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.openjava.platform.domain.OlapCube;
@@ -23,4 +24,6 @@ public interface OlapCubeService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+
+    ArrayList<OlapCube> getListByUserId(Long userId);
 }

@@ -11,9 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.platform.domain.OlapRealQuery;
+import com.openjava.platform.api.kylin.CubeAction;
+import com.openjava.platform.domain.*;
+import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.query.OlapRealQueryDBParam;
-import com.openjava.platform.service.OlapRealQueryService;
+import com.openjava.platform.service.*;
+import com.openjava.platform.vo.FolderHierarchicalVo;
+import com.openjava.platform.vo.TreeNodeVo;
+import com.openjava.platform.vo.TreeVo;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.common.file.ContentType;
@@ -54,11 +59,18 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @Api(tags="即时查询接口")
 @RestController
-@RequestMapping("/pds/olap/olapRealQuery")
+@RequestMapping("/olap/apis/olapRealQuery")
 public class OlapRealQueryAction extends BaseAction {
-	
 	@Resource
 	private OlapRealQueryService olapRealQueryService;
+	@Resource
+	private OlapCubeService olapCubeService;
+	@Resource
+	private OlapCubeTableService olapCubeTableService;
+	@Resource
+	private OlapCubeTableColumnService olapCubeTableColumnService;
+	@Resource
+	private OlapFolderService olapFolderService;
 	
 	/**
 	 * 用主键获取数据
@@ -130,18 +142,64 @@ public class OlapRealQueryAction extends BaseAction {
 		olapRealQueryService.doRemove(ids);
 	}
 
-	//TODO 获取树形CUBE结构
+	@ApiOperation(value = "获取自己创建的立方体树形列表")
+	@Security(session=true)
+	@RequestMapping(value="/CubeTree",method=RequestMethod.GET)
+	public ArrayList<TreeVo> CubeTree(){
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+		ArrayList<OlapCube> cubes=olapCubeService.getListByUserId(Long.parseLong(userVO.getUserId()));
+		ArrayList<TreeVo> trees=new ArrayList<TreeVo>();
+		for (OlapCube cube : cubes){
+			TreeVo tree=new TreeVo();
+			tree.setId(cube.getCubeId().toString());
+			tree.setTitle(cube.getName());
+			tree.setRow(new ArrayList<TreeNodeVo>());
+			ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
+			for (OlapCubeTable table : cubeTables){
+				TreeNodeVo nodeVo=new TreeNodeVo();
+				nodeVo.setId(table.getId().toString());
+				nodeVo.setName(table.getTableName());
+				nodeVo.setRow(new ArrayList<TreeNodeVo>());
+				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
+				for (OlapCubeTableColumn column : cubeTableColumns){
+					TreeNodeVo leafNode=new TreeNodeVo();
+					nodeVo.setId(column.getId().toString());
+					nodeVo.setName(column.getExpressionFull());
+					nodeVo.getRow().add(leafNode);
+				}
+				tree.getRow().add(nodeVo);
+			}
+			trees.add(tree);
+		}
+		return trees;
+	}
 
+	@ApiOperation(value = "查询数据")
+	@RequestMapping(value = "/query", method = RequestMethod.POST)
+	public QueryResultMapper query(String sql, Integer limit) {
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+		return new CubeAction().query(sql,0,limit,userVO.getUserId());
+	}
 
-	//TODO 获取CUBE查询数据
+	@ApiOperation(value = "获取层级文件夹结构")
+	@RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
+	public ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderWithQuery() {
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+		ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapRealQuery>>();
+		List<OlapFolder> folders=olapFolderService.getListByCreateId(Long.parseLong(userVO.getUserId()));
+		for (OlapFolder folder : folders){
+			FolderHierarchicalVo<OlapRealQuery> folderHierarchicalVo=new FolderHierarchicalVo<OlapRealQuery>();
+			MyBeanUtils.copyPropertiesNotBlank(folder, folderHierarchicalVo);
+			folderHierarchicalVo.setLeafs(olapRealQueryService.getListWithFolderId(folder.getFolderId()));
+			folderHierarchicalVos.add(folderHierarchicalVo);
+		}
+		return folderHierarchicalVos;
+	}
 
-
-	//TODO 获取层级文件夹结构
-
-
-	//TODO 获取共享的查询
-
-
-
-	
+	@ApiOperation(value = "获取共享的即时查询")
+	@RequestMapping(value = "/queryShare", method = RequestMethod.GET)
+	public List<OlapRealQuery> queryShare() {
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
+	}
 }

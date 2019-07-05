@@ -57,4 +57,14 @@ public class OlapRealQueryServiceImpl implements OlapRealQueryService {
 			olapRealQueryRepository.deleteById(new Long(items[i]));
 		}
 	}
+
+	@Override
+	public List<OlapRealQuery> getListWithFolderId(Long folderId) {
+		return olapRealQueryRepository.findByFolderId(folderId);
+	}
+
+	@Override
+	public List<OlapRealQuery> getAllShares(Long userId) {
+		return olapRealQueryRepository.getAllShares(userId);
+	}
 }

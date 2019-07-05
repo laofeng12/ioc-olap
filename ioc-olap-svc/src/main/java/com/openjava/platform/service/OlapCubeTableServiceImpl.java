@@ -1,5 +1,6 @@
 package com.openjava.platform.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,5 +57,10 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
 		for (int i = 0; i < items.length; i++) {
 			olapCubeTableRepository.deleteById(new Long(items[i]));
 		}
+	}
+
+	@Override
+	public ArrayList<OlapCubeTable> getListByCubeId(Long cubeId) {
+		return olapCubeTableRepository.findByCubeId(cubeId);
 	}
 }

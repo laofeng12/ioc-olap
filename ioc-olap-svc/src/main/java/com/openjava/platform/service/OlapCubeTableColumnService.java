@@ -1,5 +1,6 @@
 package com.openjava.platform.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.openjava.platform.domain.OlapCubeTableColumn;
@@ -24,4 +25,6 @@ public interface OlapCubeTableColumnService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+
+	ArrayList<OlapCubeTableColumn> getListByTableId(Long cubeTableId);
 }

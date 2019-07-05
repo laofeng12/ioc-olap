@@ -23,4 +23,8 @@ public interface OlapRealQueryService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+
+	List<OlapRealQuery> getListWithFolderId(Long folderId);
+
+	List<OlapRealQuery> getAllShares(Long userId);
 }
