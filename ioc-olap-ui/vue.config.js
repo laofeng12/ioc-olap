@@ -11,22 +11,22 @@ module.exports = {
   devServer: {
     proxy: {
       '/platformweb/admin/': {
-        target: 'http://192.168.6.104:30003', // 公司测试环境
+        target: 'http://183.6.55.26:31075', // 公司测试环境
         pathRewrite: { '^/platformweb/admin/': '/admin/' },
         changeOrigin: true
       },
       '/platformweb/gateway/': {
-        target: 'http://192.168.6.104:30003', // 公司测试环境
+        target: 'http://183.6.55.26:31012', // 公司测试环境
         pathRewrite: { '^/platformweb/gateway/': '/gateway/' }
       },
       '/platformweb/ljdp/': {
-        target: 'http://192.168.6.104:30003', // 公司测试环境
+        target: 'http://183.6.55.26:31012', // 公司测试环境
         // target: 'http://192.168.8.83:8081', // 中良本机
         pathRewrite: { '^/platformweb/ljdp/': '/ljdp/' },
         changeOrigin: true
       },
       '/pds/': {
-        target: 'http://192.168.6.104:30003', // 公司测试环境
+        target: 'http://183.6.55.26:31013', // 公司测试环境
         pathRewrite: { '^/pds/': '/pds/' },
         changeOrigin: true
       }

@@ -21,6 +21,7 @@
 import dataLake from '@/components/olapComponent/createComponent/selectStepComponent/datalake'
 import localUpload from '@/components/olapComponent/createComponent/selectStepComponent/localUpload'
 import steps from '@/components/olapComponent/common/steps'
+import { mapGetters } from 'vuex'
 export default {
   components: {
     dataLake, localUpload, steps
@@ -39,6 +40,8 @@ export default {
       this.$router.push('/olap/createolap/createTableRelation')
     },
     tabClick (val) {
+      // 推送已选择的复选框按钮到serachTable
+      this.$root.eventBus.$emit('saveSelectTable', this.saveSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
@@ -46,9 +49,14 @@ export default {
         : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
     }
   },
-
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable'
+    })
+  },
   beforeDestroy () {
     this.$root.eventBus.$off('getUploadTable')
+    this.$root.eventBus.$off('saveSelectTable')
   }
 }
 </script>

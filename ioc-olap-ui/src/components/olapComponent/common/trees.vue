@@ -8,6 +8,7 @@
         v-loading="treeLoading"
         :expand-on-click-node="false"
         node-key="id"
+        :highlight-current="showTree"
         @node-click="getCurrents"
         :render-content="renderContent"
         :filter-node-method="filterNode"
@@ -23,6 +24,7 @@ export default {
   data () {
     return {
       treeLoading: false,
+      showTree: true,
       value: '',
       resultList: [],
       treeList: [],
@@ -55,7 +57,7 @@ export default {
     },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
-      console.log(val)
+      // console.log(val)
     },
     setTree (val) {
       let item = []
@@ -91,6 +93,9 @@ export default {
         // 存储当前选择数据源
         this.$store.dispatch('setSerchTable', res)
       })
+    },
+    setCurrentKey (val) {
+      console.log(val)
     }
   },
   beforeDestroy () {

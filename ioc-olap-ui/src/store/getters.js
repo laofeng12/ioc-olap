@@ -5,6 +5,7 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   treeList: state => state.common.treeList,
-  serchTableList: state => state.common.menuList
+  serchTableList: state => state.common.menuList,
+  saveSelectTable: state => state.common.saveSelectTable
 }
 export default getters

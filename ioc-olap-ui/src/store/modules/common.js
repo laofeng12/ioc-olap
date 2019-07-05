@@ -4,7 +4,8 @@ const common = {
   state: {
     treeList: [],
     serchTableList: [],
-    searchType: 1
+    searchType: 1,
+    saveSelectTable: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -43,11 +44,28 @@ const common = {
       let data = await getdsUploadTable(params)
       return data
     },
+    // 存储数据源选择的表
     setSerchTable ({ commit }, data) {
       commit('SET_SERCHTABLE_LIST', data)
     },
-    changeSerachtype ({ commit }, val) {
+    // 切换数据湖--本地上传控制
+    changeSerachtype ({ commit, state }, val) {
       commit('CHANGE_SERACHTYPE', val)
+    },
+    // 保存已勾选的表
+    saveSelectTable ({ state }, data) {
+      data.id !== 1 && state.saveSelectTable.push({
+        id: data.id,
+        label: data.label
+      })
+    },
+    // 去掉取消勾选的表
+    deleteSelectTable ({ state }, data) {
+      data.id !== 1 && state.saveSelectTable.forEach((item, _index) => {
+        if (item.id === data.id) {
+          state.saveSelectTable.splice(_index, 1)
+        }
+      })
     }
   }
 }

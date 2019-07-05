@@ -1,17 +1,21 @@
 <template>
   <div class="serchTable">
-     <!-- <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-     <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange" v-if="dataList && dataList.length" v-loading="loading">
-       <el-checkbox v-for="(item, index) in dataList" :label="item" @change="labelChange()" :key="index">{{item.name}}</el-checkbox>
-     </el-checkbox-group>
-     <div v-else style="width:200px;text-align:center;">暂无数据</div> -->
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-tree :data="dataList" default-expand-all :expand-on-click-node='false' show-checkbox @check-change="handleCheckChange" @node-click="handleNodeClick"></el-tree>
+     <el-tree
+      :data="dataList"
+       default-expand-all
+       node-key="id"
+      :expand-on-click-node='false'
+      show-checkbox
+      :default-checked-keys="defaultKey"
+      @check-change="handleCheckChange"
+      @node-click="handleNodeClick">
+      </el-tree>
   </div>
 </template>
 
 <script>
+
 export default {
   data () {
     return {
@@ -19,19 +23,11 @@ export default {
       checkAll: false,
       loading: false,
       checkedCities: [],
+      defaultKey: [],
       dataList: [{
-        id: 1,
+        id: '',
         label: '全选',
-        children: [
-          {
-            id: 2,
-            label: 'asdasdasd'
-          },
-          {
-            id: 3,
-            label: 'asdasdasdasd'
-          }
-        ]
+        children: []
       }],
       isIndeterminate: true
     }
@@ -39,11 +35,12 @@ export default {
   mounted () {
     // 接收数据湖传递的信息
     this.$root.eventBus.$on('getserchTableList', res => {
-      this.dataList = []
+      this.dataList[0].children = []
       this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
-          this.dataList.push({
+          this.dataList[0].id = res.requestId
+          this.dataList[0].children.push({
             id: res.RD_ID,
             label: res.DS__DLT_CODE
           })
@@ -53,11 +50,12 @@ export default {
     })
     // 接收本地上传传递的信息
     this.$root.eventBus.$on('getUploadTable', res => {
-      this.dataList = []
+      this.dataList[0].children = []
       this.loading = true
       if (res.code === 200) {
         res.rows.map(res => {
-          this.dataList.push({
+          this.dataList[0].id = res.requestId
+          this.dataList[0].children.push({
             id: res.dsUploadTableId,
             label: res.tableCode
           })
@@ -65,14 +63,21 @@ export default {
         setTimeout(() => { this.loading = false }, 300)
       }
     })
+    // 接收已选择的复选框数据
+    this.$root.eventBus.$on('saveSelectTable', res => {
+      res.map(item => {
+        this.defaultKey.push(item.id)
+      })
+      this.defaultKey = [...new Set(this.defaultKey)]
+      console.log('当前的数据', this.defaultKey)
+    })
   },
   methods: {
     handleNodeClick (value) {
-      console.log(value)
       let searchType = this.$store.state.common.searchType
       let dsDataSourceId = searchType === 1 ? 10 : 2
       let dbType = searchType === 1 ? 3 : 0
-      let tableName = value[0].name
+      let tableName = value.label
       const parmas = {
         dsDataSourceId,
         tableName
@@ -111,8 +116,9 @@ export default {
         }
       })
     },
+    // 勾选框的选择
     handleCheckChange (data, type, node) {
-      console.log(type)
+      type ? this.$store.dispatch('saveSelectTable', data) : this.$store.dispatch('deleteSelectTable', data)
     }
   },
   beforeDestroy () {
