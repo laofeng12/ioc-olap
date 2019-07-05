@@ -20,6 +20,7 @@
 
 <script>
 import { setTimeout } from 'timers'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -89,7 +90,9 @@ export default {
     getCurrents (data, node, me) {
       if (data.pId === 0) return
       this.$store.dispatch('GetSerchTable', data.id).then(res => {
-        res.code === 200 && this.$root.eventBus.$emit('getserchTableList', res)
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res, 1)
+        }
         // 存储当前选择数据源
         this.$store.dispatch('setSerchTable', res)
       })
@@ -97,6 +100,11 @@ export default {
     setCurrentKey (val) {
       console.log(val)
     }
+  },
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable'
+    })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')

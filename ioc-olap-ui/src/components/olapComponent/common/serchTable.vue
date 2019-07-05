@@ -1,16 +1,21 @@
 <template>
   <div class="serchTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-tree
-      :data="dataList"
-       default-expand-all
-       node-key="id"
-      :expand-on-click-node='false'
-      show-checkbox
-      :default-checked-keys="defaultKey"
-      @check-change="handleCheckChange"
-      @node-click="handleNodeClick">
-      </el-tree>
+     <div class="trees">
+      <el-tree
+        ref="trees"
+        :data="dataList"
+        default-expand-all
+        node-key="id"
+        v-loading="loading"
+        :expand-on-click-node='false'
+        show-checkbox
+        :default-checked-keys="defaultKey"
+        @check-change="handleCheckChange"
+        @node-click="handleNodeClick">
+        </el-tree>
+        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;text-align:center;margin-top:50px;display:block;">暂无数据</span>
+     </div>
   </div>
 </template>
 
@@ -20,26 +25,26 @@ export default {
   data () {
     return {
       value: '',
-      checkAll: false,
       loading: false,
-      checkedCities: [],
       defaultKey: [],
       dataList: [{
-        id: '',
+        // id: 1,
         label: '全选',
         children: []
-      }],
-      isIndeterminate: true
+      }]
     }
   },
   mounted () {
     // 接收数据湖传递的信息
-    this.$root.eventBus.$on('getserchTableList', res => {
+    this.$root.eventBus.$on('getserchTableList', (res, type) => {
       this.dataList[0].children = []
+      if (type === 1) {
+        this.$refs.trees.setCheckedKeys([])
+      }
       this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
-          this.dataList[0].id = res.requestId
+          // this.dataList[0].id = 1
           this.dataList[0].children.push({
             id: res.RD_ID,
             label: res.DS__DLT_CODE
@@ -52,9 +57,11 @@ export default {
     this.$root.eventBus.$on('getUploadTable', res => {
       this.dataList[0].children = []
       this.loading = true
+      if (this.dataList[0].children.length < 1) {
+        this.$refs.trees.setCheckedKeys([])
+      }
       if (res.code === 200) {
         res.rows.map(res => {
-          this.dataList[0].id = res.requestId
           this.dataList[0].children.push({
             id: res.dsUploadTableId,
             label: res.tableCode
@@ -64,12 +71,15 @@ export default {
       }
     })
     // 接收已选择的复选框数据
-    this.$root.eventBus.$on('saveSelectTable', res => {
+    this.$root.eventBus.$on('saveSelectTables', res => {
+      this.loading = true
       res.map(item => {
         this.defaultKey.push(item.id)
       })
-      this.defaultKey = [...new Set(this.defaultKey)]
-      console.log('当前的数据', this.defaultKey)
+      setTimeout(() => { 
+        this.defaultKey = [...new Set(this.defaultKey)] 
+        this.loading = false
+      }, 500)
     })
   },
   methods: {
@@ -118,7 +128,9 @@ export default {
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      type ? this.$store.dispatch('saveSelectTable', data) : this.$store.dispatch('deleteSelectTable', data)
+      if (data.id !== undefined) {
+        type ? this.$store.dispatch('saveSelectTable', data) : this.$store.dispatch('deleteSelectTable', data)
+      }
     }
   },
   beforeDestroy () {
@@ -136,9 +148,13 @@ export default {
   width 230px
   float left
   padding 0 25px
-  height calc(100vh - 150px)
   border-right 1px solid #f0f0f0
-  padding-bottom 50px
+  height calc(100vh - 100px)
+  .trees{
+    height calc(100vh - 300px)
+    overflow-y auto 
+    width 200px
+  }
   >>>.el-radio{
     display block
     height 30px
@@ -168,5 +184,20 @@ export default {
       padding-left 0!important
     }
   }
+}
+.trees::-webkit-scrollbar{
+  width 8px
+  height 8px
+  background #fff
+}
+.trees::-webkit-scrollbar-track{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  background-color:#fff;
+}
+.trees::-webkit-scrollbar-thumb{
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #f0f0f0;
 }
 </style>

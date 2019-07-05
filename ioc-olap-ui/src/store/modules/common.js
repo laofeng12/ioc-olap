@@ -54,18 +54,22 @@ const common = {
     },
     // 保存已勾选的表
     saveSelectTable ({ state }, data) {
-      data.id !== 1 && state.saveSelectTable.push({
-        id: data.id,
-        label: data.label
-      })
+      if (data.id !== 1 || data.id === undefined) {
+        state.saveSelectTable.push({
+          id: data.id,
+          label: data.label
+        })
+      }
     },
     // 去掉取消勾选的表
     deleteSelectTable ({ state }, data) {
-      data.id !== 1 && state.saveSelectTable.forEach((item, _index) => {
-        if (item.id === data.id) {
-          state.saveSelectTable.splice(_index, 1)
-        }
-      })
+      if (data.id !== 1 || data.id === undefined) {
+        state.saveSelectTable.forEach((item, _index) => {
+          if (item.id === data.id) {
+            state.saveSelectTable.splice(_index, 1)
+          }
+        })
+      }
     }
   }
 }

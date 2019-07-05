@@ -41,12 +41,12 @@ export default {
     },
     tabClick (val) {
       // 推送已选择的复选框按钮到serachTable
-      this.$root.eventBus.$emit('saveSelectTable', this.saveSelectTable)
+      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
         }) && this.$store.dispatch('changeSerachtype', 2)
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList, 0) && this.$store.dispatch('changeSerachtype', 1)
     }
   },
   computed: {
@@ -56,7 +56,7 @@ export default {
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getUploadTable')
-    this.$root.eventBus.$off('saveSelectTable')
+    this.$root.eventBus.$off('saveSelectTables')
   }
 }
 </script>
