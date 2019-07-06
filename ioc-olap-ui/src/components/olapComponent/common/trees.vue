@@ -93,9 +93,6 @@ export default {
         // 存储当前选择数据源
         this.$store.dispatch('setSerchTable', res)
       })
-    },
-    setCurrentKey (val) {
-      console.log(val)
     }
   },
   beforeDestroy () {

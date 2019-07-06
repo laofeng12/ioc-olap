@@ -25,7 +25,7 @@ export default {
       checkedCities: [],
       defaultKey: [],
       dataList: [{
-        id: '',
+        id: '1',
         label: '全选',
         children: []
       }],
@@ -39,7 +39,7 @@ export default {
       this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
-          this.dataList[0].id = res.requestId
+          // this.dataList[0].id = res.requestId
           this.dataList[0].children.push({
             id: res.RD_ID,
             label: res.DS__DLT_CODE
@@ -54,7 +54,7 @@ export default {
       this.loading = true
       if (res.code === 200) {
         res.rows.map(res => {
-          this.dataList[0].id = res.requestId
+          // this.dataList[0].id = res.requestId
           this.dataList[0].children.push({
             id: res.dsUploadTableId,
             label: res.tableCode
@@ -66,7 +66,9 @@ export default {
     // 接收已选择的复选框数据
     this.$root.eventBus.$on('saveSelectTable', res => {
       res.map(item => {
-        this.defaultKey.push(item.id)
+        if (item.id !== '1') {
+          this.defaultKey.push(item.id)
+        }
       })
       this.defaultKey = [...new Set(this.defaultKey)]
       console.log('当前的数据', this.defaultKey)
