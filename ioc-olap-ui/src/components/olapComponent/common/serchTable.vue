@@ -44,7 +44,6 @@ export default {
       this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
-          // this.dataList[0].id = 1
           this.dataList[0].children.push({
             id: res.RD_ID,
             label: res.DS__DLT_CODE
@@ -57,9 +56,6 @@ export default {
     this.$root.eventBus.$on('getUploadTable', res => {
       this.dataList[0].children = []
       this.loading = true
-      if (this.dataList[0].children.length < 1) {
-        this.$refs.trees.setCheckedKeys([])
-      }
       if (res.code === 200) {
         res.rows.map(res => {
           this.dataList[0].children.push({
@@ -67,6 +63,9 @@ export default {
             label: res.tableCode
           })
         })
+        if (this.dataList[0].children.length < 1) {
+          this.$refs.trees.setCheckedKeys([])
+        }
         setTimeout(() => { this.loading = false }, 300)
       }
     })

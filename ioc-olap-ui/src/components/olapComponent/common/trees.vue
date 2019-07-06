@@ -10,6 +10,7 @@
         node-key="id"
         :highlight-current="showTree"
         @node-click="getCurrents"
+        :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
         :props="defaultProps">
@@ -27,9 +28,8 @@ export default {
       treeLoading: false,
       showTree: true,
       value: '',
-      resultList: [],
       treeList: [],
-      resetNodeList: [],
+      defaultOpenKeys: ['783740920110077'], // 默认展开的key
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -89,7 +89,11 @@ export default {
     // 选中当前修改
     getCurrents (data, node, me) {
       if (data.pId === 0) return
-      this.$store.dispatch('GetSerchTable', data.id).then(res => {
+      this.fetchTree(data.id)
+      console.log(node.data.id)
+    },
+    fetchTree (id) {
+      this.$store.dispatch('GetSerchTable', id).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res, 1)
         }
@@ -100,7 +104,19 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveSelectTable: 'saveSelectTable'
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable'
+    })
+  },
+  mounted () {
+    this.$root.eventBus.$on('openDefaultTree', res => {
+      this.defaultOpenKeys = this.saveSelectTable.map(item => {
+        // this.defaultOpenKeys.push(item.id)
+        return item.id
+      })
+      setTimeout(() => {
+        this.fetchTree('783764148510077')
+      }, 500)
     })
   },
   beforeDestroy () {

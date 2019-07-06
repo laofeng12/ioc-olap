@@ -12,6 +12,7 @@
 import serchTable from '@/components/olapComponent/common/serchTable'
 import steps from '@/components/olapComponent/common/steps'
 import taskWark from '@/components/olapComponent/common/taskWark'
+import { mapGetters } from 'vuex'
 export default {
   components: {
     serchTable, steps, taskWark
@@ -29,7 +30,15 @@ export default {
     prevModel (val) {
       this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
+      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable)
+      this.$root.eventBus.$emit('openDefaultTree')
     }
+  },
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable'
+    })
   }
 }
 </script>
