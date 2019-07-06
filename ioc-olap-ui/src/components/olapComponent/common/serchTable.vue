@@ -38,7 +38,7 @@ export default {
     // 接收数据湖传递的信息
     this.$root.eventBus.$on('getserchTableList', (res, type) => {
       this.dataList[0].children = []
-      if (type === 1) {
+      if (type && type === 1) {
         this.$refs.trees.setCheckedKeys([])
       }
       this.loading = true
@@ -55,6 +55,7 @@ export default {
     })
     // 接收本地上传传递的信息
     this.$root.eventBus.$on('getUploadTable', res => {
+      console.log('来了》》》', this.dataList[0].children.length)
       this.dataList[0].children = []
       this.loading = true
       if (this.dataList[0].children.length < 1) {
