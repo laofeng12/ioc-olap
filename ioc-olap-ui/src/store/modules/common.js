@@ -2,10 +2,12 @@ import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getT
 
 const common = {
   state: {
-    treeList: [],
-    serchTableList: [],
-    searchType: 1,
-    saveSelectTable: []
+    treeList: [], // 树形数据
+    serchTableList: [], // 获取的表数据
+    searchType: 1, // 判断在数据湖还是本地 1 数据湖 2 本地
+    saveSelectTable: [], // 数据湖选择的表
+    saveLocalSelectTable: [], // 本地选择的表
+    selectTableCount: ''
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -19,6 +21,9 @@ const common = {
     },
     CHANGE_SERACHTYPE: (state, val) => {
       state.searchType = val
+    },
+    SETSELCT_TABLE_COUNT: (state, val) => {
+      state.selectTableCount = val
     }
   },
   actions: {
@@ -52,20 +57,34 @@ const common = {
     changeSerachtype ({ commit, state }, val) {
       commit('CHANGE_SERACHTYPE', val)
     },
-    // 保存已勾选的表
-    saveSelectTable ({ state }, data) {
-      data.id !== 1 && state.saveSelectTable.push({
-        id: data.id,
-        label: data.label
-      })
-    },
-    // 去掉取消勾选的表
-    deleteSelectTable ({ state }, data) {
-      data.id !== 1 && state.saveSelectTable.forEach((item, _index) => {
-        if (item.id === data.id) {
-          state.saveSelectTable.splice(_index, 1)
+    // 存储数据湖的数据
+    getSelectTableList ({ state }, data) {
+      state.saveSelectTable = []
+      data.map(item => {
+        if (!item.children) {
+          state.saveSelectTable.push({
+            id: item.id,
+            label: item.label
+          })
         }
       })
+    },
+    // 存储本地上传的数据
+    getLocalSelectTableList ({ state }, data) {
+      state.saveLocalSelectTable = []
+      data.map(item => {
+        if (!item.children) {
+          state.saveLocalSelectTable.push({
+            id: item.id,
+            label: item.label
+          })
+        }
+      })
+    },
+    // 设置已选择的表的数据
+    setSelectTableCount ({ commit, state }) {
+      let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable].length
+      commit('SETSELCT_TABLE_COUNT', totalData)
     }
   }
 }
