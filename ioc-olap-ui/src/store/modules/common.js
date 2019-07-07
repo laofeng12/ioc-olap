@@ -7,7 +7,7 @@ const common = {
     searchType: 1, // 判断在数据湖还是本地 1 数据湖 2 本地
     saveSelectTable: [], // 数据湖选择的表
     saveLocalSelectTable: [], // 本地选择的表
-    selectTableCount: ''
+    selectTableCount: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -83,7 +83,7 @@ const common = {
     },
     // 设置已选择的表的数据
     setSelectTableCount ({ commit, state }) {
-      let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable].length
+      let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="tableRelation">
     <div class="containers">
-      <serch-table></serch-table>
+      <fact-table></fact-table>
       <task-wark></task-wark>
     </div>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -9,18 +9,22 @@
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
+import setfactTable from '@/components/olapComponent/dialog/setfactTable'
 import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
 export default {
   components: {
-    serchTable, steps, taskWark
+    factTable, steps, taskWark, setfactTable
   },
   data () {
     return {
 
     }
+  },
+  mounted () {
+    this.$root.eventBus.$emit('createTable', this.selectTableCount)
   },
   methods: {
     nextModel (val) {
@@ -30,14 +34,12 @@ export default {
     prevModel (val) {
       this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
-      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable)
       this.$root.eventBus.$emit('openDefaultTree')
     }
   },
   computed: {
     ...mapGetters({
-      saveSelectTable: 'saveSelectTable',
-      saveLocalSelectTable: 'saveLocalSelectTable'
+      selectTableCount: 'selectTableCount'
     })
   }
 }

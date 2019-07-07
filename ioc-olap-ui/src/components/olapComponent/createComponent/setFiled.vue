@@ -1,7 +1,7 @@
 <template>
   <div class="setFiled">
     <div class="containers">
-      <serch-table></serch-table>
+      <fact-table></fact-table>
       <div class="dimension" style="margin-left:240px;">
         <p>
           <span>维度选择</span>
@@ -43,11 +43,11 @@
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
 export default {
   components: {
-    serchTable,
+    factTable,
     steps
   },
   data () {

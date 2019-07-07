@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="taskWark">
     <!-- 创建图容器 -->
     <div id="mountNode"></div>
   </div>
@@ -53,3 +53,9 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.taskWark{
+  float left
+}
+</style>

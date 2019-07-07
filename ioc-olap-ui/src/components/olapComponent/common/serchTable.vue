@@ -133,11 +133,11 @@ export default {
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      // 设置已选择的数据表的数量
-      this.$store.dispatch('setSelectTableCount')
       this.$store.state.common.searchType === 1
         ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
         : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
+      // 设置已选择的数据表的数量
+      this.$store.dispatch('setSelectTableCount')
     }
   },
   computed: {

@@ -9,7 +9,7 @@
             <local-upload></local-upload>
           </el-tab-pane>
           <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
-            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableCount || 0}}</i></span>
+            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableCount.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
     </div>
