@@ -8,6 +8,7 @@ const getters = {
   serchTableList: state => state.common.menuList,
   saveSelectTable: state => state.common.saveSelectTable,
   saveLocalSelectTable: state => state.common.saveLocalSelectTable,
-  selectTableCount: state => state.common.selectTableCount
+  selectTableCount: state => state.common.selectTableCount,
+  lastClickTab: state => state.common.lastClickTab
 }
 export default getters

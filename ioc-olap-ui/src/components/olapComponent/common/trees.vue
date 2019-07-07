@@ -42,16 +42,16 @@ export default {
     }
   },
   methods: {
-    fetchTreeList () {
+    fetchTreeList (val) {
       this.treeLoading = true
       this.$store.dispatch('GetTreeList').then(res => {
         if (res && res.code === 200) {
           this.treeLoading = false
           this.setTree(res.list)
-          setTimeout(() => {
-            this.$refs.tree.store.nodesMap[this.treeList[0].id].expanded = true
+          const ids = val || this.treeList[0].id
+          ids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[ids].expanded = true
           }, 500)
-          // 默认传递
           this.defaultFrist(this.treeList)
         }
       })
@@ -89,41 +89,44 @@ export default {
     // 选中当前修改
     getCurrents (data, node, me) {
       if (data.pId === 0) return
-      this.fetchTree(data.id)
-      console.log(node.data.id)
+      this.fetchTree(data.id, node.data.pId)
     },
-    fetchTree (id) {
+    fetchTree (id, nodeId) {
       this.$store.dispatch('GetSerchTable', id).then(res => {
         if (res.code === 200) {
-          this.$root.eventBus.$emit('getserchTableList', res, 1)
+          this.$root.eventBus.$emit('getserchTableList', res)
         }
+        // 点击时清除其他选择框
+        this.$root.eventBus.$emit('clearSelect')
         // 存储当前选择数据源
         this.$store.dispatch('setSerchTable', res)
+        this.$store.dispatch('setLastClickTab', nodeId)
       })
     }
   },
   computed: {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
-      saveLocalSelectTable: 'saveLocalSelectTable'
+      saveLocalSelectTable: 'saveLocalSelectTable',
+      lastClickTab: 'lastClickTab'
     })
   },
   mounted () {
     this.$root.eventBus.$on('openDefaultTree', res => {
       this.defaultOpenKeys = this.saveSelectTable.map(item => {
-        // this.defaultOpenKeys.push(item.id)
         return item.id
       })
       setTimeout(() => {
-        this.fetchTree('783764148510077')
+        this.fetchTreeList(this.lastClickTab)
       }, 500)
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
+    this.$root.eventBus.$off('clearSelect')
   },
   created () {
-    this.fetchTreeList()
+    this.fetchTreeList(this.lastClickTab)
   }
 }
 </script>

@@ -38,9 +38,9 @@ export default {
     // 接收数据湖传递的信息
     this.$root.eventBus.$on('getserchTableList', (res, type) => {
       this.dataList[0].children = []
-      if (type && type === 1) {
-        this.$refs.trees.setCheckedKeys([])
-      }
+      // if (type && type === 1) {
+      //   this.$refs.trees.setCheckedKeys([])
+      // }
       this.loading = true
       if (res.code === 200) {
         res.data.map(res => {
@@ -72,6 +72,7 @@ export default {
     // 接收已选择的复选框数据
     this.$root.eventBus.$on('saveSelectTables', (res1, res2) => {
       this.defaultKey = []
+      this.$refs.trees.setCheckedKeys([])
       if (this.$store.state.common.searchType === 1) {
         res2.map(item => {
           this.defaultKey.push(item.id)
@@ -85,6 +86,10 @@ export default {
         this.loading = false
         this.defaultKey = [...new Set(this.defaultKey)]
       }, 500)
+    })
+    // 重置复选框
+    this.$root.eventBus.$on('clearSelect', _=> {
+      this.$refs.trees.setCheckedKeys([])
     })
   },
   methods: {

@@ -7,6 +7,7 @@ const common = {
     searchType: 1, // 判断在数据湖还是本地 1 数据湖 2 本地
     saveSelectTable: [], // 数据湖选择的表
     saveLocalSelectTable: [], // 本地选择的表
+    lastClickTab: '', // 存储最后一次点击的tabID
     selectTableCount: []
   },
   mutations: {
@@ -18,6 +19,9 @@ const common = {
     },
     SET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
+    },
+    LSATCLICK_TAB: (state, data) => {
+      state.lastClickTab = data
     },
     CHANGE_SERACHTYPE: (state, val) => {
       state.searchType = val
@@ -52,6 +56,9 @@ const common = {
     // 存储数据源选择的表
     setSerchTable ({ commit }, data) {
       commit('SET_SERCHTABLE_LIST', data)
+    },
+    setLastClickTab ({ commit }, nodeId) {
+      commit('LSATCLICK_TAB', nodeId)
     },
     // 切换数据湖--本地上传控制
     changeSerachtype ({ commit, state }, val) {

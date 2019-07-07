@@ -48,7 +48,7 @@ export default {
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
         }) && this.$store.dispatch('changeSerachtype', 2)
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList, 0) && this.$store.dispatch('changeSerachtype', 1)
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
     }
   },
   computed: {
