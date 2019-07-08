@@ -5,7 +5,7 @@
       <div class="dimension" style="margin-left:240px;">
         <p>
           <span>维度选择</span>
-          <span style="color:green;margin-left:10px;">已选维度</span>
+          <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
         </p>
         <el-form>
           <el-table
@@ -38,6 +38,7 @@
         </el-form>
       </div>
     </div>
+    <select-filed ref="dialog"></select-filed>
     <steps class="steps" :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
@@ -45,10 +46,12 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
+import selectFiled from '@/components/olapComponent/dialog/selectFiled'
 export default {
   components: {
     factTable,
-    steps
+    steps,
+    selectFiled
   },
   data () {
     return {
@@ -77,6 +80,9 @@ export default {
     },
     handleSelectionChange (val) {
 
+    },
+    selectFiled () {
+      this.$refs.dialog.dialog()
     }
   }
 }
