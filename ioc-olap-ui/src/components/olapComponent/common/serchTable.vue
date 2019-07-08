@@ -28,7 +28,6 @@ export default {
       loading: false,
       defaultKey: [],
       dataList: [{
-        // id: 1,
         label: '全选',
         children: []
       }]
@@ -38,18 +37,15 @@ export default {
     // 接收数据湖传递的信息
     this.$root.eventBus.$on('getserchTableList', (res, type) => {
       this.dataList[0].children = []
-      // if (type && type === 1) {
-      //   this.$refs.trees.setCheckedKeys([])
-      // }
       this.loading = true
-      if (res.code === 200) {
-        res.data.map(res => {
-          this.dataList[0].children.push({
-            id: res.RD_ID,
-            label: res.DS__DLT_CODE
-          })
-        })
+      if (type && type === 1) {
+        res.map(res => { this.dataList[0].children.push({ id: res.id, label: res.label }) })
         setTimeout(() => { this.loading = false }, 300)
+      } else {
+        if (res.code === 200) {
+          res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
+          setTimeout(() => { this.loading = false }, 300)
+        }
       }
     })
     // 接收本地上传传递的信息
@@ -70,17 +66,13 @@ export default {
       }
     })
     // 接收已选择的复选框数据
-    this.$root.eventBus.$on('saveSelectTables', (res1, res2) => {
+    this.$root.eventBus.$on('saveSelectTables', (res1, res2, type) => {
       this.defaultKey = []
       this.$refs.trees.setCheckedKeys([])
       if (this.$store.state.common.searchType === 1) {
-        res2.map(item => {
-          this.defaultKey.push(item.id)
-        })
+        type === 1 ? res1.map(item => { this.defaultKey.push(item.id) }) : res2.map(item => { this.defaultKey.push(item.id) })
       } else {
-        res1.map(item => {
-          this.defaultKey.push(item.id)
-        })
+        type === 1 ? res2.map(item => { this.defaultKey.push(item.id) }) : res1.map(item => { this.defaultKey.push(item.id) })
       }
       setTimeout(() => {
         this.loading = false
@@ -88,7 +80,7 @@ export default {
       }, 500)
     })
     // 重置复选框
-    this.$root.eventBus.$on('clearSelect', _=> {
+    this.$root.eventBus.$on('clearSelect', _ => {
       this.$refs.trees.setCheckedKeys([])
     })
   },
