@@ -13,6 +13,7 @@
               v-loading="loading"
               ref="multipleTable"
               tooltip-effect="dark"
+              @select="selectcheck"
                @selection-change="handleSelectionChange"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
@@ -63,22 +64,21 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      docSelection: []
+      tableData: []
     }
   },
   mounted () {
     this.$root.eventBus.$emit('createTable', this.selectTableCount)
-    this.$root.eventBus.$on('filedTable', res => {
-      console.log(reduceObj(this.saveSelectFiled, 'columnName'))
+    this.$root.eventBus.$on('filedTable', (res, code) => {
+      let reduceData = reduceObj(this.saveSelectFiled, 'columnName')
       this.loading = true
-      if (res.code === 200) {
-        this.tableData = res.data
+      if (code === 200) {
+        this.tableData = res
         setTimeout(() => {
           this.loading = false
           let arr = []
           this.tableData.forEach(item => {
-            this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+            reduceData && reduceData.forEach(val => {
               if (val.columnName === item.columnName) {
                 arr.push(item)
               }
@@ -108,12 +108,17 @@ export default {
       this.$parent.getStepCountReduce(val)
     },
     handleSelectionChange (val) {
-      this.docSelection = val
-      console.log('来了')
       this.$store.dispatch('saveSelectFiled', val)
     },
+    selectcheck (rows, row) {
+      let selected = rows.length && rows.indexOf(row) !== -1
+      console.log(selected, '======', row)
+      // selection.length < 1 && this.$store.dispatch('removeSelectFiled', row)
+      !selected && this.$store.dispatch('removeSelectFiled', row)
+    },
     selectFiled () {
-      this.$refs.dialog.dialog()
+      let data = reduceObj(this.saveSelectFiled, 'columnName') // 去重后的选择项
+      this.$refs.dialog.dialog(data)
     }
   },
   computed: {

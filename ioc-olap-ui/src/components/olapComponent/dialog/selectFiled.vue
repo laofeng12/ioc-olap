@@ -77,8 +77,31 @@ export default {
     submitBtn (index) {
       this.dialogFormVisible = false
     },
-    dialog (val, data) {
+    dialog (data) {
       this.dialogFormVisible = true
+      let map = {}
+      let dast = []
+      data.forEach((item, index) => {
+        let ai = data[index]
+        console.log(ai)
+        if (!map[ai.tableName]) {
+          dast.push({
+            comment: item.comment,
+            columnName: item.columnName,
+            tableName: item.tableName,
+            list: [ai]
+          })
+          // console.log('dast===', dast)
+        } else {
+          dast.forEach((n, i) => {
+            let dj = dast[i]
+            if (ai.tableName === dj.tableName) {
+              dj.list.push(ai)
+            }
+          })
+        }
+      })
+      console.log(dast, 'lalalalal')
     }
   }
 }

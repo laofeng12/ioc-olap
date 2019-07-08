@@ -1,4 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
+import { reduceObj } from '@/utils/index'
 
 const common = {
   state: {
@@ -112,7 +113,16 @@ const common = {
     // 存储已选择的维度
     saveSelectFiled ({ state }, data) {
       state.saveSelectFiled = state.saveSelectFiled.concat(data)
-      // console.log('get=====', state.saveSelectFiled)
+    },
+    // 删除取消的selct
+    removeSelectFiled ({ state }, data) {
+      let datas = reduceObj(state.saveSelectFiled, 'comment')
+      datas && datas.forEach((item, index) => {
+        if (item.comment === data.comment) {
+          datas.splice(index, 1)
+        }
+      })
+      state.saveSelectFiled = datas
     }
   }
 }

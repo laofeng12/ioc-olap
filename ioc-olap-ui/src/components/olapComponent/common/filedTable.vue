@@ -45,7 +45,15 @@ export default {
         tableName: item.label
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
-        this.$root.eventBus.$emit('filedTable', res)
+        let datas = []
+        res.data.map(n => {
+          datas.push({
+            comment: n.comment,
+            columnName: n.columnName,
+            tableName: item.label
+          })
+        })
+        this.$root.eventBus.$emit('filedTable', datas, res.code)
       })
     }
   },
