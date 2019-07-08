@@ -112,7 +112,8 @@ const common = {
     },
     // 存储已选择的维度
     saveSelectFiled ({ state }, data) {
-      state.saveSelectFiled = state.saveSelectFiled.concat(data)
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'comment')
+      state.saveSelectFiled = datas
     },
     // 删除取消的selct
     removeSelectFiled ({ state }, data) {
