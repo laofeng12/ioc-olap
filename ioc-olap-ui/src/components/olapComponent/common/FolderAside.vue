@@ -1,12 +1,12 @@
 <template>
   <div class="folderAside">
-    <div class="folder">
+    <div class="folder" v-for="(item, index) in menuList" :key="index">
       <div class="folderName dis-flex l-h-35">
         <div class="name dis-flex">
           <i class="icon-folder"></i>
-          <span class="f-w-b">文件夹名字</span>
+          <span class="f-w-b">{{item.title}}</span>
         </div>
-        <div class="menu"><i class="el-icon-more"></i></div>
+        <div class="menu" @click="showShareVisible"><i class="el-icon-more"></i></div>
         <div class="menuList" v-if="showMenuList">
           <div class="close"><i class="el-icon-close"></i></div>
           <div class="l-h-30 b-b text-center">编辑</div>
@@ -14,24 +14,34 @@
           <div class="l-h-30 text-center">删除</div>
         </div>
       </div>
-      <div class="file dis-flex l-h-30">
+      <div class="file dis-flex l-h-30" v-for="(v, i) in item.row" :key="i">
         <div class="name">
-          <span>文件名字</span>
-        </div>
-        <div class="menu"><i class="el-icon-more"></i></div>
-      </div>
-      <div class="file dis-flex l-h-30">
-        <div class="name">
-          <span>文件名字</span>
+          <span>{{v.name}}</span>
         </div>
         <div class="menu"><i class="el-icon-more"></i></div>
       </div>
     </div>
-    <el-dialog class="visible" title="选择共享人" :visible.sync="shareVisible">
-      <!--<el-tree :data="treeList" show-checkbox :props="defaultProps"></el-tree>-->
+    <el-button class="button" type="primary" size="mini" @click="showNewVisible">新建文件夹</el-button>
+    <el-dialog class="visible" title="选择共享人" :visible.sync="shareVisible" width="40%">
+      <el-tree :data="treeList" show-checkbox ></el-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button @click="shareVisible = false">取 消</el-button>
+        <el-button type="primary" @click="shareVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :title="`${folderForm.isNew ? '新增' : '修改'}文件夹`" :visible.sync="newVisible" width="30%">
+    <el-form :model="folderForm" :rules="folderRules" ref="folderForm">
+        <el-form-item label="名称" label-width="70px" prop="name">
+          <el-input v-model="folderForm.name" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item class="m-t-30" label="排序号" label-width="70px" prop="sort">
+          <el-input v-model.number="folderForm.sort" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFolderForm">
+          确认{{folderForm.isNew ? '新增' : '修改'}}
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -43,59 +53,75 @@ export default {
     menuList: {
       type: Array,
       required: true,
-      shareVisible: true,
-      treeList: [
-        {
-          id: 1,
-          label: '一级 1',
-          children: [{
-            id: 4,
-            label: '二级 1-1',
-            children: [{
-              id: 9,
-              label: '三级 1-1-1'
-            }, {
-              id: 10,
-              label: '三级 1-1-2'
-            }]
-          }]
-        }, {
-          id: 2,
-          label: '一级 2',
-          children: [{
-            id: 5,
-            label: '二级 2-1'
-          }, {
-            id: 6,
-            label: '二级 2-2'
-          }]
-        }, {
-          id: 3,
-          label: '一级 3',
-          children: [{
-            id: 7,
-            label: '二级 3-1'
-          }, {
-            id: 8,
-            label: '二级 3-2'
-          }]
-        }
-      ],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      }
     }
   },
   data () {
     return {
-      showMenuList: false
+      showMenuList: false,
+      treeList: [
+        {
+          id: 1,
+          label: '交通局',
+          children: [{
+            id: 4,
+            label: '检查组',
+            children: [{
+              id: 9,
+              label: '张三'
+            }, {
+              id: 10,
+              label: '李四'
+            }]
+          }]
+        }, {
+          id: 2,
+          label: '教育局',
+          children: [{
+            id: 5,
+            label: '张三'
+          }, {
+            id: 6,
+            label: '李四'
+          }]
+        }
+      ],
+      shareVisible: false,
+      newVisible: false,
+      folderForm: {
+        isNew: true,
+        name: '',
+        sort: ''
+      },
+      folderRules: {
+        name: [
+          {
+            required: true,
+            message: '请输入文件夹名称',
+            trigger: 'blur'
+          },
+          { max: 50, message: '请不要超过50个字符', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '请输入序号', trigger: 'blur' },
+          { type: 'number', message: '序号必须为数字值' }
+        ]
+      }
     }
   },
   watch: {
 
   },
-  methods: {}
+  methods: {
+    showShareVisible () {
+      this.shareVisible = true
+    },
+    submitFolderForm () {
+      console.info('this.folderForm', this.folderForm)
+    },
+    showNewVisible () {
+      this.newVisible = true
+    }
+  }
 }
 </script>
 
@@ -106,7 +132,7 @@ export default {
     background-color: white;
     margin-right: 20px;
     .folder {
-      padding: 15px;
+      padding: 0 15px;
       box-sizing: border-box;
       cursor: pointer;
       .folderName {
@@ -147,6 +173,10 @@ export default {
         padding-left: 40px;
         box-sizing: border-box;
       }
+    }
+    .button {
+      display: block;
+      margin: 10px auto;
     }
   }
 </style>
