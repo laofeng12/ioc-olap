@@ -63,4 +63,9 @@ public class OlapFolderServiceImpl implements OlapFolderService {
 	public List<OlapFolder> getListByCreateId(Long userId) {
 		return olapFolderRepository.findByCreateIdOrderBySortNumDesc(userId);
 	}
+
+	@Override
+	public List<OlapFolder> getListByTypeAndCreateId(Long userId, String type) {
+		return olapFolderRepository.findByCreateIdAndTypeOrderBySortNumDesc(userId,type);
+	}
 }

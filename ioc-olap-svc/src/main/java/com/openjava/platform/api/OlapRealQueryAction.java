@@ -176,6 +176,7 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "查询数据")
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
+	@Security(session=true)
 	public QueryResultMapper query(String sql, Integer limit) {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return new CubeAction().query(sql,0,limit,userVO.getUserId());
@@ -183,13 +184,14 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "获取层级文件夹结构")
 	@RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
+	@Security(session=true)
 	public ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderWithQuery() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapRealQuery>>();
-		List<OlapFolder> folders=olapFolderService.getListByCreateId(Long.parseLong(userVO.getUserId()));
+		List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"RealQuery");
 		for (OlapFolder folder : folders){
 			FolderHierarchicalVo<OlapRealQuery> folderHierarchicalVo=new FolderHierarchicalVo<OlapRealQuery>();
-			MyBeanUtils.copyPropertiesNotBlank(folder, folderHierarchicalVo);
+			MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
 			folderHierarchicalVo.setLeafs(olapRealQueryService.getListWithFolderId(folder.getFolderId()));
 			folderHierarchicalVos.add(folderHierarchicalVo);
 		}
@@ -198,6 +200,7 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "获取共享的即时查询")
 	@RequestMapping(value = "/queryShare", method = RequestMethod.GET)
+	@Security(session=true)
 	public List<OlapRealQuery> queryShare() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
