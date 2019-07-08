@@ -112,8 +112,6 @@ export default {
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
-      console.log(selected, '======', row)
-      // selection.length < 1 && this.$store.dispatch('removeSelectFiled', row)
       !selected && this.$store.dispatch('removeSelectFiled', row)
     },
     selectFiled () {

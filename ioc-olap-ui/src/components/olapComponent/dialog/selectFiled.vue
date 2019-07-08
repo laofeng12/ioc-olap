@@ -3,9 +3,9 @@
     <el-dialog title="已选维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
         <div class="item" v-for="(n, index) in options" :key="index">
-          <p>{{n.name}}</p>
+          <p>{{n.comment}}</p>
           <div class="itemFind">
-            <el-tag v-for="(item, index) in n.list" :key="index">{{item.name}}</el-tag>
+            <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag>
           </div>
         </div>
       </div>
@@ -91,7 +91,6 @@ export default {
             tableName: item.tableName,
             list: [ai]
           })
-          // console.log('dast===', dast)
         } else {
           dast.forEach((n, i) => {
             let dj = dast[i]
@@ -101,7 +100,7 @@ export default {
           })
         }
       })
-      console.log(dast, 'lalalalal')
+      this.options = dast
     }
   }
 }
@@ -111,7 +110,6 @@ export default {
 .slectFiled{
   >>>.el-dialog__body{
     .el-tag{
-      width 20%
       margin-right 20px
       margin-bottom 10px
     }

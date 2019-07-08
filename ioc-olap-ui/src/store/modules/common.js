@@ -116,7 +116,7 @@ const common = {
     },
     // 删除取消的selct
     removeSelectFiled ({ state }, data) {
-      let datas = reduceObj(state.saveSelectFiled, 'comment')
+      let datas = reduceObj(state.saveSelectFiled, 'comment') // 去重对象
       datas && datas.forEach((item, index) => {
         if (item.comment === data.comment) {
           datas.splice(index, 1)
