@@ -7,8 +7,8 @@ FROM nginx
 WORKDIR /app
 ADD docker/default.conf  /etc/nginx/conf.d/
 ADD docker/nginx.conf  /etc/nginx/
-ADD dist /app/platformweb
-RUN chmod -R 755 /app/* 
+ADD dist /app/olapweb
+RUN chmod -R 755 /app/*
 
 ADD docker/init.sh /app/init.sh
 
