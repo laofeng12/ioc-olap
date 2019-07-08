@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     cahngges (val) {
-    this.$refs.dialog.dialog()
+      this.$refs.dialog.dialog()
     },
     changeLi (index) {
       this.current = index
@@ -77,4 +77,3 @@ export default {
   }
 }
 </style>
-

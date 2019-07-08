@@ -11,12 +11,11 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-import setfactTable from '@/components/olapComponent/dialog/setfactTable'
 import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
 export default {
   components: {
-    factTable, steps, taskWark, setfactTable
+    factTable, steps, taskWark
   },
   data () {
     return {
