@@ -1,11 +1,10 @@
 <template>
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-button type="text" @click="cahngges">设置事实表</el-button>
      <ul v-if="dataList && dataList.length">
-       <li v-for="(item, index) in dataList" :class= "current === index?'actives':''" :key="index" @click="changeLi(index)"><i class="el-icon-date" style="margin-right:3px;"></i>{{item.label}}</li>
+       <li v-for="(item, index) in dataList" :class= "current === index?'actives':''" :key="index" @click="changeLi(item, index)"><i class="el-icon-date" style="margin-right:3px;"></i>{{item.label}}</li>
      </ul>
-     <div v-else>暂无数据</div>
+     <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
      <setfact-table ref="dialog"></setfact-table>
   </div>
 </template>
@@ -39,9 +38,19 @@ export default {
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
-    changeLi (index) {
+    changeLi (item, index) {
       this.current = index
+      const parmas = {
+        dsDataSourceId: 2,
+        tableName: item.label
+      }
+      this.$store.dispatch('GetColumnList', parmas).then(res => {
+        this.$root.eventBus.$emit('filedTable', res)
+      })
     }
+  },
+  beforeDestroy () {
+    this.$root.eventBus.$off('filedTable')
   }
 }
 </script>

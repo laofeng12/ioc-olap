@@ -8,6 +8,9 @@ const common = {
     saveSelectTable: [], // 数据湖选择的表
     saveLocalSelectTable: [], // 本地选择的表
     lastClickTab: '', // 存储最后一次点击的tabID
+    saveSelctchckoutone: [],
+    saveSelctchckouttwo: [],
+    saveSelectFiled: [], // 存储已选择的维度
     selectTableCount: []
   },
   mutations: {
@@ -28,6 +31,12 @@ const common = {
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableCount = val
+    },
+    SAVESELECT_ONE: (state, val) => {
+      state.saveSelctchckoutone = val
+    },
+    SAVESELECT_TWO: (state, val) => {
+      state.saveSelctchckouttwo = val
     }
   },
   actions: {
@@ -52,6 +61,13 @@ const common = {
     async GetdsUploadTable ({ commit }, params) {
       let data = await getdsUploadTable(params)
       return data
+    },
+    // 存储已选择复选框
+    saveSelctchckoutone ({ commit }, data) {
+      commit('SAVESELECT_ONE', data)
+    },
+    saveSelctchckouttwo ({ commit }, data) {
+      commit('SAVESELECT_TWO', data)
     },
     // 存储数据源选择的表
     setSerchTable ({ commit }, data) {
@@ -92,6 +108,11 @@ const common = {
     setSelectTableCount ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
+    },
+    // 存储已选择的维度
+    saveSelectFiled ({ state }, data) {
+      state.saveSelectFiled = state.saveSelectFiled.concat(data)
+      // console.log('get=====', state.saveSelectFiled)
     }
   }
 }

@@ -22,6 +22,10 @@ export function getSessionStorage (item) {
   return sessionStorage.getItem(item)
 }
 
+export function getLocalStorage (item) {
+  return localStorage.getItem(item)
+}
+
 export function GetQueryString (name) {
   var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
   var r = window.location.search.substr(1).match(reg) // search,查询？后面的参数，并匹配正则
@@ -36,6 +40,16 @@ export function throttle (fn, wait = 500, scope) {
   throttle.timer = setTimeout(function () {
     fn.apply(scope)
   }, wait)
+}
+
+// 去重对象
+export function reduceObj (arr, name) {
+  let obj = {}
+  let arrs = arr.reduce((item, next) => {
+    obj[next[name]] ? '' : obj[next[name]] = true && item.push(next)
+    return item
+  }, [])
+  return arrs
 }
 
 // 图片转为base64

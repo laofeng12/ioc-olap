@@ -29,7 +29,7 @@ export default {
       showTree: true,
       value: '',
       treeList: [],
-      defaultOpenKeys: ['783740920110077'], // 默认展开的key
+      defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -44,12 +44,10 @@ export default {
   mounted () {
     this.$root.eventBus.$on('openDefaultTree', res => {
       setTimeout(() => {
-        // this.fetchTreeList(this.lastClickTab)
-        this.$root.eventBus.$emit('getserchTableList', this.saveSelectTable, 1)
-        this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable, 1)
-        this.defaultOpenKeys = this.saveSelectTable.map(item => {
-          return item.id
-        })
+        this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList)
+        this.$root.eventBus.$emit('saveSelectTables')
+        this.$store.dispatch('changeSerachtype', 1)
+        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
       }, 1000)
     })
   },
@@ -104,7 +102,6 @@ export default {
       this.fetchTree(data.id, node.data.pId)
     },
     fetchTree (id, nodeId) {
-      console.log('调用了', id)
       this.$store.dispatch('GetSerchTable', id).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
@@ -115,6 +112,8 @@ export default {
         this.$store.dispatch('setSerchTable', res)
         // 存储当前点击的父节点的id
         this.$store.dispatch('setLastClickTab', nodeId)
+
+        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
       })
     }
   },
