@@ -49,12 +49,32 @@
 .w-form-warning-label {
   padding-left: 20px;
 }
-
+.el-table tr{
+ font-size: 13px;
+} 
 .el-table th {
   padding: 16px 0;
 }
 .el-table td {
   padding: 26px 0;
+}
+.el-table::before{
+  content: ''!important
+  height 0!important
+}
+.el-table__body td{
+  border:none!important;
+  padding:5px 0!important;
+}
+.el-table__body tr:nth-child(even){
+  background:#F2F2F2;
+}
+.el-table__header th{
+  background: #F2F2F2;
+  padding: 8px 0;
+}
+.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
+  content: '';
 }
 .el-table th.is-leaf {
   border: none;

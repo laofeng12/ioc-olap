@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@antv/g6": "^3.0.4",
     "axios": "^0.18.0",
     "ch-vue-portal-layout": "^0.0.43",
     "core-js": "^2.6.5",

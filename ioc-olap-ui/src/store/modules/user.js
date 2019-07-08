@@ -6,17 +6,12 @@ const defaultAvatar = require('@/assets/img/administrator.png')
 const user = {
   state: {
     token: '',
-    name: '',
-    userInfo: {},
-    roles: []
+    userInfo: {}
   },
 
   mutations: {
     SET_TOKEN: (state, token) => {
       state.token = token
-    },
-    SET_NAME: (state, name) => {
-      state.name = name
     },
     SET_USERINFO: (state, userInfo) => {
       state.userInfo = userInfo

@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/home/index'
 import ContainerWrapper from '@/views/ContainerWrapper'
+import stepContainer from '@/views/olap/createolap'
 import Login from '@/views/login/index'
 Vue.use(Router)
-
 export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -40,8 +40,41 @@ export default new Router({
         {
           path: 'createolap',
           name: 'createolap',
-          meta: { title: '新建OLAP模型' },
-          component: () => import('@/views/olap/createolap.vue')
+          // meta: { title: '新建OLAP模型' },
+          component: stepContainer,
+          redirect: 'createolap/selectStep',
+          children: [
+            {
+              path: 'selectStep',
+              name: 'selectStep',
+              meta: { title: '选择数据源' },
+              component: () => import(`@/components/olapComponent/createComponent/selectStep.vue`)
+            },
+            {
+              path: 'createTableRelation',
+              name: 'createTableRelation',
+              meta: { title: '建立表关系' },
+              component: () => import('@/components/olapComponent/createComponent/createTableRelation.vue')
+            },
+            {
+              path: 'setFiled',
+              name: 'setFiled',
+              meta: { title: '设置维度字段' },
+              component: () => import('@/components/olapComponent/createComponent/setFiled.vue')
+            },
+            {
+              path: 'setMeasure',
+              name: 'setMeasure',
+              meta: { title: '设置度量字段' },
+              component: () => import('@/components/olapComponent/createComponent/setMeasure.vue')
+            },
+            {
+              path: 'reloadSet',
+              name: 'reloadSet',
+              meta: { title: '刷新及过滤设置' },
+              component: () => import('@/components/olapComponent/createComponent/reloadSet.vue')
+            }
+          ]
         }
       ]
     },

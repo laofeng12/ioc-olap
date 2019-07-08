@@ -1,29 +1,30 @@
 <template>
   <div class="creates">
+    <header>
+      <el-button icon="el-icon-arrow-left"></el-button>
+      <el-input v-model="value" placeholder="请输入模型名称(1~20字)"></el-input>
+    </header>
     <head-box :selectId="selectStep"></head-box>
-    <select-step :class="selectStep === 1?'showBox':'hideBox'"></select-step>
-    <create-table-relation :class="selectStep === 2?'showBox':'hideBox'"></create-table-relation>
-    <set-filed :class="selectStep === 3?'showBox':'hideBox'"></set-filed>
-    <set-measure :class="selectStep === 4?'showBox':'hideBox'"></set-measure>
+    <div>
+      <transition name="fade-transform" mode="out-in">
+        <router-view></router-view>
+      </transition>
+    </div>
   </div>
 </template>
 
 <script>
 import headBox from '@/components/olapComponent/common/head'
-import selectStep from '@/components/olapComponent/createComponent/selectStep'
-import createTableRelation from '@/components/olapComponent/createComponent/createTableRelation'
-import setFiled from '@/components/olapComponent/createComponent/setFiled'
-import setMeasure from '@/components/olapComponent/createComponent/setMeasure'
 export default {
-  components: { headBox, selectStep, createTableRelation, setFiled, setMeasure },
+  components: { headBox },
   data () {
     return {
-      selectStep: 1
+      selectStep: 1,
+      value: ''
     }
   },
   methods: {
     getStepCountAdd (val) {
-      console.log(val)
       this.selectStep += 1
     },
     getStepCountReduce (val) {
@@ -35,7 +36,32 @@ export default {
 <style lang="stylus" scoped>
 .creates{
   position relative
+  margin-top -25px
   width 100%
+  header{
+    height 40px
+    width 100%
+    background #F2F2F2
+    margin-bottom 15px
+    >>>.el-button{
+      float left
+      background #F2F2F2
+      border none
+      font-size 20px
+      height 38px
+      border-right 1px solid #ccc
+    }
+    >>>.el-input{
+      float left
+      width 200px
+      margin-left 20px
+      height 30px
+      margin-top 5px
+      .el-input__inner{
+        height 30px
+      }
+    }
+  }
   .showBox{
     opacity 1
     >>>.serchTable{

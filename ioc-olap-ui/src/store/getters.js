@@ -3,10 +3,12 @@ const getters = {
   device: state => state.app.device,
   token: state => state.user.token,
   userInfo: state => state.user.userInfo,
-  name: state => state.user.name,
-  roles: state => state.user.roles,
   menuList: state => state.app.menuList,
-  imagesList: state => state.dictionary.imagesList,
-  catalogmenuList: state => state.app.catalogmenuList
+  treeList: state => state.common.treeList,
+  serchTableList: state => state.common.menuList,
+  saveSelectTable: state => state.common.saveSelectTable,
+  saveLocalSelectTable: state => state.common.saveLocalSelectTable,
+  selectTableCount: state => state.common.selectTableCount,
+  lastClickTab: state => state.common.lastClickTab
 }
 export default getters

@@ -1,11 +1,11 @@
 <template>
   <div class="setFiled">
     <div class="containers">
-      <serch-table></serch-table>
+      <fact-table></fact-table>
       <div class="dimension" style="margin-left:240px;">
         <p>
           <span>维度选择</span>
-          <span style="color:green;margin-left:10px;">已选维度</span>
+          <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
         </p>
         <el-form>
           <el-table
@@ -38,17 +38,20 @@
         </el-form>
       </div>
     </div>
-    <steps :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <select-filed ref="dialog"></select-filed>
+    <steps class="steps" :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
+import selectFiled from '@/components/olapComponent/dialog/selectFiled'
 export default {
   components: {
-    serchTable,
-    steps
+    factTable,
+    steps,
+    selectFiled
   },
   data () {
     return {
@@ -56,11 +59,11 @@ export default {
       currentPage: 1,
       totalCount: 1,
       tableData: [
-        { apiName: '111', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '222', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '333', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '444', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '555', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
+        { apiName: '111', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '222', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '333', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '444', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
+        { apiName: '555', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' }
       ]
     }
   },
@@ -68,13 +71,18 @@ export default {
   },
   methods: {
     nextModel (val) {
+      this.$router.push('/olap/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
+      this.$router.push('/olap/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
     handleSelectionChange (val) {
 
+    },
+    selectFiled () {
+      this.$refs.dialog.dialog()
     }
   }
 }
