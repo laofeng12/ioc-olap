@@ -3,7 +3,8 @@
     <div class="containers">
       <fact-table></fact-table>
       <!-- <task-wark></task-wark> -->
-      
+      <task-wark></task-wark>
+      <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
         <button style="width:100px;height:30px" @click="click_add">add</button>
         <div id="myholder" @click="click_joint"></div>
@@ -16,7 +17,6 @@
           </div>
         </div>
       </div>
-      
     </div>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
@@ -25,10 +25,10 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-let $ = require('jquery')
-let joint = require('jointjs')
 import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
+let $ = require('jquery')
+let joint = require('jointjs')
 
 export default {
   components: {
@@ -46,7 +46,6 @@ export default {
   },
   methods: {
     init () {
-        this.selection = [];
         this.graph = new joint.dia.Graph;
  
         let paper = new joint.dia.Paper({
@@ -168,12 +167,12 @@ export default {
         display: 'none'
       })
     },
-    showCellLayer(element) {
-      let haloTypes = ['remove', 'link', 'clone', 'resize'];
+    showCellLayer (element) {
+      let haloTypes = ['remove', 'link', 'clone', 'resize']
       let parentOffset = $('.holder').offset()
       let rect = element.$el[0].getBoundingClientRect()
       let offset = element.$el.offset()
-      
+
       let $rect = $('.papers')
       let $layer = $('.halo-cell-layer')
 
@@ -198,18 +197,18 @@ export default {
 
       // $rect.append($layer)
     },
-    click_add() {
+    click_add () {
       let rect3 = new joint.shapes.basic.Rect({
         position: { x: 100, y: 130 },
         size: { width: 100, height: 30 },
         attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-      });
-      this.graph.addCells([rect3]);
+      })
+      this.graph.addCells([rect3])
     },
 
-    click_joint() {
+    click_joint () {
       // let graph = new joint.dia.Graph;
- 
+
       // let paper = new joint.dia.Paper({
       //   el: $('#myholder'),
       //   width: 600,
@@ -217,21 +216,21 @@ export default {
       //   model: graph,
       //   gridSize: 1
       // });
- 
+
       // let rect = new joint.shapes.basic.Rect({
       //   position: { x: 100, y: 30 },
       //   size: { width: 100, height: 30 },
       //   attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
       // });
- 
+
       // let rect2 = rect.clone();
       // rect2.translate(300);
- 
+
       // let link = new joint.dia.Link({
       //   source: { id: rect.id },
       //   target: { id: rect2.id }
       // });
- 
+
       // graph.addCells([rect, rect2, link]);
     },
     nextModel (val) {

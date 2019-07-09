@@ -35,17 +35,12 @@ export default {
   },
   mounted () {
     // 接收数据湖传递的信息
-    this.$root.eventBus.$on('getserchTableList', (res, type) => {
+    this.$root.eventBus.$on('getserchTableList', res => {
       this.dataList[0].children = []
       this.loading = true
-      if (type && type === 1) {
-        res.map(res => { this.dataList[0].children.push({ id: res.id, label: res.label }) })
+      if (res.code === 200) {
+        res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
         setTimeout(() => { this.loading = false }, 300)
-      } else {
-        if (res.code === 200) {
-          res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
-          setTimeout(() => { this.loading = false }, 300)
-        }
       }
     })
     // 接收本地上传传递的信息
@@ -70,9 +65,9 @@ export default {
       this.defaultKey = []
       this.$refs.trees.setCheckedKeys([])
       if (this.$store.state.common.searchType === 1) {
-        type === 1 ? res1.map(item => { this.defaultKey.push(item.id) }) : res2.map(item => { this.defaultKey.push(item.id) })
+        this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
       } else {
-        type === 1 ? res2.map(item => { this.defaultKey.push(item.id) }) : res1.map(item => { this.defaultKey.push(item.id) })
+        this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
       }
       setTimeout(() => {
         this.loading = false
@@ -139,7 +134,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveSelectTable: 'saveSelectTable'
+      saveSelectTable: 'saveSelectTable',
+      saveSelctchckoutone: 'saveSelctchckoutone',
+      saveSelctchckouttwo: 'saveSelctchckouttwo'
     })
   },
   beforeDestroy () {

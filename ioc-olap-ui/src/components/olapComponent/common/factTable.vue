@@ -63,7 +63,7 @@ export default {
       color #000000
     }
     .actives{
-      color #cccccc
+      color #009688
     }
   }
   >>>.el-input{

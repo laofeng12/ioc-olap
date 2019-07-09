@@ -42,13 +42,13 @@ export default {
       this.$router.push('/olap/createolap/createTableRelation')
     },
     tabClick (val) {
-      // 推送已选择的复选框按钮到serachTable
-      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
-        }) && this.$store.dispatch('changeSerachtype', 2)
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
+        }) && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+      // 推送已选择的复选框按钮到serachTable
+      this.$root.eventBus.$emit('saveSelectTables')
     }
   },
   computed: {

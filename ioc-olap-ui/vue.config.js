@@ -1,5 +1,5 @@
-// const baseUrl = process.env.NODE_ENV === 'production' ? '/platformweb' : '/platformweb'
-const baseUrl = '/'
+const baseUrl = process.env.NODE_ENV === 'production' ? '/' : '/'
+// const baseUrl = '/'
 const path = require('path')
 function resolve (dir) {
   return path.join(__dirname, '.', dir)
@@ -10,19 +10,19 @@ module.exports = {
   productionSourceMap: false,
   devServer: {
     proxy: {
-      '/platformweb/admin/': {
+      '/admin/': {
         target: 'http://183.6.55.26:31075', // 公司测试环境
-        pathRewrite: { '^/platformweb/admin/': '/admin/' },
+        pathRewrite: { '^/olapweb/admin/': '/admin/' },
         changeOrigin: true
       },
-      '/platformweb/gateway/': {
+      '/gateway/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
-        pathRewrite: { '^/platformweb/gateway/': '/gateway/' }
+        pathRewrite: { '^/olapweb/gateway/': '/gateway/' }
       },
-      '/platformweb/ljdp/': {
+      '/ljdp/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
         // target: 'http://192.168.8.83:8081', // 中良本机
-        pathRewrite: { '^/platformweb/ljdp/': '/ljdp/' },
+        pathRewrite: { '^/olapweb/ljdp/': '/ljdp/' },
         changeOrigin: true
       },
       '/pds/': {

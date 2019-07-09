@@ -77,6 +77,26 @@ export default new Router({
           ]
         }
       ]
+    },
+    {
+      path: '/queries',
+      name: 'queries',
+      component: ContainerWrapper,
+      redirect: '/queries/adHocQueries',
+      children: [
+        {
+          path: 'adHocQueries',
+          name: 'adHocQueries',
+          meta: { title: '即席分析' },
+          component: () => import('@/views/olap/adHocQueries.vue')
+        }
+        // {
+        //   path: 'createolap',
+        //   name: 'createolap',
+        //   meta: { title: '新建OLAP模型' },
+        //   component: () => import('@/views/olap/createolap.vue')
+        // }
+      ]
     }
   ]
 })
