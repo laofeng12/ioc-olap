@@ -42,6 +42,63 @@
             </div>
           </el-card>
         </div>
+        <div class="setRowkeys">
+          <p style="margin:20px 0">Rowkeys设置</p>
+          <el-table
+            :data="tableData"
+            ref="multipleTable"
+            tooltip-effect="dark"
+            @selection-change="handleSelectionChange"
+            style="margin-top: 10px;">
+            <el-table-column prop="apiName" label="序号" align="center"> </el-table-column>
+            <el-table-column prop="type" label="字段名称" align="center"> </el-table-column>
+            <el-table-column prop="apiPaths" label="编码类型" align="center">
+              <template slot-scope="scope">
+                <el-form-item :prop="'answers.' + scope.$index + '.catalogName'" class="selects">
+                  <el-select v-model="scope.row.catalogName" placeholder="请选择">
+                    <el-option v-for="(item, index) in options" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                  </el-select>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column prop="apiPaths" label="长度" align="center">
+              <template slot-scope="scope">
+                <div>
+                  <el-input type="text" v-model="scope.row.apiPaths"></el-input>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="apiPaths" label="碎片区" align="center">
+              <template slot-scope="scope">
+                <el-form-item :prop="'answers.' + scope.$index + '.catalogName'" class="selects">
+                  <el-select v-model="scope.row.catalogName" placeholder="请选择">
+                    <el-option v-for="(item, index) in options" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                  </el-select>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center">
+              <template slot-scope="scope">
+                <div class="play">
+                  <el-button type="text" size="mini" @click="addReloadSet" icon="el-icon-edit"></el-button>
+                  <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="listSet">
+          <span>维度黑白名单设置</span>
+          <div class="adds" v-for="(n, i) in dimensionData" :key="i">
+            <div class=""></div>
+            <p>
+              <i class="el-icon-remove" @click="removedimensionData(index, i)"></i>
+              <i class="el-icon-circle-plus" @click="addimensionData(i)"></i>
+            </p>
+          </div>
+        </div>
      </el-form>
      <add-reload-set ref="dialog"></add-reload-set>
      <steps class="steps" :step="6" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -71,6 +128,9 @@ export default {
             { index: '' }
           ]
         }
+      ],
+      dimensionData: [
+        { index: '' }
       ],
       options: [{
         value: '选项1',
@@ -150,6 +210,15 @@ export default {
       if (this.aggregationData[index].jointData.length === 1) return this.$message.error('必须保留一个~')
       this.aggregationData[index].jointData.splice(i, 1)
     },
+    addimensionData (index) {
+      this.dimensionData.jointData.push({
+        index: ''
+      })
+    },
+    removedimensionData (index) {
+      if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
+      this.dimensionData.splice(index, 1)
+    },
     changeUploadNum (val) {
       console.log(val)
     },
@@ -170,6 +239,11 @@ export default {
   >>>.el-form-item__label{
     width 120px
     text-align left
+  }
+  .selects{
+    margin-bottom 0
+  }
+  >>>.el-form-item{
   }
   .aggregation{
     margin-top 20px
@@ -218,6 +292,36 @@ export default {
       }
       .noflex{
         display initial!important
+      }
+    }
+  }
+  .listSet{
+    margin-top 20px
+    span{
+      width 100px
+    }
+    .adds{
+      display flex
+      width 100%
+      div{
+        margin-left 120px
+        flex 1
+        border 1px solid #cccccc
+      }
+    }
+    .adds:first-child{
+      margin-top -20px
+    }
+    p{
+      width 80px
+      text-align center
+      margin-top 10px
+      i{
+        color red
+        font-size 25px
+      }
+      i:nth-child(2){
+        color green
       }
     }
   }

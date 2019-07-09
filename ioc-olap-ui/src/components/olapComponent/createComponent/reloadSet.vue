@@ -103,7 +103,6 @@
           tooltip-effect="dark"
           @selection-change="handleSelectionChange"
           style="margin-top: 10px;">
-          <el-table-column type="selection" prop="序号" align="center"></el-table-column>
           <el-table-column prop="apiName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="type" label="字段" align="center"> </el-table-column>
           <el-table-column prop="catalogName" label="过滤方式" align="center"> </el-table-column>
