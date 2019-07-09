@@ -103,6 +103,7 @@ export default {
     },
     fetchTree (id, nodeId) {
       this.$store.dispatch('GetSerchTable', id).then(res => {
+        console.log(res, '============')
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
         }

@@ -73,6 +73,12 @@ export default new Router({
               name: 'reloadSet',
               meta: { title: '刷新及过滤设置' },
               component: () => import('@/components/olapComponent/createComponent/reloadSet.vue')
+            },
+            {
+              path: 'advancedSet',
+              name: 'advancedSet',
+              meta: { title: '高级设置' },
+              component: () => import('@/components/olapComponent/createComponent/advancedSet.vue')
             }
           ]
         }

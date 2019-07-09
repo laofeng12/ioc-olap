@@ -2,7 +2,7 @@
   <div class="tableRelation">
     <div class="containers">
       <fact-table></fact-table>
-      <task-wark></task-wark>
+      <!-- <task-wark></task-wark> -->
       <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
         <div id="myholder" @click="click_joint"></div>
@@ -23,14 +23,14 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-import taskWark from '@/components/olapComponent/common/taskWark'
+// import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
 let $ = require('jquery')
 let joint = require('jointjs')
 
 export default {
   components: {
-    factTable, steps, taskWark
+    factTable, steps
   },
   data () {
     return {
@@ -49,7 +49,7 @@ export default {
 
       let paper = new joint.dia.Paper({
         el: $('#myholder'),
-        width: 600,
+        width: 100 + '%',
         height: 600,
         model: this.graph,
         gridSize: 1
@@ -81,7 +81,7 @@ export default {
 
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('cell:pointerup', (e, d) => {
-        // console.log(e);
+        console.log(e)
         if (this.isClick) {
           this.showCellLayer(e)
           this.isClick = false

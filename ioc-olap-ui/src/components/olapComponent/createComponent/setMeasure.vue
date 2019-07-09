@@ -22,7 +22,7 @@
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="text" size="mini" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" @click="addMeasure(tableData)" icon="el-icon-edit"></el-button>
                 <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
               </div>
             </template>
