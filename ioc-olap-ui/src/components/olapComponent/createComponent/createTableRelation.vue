@@ -3,10 +3,6 @@
     <div class="containers">
       <fact-table></fact-table>
       <!-- <task-wark></task-wark> -->
-<<<<<<< HEAD
-=======
-      <button style="width:100px;height:30px" @click="click_add">add</button>
->>>>>>> 设置度量字段
       <div class="holder">
         <button style="width:100px;height:30px" @click="click_add">add</button>
         <div id="myholder" @click="click_joint"></div>
@@ -27,14 +23,14 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-// import taskWark from '@/components/olapComponent/common/taskWark'
+import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
 let $ = require('jquery')
 let joint = require('jointjs')
 
 export default {
   components: {
-    factTable, steps
+    factTable, steps, taskWark
   },
   data () {
     return {
@@ -48,7 +44,6 @@ export default {
   },
   methods: {
     init () {
-<<<<<<< HEAD
         this.graph = new joint.dia.Graph;
  
         let paper = new joint.dia.Paper({
@@ -139,24 +134,6 @@ export default {
         })
         
     },
-=======
-      this.selection = []
-      this.graph = new joint.dia.Graph()
-
-      let paper = new joint.dia.Paper({
-        el: $('#myholder'),
-        width: 100 + '%',
-        height: 600,
-        model: this.graph,
-        gridSize: 1
-      })
-
-      let rect = new joint.shapes.basic.Rect({
-        position: { x: 100, y: 30 },
-        size: { width: 100, height: 30 },
-        attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-      })
->>>>>>> 设置度量字段
 
     clearElementLink: function(target) {
       console.log(target)
@@ -176,22 +153,8 @@ export default {
 
     getLinkElement: function(point) {
 
-<<<<<<< HEAD
       let eles = this.graph.getElements() || []
       let element = null
-=======
-      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-      paper.on('cell:pointerup', (e, d) => {
-        console.log(e)
-        if (this.isClick) {
-          this.showCellLayer(e)
-          this.isClick = false
-        } else {
-          let eles = this.graph.getElements()
-          console.log(eles)
-        }
-      })
->>>>>>> 设置度量字段
 
       if(!point || !point.x || !point.y) {
         return false
