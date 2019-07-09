@@ -25,4 +25,6 @@ public interface OlapFolderService {
 	void doRemove(String ids);
 
 	List<OlapFolder> getListByCreateId(Long userId);
+
+    List<OlapFolder> getListByTypeAndCreateId(Long userId, String type);
 }

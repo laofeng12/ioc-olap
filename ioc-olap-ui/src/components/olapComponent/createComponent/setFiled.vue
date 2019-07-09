@@ -1,22 +1,24 @@
 <template>
   <div class="setFiled">
     <div class="containers">
-      <serch-table></serch-table>
+      <filed-table></filed-table>
       <div class="dimension" style="margin-left:240px;">
         <p>
           <span>维度选择</span>
-          <span style="color:green;margin-left:10px;">已选维度</span>
+          <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
         </p>
         <el-form>
           <el-table
               :data="tableData"
+              v-loading="loading"
               ref="multipleTable"
               tooltip-effect="dark"
-              @selection-change="handleSelectionChange"
+              @select="selectcheck"
+               @selection-change="handleSelectionChange"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="apiName" label="字段名称" align="center"> </el-table-column>
-              <el-table-column prop="catalogName" label="字段类型" align="center"> </el-table-column>
+              <el-table-column prop="comment" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <div>
@@ -38,44 +40,92 @@
         </el-form>
       </div>
     </div>
-    <steps :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <select-filed ref="dialog"></select-filed>
+    <steps class="steps" :step="3" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import filedTable from '@/components/olapComponent/common/filedTable'
 import steps from '@/components/olapComponent/common/steps'
+import selectFiled from '@/components/olapComponent/dialog/selectFiled'
+import { mapGetters } from 'vuex'
+import { setTimeout } from 'timers'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
-    serchTable,
-    steps
+    filedTable,
+    steps,
+    selectFiled
   },
   data () {
     return {
       pageSize: 20,
       currentPage: 1,
+      loading: false,
       totalCount: 1,
-      tableData: [
-        { apiName: '111', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '222', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '333', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '444', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-        { apiName: '555', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2'},
-      ]
+      tableData: []
     }
   },
   mounted () {
+    this.$root.eventBus.$emit('createTable', this.selectTableCount)
+    this.$root.eventBus.$on('filedTable', (res, code) => {
+      let reduceData = this.saveSelectFiled
+      this.loading = true
+      if (code === 200) {
+        this.tableData = res
+        setTimeout(() => {
+          this.loading = false
+          let arr = []
+          this.tableData.forEach(item => {
+            reduceData && reduceData.forEach(val => {
+              if (val.columnName === item.columnName) {
+                arr.push(item)
+              }
+            })
+          })
+          this.toggleSelection(arr)
+        }, 300)
+      }
+    })
   },
   methods: {
+    toggleSelection (rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row, true)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
+      }
+    },
     nextModel (val) {
+      this.$router.push('/olap/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
+      this.$router.push('/olap/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
     handleSelectionChange (val) {
-
+      this.$store.dispatch('saveSelectFiled', val)
+    },
+    selectcheck (rows, row) {
+      let selected = rows.length && rows.indexOf(row) !== -1
+      !selected && this.$store.dispatch('removeSelectFiled', row)
+      // 若点击 左侧对应父级菜单高亮
+      this.$root.eventBus.$emit('tableNameActive')
+    },
+    selectFiled () {
+      let data = this.saveSelectFiled// 去重后的选择项
+      this.$refs.dialog.dialog(data)
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableCount: 'selectTableCount',
+      saveSelectFiled: 'saveSelectFiled'
+    })
   }
 }
 </script>

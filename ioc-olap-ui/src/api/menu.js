@@ -1,11 +1,10 @@
-import { request } from '@/utils/request'
+import fetch from '@/utils/fetch'
 
 /**
  * 获取菜单列表
- * @param {object} params
  */
 export function getMenuList (params) {
-  return request({
+  return fetch({
     url: '/admin/res/sysRes/myResources',
     method: 'get',
     params
@@ -14,10 +13,9 @@ export function getMenuList (params) {
 
 /**
  * 获取服务目录&&第三方服务
- * @param {object} params
  */
 export function getCatalogMenu (params) {
-  return request({
+  return fetch({
     url: '/category/services/spServiceCatalog/getCatalogMenu',
     method: 'GET',
     params

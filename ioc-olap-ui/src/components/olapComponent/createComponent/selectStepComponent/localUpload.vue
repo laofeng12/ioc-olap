@@ -1,13 +1,23 @@
 <template>
  <div class="datalake">
   <serch-table></serch-table>
-  <div class="step1_tab">
+  <div class="step_tab">
     <el-tabs v-model="activeName">
         <el-tab-pane label="表数据" name="1">
-          <element-table :tableData="managementData" :colConfigs="managementHead"></element-table>
+          <div class="tableBox" v-if="managementHead && managementHead.length">
+            <div class="tableBox_item headStep">
+              <!-- <li v-if="managementHead && managementHead.length">序号</li> -->
+              <span v-for="(item, index) in managementHead" :key="index">{{item.label}}</span>
+            </div>
+            <div class="tableBox_item">
+              <span v-for="(n, index) in managementData[0]" :key="index">{{n}}</span>
+            </div>
+          </div>
+          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
         <el-tab-pane label="字段说明" name="2">
-          <element-table :tableData="managementData2" :colConfigs="managementHead2"></element-table>
+          <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
+          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
       </el-tabs>
   </div>
@@ -24,40 +34,37 @@ export default {
   data () {
     return {
       activeName: '1',
-      managementData: [
-        { index: '1', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
-        { index: '2', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
-        { index: '3', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
-        { index: '4', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' },
-        { index: '5', userAccount1: '啦啦啦', userAccount2: '啦啦啦', userAccount3: '啦啦啦', userAccount4: '啦啦啦', userAccount5: '啦啦啦', userAccount6: '啦啦啦', userAccount7: '啦啦啦', userAccount8: '啦啦啦', userAccount9: '啦啦啦', userAccount10: '啦啦啦' }
-
-      ],
-      managementHead: [
-        { prop: 'index', label: '字段名称' },
-        { prop: 'userAccount1', label: '字段类型' },
-        { prop: 'userAccount2', label: '字段描述' },
-        { prop: 'userAccount3', label: '广告版位' },
-        { prop: 'userAccount4', label: '目标群体' },
-        { prop: 'userAccount5', label: '展示时间' },
-        { prop: 'userAccount6', label: '权重' },
-        { prop: 'userAccount7', label: '排序' },
-        { prop: 'userAccount8', label: '点击数' },
-        { prop: 'userAccount9', label: '状态' },
-        { prop: 'userAccount10', label: '添加时间' }
-      ],
-      managementData2: [
-        { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
-        { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
-        { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
-        { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' },
-        { userAccount: '阿萨德', userAccount1: '啦啦啦', userAccount2: '啦啦啦' }
-      ],
-      managementHead2: [
-        { prop: 'userAccount', label: '字段名称' },
-        { prop: 'userAccount1', label: '字段类型' },
-        { prop: 'userAccount2', label: '字段描述' }
+      loadingPlan: false,
+      managementData: [],
+      managementHead: [],
+      descriptionData: [],
+      descriptionHead: [
+        { prop: 'comment', label: '字段名称' },
+        { prop: 'dataType', label: '字段类型' },
+        { prop: 'columnName', label: '字段描述' }
       ]
     }
+  },
+  mounted () {
+    this.$root.eventBus.$on('getLocalTableHeadList', res => {
+      this.managementHead = []
+      this.loadingPlan = true
+      if (res.code === 200) {
+        this.loadingPlan = false
+        this.descriptionData = res.data
+        res.data.map((res, index) => {
+          this.managementHead.push({ label: res.comment })
+        })
+      }
+    })
+    // 获取表格数据
+    this.$root.eventBus.$on('getLocalTableContentList', res => {
+      this.loadingPlan = true
+      if (res.code === 200) {
+        this.loadingPlan = false
+        this.managementData = res.data.data
+      }
+    })
   }
 }
 </script>
@@ -65,21 +72,41 @@ export default {
 <style lang="stylus" scoped>
 .datalake {
   position absolute
-  height 80%
+  height 95%
   width 100%
   display flex
-  padding-bottom 50px
-  // overflow-x auto
-  .step1_tab{
+  .trees{
+
+  }
+  .step_tab{
     flex 1
     >>>.el-tabs__header{
       margin-top 0px
+      padding-left 10px
       border-top 0px solid #cccccc
     }
     >>>.el-tabs__content{
-      padding 10px
-      // overflow hidden
-      height auto!important
+      padding 0px!important
+      overflow-y auto
+      padding-bottom 100px!important
+    }
+    >>>.el-table{
+      margin-top 10px
+    }
+    .tableBox_item{
+      width 100%
+      display flex
+      background #F2F2F2
+      span{
+        width 120px
+        float left
+        height 40px
+        line-height 40px
+        text-align center
+      }
+    }
+    .tableBox div:nth-child(even){
+      background #ffffff!important
     }
   }
 }

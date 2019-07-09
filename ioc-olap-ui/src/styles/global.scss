@@ -7,7 +7,9 @@
   min-height: $containerMinHeight;
   box-sizing: border-box;
 }
-
+.navbar{
+  padding:15px 0!important;
+}
 .operation-btn-group-wrapper {
   margin-top: 20px;
 }
@@ -110,6 +112,12 @@ p {
   width:auto!important
 }
 
+.steps{
+  position: fixed;
+  bottom:20px;
+  left:50%;
+} 
+
 // 头部一个输入框的时候
 .search_head{
   .el-form-item__content{
@@ -149,8 +157,20 @@ p {
 .p-r-24 {
   padding-left: 24px;
 }
+.m-t-5 {
+  margin-top: 5px;
+}
+.m-t-10 {
+  margin-top: 10px;
+}
+.m-t-15 {
+  margin-top: 15px;
+}
 .m-t-16 {
   margin-top: 16px;
+}
+.m-t-20 {
+  margin-top: 20px;
 }
 .ch-button-list-border-r {
   position: relative;
@@ -218,4 +238,47 @@ p {
 
 .f-right {
   float: right;
+}
+.c-333 {
+  color: #333333;
+}
+.c-666 {
+  color: #666666;
+}
+.c-999 {
+  color: #999999;
+}
+.f-w-b {
+  font-weight: bold;
+}
+.f-s-12 {
+  font-size: 12px;
+}
+.f-s-14 {
+  font-size: 14px;
+}
+.f-s-16 {
+  font-size: 16px;
+}
+.dis-flex {
+  display: flex;
+}
+.l-h-30 {
+  height: 30px;
+  line-height: 30px;
+}
+.l-h-35 {
+  height: 35px;
+  line-height: 35px;
+}
+.l-h-40 {
+  height: 40px;
+  line-height: 40px;
+}
+.l-h-45 {
+  height: 45px;
+  line-height: 45px;
+}
+.b-b {
+  border-bottom: 1px #ddd solid;
 }

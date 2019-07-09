@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { getMenuList, getCatalogMenu } from '@/api/menu'
+import { getMenuList } from '@/api/menu'
 
 const app = {
   state: {
@@ -35,11 +35,16 @@ const app = {
         resURL: '/olap',
         resIcon: 'fa fa-columns',
         subResList: []
+      }, {
+        resId: '1',
+        index: '5',
+        resName: '即系查询',
+        resURL: '/queries',
+        resIcon: 'fa fa-columns',
+        subResList: []
       }]
     }],
-    catalogmenuList: [],
-    myRoutes: [],
-    serviceData: {}
+    myRoutes: []
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -64,10 +69,6 @@ const app = {
     },
     CHANGE_MY_ROUTES: (state, myRoutes) => {
       state.myRoutes = myRoutes
-    },
-    GET_CATALOG_MENU: (state, catalogmenu) => {
-      // state.catalogmenuList = catalogmenu
-      state.menuList.push(catalogmenu)
     },
     SHOW_SIDBAR: (state) => {
       state.sidebar.opened = true

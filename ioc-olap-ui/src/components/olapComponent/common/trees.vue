@@ -8,7 +8,9 @@
         v-loading="treeLoading"
         :expand-on-click-node="false"
         node-key="id"
+        :highlight-current="showTree"
         @node-click="getCurrents"
+        :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
         :props="defaultProps">
@@ -18,15 +20,16 @@
 </template>
 
 <script>
-import { getMechanismTree } from '@/api/common'
+import { setTimeout } from 'timers'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
       treeLoading: false,
+      showTree: true,
       value: '',
-      resultList: [],
       treeList: [],
-      resetNodeList: [],
+      defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -38,30 +41,44 @@ export default {
       this.$refs.tree.filter(val)
     }
   },
+  mounted () {
+    this.$root.eventBus.$on('openDefaultTree', res => {
+      setTimeout(() => {
+        this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList)
+        this.$root.eventBus.$emit('saveSelectTables')
+        this.$store.dispatch('changeSerachtype', 1)
+        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+      }, 1000)
+    })
+  },
   methods: {
-    fetchTreeList () {
-      try {
-        this.treeLoading = true
-        getMechanismTree().then(res => {
-          this.setTree(res.resources)
+    fetchTreeList (val) {
+      this.treeLoading = true
+      this.$store.dispatch('GetTreeList').then(res => {
+        if (res && res.code === 200) {
           this.treeLoading = false
-          setTimeout(() => {
-            this.$refs.tree.store.nodesMap[this.treeList[0].id].expanded = true
+          this.setTree(res.list)
+          const ids = val || this.treeList[0].id
+          ids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[ids].expanded = true
           }, 500)
-        })
-      } catch (error) {
-        this.$message.error(error || '服务异常')
-      }
+          this.defaultFrist(this.treeList)
+        }
+      })
+    },
+    // 默认点击第一项的递归计算
+    defaultFrist (val) {
+      // console.log(val)
     },
     setTree (val) {
       let item = []
       val.map((list, i) => {
         let newData = {}
-        newData.label = list.orgName
-        newData.id = list.orgId
-        newData.pId = list.parentId
+        newData.label = list.rdcAme
+        newData.id = list.rdcId
+        newData.pId = list.prdcid
         newData.is_show_add = true
-        newData.children = list.subOrgList ? this.setTree(list.subOrgList) : []
+        newData.children = list.children ? this.setTree(list.children) : []
         item.push(newData)
       })
       this.treeList = item
@@ -81,28 +98,38 @@ export default {
     },
     // 选中当前修改
     getCurrents (data, node, me) {
-      this.resetNode(node)
-      if (data.pId) {
-        this.$root.eventBus.$emit('giveMechanismId', data, this.resetNodeList)
-      }
+      if (data.pId === 0) return
+      this.fetchTree(data.id, node.data.pId)
     },
-    // 获取父节点的label
-    resetNode (val) {
-      this.resetNodeList = []
-      if (val.parent && val.parent.parent !== null) {
-        this.resetNode(val.parent)
-        this.resetNodeList.push(val.label)
-      } else {
-        this.resetNodeList.push(val.label)
-      }
+    fetchTree (id, nodeId) {
+      this.$store.dispatch('GetSerchTable', id).then(res => {
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res)
+        }
+        // 点击时清除其他选择框
+        this.$root.eventBus.$emit('clearSelect')
+        // 存储当前选择数据源
+        this.$store.dispatch('setSerchTable', res)
+        // 存储当前点击的父节点的id
+        this.$store.dispatch('setLastClickTab', nodeId)
+
+        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+      })
     }
   },
-  // 防止兄弟组件多次通信
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable',
+      lastClickTab: 'lastClickTab'
+    })
+  },
   beforeDestroy () {
-    this.$root.eventBus.$off('giveMechanismId')
+    this.$root.eventBus.$off('getserchTableList')
+    this.$root.eventBus.$off('clearSelect')
   },
   created () {
-    this.fetchTreeList()
+    this.fetchTreeList(this.lastClickTab)
   }
 }
 </script>
@@ -110,20 +137,17 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     height 98%
-    width 20%
+    width 200px
+    height calc(100vh - 150px)
+    border-right 1px solid #f0f0f0
     .trees{
+      width 198px
       height 100%
       overflow-y auto
     }
     >>>.el-tree{
-      min-width 500px
+      // min-width 500px
       overflow: initial
-    }
-    >>>.el-loading-spinner{
-      width 35%
-    }
-    >>>.el-tree__empty-block{
-      width 35%
     }
     >>>.el-input__suffix{
       margin-top -10px
