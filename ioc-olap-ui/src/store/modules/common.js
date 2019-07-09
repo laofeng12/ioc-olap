@@ -1,4 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
+import { reduceObj } from '@/utils/index'
 
 const common = {
   state: {
@@ -8,6 +9,9 @@ const common = {
     saveSelectTable: [], // 数据湖选择的表
     saveLocalSelectTable: [], // 本地选择的表
     lastClickTab: '', // 存储最后一次点击的tabID
+    saveSelctchckoutone: [],
+    saveSelctchckouttwo: [],
+    saveSelectFiled: [], // 存储已选择的维度
     selectTableCount: []
   },
   mutations: {
@@ -28,6 +32,12 @@ const common = {
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableCount = val
+    },
+    SAVESELECT_ONE: (state, val) => {
+      state.saveSelctchckoutone = val
+    },
+    SAVESELECT_TWO: (state, val) => {
+      state.saveSelctchckouttwo = val
     }
   },
   actions: {
@@ -52,6 +62,13 @@ const common = {
     async GetdsUploadTable ({ commit }, params) {
       let data = await getdsUploadTable(params)
       return data
+    },
+    // 存储已选择复选框
+    saveSelctchckoutone ({ commit }, data) {
+      commit('SAVESELECT_ONE', data)
+    },
+    saveSelctchckouttwo ({ commit }, data) {
+      commit('SAVESELECT_TWO', data)
     },
     // 存储数据源选择的表
     setSerchTable ({ commit }, data) {
@@ -92,6 +109,21 @@ const common = {
     setSelectTableCount ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
+    },
+    // 存储已选择的维度
+    saveSelectFiled ({ state }, data) {
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'comment')
+      state.saveSelectFiled = datas
+    },
+    // 删除取消的selct
+    removeSelectFiled ({ state }, data) {
+      let datas = reduceObj(state.saveSelectFiled, 'comment') // 去重对象
+      datas && datas.forEach((item, index) => {
+        if (item.comment === data.comment) {
+          datas.splice(index, 1)
+        }
+      })
+      state.saveSelectFiled = datas
     }
   }
 }
