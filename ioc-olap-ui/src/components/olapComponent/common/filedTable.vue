@@ -2,9 +2,9 @@
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <ul v-if="dataList && dataList.length">
-      <!-- :class= "current === index?'actives':''" -->
        <li v-for="(item, index) in dataList"
         :class="item.isActive===1?'actives':''"
+        :style="{color: current===index?colors:''}"
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
@@ -27,9 +27,7 @@ export default {
     return {
       value: '',
       current: '',
-      activeStyle: {
-        color: 'res'
-      },
+      colors: 'red',
       dataList: []
     }
   },
@@ -53,7 +51,7 @@ export default {
           reduceObjs.forEach((n, i) => {
             if (item.label === n.tableName) {
               item['isActive'] = 1
-            } 
+            }
           })
         })
         this.dataList = reduceObj(this.dataList, 'label')
