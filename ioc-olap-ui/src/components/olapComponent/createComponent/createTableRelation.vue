@@ -3,8 +3,6 @@
     <div class="containers">
       <fact-table></fact-table>
       <!-- <task-wark></task-wark> -->
-      <task-wark></task-wark>
-      <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
         <button style="width:100px;height:30px" @click="click_add">add</button>
         <div id="myholder" @click="click_joint"></div>
@@ -112,7 +110,7 @@ export default {
 
           switch(e.target.dataset.type){
             case 'remove':
-              let neighbor = this.graph.getNeighbors(model, 'indirect')
+              this.clearElementLink(model)
               element.remove()
               break;
             case 'link':
@@ -132,9 +130,25 @@ export default {
         $('.holder').on('mouseup', e => {
           let x = e.offsetX
           let y = e.offsetY
-          console.log(e)
+          // console.log(e)
         })
         
+    },
+
+    clearElementLink: function(target) {
+      console.log(target)
+
+      let eles = target.collection.models || []
+      let elements = []
+
+      for(let i=0; i<eles.length; i++){
+        let ele = eles[i]
+        if(ele.attributes.type == 'standard.Link') {
+          if(ele.get('source').id == target.id || ele.get('target'.id == target.id)){
+            ele.remove()
+          }
+        }
+      }
     },
 
     getLinkElement: function(point) {
