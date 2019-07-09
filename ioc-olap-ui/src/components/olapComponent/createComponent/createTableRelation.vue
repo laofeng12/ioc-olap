@@ -2,10 +2,10 @@
   <div class="tableRelation">
     <div class="containers">
       <fact-table></fact-table>
-      <task-wark></task-wark>
+      <!-- <task-wark></task-wark> -->
       
-      <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
+        <button style="width:100px;height:30px" @click="click_add">add</button>
         <div id="myholder" @click="click_joint"></div>
         <div class="papers">
           <div class="halo-cell-layer">
@@ -89,8 +89,11 @@ export default {
             this.showCellLayer(e)
             this.isClick = false
           }else{
-            let eles = this.graph.getElements()
-            console.log(e)
+            let element = this.getLinkElement(e.targetPoint)
+            if(element){
+              e.model.target(element)
+              e.model.labels([{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold','font-size': '12px' } } }])
+            }
           }
         });
 
@@ -105,30 +108,61 @@ export default {
 
         $('.papers').on('click', e => {
           let element = $('.halo-cell-layer').data('element')
+          let model = element.model
           // let id = element.id
 
           switch(e.target.dataset.type){
             case 'remove':
-              let neighbor = this.graph.getNeighbors(element.model, 'indirect')
+              let neighbor = this.graph.getNeighbors(model, 'indirect')
               element.remove()
               break;
             case 'link':
               let link = new joint.shapes.standard.Link({
-                source: element.model,
-                target: {x:0, y:0},
+                source: model,
+                target: {x: model.attributes.position.x, y:model.attributes.position.y-5},
                 router: { name: 'manhattan' }//设置连线弯曲样式 manhattan直角
               });
               
               this.graph.addCell(link)
-
-
               break;
           }
 
           $('.halo-cell-layer').hide()
         })
+
+        $('.holder').on('mouseup', e => {
+          let x = e.offsetX
+          let y = e.offsetY
+          console.log(e)
+        })
         
     },
+
+    getLinkElement: function(point) {
+
+      let eles = this.graph.getElements() || []
+      let element = null
+
+      if(!point || !point.x || !point.y) {
+        return false
+      }
+
+      for(let i=0; i<eles.length; i++){
+        let ele = eles[i].attributes
+        let x1 = ele.position.x, 
+            x2 = x1 + ele.size.width,
+            y1 = ele.position.y,
+            y2 = y1 + ele.size.height;
+
+        if(point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2){
+          element = eles[i]
+          break;
+        }
+      }
+
+      return element
+    },
+
     hideCellLayer() {
       $('.halo-cell-layer').css({
         display: 'none'
