@@ -12,17 +12,17 @@ module.exports = {
     proxy: {
       '/admin/': {
         target: 'http://183.6.55.26:31075', // 公司测试环境
-        pathRewrite: { '^/olapweb/admin/': '/admin/' },
+        pathRewrite: { '^/admin/': '/admin/' },
         changeOrigin: true
       },
       '/gateway/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
-        pathRewrite: { '^/olapweb/gateway/': '/gateway/' }
+        pathRewrite: { '^/gateway/': '/gateway/' }
       },
       '/ljdp/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
         // target: 'http://192.168.8.83:8081', // 中良本机
-        pathRewrite: { '^/olapweb/ljdp/': '/ljdp/' },
+        pathRewrite: { '^/ljdp/': '/ljdp/' },
         changeOrigin: true
       },
       '/pds/': {

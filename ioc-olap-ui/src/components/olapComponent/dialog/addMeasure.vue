@@ -208,7 +208,7 @@ export default {
     submitBtn (index) {
       this.dialogFormVisible = false
     },
-    dialog () {
+    dialog (tableData) {
       this.dialogFormVisible = true
     },
     selectChange (val) {
