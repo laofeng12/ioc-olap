@@ -70,7 +70,7 @@ export default {
   mounted () {
     this.$root.eventBus.$emit('createTable', this.selectTableCount)
     this.$root.eventBus.$on('filedTable', (res, code) => {
-      let reduceData = reduceObj(this.saveSelectFiled, 'columnName')
+      let reduceData = this.saveSelectFiled
       this.loading = true
       if (code === 200) {
         this.tableData = res
@@ -113,9 +113,11 @@ export default {
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
       !selected && this.$store.dispatch('removeSelectFiled', row)
+      // 若点击 左侧对应父级菜单高亮
+      this.$root.eventBus.$emit('tableNameActive')
     },
     selectFiled () {
-      let data = reduceObj(this.saveSelectFiled, 'columnName') // 去重后的选择项
+      let data = this.saveSelectFiled// 去重后的选择项
       this.$refs.dialog.dialog(data)
     }
   },

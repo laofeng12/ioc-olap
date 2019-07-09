@@ -3,7 +3,7 @@
     <el-dialog title="已选维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
         <div class="item" v-for="(n, index) in options" :key="index">
-          <p>{{n.comment}}</p>
+          <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag>
           </div>
@@ -42,28 +42,29 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      let map = {}
-      let dast = []
-      data.forEach((item, index) => {
-        let ai = data[index]
-        console.log(ai)
-        if (!map[ai.tableName]) {
-          dast.push({
-            comment: item.comment,
-            columnName: item.columnName,
-            tableName: item.tableName,
+      var map = {},
+      dest = []
+      for(var i = 0; i < data.length; i++){
+        var ai = data[i]
+        if(!map[ai.tableName]){
+          dest.push({
+            comment: ai.comment,
+            tableName: ai.tableName,
+            columnName: ai.columnName,
             list: [ai]
-          })
-        } else {
-          dast.forEach((n, i) => {
-            let dj = dast[i]
-            if (ai.tableName === dj.tableName) {
+          });
+          map[ai.tableName] = ai
+        }else{
+          for(var j = 0; j < dest.length; j++){
+            var dj = dest[j]
+            if(dj.tableName == ai.tableName){
               dj.list.push(ai)
+              break
             }
-          })
+          }
         }
-      })
-      this.options = dast
+      }
+      this.options = dest
     }
   }
 }

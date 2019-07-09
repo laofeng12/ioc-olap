@@ -2,7 +2,13 @@
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <ul v-if="dataList && dataList.length">
-       <li v-for="(item, index) in dataList" :class= "current === index?'actives':''" :key="index" @click="changeLi(item, index)"><i class="el-icon-date" style="margin-right:3px;"></i>{{item.label}}</li>
+      <!-- :class= "current === index?'actives':''" -->
+       <li v-for="(item, index) in dataList"
+        :class="item.isActive===1?'actives':''"
+        :key="index" @click="changeLi(item, index)">
+         <i class="el-icon-date" style="margin-right:3px;"></i>
+         {{item.label}}
+       </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
      <setfact-table ref="dialog"></setfact-table>
@@ -11,6 +17,8 @@
 
 <script>
 import setfactTable from '@/components/olapComponent/dialog/setfactTable'
+import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     setfactTable
@@ -19,11 +27,14 @@ export default {
     return {
       value: '',
       current: '',
+      activeStyle: {
+        color: 'res'
+      },
       dataList: []
     }
   },
   mounted () {
-    // 接受设置表关系的数据
+    // 接收设置表关系的数据
     this.$root.eventBus.$on('createTable', res => {
       res && res.map(res => {
         this.dataList.push({
@@ -32,6 +43,22 @@ export default {
         })
       })
       setTimeout(() => { this.loading = false }, 300)
+    })
+    // 接收已选择的表
+    this.$root.eventBus.$on('tableNameActive', _ => {
+      setTimeout(() => {
+        console.log(this.saveSelectFiled)
+        let reduceObjs = reduceObj(this.saveSelectFiled, 'tableName')
+        this.dataList.forEach((item, index) => {
+          reduceObjs.forEach((n, i) => {
+            if (item.label === n.tableName) {
+              item['isActive'] = 1
+            } 
+          })
+        })
+        this.dataList = reduceObj(this.dataList, 'label')
+        console.log(this.dataList)
+      }, 300)
     })
   },
   methods: {
@@ -59,6 +86,11 @@ export default {
   },
   beforeDestroy () {
     this.$root.eventBus.$off('filedTable')
+  },
+  computed: {
+    ...mapGetters({
+      saveSelectFiled: 'saveSelectFiled'
+    })
   }
 }
 </script>
