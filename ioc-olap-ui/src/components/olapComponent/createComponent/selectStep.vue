@@ -9,10 +9,11 @@
             <local-upload></local-upload>
           </el-tab-pane>
           <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
-            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>10</i></span>
+            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableCount.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
     </div>
+    <select-modal ref="dialog"></select-modal>
     <steps class="steps" :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
@@ -20,10 +21,12 @@
 <script>
 import dataLake from '@/components/olapComponent/createComponent/selectStepComponent/datalake'
 import localUpload from '@/components/olapComponent/createComponent/selectStepComponent/localUpload'
+import selectModal from '@/components/olapComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/olapComponent/common/steps'
+import { mapGetters } from 'vuex'
 export default {
   components: {
-    dataLake, localUpload, steps
+    dataLake, localUpload, selectModal, steps
   },
   data () {
     return {
@@ -32,23 +35,32 @@ export default {
   },
   methods: {
     cahngges (val) {
-      this.$message.success('还剩10条哦~~~~')
+      this.$refs.dialog.dialog()
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/createTableRelation')
     },
     tabClick (val) {
+      // 推送已选择的复选框按钮到serachTable
+      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
-        })
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && console.log(this.$store.state.common.serchTableList)
+        }) && this.$store.dispatch('changeSerachtype', 2)
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
     }
   },
-
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable',
+      selectTableCount: 'selectTableCount'
+    })
+  },
   beforeDestroy () {
     this.$root.eventBus.$off('getUploadTable')
+    this.$root.eventBus.$off('saveSelectTables')
   }
 }
 </script>

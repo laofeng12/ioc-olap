@@ -8,7 +8,9 @@
         v-loading="treeLoading"
         :expand-on-click-node="false"
         node-key="id"
+        :highlight-current="showTree"
         @node-click="getCurrents"
+        :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
         :props="defaultProps">
@@ -19,14 +21,15 @@
 
 <script>
 import { setTimeout } from 'timers'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
       treeLoading: false,
+      showTree: true,
       value: '',
-      resultList: [],
       treeList: [],
-      resetNodeList: [],
+      defaultOpenKeys: ['783740920110077'], // 默认展开的key
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -38,24 +41,36 @@ export default {
       this.$refs.tree.filter(val)
     }
   },
+  mounted () {
+    this.$root.eventBus.$on('openDefaultTree', res => {
+      setTimeout(() => {
+        // this.fetchTreeList(this.lastClickTab)
+        this.$root.eventBus.$emit('getserchTableList', this.saveSelectTable, 1)
+        this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable, 1)
+        this.defaultOpenKeys = this.saveSelectTable.map(item => {
+          return item.id
+        })
+      }, 1000)
+    })
+  },
   methods: {
-    fetchTreeList () {
+    fetchTreeList (val) {
       this.treeLoading = true
       this.$store.dispatch('GetTreeList').then(res => {
-        if (res.code === 200) {
+        if (res && res.code === 200) {
           this.treeLoading = false
           this.setTree(res.list)
-          setTimeout(() => {
-            this.$refs.tree.store.nodesMap[this.treeList[0].id].expanded = true
+          const ids = val || this.treeList[0].id
+          ids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[ids].expanded = true
           }, 500)
-          // 默认传递
           this.defaultFrist(this.treeList)
         }
       })
     },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
-      console.log(val)
+      // console.log(val)
     },
     setTree (val) {
       let item = []
@@ -86,18 +101,36 @@ export default {
     // 选中当前修改
     getCurrents (data, node, me) {
       if (data.pId === 0) return
-      this.$store.dispatch('GetSerchTable', data.id).then(res => {
-        res.code === 200 && this.$root.eventBus.$emit('getserchTableList', res)
+      this.fetchTree(data.id, node.data.pId)
+    },
+    fetchTree (id, nodeId) {
+      console.log('调用了', id)
+      this.$store.dispatch('GetSerchTable', id).then(res => {
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res)
+        }
+        // 点击时清除其他选择框
+        this.$root.eventBus.$emit('clearSelect')
         // 存储当前选择数据源
         this.$store.dispatch('setSerchTable', res)
+        // 存储当前点击的父节点的id
+        this.$store.dispatch('setLastClickTab', nodeId)
       })
     }
   },
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable',
+      lastClickTab: 'lastClickTab'
+    })
+  },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
+    this.$root.eventBus.$off('clearSelect')
   },
   created () {
-    this.fetchTreeList()
+    this.fetchTreeList(this.lastClickTab)
   }
 }
 </script>

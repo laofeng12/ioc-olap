@@ -1,8 +1,9 @@
 <template>
   <div class="tableRelation">
     <div class="containers">
-      <serch-table></serch-table>
-      <!-- <task-wark></task-wark> -->
+      <fact-table></fact-table>
+      <task-wark></task-wark>
+      
       <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
         <div id="myholder" @click="click_joint"></div>
@@ -15,32 +16,33 @@
           </div>
         </div>
       </div>
+      
     </div>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-// import taskWark from '@/components/olapComponent/common/taskWark'
 let $ = require('jquery')
 let joint = require('jointjs')
+import taskWark from '@/components/olapComponent/common/taskWark'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    serchTable, steps
-    // , taskWark
+    factTable, steps, taskWark
   },
   data () {
     return {
     }
   },
   mounted: function () {
+    this.$root.eventBus.$emit('createTable', this.selectTableCount)
     this.init()
   },
   watch: {
-
   },
   methods: {
     init () {
@@ -205,7 +207,13 @@ export default {
     prevModel (val) {
       this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
+      this.$root.eventBus.$emit('openDefaultTree')
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableCount: 'selectTableCount'
+    })
   }
 }
 </script>
