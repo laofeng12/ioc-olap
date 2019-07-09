@@ -30,44 +30,7 @@ export default {
       value2: '',
       dialogFormVisible: false,
       tableData: [],
-      options: [
-        {
-          name: '表名称1',
-          list: [
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' },
-            { id: 1, name: '表名称1' }
-          ]
-        },
-        {
-          name: '表名称2',
-          list: [
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' },
-            { id: 1, name: '表名称2' }
-          ]
-        },
-        {
-          name: '表名称2',
-          list: [
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' },
-            { id: 1, name: '表名称3' }
-          ]
-        }
-      ]
+      options: []
     }
   },
   methods: {
