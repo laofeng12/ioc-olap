@@ -3,7 +3,6 @@
     <div class="containers">
       <fact-table></fact-table>
       <task-wark></task-wark>
-      
       <button style="width:100px;height:30px" @click="click_add">add</button>
       <div class="holder">
         <div id="myholder" @click="click_joint"></div>
@@ -16,7 +15,6 @@
           </div>
         </div>
       </div>
-      
     </div>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
@@ -25,10 +23,10 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-let $ = require('jquery')
-let joint = require('jointjs')
 import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
+let $ = require('jquery')
+let joint = require('jointjs')
 
 export default {
   components: {
@@ -46,100 +44,97 @@ export default {
   },
   methods: {
     init () {
-        this.selection = [];
-        this.graph = new joint.dia.Graph;
- 
-        let paper = new joint.dia.Paper({
-          el: $('#myholder'),
-          width: 600,
-          height: 600,
-          model: this.graph,
-          gridSize: 1
-        });
-        
-        let rect = new joint.shapes.basic.Rect({
-          position: { x: 100, y: 30 },
-          size: { width: 100, height: 30 },
-          attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-        });
-  
-        let rect2 = rect.clone();
-        rect2.translate(300);
-  
-        let link = new joint.shapes.standard.Link({
-          source: rect,
-          target: rect2,
-          router: { name: 'manhattan' },//设置连线弯曲样式 manhattan直角
-          labels: [{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold','font-size': '12px' } } }]
-        });
-        
-  
-        this.graph.addCells([rect, rect2, link]);
+      this.selection = []
+      this.graph = new joint.dia.Graph()
 
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('blank:pointerup',(e,d) => {
-            // e.remove();
-          this.hideCellLayer()
-        });
+      let paper = new joint.dia.Paper({
+        el: $('#myholder'),
+        width: 600,
+        height: 600,
+        model: this.graph,
+        gridSize: 1
+      })
 
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('cell:pointerup',(e,d) => {
-          // console.log(e);
-          if(this.isClick){
-            this.showCellLayer(e)
-            this.isClick = false
-          }else{
-            let eles = this.graph.getElements()
-            console.log(e)
-          }
-        });
+      let rect = new joint.shapes.basic.Rect({
+        position: { x: 100, y: 30 },
+        size: { width: 100, height: 30 },
+        attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
+      })
 
-        paper.on('cell:pointerdown',(e,d) => {
-          this.isClick = true
-        });
+      let rect2 = rect.clone()
+      rect2.translate(300)
 
-        paper.on('cell:pointermove',(e,d) => {
-          // console.log(e)
+      let link = new joint.shapes.standard.Link({
+        source: rect,
+        target: rect2,
+        router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
+        labels: [{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold', 'font-size': '12px' } } }]
+      })
+
+      this.graph.addCells([rect, rect2, link])
+
+      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      paper.on('blank:pointerup', (e, d) => {
+        // e.remove();
+        this.hideCellLayer()
+      })
+
+      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      paper.on('cell:pointerup', (e, d) => {
+        // console.log(e);
+        if (this.isClick) {
+          this.showCellLayer(e)
           this.isClick = false
-        });
+        } else {
+          let eles = this.graph.getElements()
+          console.log(eles)
+        }
+      })
 
-        $('.papers').on('click', e => {
-          let element = $('.halo-cell-layer').data('element')
-          // let id = element.id
+      paper.on('cell:pointerdown', (e, d) => {
+        this.isClick = true
+      })
 
-          switch(e.target.dataset.type){
-            case 'remove':
-              let neighbor = this.graph.getNeighbors(element.model, 'indirect')
-              element.remove()
-              break;
-            case 'link':
-              let link = new joint.shapes.standard.Link({
-                source: element.model,
-                target: {x:0, y:0},
-                router: { name: 'manhattan' }//设置连线弯曲样式 manhattan直角
-              });
-              
-              this.graph.addCell(link)
+      paper.on('cell:pointermove', (e, d) => {
+        // console.log(e)
+        this.isClick = false
+      })
 
+      $('.papers').on('click', e => {
+        let element = $('.halo-cell-layer').data('element')
+        // let id = element.id
 
-              break;
-          }
+        switch (e.target.dataset.type) {
+          case 'remove':
+            let neighbor = this.graph.getNeighbors(element.model, 'indirect')
+            element.remove()
+            break
+          case 'link':
+            let link = new joint.shapes.standard.Link({
+              source: element.model,
+              target: { x: 0, y: 0 },
+              router: { name: 'manhattan' }// 设置连线弯曲样式 manhattan直角
+            })
 
-          $('.halo-cell-layer').hide()
-        })
-        
+            this.graph.addCell(link)
+
+            break
+        }
+
+        $('.halo-cell-layer').hide()
+      })
     },
-    hideCellLayer() {
+    hideCellLayer () {
       $('.halo-cell-layer').css({
         display: 'none'
       })
     },
-    showCellLayer(element) {
-      let haloTypes = ['remove', 'link', 'clone', 'resize'];
+    showCellLayer (element) {
+      let haloTypes = ['remove', 'link', 'clone', 'resize']
       let parentOffset = $('.holder').offset()
       let rect = element.$el[0].getBoundingClientRect()
       let offset = element.$el.offset()
-      
+
       let $rect = $('.papers')
       let $layer = $('.halo-cell-layer')
 
@@ -164,18 +159,18 @@ export default {
 
       // $rect.append($layer)
     },
-    click_add() {
+    click_add () {
       let rect3 = new joint.shapes.basic.Rect({
         position: { x: 100, y: 130 },
         size: { width: 100, height: 30 },
         attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-      });
-      this.graph.addCells([rect3]);
+      })
+      this.graph.addCells([rect3])
     },
 
-    click_joint() {
+    click_joint () {
       // let graph = new joint.dia.Graph;
- 
+
       // let paper = new joint.dia.Paper({
       //   el: $('#myholder'),
       //   width: 600,
@@ -183,21 +178,21 @@ export default {
       //   model: graph,
       //   gridSize: 1
       // });
- 
+
       // let rect = new joint.shapes.basic.Rect({
       //   position: { x: 100, y: 30 },
       //   size: { width: 100, height: 30 },
       //   attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
       // });
- 
+
       // let rect2 = rect.clone();
       // rect2.translate(300);
- 
+
       // let link = new joint.dia.Link({
       //   source: { id: rect.id },
       //   target: { id: rect2.id }
       // });
- 
+
       // graph.addCells([rect, rect2, link]);
     },
     nextModel (val) {
