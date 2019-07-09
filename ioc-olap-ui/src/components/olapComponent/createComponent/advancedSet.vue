@@ -20,23 +20,23 @@
               <span>必要维度</span>
               <div class="box_r"></div>
             </div>
-            <div class="item_box adds">
+            <div class="item_box noflex">
               <span>层级维度</span>
-              <div>
-                <div class="box_r"></div>
+              <div class="adds" v-for="(n, i) in item.levelData" :key="i">
+                <div class=""></div>
                 <p>
-                  <i class="el-icon-remove" @click="removelevelData"></i>
-                  <i class="el-icon-circle-plus" @click="addlevelData"></i>
+                  <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
+                  <i class="el-icon-circle-plus" @click="addlevelData(i)"></i>
                 </p>
               </div>
             </div>
-            <div class="item_box adds">
+            <div class="item_box noflex">
               <span>联合维度</span>
-              <div>
-                <div class="box_r"></div>
+              <div class="adds" v-for="(k, t) in item.jointData" :key="t">
+                <div class=""></div>
                 <p>
-                  <i class="el-icon-remove" @click="removejointData"></i>
-                  <i class="el-icon-circle-plus" @click="addjointData"></i>
+                  <i class="el-icon-remove" @click="removejointData(index, t)"></i>
+                  <i class="el-icon-circle-plus" @click="addjointData(t)"></i>
                 </p>
               </div>
             </div>
@@ -64,8 +64,12 @@ export default {
         {
           containData: [],
           necessaryData: [],
-          levelData: [],
-          jointData: []
+          levelData: [
+            { index: '' }
+          ],
+          jointData: [
+            { index: '' }
+          ]
         }
       ],
       options: [{
@@ -114,8 +118,12 @@ export default {
       this.aggregationData.push({
         containData: [],
         necessaryData: [],
-        levelData: [],
-        jointData: []
+        levelData: [
+          { index: '' }
+        ],
+        jointData: [
+          { index: '' }
+        ]
       })
     },
     handleRms (index) {
@@ -123,22 +131,24 @@ export default {
       this.aggregationData.splice(index, 1)
     },
     // 添加层级维度
-    addlevelData () {
-      this.levelData.push({
+    addlevelData (index) {
+      this.aggregationData[index].levelData.push({
         index: ''
       })
     },
-    removelevelData (index) {
-
+    removelevelData (index, i) {
+      if (this.aggregationData[index].levelData.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregationData[index].levelData.splice(i, 1)
     },
     // 添加联合维度
-    addjointData () {
-      this.jointData.push({
+    addjointData (index) {
+      this.aggregationData[index].jointData.push({
         index: ''
       })
     },
-    removejointData (index) {
-
+    removejointData (index, i) {
+      if (this.aggregationData[index].jointData.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregationData[index].jointData.splice(i, 1)
     },
     changeUploadNum (val) {
       console.log(val)
@@ -171,7 +181,7 @@ export default {
         span{
           width 80px
         }
-        div{
+        .box_r{
           border 1px solid #cccccc
           flex 1
           padding 25px
@@ -179,6 +189,19 @@ export default {
         }
         .adds{
           border none!important
+          padding 0
+          width 100%
+          display flex
+          div{
+            flex 1
+            border 1px solid #cccccc
+            padding 25px
+            margin-left 80px
+            margin-bottom 20px
+          }
+        }
+        .adds:first-child{
+          margin-top -20px
         }
         p{
           width 80px
@@ -192,6 +215,9 @@ export default {
             color green
           }
         }
+      }
+      .noflex{
+        display initial!important
       }
     }
   }
