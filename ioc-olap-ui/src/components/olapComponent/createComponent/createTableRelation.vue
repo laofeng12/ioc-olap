@@ -3,10 +3,6 @@
     <div class="containers">
       <fact-table></fact-table>
       <!-- <task-wark></task-wark> -->
-<<<<<<< HEAD
-=======
-      <button style="width:100px;height:30px" @click="click_add">add</button>
->>>>>>> 设置度量字段
       <div class="holder">
         <button style="width:100px;height:30px" @click="click_add">add</button>
         <div id="myholder" @click="click_joint"></div>
@@ -48,101 +44,8 @@ export default {
   },
   methods: {
     init () {
-<<<<<<< HEAD
-        this.graph = new joint.dia.Graph;
- 
-        let paper = new joint.dia.Paper({
-          el: $('#myholder'),
-          width: 600,
-          height: 600,
-          model: this.graph,
-          gridSize: 1
-        });
-        
-        let rect = new joint.shapes.basic.Rect({
-          position: { x: 100, y: 30 },
-          size: { width: 100, height: 30 },
-          attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-        });
-  
-        let rect2 = rect.clone();
-        rect2.translate(300);
-  
-        let link = new joint.shapes.standard.Link({
-          source: rect,
-          target: rect2,
-          router: { name: 'manhattan' },//设置连线弯曲样式 manhattan直角
-          labels: [{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold','font-size': '12px' } } }]
-        });
-        
-  
-        this.graph.addCells([rect, rect2, link]);
-
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('blank:pointerup',(e,d) => {
-            // e.remove();
-          this.hideCellLayer()
-        });
-
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('cell:pointerup',(e,d) => {
-          // console.log(e);
-          if(this.isClick){
-            this.showCellLayer(e)
-            this.isClick = false
-          }else{
-            let element = this.getLinkElement(e.targetPoint)
-            if(element){
-              e.model.target(element)
-              e.model.labels([{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold','font-size': '12px' } } }])
-            }
-          }
-        });
-
-        paper.on('cell:pointerdown',(e,d) => {
-          this.isClick = true
-        });
-
-        paper.on('cell:pointermove',(e,d) => {
-          // console.log(e)
-          this.isClick = false
-        });
-
-        $('.papers').on('click', e => {
-          let element = $('.halo-cell-layer').data('element')
-          let model = element.model
-          // let id = element.id
-
-          switch(e.target.dataset.type){
-            case 'remove':
-              this.clearElementLink(model)
-              element.remove()
-              break;
-            case 'link':
-              let link = new joint.shapes.standard.Link({
-                source: model,
-                target: {x: model.attributes.position.x, y:model.attributes.position.y-5},
-                router: { name: 'manhattan' }//设置连线弯曲样式 manhattan直角
-              });
-              
-              this.graph.addCell(link)
-              break;
-          }
-
-          $('.halo-cell-layer').hide()
-        })
-
-        $('.holder').on('mouseup', e => {
-          let x = e.offsetX
-          let y = e.offsetY
-          // console.log(e)
-        })
-        
-    },
-=======
       this.selection = []
       this.graph = new joint.dia.Graph()
-
       let paper = new joint.dia.Paper({
         el: $('#myholder'),
         width: 100 + '%',
@@ -150,36 +53,28 @@ export default {
         model: this.graph,
         gridSize: 1
       })
-
       let rect = new joint.shapes.basic.Rect({
         position: { x: 100, y: 30 },
         size: { width: 100, height: 30 },
         attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
       })
->>>>>>> 设置度量字段
-
-    clearElementLink: function(target) {
+    },
+    clearElementLink: function (target) {
       console.log(target)
-
       let eles = target.collection.models || []
       let elements = []
 
-      for(let i=0; i<eles.length; i++){
+      for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
-        if(ele.attributes.type == 'standard.Link') {
-          if(ele.get('source').id == target.id || ele.get('target'.id == target.id)){
+        if (ele.attributes.type === 'standard.Link') {
+          if (ele.get('source').id === target.id || ele.get('target'.id === target.id)) {
             ele.remove()
           }
         }
       }
     },
 
-    getLinkElement: function(point) {
-
-<<<<<<< HEAD
-      let eles = this.graph.getElements() || []
-      let element = null
-=======
+    getLinkElement: function (point) {
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('cell:pointerup', (e, d) => {
         console.log(e)
@@ -191,29 +86,28 @@ export default {
           console.log(eles)
         }
       })
->>>>>>> 设置度量字段
 
-      if(!point || !point.x || !point.y) {
+      if (!point || !point.x || !point.y) {
         return false
       }
 
-      for(let i=0; i<eles.length; i++){
+      for (let i = 0; i < eles.length; i++) {
         let ele = eles[i].attributes
-        let x1 = ele.position.x, 
-            x2 = x1 + ele.size.width,
-            y1 = ele.position.y,
-            y2 = y1 + ele.size.height;
+        let x1 = ele.position.x
+        let x2 = x1 + ele.size.width
+        let y1 = ele.position.y
+        let y2 = y1 + ele.size.height
 
-        if(point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2){
+        if (point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2) {
           element = eles[i]
-          break;
+          break
         }
       }
 
       return element
     },
 
-    hideCellLayer() {
+    hideCellLayer () {
       $('.halo-cell-layer').css({
         display: 'none'
       })
