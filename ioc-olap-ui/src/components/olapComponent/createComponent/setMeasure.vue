@@ -28,17 +28,19 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">添加度量</el-button>
+        <el-button type="primary" @click="addMeasure">添加度量</el-button>
     </el-form>
+    <add-measure ref="dialog"></add-measure>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import steps from '@/components/olapComponent/common/steps'
+import addMeasure from '@/components/olapComponent/dialog/addMeasure'
 export default {
   components: {
-    steps
+    steps, addMeasure
   },
   data () {
     return {
@@ -62,6 +64,9 @@ export default {
     },
     handleSelectionChange (val) {
 
+    },
+    addMeasure () {
+      this.$refs.dialog.dialog()
     }
   }
 }

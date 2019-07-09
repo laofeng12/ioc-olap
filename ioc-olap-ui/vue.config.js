@@ -1,4 +1,4 @@
-const baseUrl = process.env.NODE_ENV === 'production' ? '/olapweb' : '/olapweb'
+const baseUrl = process.env.NODE_ENV === 'production' ? '/' : '/'
 // const baseUrl = '/'
 const path = require('path')
 function resolve (dir) {
@@ -10,16 +10,16 @@ module.exports = {
   productionSourceMap: false,
   devServer: {
     proxy: {
-      '/olapweb/admin/': {
+      '/admin/': {
         target: 'http://183.6.55.26:31075', // 公司测试环境
         pathRewrite: { '^/olapweb/admin/': '/admin/' },
         changeOrigin: true
       },
-      '/olapweb/gateway/': {
+      '/gateway/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
         pathRewrite: { '^/olapweb/gateway/': '/gateway/' }
       },
-      '/olapweb/ljdp/': {
+      '/ljdp/': {
         target: 'http://183.6.55.26:31012', // 公司测试环境
         // target: 'http://192.168.8.83:8081', // 中良本机
         pathRewrite: { '^/olapweb/ljdp/': '/ljdp/' },
