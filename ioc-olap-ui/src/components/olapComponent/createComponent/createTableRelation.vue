@@ -70,6 +70,7 @@ export default {
         labels: [{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold', 'font-size': '12px' } } }]
       })
 
+
       this.graph.addCells([rect, rect2, link])
 
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
@@ -163,10 +164,10 @@ export default {
 
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i].attributes
-        let x1 = ele.position.x
-        let x2 = x1 + ele.size.width
-        let y1 = ele.position.y
-        let y2 = y1 + ele.size.height
+        let x1 = ele.position.x 
+            let x2 = x1 + ele.size.width
+            let y1 = ele.position.y
+            let y2 = y1 + ele.size.height
 
         if (point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2) {
           element = eles[i]
