@@ -119,8 +119,12 @@ export default {
                 target: {x: model.attributes.position.x, y:model.attributes.position.y-5},
                 router: { name: 'manhattan' }//设置连线弯曲样式 manhattan直角
               });
-              
               this.graph.addCell(link)
+              break;
+            case 'clone':
+              let cell = model.clone()
+              cell.translate(50, 50);
+              this.graph.addCell(cell)
               break;
           }
 
