@@ -116,7 +116,7 @@
               <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
             </p>
           </div>
-        </div>      
+        </div>
      </el-form>
      <select-filed ref="selectFiled"></select-filed>
      <steps class="steps" :step="6" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -163,7 +163,7 @@ export default {
       ],
       engineOptions: [ // 模型构建引擎
         { engine: '1', label: 'MapReduce ' },
-        { engine: '2', label: 'MapReduce ' },
+        { engine: '2', label: 'MapReduce ' }
       ],
       hetComposeData: [], // 高级组合
       dataType: [{
@@ -188,8 +188,8 @@ export default {
   methods: {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
-      // this.$router.push('/olap/createolap/reloadSet')
-      this.$message.error('暂未开发')
+      this.$router.push('/olap/createolap/completeCreate')
+      // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -370,7 +370,7 @@ export default {
       }
     }
     .nos{
-      margin-left 100px 
+      margin-left 100px
       margin-top -10px
     }
   }
