@@ -1,6 +1,6 @@
 <template>
   <div class="advancedSet">
-     <el-form>
+     <el-form :model='formData' ref="formData">
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
@@ -14,7 +14,7 @@
             </div>
             <div class="item_box">
               <span>包含维度</span>
-              <div class="box_r"></div>
+              <div class="box_r" @click="getTotalModal"></div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
@@ -45,23 +45,23 @@
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
-            :data="tableData"
+            :data="formData.tableData"
             ref="multipleTable"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
             <el-table-column prop="apiName" label="序号" align="center"> </el-table-column>
             <el-table-column prop="type" label="字段名称" align="center"> </el-table-column>
-            <el-table-column prop="apiPaths" label="编码类型" align="center">
+            <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
-                <el-form-item :prop="'answers.' + scope.$index + '.catalogName'" class="selects">
+                <el-form-item :prop="'tableData.' + scope.$index + '.catalogName'" class="selects">
                   <el-select v-model="scope.row.catalogName" placeholder="请选择">
-                    <el-option v-for="(item, index) in options" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in dataType" :key="index" :label="item.codename" :value="item.codename"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column prop="apiPaths" label="长度" align="center">
+            <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <div>
                   <el-input type="text" v-model="scope.row.apiPaths"></el-input>
@@ -70,69 +70,103 @@
             </el-table-column>
             <el-table-column prop="apiPaths" label="碎片区" align="center">
               <template slot-scope="scope">
-                <el-form-item :prop="'answers.' + scope.$index + '.catalogName'" class="selects">
+                <el-form-item :prop="'tableData.' + scope.$index + '.catalogName'" class="selects">
                   <el-select v-model="scope.row.catalogName" placeholder="请选择">
-                    <el-option v-for="(item, index) in options" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in dataCity" :key="index" :label="item.codename" :value="item.codename"></el-option>
                   </el-select>
                 </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              align="center">
-              <template slot-scope="scope">
-                <div class="play">
-                  <el-button type="text" size="mini" @click="addReloadSet" icon="el-icon-edit"></el-button>
-                  <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
-                </div>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div class="listSet">
           <span>维度黑白名单设置</span>
-          <div class="adds" v-for="(n, i) in dimensionData" :key="i">
-            <div class=""></div>
-            <p>
-              <i class="el-icon-remove" @click="removedimensionData(index, i)"></i>
-              <i class="el-icon-circle-plus" @click="addimensionData(i)"></i>
-            </p>
+          <div class="listSet__box">
+            <div class="adds" v-for="(n, i) in dimensionData" :key="i">
+              <div class=""></div>
+              <p>
+                <i class="el-icon-remove" @click="removedimensionData(index, i)"></i>
+                <i class="el-icon-circle-plus" @click="addimensionData(i)"></i>
+              </p>
+            </div>
           </div>
         </div>
+        <el-form-item label="模型构建引擎">
+          <template>
+            <div>
+              <el-select v-model="formData.engine" placeholder="请选择">
+                <el-option v-for="item in engineOptions" :key="item.id" :label="item.label" :value="item.id"></el-option>
+              </el-select>
+            </div>
+          </template>
+        </el-form-item>
+        <div class="listSet hetCompose">
+          <span>高级列组合</span>
+          <div class="listSet__box hetCompose__box" v-if="hetComposeData && hetComposeData.length">
+            <div class="adds" v-for="(n, i) in hetComposeData" :key="i">
+              <div class=""></div>
+              <p>
+                <i class="el-icon-remove" @click="removehetComposeData(index, i)"></i>
+                <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
+              </p>
+            </div>
+          </div>
+          <div class="listSet__box hetCompose__box" v-else>
+            <p class="nos">
+              <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
+            </p>
+          </div>
+        </div>      
      </el-form>
-     <add-reload-set ref="dialog"></add-reload-set>
+     <select-filed ref="selectFiled"></select-filed>
      <steps class="steps" :step="6" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import steps from '@/components/olapComponent/common/steps'
-import addReloadSet from '@/components/olapComponent/dialog/addReloadSet'
+import selectFiled from '@/components/olapComponent/dialog/selectFiled'
+import { mapGetters } from 'vuex'
 export default {
   components: {
-    steps, addReloadSet
+    steps, selectFiled
   },
   data () {
     return {
       autoReload: false,
       dataMany: false,
       radio: 3,
-      aggregationData: [
+      formData: {
+        engine: '1',
+        tableData: [
+          { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '' },
+          { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '' },
+          { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '' },
+          { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '' },
+          { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '' }
+        ]
+      },
+      aggregationData: [ // 聚合小组
         {
-          containData: [],
-          necessaryData: [],
-          levelData: [
+          containData: [], // 包含维度
+          necessaryData: [], // 必要维度
+          levelData: [ // 层级维度
             { index: '' }
           ],
-          jointData: [
+          jointData: [ // 联合维度
             { index: '' }
           ]
         }
       ],
-      dimensionData: [
+      dimensionData: [ // 维度黑白名单
         { index: '' }
       ],
-      options: [{
+      engineOptions: [ // 模型构建引擎
+        { engine: '1', label: 'MapReduce ' },
+        { engine: '2', label: 'MapReduce ' },
+      ],
+      hetComposeData: [], // 高级组合
+      dataType: [{
         value: '选项1',
         label: '黄金糕'
       }, {
@@ -148,13 +182,7 @@ export default {
         value: '选项5',
         label: '北京烤鸭'
       }],
-      tableData: [
-        { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' },
-        { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '啦啦啦啦啦', radio: '2' }
-      ]
+      dataCity: []
     }
   },
   methods: {
@@ -166,9 +194,6 @@ export default {
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/olap/createolap/reloadSet')
-    },
-    addReloadSet () {
-      this.$refs.dialog.dialog()
     },
     handleSelectionChange (val) {
 
@@ -207,11 +232,12 @@ export default {
       })
     },
     removejointData (index, i) {
-      if (this.aggregationData[index].jointData.length === 1) return this.$message.error('必须保留一个~')
-      this.aggregationData[index].jointData.splice(i, 1)
+      if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
+      this.dimensionData.splice(i, 1)
     },
+    // 添加维度黑白名单
     addimensionData (index) {
-      this.dimensionData.jointData.push({
+      this.dimensionData.push({
         index: ''
       })
     },
@@ -219,12 +245,29 @@ export default {
       if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
       this.dimensionData.splice(index, 1)
     },
+    // 添加高级列组合
+    addhetComposeData (index) {
+      this.hetComposeData.push({
+        index: ''
+      })
+    },
+    removehetComposeData (index) {
+      this.hetComposeData.splice(index, 1)
+    },
     changeUploadNum (val) {
       console.log(val)
     },
     changeDataMany (val) {
       console.log(val)
+    },
+    getTotalModal () {
+      this.$refs.selectFiled.dialog(this.saveSelectFiled)
     }
+  },
+  computed: {
+    ...mapGetters({
+      saveSelectFiled: 'saveSelectFiled'
+    })
   }
 }
 </script>
@@ -300,29 +343,35 @@ export default {
     span{
       width 100px
     }
-    .adds{
-      display flex
-      width 100%
-      div{
-        margin-left 120px
-        flex 1
-        border 1px solid #cccccc
-      }
-    }
-    .adds:first-child{
+    .listSet__box{
       margin-top -20px
+      .adds{
+        display flex
+        width 100%
+        margin-bottom 10px
+        div{
+          margin-left 120px
+          flex 1
+          padding 25px
+          border 1px solid #cccccc
+        }
+      }
+      p{
+        width 80px
+        text-align center
+        margin-top 10px
+        i{
+          color red
+          font-size 25px
+        }
+        i:nth-child(2){
+          color green
+        }
+      }
     }
-    p{
-      width 80px
-      text-align center
-      margin-top 10px
-      i{
-        color red
-        font-size 25px
-      }
-      i:nth-child(2){
-        color green
-      }
+    .nos{
+      margin-left 100px 
+      margin-top -10px
     }
   }
 }
