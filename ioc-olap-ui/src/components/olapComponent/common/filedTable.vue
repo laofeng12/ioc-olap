@@ -32,32 +32,31 @@ export default {
     }
   },
   mounted () {
-    // 接收设置表关系的数据
-    this.$root.eventBus.$on('createTable', res => {
-      res && res.map(res => {
-        this.dataList.push({
-          id: res.id,
-          label: res.label
-        })
-      })
-      setTimeout(() => { this.loading = false }, 300)
-    })
-    // 接收已选择的表
-    this.$root.eventBus.$on('tableNameActive', _ => {
-      setTimeout(() => {
-        let reduceObjs = reduceObj(this.saveSelectFiled, 'tableName')
-        this.dataList.forEach((item, index) => {
-          reduceObjs.forEach((n, i) => {
-            if (item.label === n.tableName) {
-              item['isActive'] = 1
-            }
-          })
-        })
-        this.dataList = reduceObj(this.dataList, 'label')
-      }, 300)
-    })
+    this.init()
   },
   methods: {
+    init () {
+    // 初始化已选择的表
+      this.dataList = reduceObj(this.saveSelectFiledTree, 'label')
+      setTimeout(() => { this.changeLi(this.dataList[0], 0) }, 300)
+      // 接收设置表关系的数据
+      this.dataList = this.selectTableTotal
+      // 接收已选择的表
+      this.$root.eventBus.$on('tableNameActive', _ => {
+        setTimeout(() => {
+          this.dataList.forEach((item, index) => {
+            this.saveSelectFiled.forEach((n, i) => {
+              if (item.label === n.tableName) {
+                item['isActive'] = 1
+              }
+            })
+          })
+          this.dataList = reduceObj(this.dataList, 'label')
+          // 存储已选择后的维度表
+          this.$store.dispatch('saveSelectFiledTree', this.dataList)
+        }, 300)
+      })
+    },
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
@@ -73,6 +72,8 @@ export default {
           datas.push({
             comment: n.comment,
             columnName: n.columnName,
+            dataType: n.dataType,
+            apiPaths: '',
             tableName: item.label
           })
         })
@@ -85,7 +86,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectFiled: 'saveSelectFiled',
+      saveSelectFiledTree: 'saveSelectFiledTree'
     })
   }
 }
@@ -93,10 +96,10 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  min-width 200px
-  width 200px
+  max-width 230px
+  // width 200px
   float left
-  padding 0 25px
+  // padding 0 25px
   border-right 1px solid #f0f0f0
   height calc(100vh - 100px)
   overflow auto

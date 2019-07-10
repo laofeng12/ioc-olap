@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { reduceObj } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -41,29 +42,39 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      var map = {},
-      dest = []
-      for(var i = 0; i < data.length; i++){
+      var map = {}
+      var dest = []
+      for (var i = 0; i < data.length; i++) {
         var ai = data[i]
-        if(!map[ai.tableName]){
+        if (!map[ai.tableName]) {
           dest.push({
             comment: ai.comment,
             tableName: ai.tableName,
             columnName: ai.columnName,
             list: [ai]
-          });
+          })
           map[ai.tableName] = ai
-        }else{
-          for(var j = 0; j < dest.length; j++){
+        } else {
+          for (var j = 0; j < dest.length; j++) {
             var dj = dest[j]
-            if(dj.tableName == ai.tableName){
+            if (dj.tableName === ai.tableName) {
               dj.list.push(ai)
               break
             }
           }
         }
       }
-      this.options = dest
+      let itemData = []
+      dest.map(item => {
+        let newData = {}
+        newData.columnName = item.columnName
+        newData.comment = item.comment
+        newData.tableName = item.tableName
+        newData.apiPaths = item.apiPaths
+        newData.list = reduceObj(item.list, 'columnName')
+        itemData.push(newData)
+      })
+      this.options = itemData
     }
   }
 }

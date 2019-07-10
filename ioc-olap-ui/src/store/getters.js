@@ -5,13 +5,14 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   treeList: state => state.common.treeList,
-  serchTableList: state => state.common.menuList,
+  serchTableList: state => state.common.serchTableList,
   saveSelectTable: state => state.common.saveSelectTable,
   saveLocalSelectTable: state => state.common.saveLocalSelectTable,
-  selectTableCount: state => state.common.selectTableCount,
+  selectTableTotal: state => state.common.selectTableTotal,
   lastClickTab: state => state.common.lastClickTab,
   saveSelctchckoutone: state => state.common.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.common.saveSelctchckouttwo,
-  saveSelectFiled: state => state.common.saveSelectFiled
+  saveSelectFiled: state => state.common.saveSelectFiled,
+  saveSelectFiledTree: state => state.common.saveSelectFiledTree
 }
 export default getters

@@ -21,10 +21,10 @@
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <div>
-                    <el-input type="text" v-model="scope.row.apiPaths"></el-input>
-                  </div>
-                </template>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.apiPaths'">
+                    <el-input type="text" v-model="scope.row.apiPaths" @blur="iptChange(scope.$index)"></el-input>
+                  </el-form-item>
+                </template> 
               </el-table-column>
               <el-table-column
                 label="维度组合名称"
@@ -51,6 +51,7 @@ import steps from '@/components/olapComponent/common/steps'
 import selectFiled from '@/components/olapComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     filedTable,
@@ -67,28 +68,32 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$emit('createTable', this.selectTableCount)
-    this.$root.eventBus.$on('filedTable', (res, code) => {
-      let reduceData = this.saveSelectFiled
-      this.loading = true
-      if (code === 200) {
-        this.tableData = res
-        setTimeout(() => {
-          this.loading = false
-          let arr = []
-          this.tableData.forEach(item => {
-            reduceData && reduceData.forEach(val => {
-              if (val.columnName === item.columnName) {
-                arr.push(item)
-              }
-            })
-          })
-          this.toggleSelection(arr)
-        }, 300)
-      }
-    })
+    this.init()
   },
   methods: {
+    init () {
+      // this.$root.eventBus.$emit('createTable', this.selectTableTotal)
+      this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+      this.$root.eventBus.$on('filedTable', (res, code) => {
+        let reduceData = this.saveSelectFiled
+        this.loading = true
+        if (code === 200) {
+          this.tableData = res
+          setTimeout(() => {
+            this.loading = false
+            let arr = []
+            this.tableData.forEach(item => {
+              reduceData && reduceData.forEach(val => {
+                if (val.tableName === item.tableName && val.columnName === item.columnName) {
+                  arr.push(item)
+                }
+              })
+            })
+            this.toggleSelection(arr)
+          }, 300)
+        }
+      })
+    },
     toggleSelection (rows) {
       if (rows) {
         rows.forEach(row => {
@@ -118,11 +123,15 @@ export default {
     selectFiled () {
       let data = this.saveSelectFiled// 去重后的选择项
       this.$refs.dialog.dialog(data)
+    },
+    // 输入框监听
+    iptChange (index) {
+      this.$store.dispatch('changePushSelectFiled', this.tableData)
     }
   },
   computed: {
     ...mapGetters({
-      selectTableCount: 'selectTableCount',
+      selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled'
     })
   }

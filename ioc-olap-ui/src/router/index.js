@@ -79,6 +79,12 @@ export default new Router({
               name: 'advancedSet',
               meta: { title: '高级设置' },
               component: () => import('@/components/olapComponent/createComponent/advancedSet.vue')
+            },
+            {
+              path: 'completeCreate',
+              name: 'completeCreate',
+              meta: { title: '完成创建' },
+              component: () => import('@/components/olapComponent/createComponent/completeCreate.vue')
             }
           ]
         }
