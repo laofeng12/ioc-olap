@@ -8,11 +8,12 @@ const common = {
     searchType: 1, // 判断在数据湖还是本地 1 数据湖 2 本地
     saveSelectTable: [], // 数据湖选择的表
     saveLocalSelectTable: [], // 本地选择的表
+    selectTableTotal: [], // 已选择的总表
     lastClickTab: '', // 存储最后一次点击的tabID
     saveSelctchckoutone: [],
     saveSelctchckouttwo: [],
     saveSelectFiled: [], // 存储已选择的维度
-    selectTableCount: []
+    saveSelectFiledTree: [] // 存储已选择的左侧维度菜单
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -31,7 +32,7 @@ const common = {
       state.searchType = val
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
-      state.selectTableCount = val
+      state.selectTableTotal = val
     },
     SAVESELECT_ONE: (state, val) => {
       state.saveSelctchckoutone = val
@@ -41,6 +42,19 @@ const common = {
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.treeList = []
+      state.serchTableList = []
+      state.searchType = 1
+      state.saveSelectTable = []
+      state.saveLocalSelectTable = []
+      state.selectTableTotal = []
+      state.lastClickTab = ''
+      state.saveSelctchckoutone = []
+      state.saveSelctchckouttwo = []
+      state.saveSelectFiled = []
+      state.saveSelectFiledTree = []
+    },
     async GetTreeList ({ commit }) {
       let data = await getResourcedirectoryCategory()
       commit('GET_TREELIST', data)
@@ -64,8 +78,10 @@ const common = {
       return data
     },
     // 存储已选择复选框
-    saveSelctchckoutone ({ commit }, data) {
+    saveSelctchckoutone ({ commit, state, dispatch }, data) {
       commit('SAVESELECT_ONE', data)
+      state.saveSelectTable = []
+      dispatch('setSelectTableTotal')
     },
     saveSelctchckouttwo ({ commit }, data) {
       commit('SAVESELECT_TWO', data)
@@ -106,7 +122,7 @@ const common = {
       })
     },
     // 设置已选择的表的数据
-    setSelectTableCount ({ commit, state }) {
+    setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },
@@ -124,6 +140,17 @@ const common = {
         }
       })
       state.saveSelectFiled = datas
+    },
+    // 存储已选择的维度表
+    saveSelectFiledTree ({ state }, data) {
+      state.saveSelectFiledTree = data
+    },
+    // 合并设置的事实表到总表
+    mergeFiledTable ({ state, dispatch }, data) {
+      state.selectTableTotal.forEach((item, index) => {
+        data[0].label === item.label ? state.selectTableTotal[index]['filed'] = 1 : state.selectTableTotal[index]['filed'] = 0
+      })
+      dispatch('setSelectTableTotal')
     }
   }
 }

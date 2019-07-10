@@ -67,28 +67,32 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$emit('createTable', this.selectTableCount)
-    this.$root.eventBus.$on('filedTable', (res, code) => {
-      let reduceData = this.saveSelectFiled
-      this.loading = true
-      if (code === 200) {
-        this.tableData = res
-        setTimeout(() => {
-          this.loading = false
-          let arr = []
-          this.tableData.forEach(item => {
-            reduceData && reduceData.forEach(val => {
-              if (val.columnName === item.columnName) {
-                arr.push(item)
-              }
-            })
-          })
-          this.toggleSelection(arr)
-        }, 300)
-      }
-    })
+    this.init()
   },
   methods: {
+    init () {
+      // this.$root.eventBus.$emit('createTable', this.selectTableTotal)
+      this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+      this.$root.eventBus.$on('filedTable', (res, code) => {
+        let reduceData = this.saveSelectFiled
+        this.loading = true
+        if (code === 200) {
+          this.tableData = res
+          setTimeout(() => {
+            this.loading = false
+            let arr = []
+            this.tableData.forEach(item => {
+              reduceData && reduceData.forEach(val => {
+                if (val.tableName === item.tableName && val.columnName === item.columnName) {
+                  arr.push(item)
+                }
+              })
+            })
+            this.toggleSelection(arr)
+          }, 300)
+        }
+      })
+    },
     toggleSelection (rows) {
       if (rows) {
         rows.forEach(row => {
@@ -122,7 +126,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableCount: 'selectTableCount',
+      selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled'
     })
   }
