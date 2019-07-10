@@ -103,7 +103,6 @@
           tooltip-effect="dark"
           @selection-change="handleSelectionChange"
           style="margin-top: 10px;">
-          <el-table-column type="selection" prop="序号" align="center"></el-table-column>
           <el-table-column prop="apiName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="type" label="字段" align="center"> </el-table-column>
           <el-table-column prop="catalogName" label="过滤方式" align="center"> </el-table-column>
@@ -119,23 +118,25 @@
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="text" size="mini" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" @click="addReloadSet" icon="el-icon-edit"></el-button>
                 <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">添加过滤条件</el-button>
+        <el-button type="primary" @click="addReloadSet">添加过滤条件</el-button>
      </el-form>
+     <add-reload-set ref="dialog"></add-reload-set>
      <steps class="steps" :step="5" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import steps from '@/components/olapComponent/common/steps'
+import addReloadSet from '@/components/olapComponent/dialog/addReloadSet'
 export default {
   components: {
-    steps
+    steps, addReloadSet
   },
   data () {
     return {
@@ -173,12 +174,15 @@ export default {
   methods: {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
-      // this.$router.push('/olap/createolap/reloadSet')
-      this.$message.error('暂未开发')
+      this.$router.push('/olap/createolap/advancedSet')
+      // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/olap/createolap/setMeasure')
+    },
+    addReloadSet () {
+      this.$refs.dialog.dialog()
     },
     handleSelectionChange (val) {
 

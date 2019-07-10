@@ -45,7 +45,6 @@ export default {
     // 接收已选择的表
     this.$root.eventBus.$on('tableNameActive', _ => {
       setTimeout(() => {
-        console.log(this.saveSelectFiled)
         let reduceObjs = reduceObj(this.saveSelectFiled, 'tableName')
         this.dataList.forEach((item, index) => {
           reduceObjs.forEach((n, i) => {
@@ -55,7 +54,6 @@ export default {
           })
         })
         this.dataList = reduceObj(this.dataList, 'label')
-        console.log(this.dataList)
       }, 300)
     })
   },

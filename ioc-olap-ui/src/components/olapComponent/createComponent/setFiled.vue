@@ -51,7 +51,6 @@ import steps from '@/components/olapComponent/common/steps'
 import selectFiled from '@/components/olapComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
-import { reduceObj } from '@/utils/index'
 export default {
   components: {
     filedTable,

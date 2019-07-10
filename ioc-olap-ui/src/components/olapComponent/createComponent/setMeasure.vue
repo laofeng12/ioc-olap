@@ -22,23 +22,25 @@
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="text" size="mini" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" @click="addMeasure(tableData)" icon="el-icon-edit"></el-button>
                 <el-button type="text" size="mini" icon="el-icon-delete"></el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">添加度量</el-button>
+        <el-button type="primary" @click="addMeasure">添加度量</el-button>
     </el-form>
+    <add-measure ref="dialog"></add-measure>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import steps from '@/components/olapComponent/common/steps'
+import addMeasure from '@/components/olapComponent/dialog/addMeasure'
 export default {
   components: {
-    steps
+    steps, addMeasure
   },
   data () {
     return {
@@ -62,6 +64,9 @@ export default {
     },
     handleSelectionChange (val) {
 
+    },
+    addMeasure () {
+      this.$refs.dialog.dialog()
     }
   }
 }
