@@ -21,10 +21,10 @@
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <div>
-                    <el-input type="text" v-model="scope.row.apiPaths"></el-input>
-                  </div>
-                </template>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.apiPaths'">
+                    <el-input type="text" v-model="scope.row.apiPaths" @blur="iptChange(scope.$index)"></el-input>
+                  </el-form-item>
+                </template> 
               </el-table-column>
               <el-table-column
                 label="维度组合名称"
@@ -51,6 +51,7 @@ import steps from '@/components/olapComponent/common/steps'
 import selectFiled from '@/components/olapComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     filedTable,
@@ -122,6 +123,10 @@ export default {
     selectFiled () {
       let data = this.saveSelectFiled// 去重后的选择项
       this.$refs.dialog.dialog(data)
+    },
+    // 输入框监听
+    iptChange (index) {
+      this.$store.dispatch('changePushSelectFiled', this.tableData)
     }
   },
   computed: {

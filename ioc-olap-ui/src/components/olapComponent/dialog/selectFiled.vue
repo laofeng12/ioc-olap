@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { reduceObj } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -63,7 +64,17 @@ export default {
           }
         }
       }
-      this.options = dest
+      let itemData = []
+      dest.map(item => {
+        let newData = {}
+        newData.columnName = item.columnName
+        newData.comment = item.comment
+        newData.tableName = item.tableName
+        newData.apiPaths = item.apiPaths
+        newData.list = reduceObj(item.list, 'columnName')
+        itemData.push(newData)
+      })
+      this.options = itemData
     }
   }
 }

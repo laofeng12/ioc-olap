@@ -72,6 +72,8 @@ export default {
           datas.push({
             comment: n.comment,
             columnName: n.columnName,
+            dataType: n.dataType,
+            apiPaths: '',
             tableName: item.label
           })
         })

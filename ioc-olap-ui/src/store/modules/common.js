@@ -128,8 +128,14 @@ const common = {
     },
     // 存储已选择的维度
     saveSelectFiled ({ state }, data) {
-      let datas = reduceObj(state.saveSelectFiled.concat(data), 'comment')
+      // let datas = reduceObj(state.saveSelectFiled.concat(data), 'comment')
+      let datas = state.saveSelectFiled.concat(data)
       state.saveSelectFiled = datas
+    },
+    // 修改已选择的维度
+    changePushSelectFiled ({ state }, data) {
+      state.saveSelectFiled = data
+      console.log(state.saveSelectFiled)
     },
     // 删除取消的selct
     removeSelectFiled ({ state }, data) {

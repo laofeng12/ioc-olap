@@ -33,7 +33,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.selectTableTotal)
       this.dataList = this.selectTableTotal
     },
     changes (val) {
