@@ -1,7 +1,7 @@
 <template>
   <div class="creates">
     <header>
-      <el-button icon="el-icon-arrow-left"></el-button>
+      <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
       <el-input v-model="value" placeholder="请输入模型名称(1~20字)"></el-input>
     </header>
     <head-box :selectId="selectStep"></head-box>
@@ -29,6 +29,10 @@ export default {
     },
     getStepCountReduce (val) {
       this.selectStep -= 1
+    },
+    tobackList () {
+      this.$router.push('/olap/olapList')
+      this.$store.dispatch('resetList')
     }
   }
 }

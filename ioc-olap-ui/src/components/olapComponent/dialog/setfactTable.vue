@@ -1,8 +1,8 @@
 <template>
   <div class="setfactTable">
     <el-dialog title="事实表设置" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-select v-model="value2" placeholder="请选择">
-        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+      <el-select v-model="value" placeholder="请选择" @change="selectMe">
+        <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.label"></el-option>
       </el-select>
       <p style="margin-top:10px;">说明：</p>
       <p>1、事实表为用来存储事实的度量值和个维度的码值，即存储业务实际的发生值，如空气的检测值、水污染的检测值等；</p>
@@ -10,13 +10,15 @@
       <p>3、事实表的选择影响后续模型的建立，请选择需要分析的数值作为事实表；</p>
       <p>4、切换事实表，将清除当前已建立的关系，请谨慎操作。</p>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitBtn()">关闭</el-button>
+        <el-button type="primary" @click="closeBtn()">取消</el-button>
+        <el-button type="primary" @click="submitBtn()">确认</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   props: {
     border: {
@@ -26,37 +28,42 @@ export default {
   },
   data () {
     return {
-      value2: '',
+      value: '',
       dialogFormVisible: false,
       tableData: [],
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }]
+      options: []
     }
   },
   methods: {
-    closeBtn () {
-      this.tableData = []
+    init () {
+      this.options = this.selectTableTotal
     },
-    submitBtn (index) {
+    selectMe (val) {
+      console.log(this.options)
+      let data = this.options.filter(item => {
+        if (item.label === val) {
+          return item
+        }
+      })
+      this.tableData = data
+    },
+    closeBtn () {
       this.dialogFormVisible = false
     },
-    dialog (val, data) {
+    submitBtn () {
+      this.dialogFormVisible = false
+      // 保存设置事实表到总表
+      this.$store.dispatch('mergeFiledTable', this.tableData)
+    },
+    dialog () {
       this.dialogFormVisible = true
+      this.init()
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableTotal: 'selectTableTotal'
+    })
   }
 }
 </script>
