@@ -28,6 +28,7 @@ export default {
       loading: false,
       defaultKey: [],
       dataList: [{
+        // id: 1,
         label: '全选',
         children: []
       }]
