@@ -39,7 +39,6 @@ export default {
       this.options = this.selectTableTotal
     },
     selectMe (val) {
-      console.log(this.options)
       let data = this.options.filter(item => {
         if (item.label === val) {
           return item
@@ -54,6 +53,7 @@ export default {
       this.dialogFormVisible = false
       // 保存设置事实表到总表
       this.$store.dispatch('mergeFiledTable', this.tableData)
+      this.$parent.init()
     },
     dialog () {
       this.dialogFormVisible = true

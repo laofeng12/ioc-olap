@@ -13,6 +13,11 @@ const getters = {
   saveSelctchckoutone: state => state.common.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.common.saveSelctchckouttwo,
   saveSelectFiled: state => state.common.saveSelectFiled,
-  saveSelectFiledTree: state => state.common.saveSelectFiledTree
+  saveSelectFiledTree: state => state.common.saveSelectFiledTree,
+  saveNewSortList: state => state.common.saveNewSortList,
+  saveList: state => state.common.saveList,
+  saveRightTableList: state => state.common.saveRightTableList,
+  measureTableList: state => state.common.measureTableList,
+  relaodFilterList: state => state.common.relaodFilterList
 }
 export default getters

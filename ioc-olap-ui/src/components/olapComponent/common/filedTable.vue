@@ -8,6 +8,7 @@
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
+         <span v-if="item.filed === 1">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -18,7 +19,6 @@
 <script>
 import setfactTable from '@/components/olapComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 export default {
   components: {
     setfactTable
@@ -37,7 +37,6 @@ export default {
   methods: {
     init () {
     // 初始化已选择的表
-      this.dataList = reduceObj(this.saveSelectFiledTree, 'label')
       setTimeout(() => { this.changeLi(this.dataList[0], 0) }, 300)
       // 接收设置表关系的数据
       this.dataList = this.selectTableTotal
@@ -46,12 +45,9 @@ export default {
         setTimeout(() => {
           this.dataList.forEach((item, index) => {
             this.saveSelectFiled.forEach((n, i) => {
-              if (item.label === n.tableName) {
-                item['isActive'] = 1
-              }
+              item['isActive'] = item.label === n.tableName ? 1 : 0
             })
           })
-          this.dataList = reduceObj(this.dataList, 'label')
           // 存储已选择后的维度表
           this.$store.dispatch('saveSelectFiledTree', this.dataList)
         }, 300)
@@ -67,15 +63,16 @@ export default {
         tableName: item.label
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
-        let datas = []
-        res.data.map(n => {
-          datas.push({
-            comment: n.comment,
-            columnName: n.columnName,
-            tableName: item.label
-          })
+        res.data.map((n, i) => {
+          n.mode = n.mode ? n.mode : '2'
+          n.apiPaths = n.apiPaths ? n.apiPaths : ''
+          n.tableName = item.label
+          n.filed = item.filed
+          n.id = `${item.label}${i}`
         })
-        this.$root.eventBus.$emit('filedTable', datas, res.code)
+        // 存储选择对应的表
+        this.$store.dispatch('SaveRightTableList', res.data)
+        this.$root.eventBus.$emit('filedTable', res.data, res.code)
       })
     }
   },
@@ -107,6 +104,13 @@ export default {
       height 30px
       line-height 30px
       color #000000
+      span{
+        background #009688
+        color #ffffff
+        padding 2px 6px
+        font-size 10px
+        border-radius 3px
+      }
     }
     .actives{
       color #009688
