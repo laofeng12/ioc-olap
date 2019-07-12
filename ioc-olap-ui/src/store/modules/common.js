@@ -62,27 +62,42 @@ const common = {
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
-    async GetTreeList ({ commit }) {
-      let data = await getResourcedirectoryCategory()
-      commit('GET_TREELIST', data)
-      return data
+    GetTreeList ({ commit }) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectoryCategory().then(res => {
+          commit('GET_TREELIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetSerchTable ({ commit }, id) {
-      let data = await getResourcedirectory(id)
-      commit('GET_SERCHTABLE_LIST', data)
-      return data
+    GetSerchTable ({ commit }, id) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectory(id).then(res => {
+          commit('GET_SERCHTABLE_LIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetColumnList ({ commit }, params) {
-      let data = await getColumnList(params)
-      return data
+    GetColumnList ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getColumnList(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetTableData ({ commit }, params) {
-      let data = await getTableData(params)
-      return data
+    GetTableData ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getTableData(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetdsUploadTable ({ commit }, params) {
-      let data = await getdsUploadTable(params)
-      return data
+    GetdsUploadTable ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getdsUploadTable(params).then(res => {
+          resolve(res)
+        })
+      })
     },
     // 存储已选择复选框
     saveSelctchckoutone ({ commit, state, dispatch }, data) {
@@ -128,19 +143,21 @@ const common = {
         }
       })
     },
-    // 设置已选择的表的数据
+    // 设置已选择的表的总数据
     setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },
-    /* 维度 */
+    /**
+     * 维度步骤
+     */
     // 存储已选择的维度
-    saveSelectFiled ({ state }, data) {
+    SaveSelectFiled ({ state }, data) {
       let datas = state.saveSelectFiled.concat(data)
       state.saveSelectFiled = datas
     },
     // 删除取消的selct
-    removeSelectFiled ({ state }, data) {
+    RemoveSelectFiled ({ state }, data) {
       state.saveSelectFiled && state.saveSelectFiled.forEach((item, index) => {
         if (item.id === data.id) {
           state.saveSelectFiled.splice(index, 1)
@@ -162,7 +179,6 @@ const common = {
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
-      console.log(data)
       var map = {}
       var dest = []
       for (var i = 0; i < data.length; i++) {
@@ -187,7 +203,7 @@ const common = {
         }
       }
       let itemData = []
-      dest.map(item => {
+      dest.map((item, i) => {
         let newData = {}
         newData.columnName = item.columnName
         newData.comment = item.comment

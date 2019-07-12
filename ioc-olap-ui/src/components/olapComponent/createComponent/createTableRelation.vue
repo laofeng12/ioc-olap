@@ -49,7 +49,7 @@ export default {
 
       let paper = new joint.dia.Paper({
         el: $('#myholder'),
-        width: 100 + '%',
+        width: 1000,
         height: 600,
         model: this.graph,
         gridSize: 1
@@ -274,9 +274,7 @@ export default {
   .containers{
     padding 20px 5px
   }
-}
-
-.holder{
+  .holder{
   position relative
   overflow hidden
 }
@@ -328,5 +326,6 @@ export default {
   width 18px
   height 18px
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20%3F%3E%3Csvg%20height%3D%2224px%22%20version%3D%221.1%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asketch%3D%22http%3A%2F%2Fwww.bohemiancoding.com%2Fsketch%2Fns%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Ctitle%2F%3E%3Cdesc%2F%3E%3Cdefs%2F%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20id%3D%22miu%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%3E%3Cg%20id%3D%22Artboard-1%22%20transform%3D%22translate(-251.000000%2C%20-443.000000')
+}
 }
 </style>

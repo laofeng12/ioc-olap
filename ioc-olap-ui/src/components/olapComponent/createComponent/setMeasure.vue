@@ -55,7 +55,6 @@ export default {
   methods: {
     init () {
       this.tableData = [...this.measureTableList]
-      console.log(this.tableData)
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
