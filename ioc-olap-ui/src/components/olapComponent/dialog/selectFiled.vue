@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   props: {
     border: {
@@ -41,30 +42,13 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      var map = {},
-      dest = []
-      for(var i = 0; i < data.length; i++){
-        var ai = data[i]
-        if(!map[ai.tableName]){
-          dest.push({
-            comment: ai.comment,
-            tableName: ai.tableName,
-            columnName: ai.columnName,
-            list: [ai]
-          });
-          map[ai.tableName] = ai
-        }else{
-          for(var j = 0; j < dest.length; j++){
-            var dj = dest[j]
-            if(dj.tableName == ai.tableName){
-              dj.list.push(ai)
-              break
-            }
-          }
-        }
-      }
-      this.options = dest
+      this.options = this.saveNewSortList
     }
+  },
+  computed: {
+    ...mapGetters({
+      saveNewSortList: 'saveNewSortList'
+    })
   }
 }
 </script>

@@ -36,8 +36,9 @@ export default {
     return {
     }
   },
-  mounted: function () {
-    this.$root.eventBus.$emit('createTable', this.selectTableCount)
+  mounted () {
+    this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+    // this.$root.eventBus.$emit('createTable', this.selectTableTotal)
     this.init()
   },
   watch: {
@@ -145,8 +146,8 @@ export default {
 
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
-        if (ele.attributes.type == 'standard.Link') {
-          if (ele.get('source').id == target.id || ele.get('target'.id == target.id)) {
+        if (ele.attributes.type === 'standard.Link') {
+          if (ele.get('source').id === target.id || ele.get('target'.id === target.id)) {
             ele.remove()
           }
         }
@@ -253,14 +254,14 @@ export default {
       this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
+      this.$root.eventBus.$emit('openDefaultTree')
       this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
-      this.$root.eventBus.$emit('openDefaultTree')
     }
   },
   computed: {
     ...mapGetters({
-      selectTableCount: 'selectTableCount'
+      selectTableTotal: 'selectTableTotal'
     })
   }
 }

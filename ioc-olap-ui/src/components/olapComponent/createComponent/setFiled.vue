@@ -14,16 +14,15 @@
               ref="multipleTable"
               tooltip-effect="dark"
               @select="selectcheck"
-               @selection-change="handleSelectionChange"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
               <el-table-column prop="comment" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <div>
-                    <el-input type="text" v-model="scope.row.apiPaths"></el-input>
-                  </div>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.apiPaths'">
+                    <el-input type="text" v-model="scope.row.apiPaths" @blur="iptChange(scope.row, scope.$index)"></el-input>
+                  </el-form-item>
                 </template>
               </el-table-column>
               <el-table-column
@@ -31,8 +30,10 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio v-model="scope.row.radio" label="1">正常模式</el-radio>
-                    <el-radio v-model="scope.row.radio" label="2">衍生模式</el-radio>
+                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.$index)">
+                      <el-radio label="1">正常模式</el-radio>
+                      <el-radio label="2">衍生模式</el-radio>
+                    </el-radio-group>
                   </div>
                 </template>
               </el-table-column>
@@ -67,28 +68,36 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$emit('createTable', this.selectTableCount)
-    this.$root.eventBus.$on('filedTable', (res, code) => {
-      let reduceData = this.saveSelectFiled
-      this.loading = true
-      if (code === 200) {
-        this.tableData = res
-        setTimeout(() => {
-          this.loading = false
-          let arr = []
-          this.tableData.forEach(item => {
-            reduceData && reduceData.forEach(val => {
-              if (val.columnName === item.columnName) {
-                arr.push(item)
-              }
-            })
-          })
-          this.toggleSelection(arr)
-        }, 300)
-      }
-    })
+    this.init()
   },
   methods: {
+    init () {
+      this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+      this.$root.eventBus.$on('filedTable', (res, code) => {
+        this.loading = true
+        if (code === 200) {
+          this.tableData = res
+          setTimeout(() => {
+            this.loading = false
+            let arr = []
+            this.tableData.forEach((item, i) => {
+              this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                if (val.id === item.id) {
+                  arr.push(item)
+                }
+              })
+              this.saveList && this.saveList.forEach((val, index) => {
+                if (val.id === item.id) {
+                  this.tableData[i].apiPaths = val.apiPaths
+                  this.tableData[i].mode = val.mode
+                }
+              })
+            })
+            this.toggleSelection(arr)
+          }, 300)
+        }
+      })
+    },
     toggleSelection (rows) {
       if (rows) {
         rows.forEach(row => {
@@ -99,31 +108,44 @@ export default {
       }
     },
     nextModel (val) {
-      this.$router.push('/olap/createolap/setMeasure')
-      this.$parent.getStepCountAdd(val)
+      // if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      // let flag
+      // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+      //   flag = item.filed !== 1 ? 1 : 0
+      // })
+      // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
       this.$router.push('/olap/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
-    handleSelectionChange (val) {
-      this.$store.dispatch('saveSelectFiled', val)
-    },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
-      !selected && this.$store.dispatch('removeSelectFiled', row)
+      selected ? this.$store.dispatch('saveSelectFiled', row) : this.$store.dispatch('removeSelectFiled', row)
+      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
       // 若点击 左侧对应父级菜单高亮
       this.$root.eventBus.$emit('tableNameActive')
     },
     selectFiled () {
-      let data = this.saveSelectFiled// 去重后的选择项
-      this.$refs.dialog.dialog(data)
+      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.$refs.dialog.dialog()
+    },
+    // 输入框监听
+    iptChange (val, index) {
+      this.$store.dispatch('changePushSelectFiled', index)
+    },
+    // 单选框触发
+    radioChange (index) {
+      this.$store.dispatch('changePushSelectFiled', index)
     }
   },
   computed: {
     ...mapGetters({
-      selectTableCount: 'selectTableCount',
-      saveSelectFiled: 'saveSelectFiled'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectFiled: 'saveSelectFiled',
+      saveNewSortList: 'saveNewSortList',
+      saveList: 'saveList'
     })
   }
 }
