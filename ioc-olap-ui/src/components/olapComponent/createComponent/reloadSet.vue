@@ -1,13 +1,13 @@
 <template>
   <div class="reloadSet">
-     <el-form>
+     <el-form :model="formData">
         <el-form-item label="刷新设置" class="item_line"></el-form-item>
         <el-form-item label="自动刷新" class="item_line"></el-form-item>
         <el-form-item label="自动刷新模型？">
           <template>
             <div>
               <el-switch
-                v-model="autoReload"
+                v-model="formData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -15,14 +15,14 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率" v-if="autoReload">
+        <el-form-item label="更新频率" v-if="formData.autoReload">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="reloadCount"></el-input>
-              <el-radio-group v-model="radio">
-                <el-radio :label="3">小时</el-radio>
-                <el-radio :label="6">天</el-radio>
-                <el-radio :label="9">月</el-radio>
+              <el-input type="text" v-model="formData.reloadCount"></el-input>
+              <el-radio-group v-model="formData.timeType">
+                <el-radio :label="1">小时</el-radio>
+                <el-radio :label="2">天</el-radio>
+                <el-radio :label="3">月</el-radio>
               </el-radio-group>
             </div>
           </template>
@@ -31,7 +31,7 @@
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="serveTable" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="formData.serveTable" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -40,7 +40,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="dateText" placeholder="请选择日期字段">
+               <el-select v-model="formData.dateText" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -49,7 +49,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="dateFormat" placeholder="请选择日期格式">
+               <el-select v-model="formData.dateFormat" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -59,7 +59,7 @@
           <template>
             <div>
               <el-switch
-                v-model="dataMany"
+                v-model="formData.dataMany"
                 active-color="#13ce66"
                 @change="changeDataMany"
                 inactive-color="#cccccc">
@@ -67,11 +67,11 @@
             </div>
           </template>
         </el-form-item>
-        <div v-if="dataMany">
+        <div v-if="formData.dataMany">
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="serveTable1" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="formData.serveTable1" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -80,7 +80,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="dateText1" placeholder="请选择日期字段">
+               <el-select v-model="formData.dateText1" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -89,7 +89,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="dateFormat1" placeholder="请选择日期格式">
+               <el-select v-model="formData.dateFormat1" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -98,7 +98,7 @@
         </div>
         <el-form-item label="过滤设置" class="item_line"></el-form-item>
         <el-table
-          :data="tableData"
+          :data="formData.tableData"
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
@@ -136,16 +136,18 @@ export default {
   },
   data () {
     return {
-      autoReload: false,
-      dataMany: false,
-      reloadCount: '',
-      radio: 3,
-      serveTable: '',
-      serveTable1: '',
-      dateText: '',
-      dateText1: '',
-      dateFormat: '',
-      dateFormat1: '',
+      formData: {
+        autoReload: false,
+        dataMany: false,
+        reloadCount: '',
+        timeType: 1,
+        serveTable: '',
+        serveTable1: '',
+        dateText: '',
+        dateText1: '',
+        dateFormat: '',
+        dateFormat1: ''
+      },
       tableOptions: [],
       textOptions: [],
       formatOptions: [
@@ -153,7 +155,6 @@ export default {
         { id: 2, value: 'yyyy-MM-dd' },
         { id: 3, value: 'hh:mm:ss' }
       ],
-      options: [],
       tableData: []
     }
   },
@@ -168,7 +169,7 @@ export default {
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/advancedSet')
-      // this.$message.error('暂未开发')
+      console.log(this.formData)
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

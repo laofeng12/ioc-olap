@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     init () {
-    // 接收数据湖传递的信息
+      // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', res => {
         this.dataList[0].children = []
         this.loading = true
@@ -137,6 +137,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
       saveSelctchckoutone: 'saveSelctchckoutone',
       saveSelctchckouttwo: 'saveSelctchckouttwo',
@@ -150,6 +151,7 @@ export default {
     this.$root.eventBus.$off('getLocalTableHeadList')
     this.$root.eventBus.$off('getTableContentList')
     this.$root.eventBus.$off('getLocalTableContentList')
+    this.$root.eventBus.$off('saveSelectTables')
   }
 }
 </script>

@@ -14,6 +14,7 @@
               ref="multipleTable"
               tooltip-effect="dark"
               @select="selectcheck"
+              @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
               <el-table-column prop="comment" label="字段名称" align="center"> </el-table-column>
@@ -108,12 +109,12 @@ export default {
       }
     },
     nextModel (val) {
-      // if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      // let flag
-      // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-      //   flag = item.filed !== 1 ? 1 : 0
-      // })
-      // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      let flag
+      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+        flag = item.filed !== 1 ? 1 : 0
+      })
+      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
       this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
@@ -122,10 +123,19 @@ export default {
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
-      selected ? this.$store.dispatch('saveSelectFiled', row) : this.$store.dispatch('removeSelectFiled', row)
+      selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
       // 若点击 左侧对应父级菜单高亮
       this.$root.eventBus.$emit('tableNameActive')
+    },
+    // 全选功能
+    selectAllCheck (rows) {
+      this.$message.warning('暂未开发~')
+      // let list = {
+      //   data: rows,
+      //   id: this.tableData[0].tableName
+      // }
+      // rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
     },
     selectFiled () {
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
@@ -147,6 +157,9 @@ export default {
       saveNewSortList: 'saveNewSortList',
       saveList: 'saveList'
     })
+  },
+  beforeDestroy () {
+    this.$root.eventBus.$off('tableNameActive')
   }
 }
 </script>
