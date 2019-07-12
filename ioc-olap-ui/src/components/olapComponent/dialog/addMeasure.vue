@@ -1,38 +1,38 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="新增度量" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="form" :rules="rules">
+      <el-form :model="formData">
         <el-form-item label="度量名称" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
+          <el-input v-model="formData.measureName" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
         </el-form-item>
         <el-form-item label="计算方式" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择" @change="selectChange">
+          <el-select v-model="formData.computeMode" placeholder="请选择" @change="selectChange">
             <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth">
-          <el-select v-model="form.type" placeholder="请选择" :disabled="isDisabledtype">
+          <el-select v-model="formData.computeType" placeholder="请选择" :disabled="isDisabledtype">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="form.value" placeholder="请选择" :disabled="isDisabledtext">
-            <el-option v-for="item in datas" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-select v-model="formData.fieldtext" placeholder="请选择" :disabled="isDisabledtext">
+            <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item style="margin-top:-20px;" :label-width="formLabelWidth">
           <el-checkbox label="显示所有字段"></el-checkbox>
         </el-form-item>
-        <el-form-item label="扩展列长度" v-if="form.region === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
+        <el-form-item label="扩展列长度" v-if="formData.computeMode === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
+          <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
         </el-form-item>
-        <div v-if="form.region === 'COUNT_DISTINCT'" class="coutDistinct">
+        <div v-if="formData.computeMode === 'COUNT_DISTINCT'" class="coutDistinct">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
-            <el-select v-model="form.type" placeholder="请选择" :disabled="isDisabledtype">
+            <el-select v-model="formData.type" placeholder="请选择" :disabled="isDisabledtype">
               <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-table :data="form.answers">
+          <el-table :data="formData.answers">
             <el-table-column
               label="序号"
               prop='index'
@@ -43,7 +43,7 @@
               label="选择字段"
               align="center">
               <template slot-scope="scope">
-                <el-form-item :prop="'answers.' + scope.$index + '.answertext'" :rules='rules.answertext'>
+                <el-form-item :prop="'answers.' + scope.$index + '.answertext'">
                   <el-select v-model="scope.row.answertext" placeholder="请选择字段">
                     <el-option v-for="(item, index) in datas" :key="index" :label="item.codename" :value="item.codename"></el-option>
                   </el-select>
@@ -62,14 +62,14 @@
           </el-table>
           <el-button type="primary" @click="addtext">+添加字段</el-button>
         </div>
-        <div v-if="form.region==='TOP_N'" class="coutTopn">
+        <div v-if="formData.computeMode==='TOP_N'" class="coutTopn">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
-            <el-select v-model="form.top" placeholder="请选择" :disabled="isDisabledtype">
+            <el-select v-model="formData.top" placeholder="请选择" :disabled="isDisabledtype">
               <el-option v-for="item in topOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
           <p>聚合字段</p>
-          <el-table :data="form.answers">
+          <el-table :data="formData.answers">
             <el-table-column
               label="序号"
               prop='index'
@@ -130,6 +130,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   props: {
     border: {
@@ -139,7 +140,7 @@ export default {
   },
   data () {
     return {
-      form: {
+      formData: {
         answers: []
       },
       formLabelWidth: '100px',
@@ -147,7 +148,11 @@ export default {
       isDisabledtype: false,
       isDisabledtext: false,
       tableData: [],
-      datas: [],
+      fieldtextOption: [
+        { id: 1, value: 'aaaa' },
+        { id: 2, value: 'bbb' },
+        { id: 3, value: 'cccc' }
+      ],
       computeOptions: [{
         value: 'SUM',
         label: 'SUM'
@@ -202,40 +207,54 @@ export default {
   },
   methods: {
     closeBtn () {
-      this.form.region = ''
       this.dialogFormVisible = false
     },
     submitBtn (index) {
       this.dialogFormVisible = false
+      let id = Math.random().toString(36).substr(3)
+      this.formData['id'] = id
+      this.$store.dispatch('MeasureTableList', this.formData).then(res => {
+        if (res) {
+          this.$message.success('保存成功~')
+          this.formData = {}
+        }
+      })
+      this.$parent.init()
     },
-    dialog (tableData) {
+    dialog (data) {
       this.dialogFormVisible = true
+      if (data) this.formData = data
     },
     selectChange (val) {
       switch (val) {
         case 'COUNT':
-          this.form.type = 'constant'
-          this.form.value = 1
+          this.formData.computeType = 'constant'
+          this.formData.fieldtext = 1
           this.isDisabledtype = true
           this.isDisabledtext = true
           break
         case 'PERCENTILE':
-          this.form.type = 'column'
+          this.formData.computeType = 'column'
           this.isDisabledtype = true
           break
         default:
           this.isDisabledtype = false
-          this.form.value = ''
+          // this.formData.fieldtext = ''
           this.isDisabledtext = false
           break
       }
     },
     handDeleteMethod (id, index) {
-      this.form.answers.splice(index, 1)
+      this.formData.answers.splice(index, 1)
     },
     addtext () {
-      this.form.answers.push({ index: 1, answertext: '' })
+      this.formData.answers.push({ index: 1, answertext: '' })
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableTotal: 'selectTableTotal'
+    })
   }
 }
 </script>

@@ -3,7 +3,7 @@
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-button type="text" @click="changes">设置事实表</el-button>
      <ul v-if="dataList && dataList.length">
-       <li v-for="(item, index) in dataList" :class= "current === index?'actives':''" :key="index" @click="changeLi(index)">
+       <li v-for="(item, index) in dataList" :class= "current === index?'actives':''" :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
          <span v-if="item.filed === 1">事实表</span>
@@ -38,8 +38,9 @@ export default {
     changes (val) {
       this.$refs.dialog.dialog()
     },
-    changeLi (index) {
+    changeLi (item, index) {
       this.current = index
+      this.$parent.click_add(item)
     }
   },
   computed: {

@@ -1,5 +1,4 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { reduceObj } from '@/utils/index'
 
 const common = {
   state: {
@@ -12,8 +11,16 @@ const common = {
     lastClickTab: '', // 存储最后一次点击的tabID
     saveSelctchckoutone: [],
     saveSelctchckouttwo: [],
+    /* 维度 */
     saveSelectFiled: [], // 存储已选择的维度
-    saveSelectFiledTree: [] // 存储已选择的左侧维度菜单
+    saveSelectFiledTree: [], // 存储已选择的左侧维度菜单
+    saveNewSortList: [], // 存储最新分类后的维度
+    saveList: [], // 存储维度输入框以及维度组合
+    saveRightTableList: [], // 维度对应的表
+    /* 度量 */
+    measureTableList: [],
+    /* 刷新过滤 */
+    relaodFilterList: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -55,27 +62,42 @@ const common = {
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
-    async GetTreeList ({ commit }) {
-      let data = await getResourcedirectoryCategory()
-      commit('GET_TREELIST', data)
-      return data
+    GetTreeList ({ commit }) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectoryCategory().then(res => {
+          commit('GET_TREELIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetSerchTable ({ commit }, id) {
-      let data = await getResourcedirectory(id)
-      commit('GET_SERCHTABLE_LIST', data)
-      return data
+    GetSerchTable ({ commit }, id) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectory(id).then(res => {
+          commit('GET_SERCHTABLE_LIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetColumnList ({ commit }, params) {
-      let data = await getColumnList(params)
-      return data
+    GetColumnList ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getColumnList(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetTableData ({ commit }, params) {
-      let data = await getTableData(params)
-      return data
+    GetTableData ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getTableData(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetdsUploadTable ({ commit }, params) {
-      let data = await getdsUploadTable(params)
-      return data
+    GetdsUploadTable ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getdsUploadTable(params).then(res => {
+          resolve(res)
+        })
+      })
     },
     // 存储已选择复选框
     saveSelctchckoutone ({ commit, state, dispatch }, data) {
@@ -121,35 +143,76 @@ const common = {
         }
       })
     },
-    // 设置已选择的表的数据
+    // 设置已选择的表的总数据
     setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },
+    /**
+     * 维度步骤
+     */
     // 存储已选择的维度
-    saveSelectFiled ({ state }, data) {
-      // let datas = reduceObj(state.saveSelectFiled.concat(data), 'comment')
+    SaveSelectFiled ({ state }, data) {
       let datas = state.saveSelectFiled.concat(data)
       state.saveSelectFiled = datas
     },
-    // 修改已选择的维度
-    changePushSelectFiled ({ state }, data) {
-      state.saveSelectFiled = data
-      console.log(state.saveSelectFiled)
-    },
     // 删除取消的selct
-    removeSelectFiled ({ state }, data) {
-      let datas = reduceObj(state.saveSelectFiled, 'comment') // 去重对象
-      datas && datas.forEach((item, index) => {
-        if (item.comment === data.comment) {
-          datas.splice(index, 1)
+    RemoveSelectFiled ({ state }, data) {
+      state.saveSelectFiled && state.saveSelectFiled.forEach((item, index) => {
+        if (item.id === data.id) {
+          state.saveSelectFiled.splice(index, 1)
         }
       })
-      state.saveSelectFiled = datas
+    },
+    // 存储已选择对应的表
+    SaveRightTableList ({ state }, data) {
+      state.saveRightTableList = data
     },
     // 存储已选择的维度表
     saveSelectFiledTree ({ state }, data) {
       state.saveSelectFiledTree = data
+    },
+    // 存储加了显示名称的数据
+    changePushSelectFiled ({ state }, index) {
+      let datas = state.saveList.concat(state.saveRightTableList)
+      state.saveList = datas
+    },
+    // 存储最新分类后的维度
+    SaveNewSortList ({ state }, data) {
+      var map = {}
+      var dest = []
+      for (var i = 0; i < data.length; i++) {
+        var ai = data[i]
+        if (!map[ai.tableName]) {
+          dest.push({
+            comment: ai.comment,
+            tableName: ai.tableName,
+            columnName: ai.columnName,
+            filed: ai.filed,
+            list: [ai]
+          })
+          map[ai.tableName] = ai
+        } else {
+          for (var j = 0; j < dest.length; j++) {
+            var dj = dest[j]
+            if (dj.tableName === ai.tableName) {
+              dj.list.push(ai)
+              break
+            }
+          }
+        }
+      }
+      let itemData = []
+      dest.map((item, i) => {
+        let newData = {}
+        newData.columnName = item.columnName
+        newData.comment = item.comment
+        newData.tableName = item.tableName
+        newData.apiPaths = item.apiPaths
+        newData.list = item.list
+        itemData.push(newData)
+      })
+      state.saveNewSortList = itemData
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
@@ -157,6 +220,34 @@ const common = {
         data[0].label === item.label ? state.selectTableTotal[index]['filed'] = 1 : state.selectTableTotal[index]['filed'] = 0
       })
       dispatch('setSelectTableTotal')
+    },
+    /* 度量 */
+    // 新增的table表
+    MeasureTableList ({ state }, data) {
+      return new Promise((resolve, reject) => {
+        state.measureTableList.push(data)
+        resolve('ok')
+      })
+    },
+    // 根据生成的id删除对应表
+    deleteMeasureTableList ({ state }, id) {
+      state.measureTableList.forEach((item, index) => {
+        item.id === id && state.measureTableList.splice(index, 1)
+      })
+    },
+    /* 刷新过滤 */
+    // 新增的过滤表
+    ReloadFilterTableList ({ state }, data) {
+      return new Promise((resolve, reject) => {
+        state.relaodFilterList.push(data)
+        resolve('ok')
+      })
+    },
+    // 根据生成的id删除对应表
+    deleteReloadFilterTableList ({ state }, id) {
+      state.relaodFilterList.forEach((item, index) => {
+        item.id === id && state.relaodFilterList.splice(index, 1)
+      })
     }
   }
 }

@@ -1,24 +1,24 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="过滤设置" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="form" :rules="rules">
+      <el-form :model="formData" :rules="rules">
         <el-form-item label="选择字段表" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择字段表">
-            <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-select v-model="formData.reloadName" placeholder="请选择字段表" @change="selectTable">
+            <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="form.type" placeholder="请选择字段">
-            <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-select v-model="formData.reloadText" placeholder="请选择字段">
+            <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择过滤条件" :label-width="formLabelWidth">
-          <el-select v-model="form.value" placeholder="请选择过滤条件">
-            <el-option v-for="item in datas" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-select v-model="formData.filterType" placeholder="请选择过滤条件">
+            <el-option v-for="item in filterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="设置度量值" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" placeholder="请输入度量值"></el-input>
+          <el-input v-model="formData.filterValue" autocomplete="off" placeholder="请输入度量值"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   props: {
     border: {
@@ -39,39 +40,24 @@ export default {
   },
   data () {
     return {
-      form: {
+      formData: {
         answers: []
       },
       formLabelWidth: '100px',
       dialogFormVisible: false,
       tableData: [],
       typeOptions: [],
-      datas: [],
-      computeOptions: [{
-        value: 'SUM',
-        label: 'SUM'
-      }, {
-        value: 'MAX',
-        label: 'MAX'
-      }, {
-        value: 'MIN',
-        label: 'MIN'
-      }, {
-        value: 'COUNT',
-        label: 'COUNT'
-      }, {
-        value: 'COUNT_DISTINCT',
-        label: 'COUNT_DISTINCT '
-      }, {
-        value: 'TOP_N',
-        label: 'TOP_N'
-      }, {
-        value: 'EXTENDED_COLUMN',
-        label: 'EXTENDED_COLUMN'
-      }, {
-        value: 'PERCENTILE',
-        label: 'PERCENTILE'
-      }],
+      tableOptions: [],
+      textOptions: [],
+      filterOptions: [
+        { value: '0', label: '=' },
+        { value: '1', label: '<>' },
+        { value: '2', label: '>' },
+        { value: '3', label: '<' },
+        { value: '4', label: '>=' },
+        { value: '5', label: '<=' },
+        { value: '6', label: 'BETWEED' }
+      ],
       rules: {
         answertext: [
           { required: false, message: '请选择字段', trigger: 'blur' }
@@ -79,17 +65,47 @@ export default {
       }
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+      this.tableOptions = this.selectTableTotal
+    },
     closeBtn () {
-      this.form.region = ''
       this.dialogFormVisible = false
+    },
+    selectTable (val) {
+      const params = {
+        dsDataSourceId: 2,
+        tableName: val
+      }
+      this.$store.dispatch('GetColumnList', params).then(res => {
+        this.textOptions = res.data
+      })
     },
     submitBtn (index) {
       this.dialogFormVisible = false
+      let id = Math.random().toString(36).substr(3)
+      this.formData['id'] = id
+      this.$store.dispatch('ReloadFilterTableList', this.formData).then(res => {
+        if (res) {
+          this.$message.success('保存成功~')
+          this.formData = {}
+        }
+      })
+      this.$parent.init()
     },
-    dialog (tableData) {
+    dialog (data) {
+      console.log('来了', data)
       this.dialogFormVisible = true
+      if (data) this.formData = data
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableTotal: 'selectTableTotal'
+    })
   }
 }
 </script>

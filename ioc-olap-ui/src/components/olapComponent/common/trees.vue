@@ -133,6 +133,7 @@ export default {
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('clearSelect')
+    this.$root.eventBus.$off('saveSelectTables')
   },
   created () {
     this.fetchTreeList(this.lastClickTab)

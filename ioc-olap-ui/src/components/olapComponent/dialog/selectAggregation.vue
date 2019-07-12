@@ -1,11 +1,14 @@
 <template>
   <div class="slectFiled">
-    <el-dialog title="已选维度" :visible.sync="dialogFormVisible" @close="closeBtn">
+    <el-dialog title="选择维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
         <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
-            <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag>
+            <el-checkbox-group v-model="selctCheckData" true-label="1" false-label="0">
+              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item.id">{{item.columnName}}</el-checkbox-button>
+            </el-checkbox-group>
+            <!-- <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag> -->
           </div>
         </div>
       </div>
@@ -29,6 +32,7 @@ export default {
   data () {
     return {
       dialogFormVisible: false,
+      selctCheckData: [],
       tableData: [],
       options: []
     }
@@ -37,12 +41,16 @@ export default {
     closeBtn () {
       this.tableData = []
     },
+    selectChange (value) {
+      console.log(value, '====', this.selctCheckData)
+    },
     submitBtn (index) {
       this.dialogFormVisible = false
     },
     dialog (data) {
       this.dialogFormVisible = true
       this.options = this.saveNewSortList
+      console.log(this.options)
     }
   },
   computed: {
@@ -55,10 +63,30 @@ export default {
 
 <style lang="stylus" scoped>
 .slectFiled{
+  >>>.el-dialog{
+    width 70%
+  }
   >>>.el-dialog__body{
-    .el-tag{
-      margin-right 20px
-      margin-bottom 10px
+    .el-checkbox-group{
+      display: flex;
+      justify-content: flex-start;
+      flex-flow: row-wrap;
+    }
+    .el-checkbox-button{
+      width 200px
+      margin-left 20px
+      margin-bottom 20px
+      span{
+        text-align center
+        width 100%
+        font-size 11px
+      }
+    }
+    .el-checkbox-button:last-child .el-checkbox-button__inner{
+      border-radius 0
+    }
+    .el-checkbox-button:first-child .el-checkbox-button__inner{
+      border-radius 0
     }
   }
   .container{
@@ -70,7 +98,7 @@ export default {
     .item{
       margin-bottom 10px
       .itemFind{
-        padding 10px
+        padding 30px 10px 10px 10px
         margin-top 10px
         border 1px solid #cccccc
         border-radius:5px;

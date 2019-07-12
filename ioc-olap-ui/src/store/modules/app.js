@@ -31,7 +31,7 @@ const app = {
       subResList: [{
         resId: 'asdasdasdasdasd',
         index: '4',
-        resName: 'OLAP分析',
+        resName: 'OLAP模型',
         resURL: '/olap',
         resIcon: 'fa fa-columns',
         subResList: []

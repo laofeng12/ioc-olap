@@ -119,18 +119,18 @@
           </div>
         </div>
      </el-form>
-     <select-filed ref="selectFiled"></select-filed>
+     <select-aggregation ref="selectFiled"></select-aggregation>
      <steps class="steps" :step="6" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
 
 <script>
 import steps from '@/components/olapComponent/common/steps'
-import selectFiled from '@/components/olapComponent/dialog/selectFiled'
+import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
 export default {
   components: {
-    steps, selectFiled
+    steps, selectAggregation
   },
   data () {
     return {
