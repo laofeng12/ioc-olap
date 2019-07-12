@@ -109,6 +109,20 @@ export default new Router({
         //   component: () => import('@/views/olap/createolap.vue')
         // }
       ]
+    },
+    {
+      path: '/olapAnalysis',
+      name: 'queries',
+      component: ContainerWrapper,
+      redirect: '/olapAnalysis/olapAnalysisList',
+      children: [
+        {
+          path: 'olapAnalysisList',
+          name: 'olapAnalysisList',
+          meta: { title: 'olap分析' },
+          component: () => import('@/views/olap/olapAnalysisList.vue')
+        }
+      ]
     }
   ]
 })
