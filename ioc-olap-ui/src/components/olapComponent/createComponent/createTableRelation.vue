@@ -1,11 +1,11 @@
 <template>
   <div class="tableRelation">
-    <div class="containers">
+    <div class="containers" @mousemove="mousemove" @mouseup="dragTable()">
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
         <div class="item" v-for="(item, index) in linkModal" :key="index">
-          <h3 class="itemTitle">关联关系一：</h3>  
+          <h3 class="itemTitle">关联关系{{index+1}}：</h3>  
           <el-select name="public-choice" v-model="item.relation" @change="getModalSelected">                                        
             <option value="">请选择</option>                                            
             <option value="1">左连接</option>                                   
@@ -20,13 +20,14 @@
           <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">                                        
             <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>                                    
           </el-select>
-          <div class="itemAdd"><a href="javascript:;" @click="addRelation()" class="itemAddBtn">添加关联关系</a></div>
+          <div class="itemAdd"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
+      <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>  
       <div class="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
-        <div id="myholder" @click="click_joint"></div>
+        <div id="myholder"></div>
         <div class="papers">
           <div class="halo-cell-layer">
             <div class="remove" data-type="remove"></div>
@@ -55,6 +56,7 @@ export default {
   },
   data () {
     return {
+      isDragRect: false,
       couponList:[
           {
               id: 'A',
@@ -69,6 +71,11 @@ export default {
               name: '拉上来的拉升到啦'
           }
       ],
+      dragRectPosition:{
+        label: 'test',
+        x: 0,
+        y: 0
+      },
       linkModal: null,
       linkModalModel: null,
       jointList: [] // [{"type":"link","data":[{"relation":"2","source":{"field":"2","label":"my box1","id":9994},"target":{"field":"1","label":"my box1","id":9996}}]}]
@@ -92,27 +99,7 @@ export default {
           gridSize: 1
         });
 
-
         this.initJoint()
-        
-        // let rect = new joint.shapes.basic.Rect({
-        //   position: { x: 100, y: 30 },
-        //   size: { width: 100, height: 30 },
-        //   attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-        // });
-  
-        // let rect2 = rect.clone();
-        // rect2.translate(300);
-  
-        // let link = new joint.shapes.standard.Link({
-        //   source: rect,
-        //   target: rect2,
-        //   router: { name: 'manhattan' },//设置连线弯曲样式 manhattan直角
-        //   labels: [{ position: 0.5, attrs: { text: { text: '未关联', 'font-weight': 'bold','font-size': '12px' } } }]
-        // });
-        
-  
-        // this.graph.addCells([rect, rect2, link]);
 
         //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
         paper.on('blank:pointerup', () => {
@@ -127,12 +114,15 @@ export default {
 
         paper.on('cell:pointerup',(e,d) => {
           // console.log(e);
+          this.linkModalModel = null
+
           if(this.isClick){
             // 如果连线
             if(e.model.isLink()){
-              let linkModal = this.linkModal || []
               let data = e.model.attributes.data
               let linkElements = this.getLinkElements(e.model)
+              let linkModal = []
+              this.linkModalModel = null
 
               if(data && data.length > 0) {
                 data.forEach(t => {
@@ -259,21 +249,72 @@ export default {
     },
 
 
-    addRectCell(item, startIdx ) {
+    clickTable(e) {
+      if(e){
+        e.field = ''
+        let rect = this.addRectCell(e)
+        this.graph.addCell(rect);
+      }
+    },
+
+    dragTable(e) {
+      if(e){
+        this.isDragRect = true
+        this.dragRectPosition.label = e.label
+        this.dragRectPosition.id = e.id
+        this.dragRectPosition.x = 0
+        this.dragRectPosition.y = 0
+      }else if(this.isDragRect && this.dragRectPosition) {
+        let $containers = $('.containers')
+        let $holder = $('.holder')
+        let x = this.dragRectPosition.x - $holder.offset().left + $containers.offset().left
+        let y = this.dragRectPosition.y - $holder.offset().top + $containers.offset().top
+        let rect = this.addRectCell({
+          id: this.dragRectPosition.id,
+          label: this.dragRectPosition.label,
+          position: {x, y}
+        })
+        this.graph.addCell(rect)
+        this.isDragRect = false
+        this.dragRectPosition = {
+          label: 'test',
+          x: 0,
+          y: 0
+        }
+      }
+    },
+
+    mousemove(e) {
+      if(this.isDragRect && e){
+        let parentOffset = $('.containers').offset()
+        this.dragRectPosition.x = e.x - parentOffset.left - 100/2
+        this.dragRectPosition.y = e.y - parentOffset.top
+      }
+    },
+
+    addRectCell(item, startIdx=0 ) {
       let isAdd = true
       let newRect = null
+      let rectLength = 0
       let cells = this.graph.getCells()
 
       if(cells.length>0){
         cells.forEach(t => {
+          if(!t.isLink()){
+            rectLength++
+          }
           if(t.id === item.id) isAdd = false
         })
       }
 
+
       if(isAdd){
-        let width = 200 * (startIdx + cells.length) + 30
+        let width = 200 * (startIdx + rectLength) + 30
         newRect = new joint.shapes.basic.Rect({
-          position: { x: width, y: 30 },
+          position: {
+            x: (item.position && item.position.x) || width,
+            y: (item.position && item.position.y) || 30
+          },
           size: { width: 100, height: 30 },
           attrs: { rect: { fill: '#009688', stroke: '#ffffff' }, text: { text: item.label, id: item.id, fill: 'white' } }
         })
@@ -451,32 +492,18 @@ export default {
 
       // $rect.append($layer)
     },
-    click_add (val) {
-      console.log(val)
-      let item = {
-        label: val.label,
-        id: val.id
-        // id: Math.ceil(Math.random() * 10000)
-      }
-      let rect3 = new joint.shapes.basic.Rect({
-        position: { x: 100, y: 130 },
-        size: { width: 120, height: 30 },
-        attrs: { rect: { fill: '#009688', stroke: '#ffffff' }, text: { text: item.label, fill: 'white', 'font-size': '10px', id: item.id } }        
-      })
-      this.graph.addCells([rect3])
-    },
     // 增加关联信息
-    addRelation() {
-      let linkElements = ''
+    addRelation(item) {
+      let linkModal = this.linkModal || []
       let source = {
         field: '',
-        label: linkElements.source.attributes.attrs.text.text,
-        id: linkElements.source.attributes.attrs.text.id
+        label: item.source.label,
+        id: item.source.id
       }
       let target = {
         field: '',
-        label: linkElements.target.attributes.attrs.text.text,
-        id: linkElements.target.attributes.attrs.text.id
+        label: item.source.label,
+        id: item.source.id
       }
 
       linkModal.push({
@@ -486,34 +513,6 @@ export default {
       })
 
       this.linkModal = linkModal
-    },
-
-    click_joint () {
-      // let graph = new joint.dia.Graph;
-
-      // let paper = new joint.dia.Paper({
-      //   el: $('#myholder'),
-      //   width: 600,
-      //   height: 600,
-      //   model: graph,
-      //   gridSize: 1
-      // });
-
-      // let rect = new joint.shapes.basic.Rect({
-      //   position: { x: 100, y: 30 },
-      //   size: { width: 100, height: 30 },
-      //   attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
-      // });
-
-      // let rect2 = rect.clone();
-      // rect2.translate(300);
-
-      // let link = new joint.dia.Link({
-      //   source: { id: rect.id },
-      //   target: { id: rect2.id }
-      // });
-
-      // graph.addCells([rect, rect2, link]);
     },
     nextModel (val) {
       this.$router.push('/olap/createolap/setFiled')
@@ -541,11 +540,23 @@ export default {
 <style lang="stylus" scoped>
 .tableRelation{
   height calc(100vh - 150px)
-  position relattive
+  position relative
   .containers{
     height 100%
     padding 20px 5px
   }
+}
+
+.dragRect{
+  position absolute
+  width 100px
+  height 30px
+  background #009688
+  z-index 10000
+  text-align center
+  line-height 30px
+  color #fff
+  font-size 14px
 }
 
 .holder{
