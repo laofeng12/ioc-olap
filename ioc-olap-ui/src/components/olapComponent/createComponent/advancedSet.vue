@@ -10,21 +10,27 @@
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregationData" :key="index">
             <div slot="header" class="clearfix">
-              <span>聚合小组1</span>
+              <span>聚合小组</span>
               <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
             </div>
             <div class="item_box">
               <span>包含维度</span>
-              <div class="box_r" @click="getTotalModal"></div>
+              <div class="box_r" @click="getTotalModal(index, 1)">
+                <el-tag type="" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
+              </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
-              <div class="box_r"></div>
+              <div class="box_r" @click="getTotalModal(index, 2)">
+                <el-tag type="" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
+              </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
-              <div class="adds" v-for="(n, i) in item.levelData" :key="i">
-                <div class=""></div>
+              <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
+                <div class=""  @click="getTotalModal(index, 3, i)">
+                  <el-tag type="" v-for="(n, i) in itemData" :key="i" closable>{{n.columnName}}</el-tag>
+                </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
                   <i class="el-icon-circle-plus" @click="addlevelData(i)"></i>
@@ -34,7 +40,7 @@
             <div class="item_box noflex">
               <span>联合维度</span>
               <div class="adds" v-for="(k, t) in item.jointData" :key="t">
-                <div class=""></div>
+                <div class=""  @click="getTotalModal(index, 4, t)"></div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
                   <i class="el-icon-circle-plus" @click="addjointData(t)"></i>
@@ -136,6 +142,8 @@ export default {
     return {
       autoReload: false,
       dataMany: false,
+      modalIndex: 0, // 记录当前点击的是哪个维度框
+      levelDataIndex: 0, // 记录层级维度index
       radio: 3,
       formData: {
         engine: '1',
@@ -152,7 +160,7 @@ export default {
           containData: [], // 包含维度
           necessaryData: [], // 必要维度
           levelData: [ // 层级维度
-            { index: '' }
+            { columnName: '', comment: '' }
           ],
           jointData: [ // 联合维度
             { index: '' }
@@ -186,7 +194,19 @@ export default {
       dataCity: []
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+      // 渲染包含维度
+      console.log(this.saveAggregationlevelWD, '必要的', this.levelDataIndex)
+      this.aggregationData[this.modalIndex].containData = this.saveAggregationWD
+      this.aggregationData[this.modalIndex].necessaryData = this.saveAggregationnecessaryWD
+      this.aggregationData[this.modalIndex].levelData[this.levelDataIndex] = this.saveAggregationlevelWD
+      this.aggregationData[this.modalIndex].jointData = this.saveAggregationjointWD
+      console.log(this.aggregationData)
+    },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/completeCreate')
@@ -205,7 +225,7 @@ export default {
         containData: [],
         necessaryData: [],
         levelData: [
-          { index: '' }
+          { columnName: '', comment: '' }
         ],
         jointData: [
           { index: '' }
@@ -261,13 +281,21 @@ export default {
     changeDataMany (val) {
       console.log(val)
     },
-    getTotalModal () {
-      this.$refs.selectFiled.dialog(this.saveSelectFiled)
+    // 选择维度
+    getTotalModal (index, type, is) {
+      this.modalIndex = index
+      this.levelDataIndex = is
+
+      this.$refs.selectFiled.dialog(this.saveSelectFiled, type, is)
     }
   },
   computed: {
     ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled'
+      saveSelectFiled: 'saveSelectFiled',
+      saveAggregationWD: 'saveAggregationWD',
+      saveAggregationnecessaryWD: 'saveAggregationnecessaryWD',
+      saveAggregationlevelWD: 'saveAggregationlevelWD',
+      saveAggregationjointWD: 'saveAggregationjointWD'
     })
   }
 }
@@ -304,6 +332,20 @@ export default {
           flex 1
           padding 25px
           cursor pointer
+          .el-tag{
+            width 30%
+            float left
+            margin-left 1%
+            margin-bottom 20px
+            font-size 12px
+            background #FBFBFB
+            color #555555
+            i{
+              float right
+              margin-top 8px
+              color #ffffff
+            }
+          }
         }
         .adds{
           border none!important
