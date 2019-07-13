@@ -309,13 +309,15 @@ export default {
 
 
       if(isAdd){
-        let width = 200 * (startIdx + rectLength) + 30
+        let left = 200 * (startIdx + rectLength) + 30
+        let width = item.label.length * 10
+        
         newRect = new joint.shapes.basic.Rect({
           position: {
-            x: (item.position && item.position.x) || width,
+            x: (item.position && item.position.x) || left,
             y: (item.position && item.position.y) || 30
           },
-          size: { width: 100, height: 30 },
+          size: { width: width, height: 30 },
           attrs: { rect: { fill: '#009688', stroke: '#ffffff' }, text: { text: item.label, id: item.id, fill: 'white' } }
         })
       }
