@@ -2,7 +2,7 @@
   <div class="selectModal">
     <el-dialog title="已选择数据表" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="main" v-if="tableData&&tableData.length">
-        <el-tag type="" closable v-for="(item, index) in tableData" :key="index">{{item.label}}</el-tag>
+        <el-tag type="" v-for="(item, index) in tableData" :key="index">{{item.label}}</el-tag>
       </div>
       <div v-else style="text-align:center;margin-top:100px;">暂无数据</div>
       <div slot="footer" class="dialog-footer">

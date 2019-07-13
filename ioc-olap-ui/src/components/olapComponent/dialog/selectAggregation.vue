@@ -5,7 +5,7 @@
         <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
-            <el-checkbox-group v-model="selctCheckData" true-label="1" false-label="0">
+            <el-checkbox-group ref="group" v-model="selctCheckData" true-label="false">
               <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item.id">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
             <!-- <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag> -->
@@ -13,7 +13,7 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitBtn()">取消</el-button>
+        <el-button type="primary" @click="closeBtn()">取消</el-button>
         <el-button type="primary" @click="submitBtn()">确定</el-button>
       </div>
     </el-dialog>
@@ -33,24 +33,38 @@ export default {
     return {
       dialogFormVisible: false,
       selctCheckData: [],
-      tableData: [],
-      options: []
+      options: [],
+      type: '',
+      is: ''
     }
   },
   methods: {
     closeBtn () {
-      this.tableData = []
+      this.dialogFormVisible = false
     },
     selectChange (value) {
-      console.log(value, '====', this.selctCheckData)
     },
     submitBtn (index) {
       this.dialogFormVisible = false
+      let slectData = {
+        data: this.selctCheckData,
+        type: this.type
+      }
+      this.$store.dispatch('SaveAggregationWD', slectData)
+      this.$parent.init()
     },
-    dialog (data) {
+    dialog (data, type, is) {
       this.dialogFormVisible = true
+      // 判断点击的是否是当前的维度框
+      if (type !== this.type) {
+        this.selctCheckData = []
+      }
+      if (is !== this.is) {
+        this.selctCheckData = []
+      }
       this.options = this.saveNewSortList
-      console.log(this.options)
+      this.type = type
+      this.is = is
     }
   },
   computed: {
@@ -68,25 +82,26 @@ export default {
   }
   >>>.el-dialog__body{
     .el-checkbox-group{
-      display: flex;
-      justify-content: flex-start;
-      flex-flow: row-wrap;
     }
     .el-checkbox-button{
       width 200px
       margin-left 20px
       margin-bottom 20px
+      border-left 1px solid #DCDFE6
       span{
         text-align center
         width 100%
         font-size 11px
       }
     }
+    .el-checkbox-button:last-child{
+    }
     .el-checkbox-button:last-child .el-checkbox-button__inner{
       border-radius 0
     }
     .el-checkbox-button:first-child .el-checkbox-button__inner{
       border-radius 0
+      border-left none
     }
   }
   .container{

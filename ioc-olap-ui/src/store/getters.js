@@ -18,6 +18,10 @@ const getters = {
   saveList: state => state.common.saveList,
   saveRightTableList: state => state.common.saveRightTableList,
   measureTableList: state => state.common.measureTableList,
-  relaodFilterList: state => state.common.relaodFilterList
+  relaodFilterList: state => state.common.relaodFilterList,
+  saveAggregationWD: state => state.common.saveAggregationWD,
+  saveAggregationnecessaryWD: state => state.common.saveAggregationnecessaryWD,
+  saveAggregationlevelWD: state => state.common.saveAggregationlevelWD,
+  saveAggregationjointWD: state => state.common.saveAggregationjointWD
 }
 export default getters
