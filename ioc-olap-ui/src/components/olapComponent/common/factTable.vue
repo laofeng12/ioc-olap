@@ -42,7 +42,7 @@ export default {
       this.current = index
       this.$parent.clickTable(item)
     },
-    dragLi (item) {
+    dragLi (item) { 
       this.$parent.dragTable(item)
     }
   },

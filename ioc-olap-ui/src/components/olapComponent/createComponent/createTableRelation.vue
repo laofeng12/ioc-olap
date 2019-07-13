@@ -253,7 +253,7 @@ export default {
       if(e){
         e.field = ''
         let rect = this.addRectCell(e)
-        this.graph.addCell(rect);
+        this.graph.addCell(rect)
       }
     },
 
