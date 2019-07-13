@@ -27,13 +27,14 @@
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
+              {{item.levelData}}
               <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
-                <div class=""  @click="getTotalModal(index, 3, i)">
-                  <el-tag type="" v-for="(n, i) in itemData" :key="i" closable>{{n.columnName}}</el-tag>
+                <div @click="getTotalModal(index, 3, i)">
+                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
-                  <i class="el-icon-circle-plus" @click="addlevelData(i)"></i>
+                  <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
                 </p>
               </div>
             </div>
@@ -159,12 +160,8 @@ export default {
         {
           containData: [], // 包含维度
           necessaryData: [], // 必要维度
-          levelData: [ // 层级维度
-            { columnName: '', comment: '' }
-          ],
-          jointData: [ // 联合维度
-            { index: '' }
-          ]
+          levelData: [], // 层级维度
+          jointData: [ {} ] // 联合维度
         }
       ],
       dimensionData: [ // 维度黑白名单
@@ -200,10 +197,13 @@ export default {
   methods: {
     init () {
       // 渲染包含维度
-      console.log(this.saveAggregationlevelWD, '必要的', this.levelDataIndex)
+      // console.log(this.saveAggregationlevelWD, '必要的', this.levelDataIndex)
       this.aggregationData[this.modalIndex].containData = this.saveAggregationWD
       this.aggregationData[this.modalIndex].necessaryData = this.saveAggregationnecessaryWD
-      this.aggregationData[this.modalIndex].levelData[this.levelDataIndex] = this.saveAggregationlevelWD
+      // this.aggregationData[this.modalIndex].levelData[this.levelDataIndex] = this.saveAggregationlevelWD
+      // console.log([...this.aggregationData[this.modalIndex].levelData], this.saveAggregationlevelWD)
+      this.$set(this.aggregationData[this.modalIndex].levelData[this.levelDataIndex], this.saveAggregationlevelWD.length ? this.saveAggregationlevelWD : [{}])
+      console.log('====', this.aggregationData[this.modalIndex].levelData)
       this.aggregationData[this.modalIndex].jointData = this.saveAggregationjointWD
       console.log(this.aggregationData)
     },
@@ -225,7 +225,6 @@ export default {
         containData: [],
         necessaryData: [],
         levelData: [
-          { columnName: '', comment: '' }
         ],
         jointData: [
           { index: '' }
@@ -238,19 +237,19 @@ export default {
     },
     // 添加层级维度
     addlevelData (index) {
-      this.aggregationData[index].levelData.push({
-        index: ''
-      })
-    },
-    removelevelData (index, i) {
-      if (this.aggregationData[index].levelData.length === 1) return this.$message.error('必须保留一个~')
-      this.aggregationData[index].levelData.splice(i, 1)
+      this.$set(this.aggregationData[index], 'levelData', [...this.aggregationData[index].levelData], {})
+      // this.aggregationData[index].levelData.push({
+      // })
     },
     // 添加联合维度
     addjointData (index) {
       this.aggregationData[index].jointData.push({
         index: ''
       })
+    },
+    removelevelData (index, i) {
+      if (this.aggregationData[index].levelData.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregationData[index].levelData.splice(i, 1)
     },
     removejointData (index, i) {
       if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
@@ -332,19 +331,19 @@ export default {
           flex 1
           padding 25px
           cursor pointer
-          .el-tag{
-            width 30%
-            float left
-            margin-left 1%
-            margin-bottom 20px
-            font-size 12px
-            background #FBFBFB
-            color #555555
-            i{
-              float right
-              margin-top 8px
-              color #ffffff
-            }
+        }
+        >>>.el-tag{
+          width 30%
+          float left
+          margin-left 1%
+          margin-bottom 20px
+          font-size 11px
+          text-align center
+          background #FBFBFB
+          color #555555
+          i{
+            float right!important
+            margin-top 8px
           }
         }
         .adds{
