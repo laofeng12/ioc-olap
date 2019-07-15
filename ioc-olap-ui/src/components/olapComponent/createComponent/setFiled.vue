@@ -109,6 +109,7 @@ export default {
       }
     },
     nextModel (val) {
+      console.log(this.saveSelectFiled.length)
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {

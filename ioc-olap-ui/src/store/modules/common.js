@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-
+import { filterArr } from '@/utils/index'
 const common = {
   state: {
     treeList: [], // 树形数据
@@ -20,7 +20,12 @@ const common = {
     /* 度量 */
     measureTableList: [],
     /* 刷新过滤 */
-    relaodFilterList: []
+    relaodFilterList: [],
+    /* 高级设置 */
+    saveAggregationWD: [], // 存储已选择包含维度
+    saveAggregationnecessaryWD: [], // 存储已选择必要维度
+    saveAggregationlevelWD: [], // 存储已选择层级维度
+    saveAggregationjointWD: [] // 存储已选择联合维度
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -179,40 +184,7 @@ const common = {
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
-      var map = {}
-      var dest = []
-      for (var i = 0; i < data.length; i++) {
-        var ai = data[i]
-        if (!map[ai.tableName]) {
-          dest.push({
-            comment: ai.comment,
-            tableName: ai.tableName,
-            columnName: ai.columnName,
-            filed: ai.filed,
-            list: [ai]
-          })
-          map[ai.tableName] = ai
-        } else {
-          for (var j = 0; j < dest.length; j++) {
-            var dj = dest[j]
-            if (dj.tableName === ai.tableName) {
-              dj.list.push(ai)
-              break
-            }
-          }
-        }
-      }
-      let itemData = []
-      dest.map((item, i) => {
-        let newData = {}
-        newData.columnName = item.columnName
-        newData.comment = item.comment
-        newData.tableName = item.tableName
-        newData.apiPaths = item.apiPaths
-        newData.list = item.list
-        itemData.push(newData)
-      })
-      state.saveNewSortList = itemData
+      state.saveNewSortList = filterArr(data)
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
@@ -248,6 +220,25 @@ const common = {
       state.relaodFilterList.forEach((item, index) => {
         item.id === id && state.relaodFilterList.splice(index, 1)
       })
+    },
+    // 存储聚合小组选择的维度
+    SaveAggregationWD ({ state }, slectData) {
+      switch (slectData.type) {
+        case 1:
+          state.saveAggregationWD = slectData.data
+          break
+        case 2:
+          state.saveAggregationnecessaryWD = slectData.data
+          break
+        case 3:
+          state.saveAggregationlevelWD = slectData.data
+          break
+        case 4:
+          state.saveAggregationjointWD = slectData.data
+          break
+        default:
+          break
+      }
     }
   }
 }

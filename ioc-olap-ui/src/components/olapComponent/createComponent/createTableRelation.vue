@@ -5,26 +5,26 @@
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
         <div class="item" v-for="(item, index) in linkModal" :key="index">
-          <h3 class="itemTitle">关联关系{{index+1}}：</h3>  
-          <el-select name="public-choice" v-model="item.relation" @change="getModalSelected">                                        
-            <option value="">请选择</option>                                            
-            <option value="1">左连接</option>                                   
-            <option value="2">右连接</option>                                          
-            <option value="3">内连接</option>                                    
+          <h3 class="itemTitle">关联关系{{index+1}}：</h3>
+          <el-select name="public-choice" v-model="item.relation" @change="getModalSelected">
+            <option value="">请选择</option>
+            <option value="1">左连接</option>
+            <option value="2">右连接</option>
+            <option value="3">内连接</option>
           </el-select>
           <h4 class="itemTableTitle">{{item.source.label}}</h4>
-          <el-select name="public-choice" v-model="item.source.field" placeholder="请选择关联字段" @change="getModalSelected">                                        
-            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>                                    
+          <el-select name="public-choice" v-model="item.source.field" placeholder="请选择关联字段" @change="getModalSelected">
+            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>
           </el-select>
           <h4 class="itemTableTitle">{{item.target.label}}</h4>
-          <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">                                        
-            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>                                    
+          <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">
+            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>
           </el-select>
           <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
-      <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>  
+      <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
       <div class="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder"></div>
@@ -57,28 +57,28 @@ export default {
   data () {
     return {
       isDragRect: false,
-      couponList:[
-          {
-              id: 'A',
-              name: '啦啦啦啊',
-          },
-          {
-              id: '1',
-              name: '拉上来的拉升到啦'
-          },
-          {
-              id: '2',
-              name: '拉上来的拉升到啦'
-          }
+      couponList: [
+        {
+          id: 'A',
+          name: '啦啦啦啊'
+        },
+        {
+          id: '1',
+          name: '拉上来的拉升到啦'
+        },
+        {
+          id: '2',
+          name: '拉上来的拉升到啦'
+        }
       ],
-      dragRectPosition:{
+      dragRectPosition: {
         label: 'test',
         x: 0,
         y: 0
       },
       linkModal: null,
       linkModalModel: null,
-      jointList: [] // [{"type":"link","data":[{"relation":"2","source":{"field":"2","label":"my box1","id":9994},"target":{"field":"1","label":"my box1","id":9996}}]}]
+      jointList: [{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
     }
   },
   mounted: function () {
@@ -89,150 +89,146 @@ export default {
   },
   methods: {
     init () {
-        this.graph = new joint.dia.Graph;
- 
-        let paper = new joint.dia.Paper({
-          el: $('#myholder'),
-          width: 100 + '%',
-          height: 700,
-          model: this.graph,
-          gridSize: 1
-        });
+      this.graph = new joint.dia.Graph()
 
-        this.initJoint()
+      let paper = new joint.dia.Paper({
+        el: $('#myholder'),
+        width: 100 + '%',
+        height: 700,
+        model: this.graph,
+        gridSize: 1
+      })
 
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('blank:pointerup', () => {
-          this.hideCellLayer()
-          this.linkList = null
-        });
+      this.initJoint()
 
-        //有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
-        paper.on('cell:pointerclick',(e,d) => {
-          d.stopPropagation()
-        })
+      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      paper.on('blank:pointerup', () => {
+        this.hideCellLayer()
+        this.linkList = null
+      })
 
-        paper.on('cell:pointerup',(e,d) => {
-          // console.log(e);
-          this.linkModalModel = null
+      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      paper.on('cell:pointerclick', (e, d) => {
+        d.stopPropagation()
+      })
 
-          if(this.isClick){
-            // 如果连线
-            if(e.model.isLink()){
-              let data = e.model.attributes.data
-              let linkElements = this.getLinkElements(e.model)
-              let linkModal = []
-              this.linkModalModel = null
+      paper.on('cell:pointerup', (e, d) => {
+        // console.log(e);
+        this.linkModalModel = null
 
-              if(data && data.length > 0) {
-                data.forEach(t => {
-                  let source = {
-                    field: t.source.field || '',
-                    label: t.source.label || '',
-                    id: t.source.id
-                  }
-                  let target = {
-                    field: t.target.field || '',
-                    label: t.target.label || '',
-                    id: t.target.id
-                  }
+        if (this.isClick) {
+          // 如果连线
+          if (e.model.isLink()) {
+            let data = e.model.attributes.data
+            let linkElements = this.getLinkElements(e.model)
+            let linkModal = []
+            this.linkModalModel = null
 
-                  linkModal.push({
-                    relation: t.relation,
-                    source,
-                    target
-                  })
-                })
-
-                this.linkModal = linkModal
-                this.linkModalModel = e.model
-                
-              } else if (linkElements.source && linkElements.target) {
-
+            if (data && data.length > 0) {
+              data.forEach(t => {
                 let source = {
-                  field: '',
-                  label: linkElements.source.attributes.attrs.text.text,
-                  id: linkElements.source.attributes.attrs.text.id
+                  field: t.source.field || '',
+                  label: t.source.label || '',
+                  id: t.source.id
                 }
                 let target = {
-                  field: '',
-                  label: linkElements.target.attributes.attrs.text.text,
-                  id: linkElements.target.attributes.attrs.text.id
+                  field: t.target.field || '',
+                  label: t.target.label || '',
+                  id: t.target.id
                 }
 
                 linkModal.push({
-                  relation: '',
+                  relation: t.relation,
                   source,
                   target
                 })
+              })
 
-                this.linkModal = linkModal
-                this.linkModalModel = e.model
+              this.linkModal = linkModal
+              this.linkModalModel = e.model
+            } else if (linkElements.source && linkElements.target) {
+              let source = {
+                field: '',
+                label: linkElements.source.attributes.attrs.text.text,
+                id: linkElements.source.attributes.attrs.text.id
               }
-            }else{
-              this.showCellLayer(e)
+              let target = {
+                field: '',
+                label: linkElements.target.attributes.attrs.text.text,
+                id: linkElements.target.attributes.attrs.text.id
+              }
+
+              linkModal.push({
+                relation: '',
+                source,
+                target
+              })
+
+              this.linkModal = linkModal
+              this.linkModalModel = e.model
             }
-            this.isClick = false
-          }else{
-            let element = this.getDragElement(e.targetPoint)
-            if(element){
-              e.model.target(element)
-              e.model.labels([{ position: 0.5, attrs: { '.marker-target': { fill: '#009688', stroke: '#ffffff' }, text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold','font-size': '12px' } } }])
-            }
+          } else {
+            this.showCellLayer(e)
           }
-        });
-
-        paper.on('cell:pointerdown',(e,d) => {
-          this.isClick = true
-        });
-
-        paper.on('cell:pointermove',(e,d) => {
-          // console.log(e)
           this.isClick = false
-        });
-
-        $('.papers').on('click', e => {
-          let element = $('.halo-cell-layer').data('element')
-          let model = element.model
-          // let id = element.id
-
-          switch(e.target.dataset.type){
-            case 'remove':
-              this.clearElementLink(model)
-              element.remove()
-              break;
-            case 'link':
-              let link = new joint.shapes.standard.Link({
-                source: model,
-                target: {x: model.attributes.position.x, y:model.attributes.position.y-5},
-                attrs: {
-                  '.marker-target': {
-                      fill: '#333333',//箭头颜色
-                      d: 'M 10 0 L 0 5 L 10 10 z'//箭头样式
-                    },
-                    line: { 
-                      stroke: '#333333', // SVG attribute and value
-                      'stroke-width': 0.5//连线粗细
-                  }
-                },               
-                router: { name: 'manhattan' }//设置连线弯曲样式 manhattan直角
-              });
-              this.graph.addCell(link)
-              break;
-            case 'clone':
-              let cell = model.clone()
-              cell.translate(50, 50);
-              this.graph.addCell(cell)
-              break;
+        } else {
+          let element = this.getDragElement(e.targetPoint)
+          if (element) {
+            e.model.target(element)
+            e.model.labels([{ position: 0.5, attrs: { '.marker-target': { fill: '#009688', stroke: '#ffffff' }, text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
           }
+        }
+      })
 
-          $('.halo-cell-layer').hide()
-        })
-        
-        
+      paper.on('cell:pointerdown', (e, d) => {
+        this.isClick = true
+      })
+
+      paper.on('cell:pointermove', (e, d) => {
+        // console.log(e)
+        this.isClick = false
+      })
+
+      $('.papers').on('click', e => {
+        let element = $('.halo-cell-layer').data('element')
+        let model = element.model
+        // let id = element.id
+
+        switch (e.target.dataset.type) {
+          case 'remove':
+            this.clearElementLink(model)
+            element.remove()
+            break
+          case 'link':
+            let link = new joint.shapes.standard.Link({
+              source: model,
+              target: { x: model.attributes.position.x, y: model.attributes.position.y - 5 },
+              attrs: {
+                '.marker-target': {
+                  fill: '#333333', // 箭头颜色
+                  d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
+                },
+                line: {
+                  stroke: '#333333', // SVG attribute and value
+                  'stroke-width': 0.5// 连线粗细
+                }
+              },
+              router: { name: 'manhattan' }// 设置连线弯曲样式 manhattan直角
+            })
+            this.graph.addCell(link)
+            break
+          case 'clone':
+            let cell = model.clone()
+            cell.translate(50, 50)
+            this.graph.addCell(cell)
+            break
+        }
+
+        $('.halo-cell-layer').hide()
+      })
     },
 
-    initJoint() {
+    initJoint () {
       let initTranslate = 0
       let result = []
       let list = this.jointList || []
@@ -240,31 +236,30 @@ export default {
       // let rect2 = rect.clone();
       // rect2.translate(300);
 
-      list.forEach(t => { 
+      list.forEach(t => {
         let linkCell = this.addLinkCell(t)
         result.push(linkCell)
       })
 
-      this.graph.addCells(result);
+      this.graph.addCells(result)
     },
 
-
-    clickTable(e) {
-      if(e){
+    clickTable (e) {
+      if (e) {
         e.field = ''
         let rect = this.addRectCell(e)
         this.graph.addCell(rect)
       }
     },
 
-    dragTable(e) {
-      if(e){
+    dragTable (e) {
+      if (e) {
         this.isDragRect = true
         this.dragRectPosition.label = e.label
         this.dragRectPosition.id = e.id
         this.dragRectPosition.x = 0
         this.dragRectPosition.y = 0
-      }else if(this.isDragRect && this.dragRectPosition) {
+      } else if (this.isDragRect && this.dragRectPosition) {
         let $containers = $('.containers')
         let $holder = $('.holder')
         let x = this.dragRectPosition.x - $holder.offset().left + $containers.offset().left
@@ -272,7 +267,7 @@ export default {
         let rect = this.addRectCell({
           id: this.dragRectPosition.id,
           label: this.dragRectPosition.label,
-          position: {x, y}
+          position: { x, y }
         })
         this.graph.addCell(rect)
         this.isDragRect = false
@@ -284,34 +279,33 @@ export default {
       }
     },
 
-    mousemove(e) {
-      if(this.isDragRect && e){
+    mousemove (e) {
+      if (this.isDragRect && e) {
         let parentOffset = $('.containers').offset()
-        this.dragRectPosition.x = e.x - parentOffset.left - 100/2
+        this.dragRectPosition.x = e.x - parentOffset.left - 100 / 2
         this.dragRectPosition.y = e.y - parentOffset.top
       }
     },
 
-    addRectCell(item, startIdx=0 ) {
+    addRectCell (item, startIdx = 0) {
       let isAdd = true
       let newRect = null
       let rectLength = 0
       let cells = this.graph.getCells()
 
-      if(cells.length>0){
+      if (cells.length > 0) {
         cells.forEach(t => {
-          if(!t.isLink()){
+          if (!t.isLink()) {
             rectLength++
           }
-          if(t.id === item.id) isAdd = false
+          if (t.id === item.id) isAdd = false
         })
       }
 
-
-      if(isAdd){
+      if (isAdd) {
         let left = 200 * (startIdx + rectLength) + 30
         let width = item.label.length * 10
-        
+
         newRect = new joint.shapes.basic.Rect({
           position: {
             x: (item.position && item.position.x) || left,
@@ -323,62 +317,60 @@ export default {
       }
 
       return newRect
-
     },
 
-    addLinkCell(item) {
+    addLinkCell (item) {
       let result = []
       let source = item.data[0].source
       let target = item.data[0].target
 
       let sourceItem = this.addRectCell(source, result.length)
-      if(sourceItem){
+      if (sourceItem) {
         result.push(sourceItem)
       }
 
       let targetItem = this.addRectCell(target, result.length)
-      if(targetItem){
+      if (targetItem) {
         result.push(targetItem)
       }
 
       let newLink = new joint.shapes.standard.Link({
-        source: sourceItem || { x: 50, y: 50},
-        target: targetItem || { x: 50, y: 50},
+        source: sourceItem || { x: 50, y: 50 },
+        target: targetItem || { x: 50, y: 50 },
         data: item.data,
-        router: { name: 'manhattan' },//设置连线弯曲样式 manhattan直角
-        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold','font-size': '12px', 'color': '#ffffff' } } }],
+        router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
+        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
           '.marker-target': {
-              fill: '##59aff9',//箭头颜色
-              d: 'M 10 0 L 0 5 L 10 10 z'//箭头样式
-            },
-            line: { 
-              stroke: '#59aff9', // SVG attribute and value
-              'stroke-width': 0.5//连线粗细
+            fill: '##59aff9', // 箭头颜色
+            d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
+          },
+          line: {
+            stroke: '#59aff9', // SVG attribute and value
+            'stroke-width': 0.5// 连线粗细
           }
         }
-      });
+      })
       result.push(newLink)
 
       // newLink.source(t.data[0].source)
       // newLink.target(t.data[0].target)
       // newLink.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold','font-size': '12px' } } }])
 
-
       return result
     },
 
-    getModalSelected(e) {
+    getModalSelected (e) {
       let result = []
       let linkModal = this.linkModal
       linkModal.forEach(t => {
-        if(t.relation && t.source.field && t.target.field){
+        if (t.relation && t.source.field && t.target.field) {
           result.push(t)
         }
       })
 
-      if(result.length>0){
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold','font-size': '12px' } } }])
+      if (result.length > 0) {
+        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
         this.addJointList({
           type: 'link',
           data: result
@@ -386,44 +378,43 @@ export default {
       }
     },
 
-    addJointList: function(item){
+    addJointList: function (item) {
       let list = this.jointList || []
 
-      if(list.length>=1){
+      if (list.length >= 1) {
         let isAdd = true
         list.forEach((t, i) => {
-          if(t.type === item.type){
-            if(t.type === 'link' && t.data[0].source.id === item.data[0].souce.id){
+          if (t.type === item.type) {
+            if (t.type === 'link' && t.data[0].source.id === item.data[0].souce.id) {
               this.jointList.splice(i, 1, item)
             }
           }
         })
-      }else{
+      } else {
         this.jointList.push(item)
       }
-        console.log(JSON.stringify(this.jointList))
+      console.log(JSON.stringify(this.jointList))
     },
 
-    clearElementLink: function(target) {
-
+    clearElementLink: function (target) {
       let eles = target.collection.models || []
       let elements = []
 
-      for(let i=0; i<eles.length; i++){
+      for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
-        if(ele.attributes.type == 'standard.Link') {
-          if(ele.get('source').id == target.id || ele.get('target'.id == target.id)){
+        if (ele.attributes.type == 'standard.Link') {
+          if (ele.get('source').id == target.id || ele.get('target'.id == target.id)) {
             ele.remove()
           }
         }
       }
     },
 
-    getLinkElements: function(ele) {
+    getLinkElements: function (ele) {
       let source = ele.getSourceElement() || null
       let target = ele.getTargetElement() || null
 
-      if(target && !target.id){
+      if (target && !target.id) {
         target = null
       }
 
@@ -433,32 +424,31 @@ export default {
       }
     },
 
-    getDragElement: function(point) {
-
+    getDragElement: function (point) {
       let eles = this.graph.getElements() || []
       let element = null
 
-      if(!point || !point.x || !point.y) {
+      if (!point || !point.x || !point.y) {
         return false
       }
 
-      for(let i=0; i<eles.length; i++){
+      for (let i = 0; i < eles.length; i++) {
         let ele = eles[i].attributes
-        let x1 = ele.position.x, 
-            x2 = x1 + ele.size.width,
-            y1 = ele.position.y,
-            y2 = y1 + ele.size.height;
+        let x1 = ele.position.x
+        let x2 = x1 + ele.size.width
+        let y1 = ele.position.y
+        let y2 = y1 + ele.size.height
 
-        if(point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2){
+        if (point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2) {
           element = eles[i]
-          break;
+          break
         }
       }
 
       return element
     },
 
-    hideCellLayer() {
+    hideCellLayer () {
       $('.halo-cell-layer').css({
         display: 'none'
       })
@@ -495,7 +485,7 @@ export default {
       // $rect.append($layer)
     },
     // 增加关联信息
-    addRelation(item) {
+    addRelation (item) {
       let linkModal = this.linkModal || []
       let source = {
         field: '',
@@ -525,7 +515,6 @@ export default {
       this.$parent.getStepCountReduce(val)
       this.$root.eventBus.$emit('openDefaultTree')
     }
-
 
   },
   computed: {
@@ -614,7 +603,6 @@ export default {
   height 18px
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20%3F%3E%3Csvg%20height%3D%2224px%22%20version%3D%221.1%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asketch%3D%22http%3A%2F%2Fwww.bohemiancoding.com%2Fsketch%2Fns%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Ctitle%2F%3E%3Cdesc%2F%3E%3Cdefs%2F%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20id%3D%22miu%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%3E%3Cg%20id%3D%22Artboard-1%22%20transform%3D%22translate(-251.000000%2C%20-443.000000')
 }
-
 
 .linkSetting{
   float right
