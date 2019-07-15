@@ -20,7 +20,7 @@
           <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">                                        
             <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>                                    
           </el-select>
-          <div class="itemAdd"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
+          <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
