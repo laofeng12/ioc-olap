@@ -21,6 +21,8 @@ const getters = {
   relaodFilterList: state => state.olap.relaodFilterList,
   savedimensionData: state => state.olap.savedimensionData,
   savehetComposeData: state => state.olap.savehetComposeData,
-  totalSaveList: state => state.olap.totalSaveList
+  totalSaveList: state => state.olap.totalSaveList,
+  containDataId: state => state.olap.containDataId,
+  necessaryDataId: state => state.olap.necessaryDataId
 }
 export default getters

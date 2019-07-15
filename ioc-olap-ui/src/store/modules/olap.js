@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr, reduceObj } from '@/utils/index'
+import { filterArr, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
 import Vue from 'vue'
 const common = {
   state: {
@@ -32,7 +32,10 @@ const common = {
       }
     ], // 存储总的数据
     savedimensionData: [{}], // 存储维度黑白名单
-    savehetComposeData: [] // 存储高级设置组合
+    savehetComposeData: [], // 存储高级设置组合
+    NewDataList: [], // 根据id存储的
+    containDataId: [],
+    necessaryDataId: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -199,6 +202,7 @@ const common = {
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
       state.saveNewSortList = filterArr(data)
+      setLocalStorage('saveNewSortList', filterArr(data))
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
@@ -236,25 +240,28 @@ const common = {
       })
     },
     // 存储聚合小组选择的维度
-    SaveAggregationWD ({ state }, slectData) {
+    SaveAggregationWD ({ state, dispatch }, slectData) {
+      dispatch('WithidGetList', slectData.data)
       switch (slectData.type) {
         case 1:
-          state.totalSaveList[slectData.index].containData = slectData.data
+          state.totalSaveList[slectData.index].containData = state.NewDataList
+          state.containDataId = slectData.data
           break
-        case 2:
-          state.totalSaveList[slectData.index].necessaryData = slectData.data
+          case 2:
+          state.totalSaveList[slectData.index].necessaryData = state.NewDataList
+          state.necessaryDataId = slectData.data
           break
         case 3:
-          Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, slectData.data)
+          Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, state.NewDataList)
           break
         case 4:
-          Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, slectData.data)
+          Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, state.NewDataList)
           break
         case 5:
-          Vue.set(state.savedimensionData, slectData.index, slectData.data)
+          Vue.set(state.savedimensionData, slectData.index, state.NewDataList)
           break
         case 6:
-          Vue.set(state.savehetComposeData, slectData.index, slectData.data)
+          Vue.set(state.savehetComposeData, slectData.index, state.NewDataList)
           break
         default:
           break
@@ -277,10 +284,21 @@ const common = {
     AddhetComposeData ({ state }) {
       state.savehetComposeData.push({})
     },
-    // 存储总的数据
-    SaveTotalList ({ state }, data) {
-      state.totalSaveList = data
-      console.log(data)
+    // 根据id筛选出需要的数据
+    WithidGetList ({ state }, id) {
+      state.NewDataList = []
+      let data = JSON.parse(getLocalStorage('saveNewSortList'))
+      // console.log(data, '获取的id', id)
+      data.map(item => {
+        item.list.map((n, i) => {
+          id.map((k) => {
+            if (n.id === k) {
+              state.NewDataList.push(item.list[i])
+            }
+          })
+        })
+      })
+      // console.log('需要的', state.NewDataList)
     }
   }
 }

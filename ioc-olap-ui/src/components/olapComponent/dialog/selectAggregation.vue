@@ -5,10 +5,9 @@
         <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
-            <el-checkbox-group ref="group" v-model="selctCheckData" true-label="false">
-              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item.id">{{item.columnName}}</el-checkbox-button>
+            <el-checkbox-group ref="group" v-model="selctCheckData">
+              <el-checkbox-button v-for="(item, index) in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
-            <!-- <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag> -->
           </div>
         </div>
       </div>
@@ -22,6 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getLocalStorage } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -49,6 +49,7 @@ export default {
       this.dialogFormVisible = false
     },
     selectChange (value) {
+      console.log(this.selctCheckData)
     },
     submitBtn (index) {
       this.dialogFormVisible = false
@@ -61,16 +62,27 @@ export default {
       this.$store.dispatch('SaveAggregationWD', slectData)
     },
     dialog (type, index, findIndex) {
-      console.log(index)
+      console.log(this.selctCheckData)
       this.dialogFormVisible = true
       // 判断点击的是否是当前的维度框
       if (type !== this.type || index !== this.index || findIndex !== this.findIndex) {
         this.selctCheckData = []
       }
       // this.options = this.saveNewSortList
+      this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index
       this.type = type
       this.findIndex = findIndex
+      switch (type) {
+        case 1:
+          this.selctCheckData = this.containDataId
+          break;
+        case 2:
+          this.selctCheckData = this.necessaryDataId
+          break;
+        default:
+          break;
+      }
     },
     resetsData () {
       this.selctCheckData = []
@@ -78,7 +90,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortList: 'saveNewSortList',
+      containDataId: 'containDataId',
+      necessaryDataId: 'necessaryDataId'
     })
   }
 }
