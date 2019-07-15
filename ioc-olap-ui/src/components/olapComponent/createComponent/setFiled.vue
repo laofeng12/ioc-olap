@@ -131,8 +131,6 @@ export default {
     },
     // 全选功能
     selectAllCheck (rows) {
-      // console.log(rows, '============', this.tableData)
-      // this.$message.warning('暂未开发~')
       let list = {
         list: rows,
         id: this.tableData[0].tableName

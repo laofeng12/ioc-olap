@@ -1,5 +1,6 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
 import { filterArr, reduceObj } from '@/utils/index'
+import Vue from 'vue'
 const common = {
   state: {
     treeList: [], // 树形数据
@@ -22,12 +23,15 @@ const common = {
     /* 刷新过滤 */
     relaodFilterList: [],
     /* 高级设置 */
-    totalSaveList: [], // 存储总的数据
-    saveAggregationWD: [], // 存储已选择包含维度
-    saveAggregationnecessaryWD: [], // 存储已选择必要维度
-    saveAggregationlevelWD: [], // 存储已选择层级维度
-    saveAggregationjointWD: [], // 存储已选择联合维度
-    savedimensionData: [], // 存储维度黑白名单
+    totalSaveList: [
+      {
+        containData: [], // 包含维度
+        necessaryData: [], // 必要维度
+        levelData: [{}], // 层级维度
+        jointData: [ {} ] // 联合维度
+      }
+    ], // 存储总的数据
+    savedimensionData: [{}], // 存储维度黑白名单
     savehetComposeData: [] // 存储高级设置组合
   },
   mutations: {
@@ -70,6 +74,7 @@ const common = {
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
+    // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
         getResourcedirectoryCategory().then(res => {
@@ -78,6 +83,7 @@ const common = {
         })
       })
     },
+    // 根据树的id获取对应的表
     GetSerchTable ({ commit }, id) {
       return new Promise((resolve, reject) => {
         getResourcedirectory(id).then(res => {
@@ -86,6 +92,7 @@ const common = {
         })
       })
     },
+    // 根据字段获取表头
     GetColumnList ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getColumnList(params).then(res => {
@@ -93,6 +100,7 @@ const common = {
         })
       })
     },
+    // 根据字段获取表体
     GetTableData ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getTableData(params).then(res => {
@@ -100,6 +108,7 @@ const common = {
         })
       })
     },
+    // 更新数据表
     GetdsUploadTable ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getdsUploadTable(params).then(res => {
@@ -166,7 +175,6 @@ const common = {
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state }, data) {
-      console.log(data)
       state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
         if (data.list) {
           return item.tableName !== data.id
@@ -174,7 +182,6 @@ const common = {
           return item.id !== data.id
         }
       })
-      console.log(state.saveSelectFiled)
     },
     // 存储已选择对应的表
     SaveRightTableList ({ state }, data) {
@@ -232,31 +239,48 @@ const common = {
     SaveAggregationWD ({ state }, slectData) {
       switch (slectData.type) {
         case 1:
-          state.saveAggregationWD = slectData.data
+          state.totalSaveList[slectData.index].containData = slectData.data
           break
         case 2:
-          state.saveAggregationnecessaryWD = slectData.data
+          state.totalSaveList[slectData.index].necessaryData = slectData.data
           break
         case 3:
-          state.saveAggregationlevelWD = slectData.data
+          Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, slectData.data)
           break
         case 4:
-          state.saveAggregationjointWD = slectData.data
+          Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, slectData.data)
           break
         case 5:
-          state.savedimensionData = slectData.data
+          Vue.set(state.savedimensionData, slectData.index, slectData.data)
           break
         case 6:
-          state.savehetComposeData = slectData.data
+          Vue.set(state.savehetComposeData, slectData.index, slectData.data)
           break
         default:
           break
       }
     },
+    // 新增聚合小组
+    addAggregationList ({ state }) {
+      state.totalSaveList.push({
+        containData: [],
+        necessaryData: [],
+        levelData: [{}],
+        jointData: [{}]
+      })
+    },
+    // 新增维度黑白名单
+    AddimensionData ({ state }) {
+      state.savedimensionData.push({})
+    },
+    // 新增高级组合
+    AddhetComposeData ({ state }) {
+      state.savehetComposeData.push({})
+    },
     // 存储总的数据
     SaveTotalList ({ state }, data) {
-      console.log(data)
       state.totalSaveList = data
+      console.log(data)
     }
   }
 }

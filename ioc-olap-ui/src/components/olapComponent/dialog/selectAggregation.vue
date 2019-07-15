@@ -39,8 +39,9 @@ export default {
         { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: [ { comment: '啦啦啦啦', columnName: 'lalalala3' }, { comment: '啦啦啦啦', columnName: 'lalalala33' } ] },
         { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: [ { comment: '啦啦啦啦', columnName: 'lalalala4' }, { comment: '啦啦啦啦', columnName: 'lalalala44' } ] }
       ],
+      index: '',
       type: '',
-      is: ''
+      findIndex: ''
     }
   },
   methods: {
@@ -53,24 +54,23 @@ export default {
       this.dialogFormVisible = false
       let slectData = {
         data: this.selctCheckData,
-        type: this.type
+        index: this.index,
+        type: this.type,
+        findIndex: this.findIndex
       }
       this.$store.dispatch('SaveAggregationWD', slectData)
-
-      this.$parent.init()
     },
-    dialog (data, type, is) {
+    dialog (type, index, findIndex) {
+      console.log(index)
       this.dialogFormVisible = true
       // 判断点击的是否是当前的维度框
-      if (type !== this.type) {
+      if (type !== this.type || index !== this.index || findIndex !== this.findIndex) {
         this.selctCheckData = []
       }
-      // if (is === this.is || type !== this.type) {
-      //   this.selctCheckData = []
-      // }
       // this.options = this.saveNewSortList
+      this.index = index
       this.type = type
-      this.is = is
+      this.findIndex = findIndex
     },
     resetsData () {
       this.selctCheckData = []
