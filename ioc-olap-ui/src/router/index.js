@@ -34,13 +34,13 @@ export default new Router({
         {
           path: 'olapList',
           name: 'olapList',
-          meta: { title: 'OLAP分析' },
+          meta: { title: 'OLAP模型' },
           component: () => import('@/views/olap/olapList.vue')
         },
         {
           path: 'createolap',
           name: 'createolap',
-          // meta: { title: '新建OLAP模型' },
+          meta: { title: '新建OLAP模型' },
           component: stepContainer,
           redirect: 'createolap/selectStep',
           children: [

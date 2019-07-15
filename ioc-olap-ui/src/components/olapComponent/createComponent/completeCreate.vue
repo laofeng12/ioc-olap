@@ -44,7 +44,7 @@ export default {
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/reloadSet')
+      this.$router.push('/olap/createolap/advancedSet')
     }
   }
 }

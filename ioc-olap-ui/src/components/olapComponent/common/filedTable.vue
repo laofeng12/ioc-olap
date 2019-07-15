@@ -45,7 +45,9 @@ export default {
         setTimeout(() => {
           this.dataList.forEach((item, index) => {
             this.saveSelectFiled.forEach((n, i) => {
-              item['isActive'] = item.label === n.tableName ? 1 : 0
+              if (item.label === n.tableName) {
+                item['isActive'] = 1
+              }
             })
           })
           // 存储已选择后的维度表

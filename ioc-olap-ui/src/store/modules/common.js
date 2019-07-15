@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-
+import { filterArr, reduceObj } from '@/utils/index'
 const common = {
   state: {
     treeList: [], // 树形数据
@@ -20,7 +20,15 @@ const common = {
     /* 度量 */
     measureTableList: [],
     /* 刷新过滤 */
-    relaodFilterList: []
+    relaodFilterList: [],
+    /* 高级设置 */
+    totalSaveList: [], // 存储总的数据
+    saveAggregationWD: [], // 存储已选择包含维度
+    saveAggregationnecessaryWD: [], // 存储已选择必要维度
+    saveAggregationlevelWD: [], // 存储已选择层级维度
+    saveAggregationjointWD: [], // 存储已选择联合维度
+    savedimensionData: [], // 存储维度黑白名单
+    savehetComposeData: [] // 存储高级设置组合
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -62,27 +70,42 @@ const common = {
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
-    async GetTreeList ({ commit }) {
-      let data = await getResourcedirectoryCategory()
-      commit('GET_TREELIST', data)
-      return data
+    GetTreeList ({ commit }) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectoryCategory().then(res => {
+          commit('GET_TREELIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetSerchTable ({ commit }, id) {
-      let data = await getResourcedirectory(id)
-      commit('GET_SERCHTABLE_LIST', data)
-      return data
+    GetSerchTable ({ commit }, id) {
+      return new Promise((resolve, reject) => {
+        getResourcedirectory(id).then(res => {
+          commit('GET_SERCHTABLE_LIST', res)
+          resolve(res)
+        })
+      })
     },
-    async GetColumnList ({ commit }, params) {
-      let data = await getColumnList(params)
-      return data
+    GetColumnList ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getColumnList(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetTableData ({ commit }, params) {
-      let data = await getTableData(params)
-      return data
+    GetTableData ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getTableData(params).then(res => {
+          resolve(res)
+        })
+      })
     },
-    async GetdsUploadTable ({ commit }, params) {
-      let data = await getdsUploadTable(params)
-      return data
+    GetdsUploadTable ({ commit }, params) {
+      return new Promise((resolve, reject) => {
+        getdsUploadTable(params).then(res => {
+          resolve(res)
+        })
+      })
     },
     // 存储已选择复选框
     saveSelctchckoutone ({ commit, state, dispatch }, data) {
@@ -128,24 +151,30 @@ const common = {
         }
       })
     },
-    // 设置已选择的表的数据
+    // 设置已选择的表的总数据
     setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },
-    /* 维度 */
+    /**
+     * 维度步骤
+     */
     // 存储已选择的维度
-    saveSelectFiled ({ state }, data) {
-      let datas = state.saveSelectFiled.concat(data)
+    SaveSelectFiled ({ state }, data) {
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
     },
     // 删除取消的selct
-    removeSelectFiled ({ state }, data) {
-      state.saveSelectFiled && state.saveSelectFiled.forEach((item, index) => {
-        if (item.id === data.id) {
-          state.saveSelectFiled.splice(index, 1)
+    RemoveSelectFiled ({ state }, data) {
+      console.log(data)
+      state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
         }
       })
+      console.log(state.saveSelectFiled)
     },
     // 存储已选择对应的表
     SaveRightTableList ({ state }, data) {
@@ -162,41 +191,7 @@ const common = {
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
-      console.log(data)
-      var map = {}
-      var dest = []
-      for (var i = 0; i < data.length; i++) {
-        var ai = data[i]
-        if (!map[ai.tableName]) {
-          dest.push({
-            comment: ai.comment,
-            tableName: ai.tableName,
-            columnName: ai.columnName,
-            filed: ai.filed,
-            list: [ai]
-          })
-          map[ai.tableName] = ai
-        } else {
-          for (var j = 0; j < dest.length; j++) {
-            var dj = dest[j]
-            if (dj.tableName === ai.tableName) {
-              dj.list.push(ai)
-              break
-            }
-          }
-        }
-      }
-      let itemData = []
-      dest.map(item => {
-        let newData = {}
-        newData.columnName = item.columnName
-        newData.comment = item.comment
-        newData.tableName = item.tableName
-        newData.apiPaths = item.apiPaths
-        newData.list = item.list
-        itemData.push(newData)
-      })
-      state.saveNewSortList = itemData
+      state.saveNewSortList = filterArr(data)
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
@@ -232,6 +227,36 @@ const common = {
       state.relaodFilterList.forEach((item, index) => {
         item.id === id && state.relaodFilterList.splice(index, 1)
       })
+    },
+    // 存储聚合小组选择的维度
+    SaveAggregationWD ({ state }, slectData) {
+      switch (slectData.type) {
+        case 1:
+          state.saveAggregationWD = slectData.data
+          break
+        case 2:
+          state.saveAggregationnecessaryWD = slectData.data
+          break
+        case 3:
+          state.saveAggregationlevelWD = slectData.data
+          break
+        case 4:
+          state.saveAggregationjointWD = slectData.data
+          break
+        case 5:
+          state.savedimensionData = slectData.data
+          break
+        case 6:
+          state.savehetComposeData = slectData.data
+          break
+        default:
+          break
+      }
+    },
+    // 存储总的数据
+    SaveTotalList ({ state }, data) {
+      console.log(data)
+      state.totalSaveList = data
     }
   }
 }
