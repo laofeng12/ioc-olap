@@ -27,9 +27,8 @@
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
-              {{item.levelData}}
               <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
-                <div @click="getTotalModal(index, 3, i)">
+                <div @click="getTotalModal(index, 3, i, 'level')">
                   <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
                 </div>
                 <p>
@@ -40,11 +39,13 @@
             </div>
             <div class="item_box noflex">
               <span>联合维度</span>
-              <div class="adds" v-for="(k, t) in item.jointData" :key="t">
-                <div class=""  @click="getTotalModal(index, 4, t)"></div>
+              <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
+                <div class=""  @click="getTotalModal(index, 4, t, 'join')">
+                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
+                </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
-                  <i class="el-icon-circle-plus" @click="addjointData(t)"></i>
+                  <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
                 </p>
               </div>
             </div>
@@ -91,9 +92,11 @@
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in dimensionData" :key="i">
-              <div class=""></div>
+              <div class=""  @click="lastGetModal(i, 5, 'dimens')">
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+              </div>
               <p>
-                <i class="el-icon-remove" @click="removedimensionData(index, i)"></i>
+                <i class="el-icon-remove" @click="removedimensionData(i)"></i>
                 <i class="el-icon-circle-plus" @click="addimensionData(i)"></i>
               </p>
             </div>
@@ -112,9 +115,11 @@
           <span>高级列组合</span>
           <div class="listSet__box hetCompose__box" v-if="hetComposeData && hetComposeData.length">
             <div class="adds" v-for="(n, i) in hetComposeData" :key="i">
-              <div class=""></div>
+              <div class=""  @click="lastGetModal(i, 6, 'het')">
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+              </div>
               <p>
-                <i class="el-icon-remove" @click="removehetComposeData(index, i)"></i>
+                <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
                 <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
               </p>
             </div>
@@ -145,6 +150,9 @@ export default {
       dataMany: false,
       modalIndex: 0, // 记录当前点击的是哪个维度框
       levelDataIndex: 0, // 记录层级维度index
+      jointDataIndex: 0, // 记录联合维度index
+      dimensionDataIndex: 0, // 记录黑白名单index
+      hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
         engine: '1',
@@ -160,13 +168,11 @@ export default {
         {
           containData: [], // 包含维度
           necessaryData: [], // 必要维度
-          levelData: [], // 层级维度
+          levelData: [{}], // 层级维度
           jointData: [ {} ] // 联合维度
         }
       ],
-      dimensionData: [ // 维度黑白名单
-        { index: '' }
-      ],
+      dimensionData: [{}], // 维度黑白名单
       engineOptions: [ // 模型构建引擎
         { engine: '1', label: 'MapReduce ' },
         { engine: '2', label: 'MapReduce ' }
@@ -196,24 +202,23 @@ export default {
   },
   methods: {
     init () {
-      // 渲染包含维度
-      // console.log(this.saveAggregationlevelWD, '必要的', this.levelDataIndex)
-      this.aggregationData[this.modalIndex].containData = this.saveAggregationWD
-      this.aggregationData[this.modalIndex].necessaryData = this.saveAggregationnecessaryWD
-      // this.aggregationData[this.modalIndex].levelData[this.levelDataIndex] = this.saveAggregationlevelWD
-      // console.log([...this.aggregationData[this.modalIndex].levelData], this.saveAggregationlevelWD)
-      this.$set(this.aggregationData[this.modalIndex].levelData[this.levelDataIndex], this.saveAggregationlevelWD.length ? this.saveAggregationlevelWD : [{}])
-      console.log('====', this.aggregationData[this.modalIndex].levelData)
-      this.aggregationData[this.modalIndex].jointData = this.saveAggregationjointWD
-      console.log(this.aggregationData)
+      console.log(this.totalSaveList)
+      this.$set(this.aggregationData[this.modalIndex], 'containData', this.saveAggregationWD.length ? this.saveAggregationWD : [])
+      this.$set(this.aggregationData[this.modalIndex], 'necessaryData', this.saveAggregationnecessaryWD ? this.saveAggregationnecessaryWD : [])
+      this.$set(this.aggregationData[this.modalIndex].levelData, this.levelDataIndex, this.saveAggregationlevelWD.length ? this.saveAggregationlevelWD : [])
+      this.$set(this.aggregationData[this.modalIndex].jointData, this.jointDataIndex, this.saveAggregationjointWD.length ? this.saveAggregationjointWD : [])
+      this.$set(this.dimensionData, this.dimensionDataIndex, this.savedimensionData.length ? this.savedimensionData : [])
+      this.$set(this.hetComposeData, this.hitDataIndex, this.savehetComposeData)
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/completeCreate')
+      this.$store.dispatch('SaveTotalList', this.aggregationData)
       // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
+      this.$store.dispatch('SaveTotalList', this.aggregationData)
       this.$router.push('/olap/createolap/reloadSet')
     },
     handleSelectionChange (val) {
@@ -224,11 +229,8 @@ export default {
       this.aggregationData.push({
         containData: [],
         necessaryData: [],
-        levelData: [
-        ],
-        jointData: [
-          { index: '' }
-        ]
+        levelData: [{}],
+        jointData: [{}]
       })
     },
     handleRms (index) {
@@ -237,29 +239,25 @@ export default {
     },
     // 添加层级维度
     addlevelData (index) {
-      this.$set(this.aggregationData[index], 'levelData', [...this.aggregationData[index].levelData], {})
-      // this.aggregationData[index].levelData.push({
-      // })
+      // this.$set(this.aggregationData[index].levelData, this.levelDataIndex, [...this.aggregationData[index].levelData], {})
+      this.aggregationData[index].levelData.push({})
     },
     // 添加联合维度
     addjointData (index) {
-      this.aggregationData[index].jointData.push({
-        index: ''
-      })
+      this.aggregationData[index].jointData.push({})
     },
     removelevelData (index, i) {
       if (this.aggregationData[index].levelData.length === 1) return this.$message.error('必须保留一个~')
       this.aggregationData[index].levelData.splice(i, 1)
     },
     removejointData (index, i) {
-      if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.dimensionData.splice(i, 1)
+      if (this.aggregationData[index].jointData.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregationData[index].jointData.splice(i, 1)
     },
     // 添加维度黑白名单
     addimensionData (index) {
-      this.dimensionData.push({
-        index: ''
-      })
+      this.dimensionData.push({})
+      this.$refs.selectFiled.resetsData()
     },
     removedimensionData (index) {
       if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
@@ -267,9 +265,8 @@ export default {
     },
     // 添加高级列组合
     addhetComposeData (index) {
-      this.hetComposeData.push({
-        index: ''
-      })
+      this.hetComposeData.push({})
+      this.$refs.selectFiled.resetsData()
     },
     removehetComposeData (index) {
       this.hetComposeData.splice(index, 1)
@@ -281,11 +278,15 @@ export default {
       console.log(val)
     },
     // 选择维度
-    getTotalModal (index, type, is) {
+    getTotalModal (index, type, is, level) {
       this.modalIndex = index
       this.levelDataIndex = is
-
+      level === 'level' ? this.levelDataIndex = is : this.jointDataIndex = is
       this.$refs.selectFiled.dialog(this.saveSelectFiled, type, is)
+    },
+    lastGetModal (index, type, level) {
+      level === 'dimens' ? this.dimensionDataIndex = index : this.hitDataIndex = index
+      this.$refs.selectFiled.dialog(this.saveSelectFiled, type)
     }
   },
   computed: {
@@ -294,7 +295,10 @@ export default {
       saveAggregationWD: 'saveAggregationWD',
       saveAggregationnecessaryWD: 'saveAggregationnecessaryWD',
       saveAggregationlevelWD: 'saveAggregationlevelWD',
-      saveAggregationjointWD: 'saveAggregationjointWD'
+      saveAggregationjointWD: 'saveAggregationjointWD',
+      savedimensionData: 'savedimensionData',
+      savehetComposeData: 'savehetComposeData',
+      totalSaveList: 'totalSaveList'
     })
   }
 }

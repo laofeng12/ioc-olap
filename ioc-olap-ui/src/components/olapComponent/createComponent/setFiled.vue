@@ -131,12 +131,13 @@ export default {
     },
     // 全选功能
     selectAllCheck (rows) {
-      this.$message.warning('暂未开发~')
-      // let list = {
-      //   data: rows,
-      //   id: this.tableData[0].tableName
-      // }
-      // rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
+      // console.log(rows, '============', this.tableData)
+      // this.$message.warning('暂未开发~')
+      let list = {
+        list: rows,
+        id: this.tableData[0].tableName
+      }
+      rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
     },
     selectFiled () {
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)

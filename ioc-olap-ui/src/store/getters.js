@@ -22,6 +22,9 @@ const getters = {
   saveAggregationWD: state => state.common.saveAggregationWD,
   saveAggregationnecessaryWD: state => state.common.saveAggregationnecessaryWD,
   saveAggregationlevelWD: state => state.common.saveAggregationlevelWD,
-  saveAggregationjointWD: state => state.common.saveAggregationjointWD
+  saveAggregationjointWD: state => state.common.saveAggregationjointWD,
+  savedimensionData: state => state.common.savedimensionData,
+  savehetComposeData: state => state.common.savehetComposeData,
+  totalSaveList: state => state.common.totalSaveList
 }
 export default getters

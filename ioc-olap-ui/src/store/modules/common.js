@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr } from '@/utils/index'
+import { filterArr, reduceObj } from '@/utils/index'
 const common = {
   state: {
     treeList: [], // 树形数据
@@ -22,10 +22,13 @@ const common = {
     /* 刷新过滤 */
     relaodFilterList: [],
     /* 高级设置 */
+    totalSaveList: [], // 存储总的数据
     saveAggregationWD: [], // 存储已选择包含维度
     saveAggregationnecessaryWD: [], // 存储已选择必要维度
     saveAggregationlevelWD: [], // 存储已选择层级维度
-    saveAggregationjointWD: [] // 存储已选择联合维度
+    saveAggregationjointWD: [], // 存储已选择联合维度
+    savedimensionData: [], // 存储维度黑白名单
+    savehetComposeData: [] // 存储高级设置组合
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -158,16 +161,20 @@ const common = {
      */
     // 存储已选择的维度
     SaveSelectFiled ({ state }, data) {
-      let datas = state.saveSelectFiled.concat(data)
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state }, data) {
-      state.saveSelectFiled && state.saveSelectFiled.forEach((item, index) => {
-        if (item.id === data.id) {
-          state.saveSelectFiled.splice(index, 1)
+      console.log(data)
+      state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
         }
       })
+      console.log(state.saveSelectFiled)
     },
     // 存储已选择对应的表
     SaveRightTableList ({ state }, data) {
@@ -236,9 +243,20 @@ const common = {
         case 4:
           state.saveAggregationjointWD = slectData.data
           break
+        case 5:
+          state.savedimensionData = slectData.data
+          break
+        case 6:
+          state.savehetComposeData = slectData.data
+          break
         default:
           break
       }
+    },
+    // 存储总的数据
+    SaveTotalList ({ state }, data) {
+      console.log(data)
+      state.totalSaveList = data
     }
   }
 }

@@ -33,7 +33,12 @@ export default {
     return {
       dialogFormVisible: false,
       selctCheckData: [],
-      options: [],
+      options: [
+        { comment: '啦啦啦啦1', columnName: 'lalalalal1', tableName: 'a1', list: [ { comment: '啦啦啦啦', columnName: 'lalalalal' }, { comment: '啦啦啦啦', columnName: 'lalalalal1' } ] },
+        { comment: '啦啦啦啦2', columnName: 'lalalalal2', tableName: 'a2', list: [ { comment: '啦啦啦啦', columnName: 'lalalala2' }, { comment: '啦啦啦啦', columnName: 'lalalala22' } ] },
+        { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: [ { comment: '啦啦啦啦', columnName: 'lalalala3' }, { comment: '啦啦啦啦', columnName: 'lalalala33' } ] },
+        { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: [ { comment: '啦啦啦啦', columnName: 'lalalala4' }, { comment: '啦啦啦啦', columnName: 'lalalala44' } ] }
+      ],
       type: '',
       is: ''
     }
@@ -51,6 +56,7 @@ export default {
         type: this.type
       }
       this.$store.dispatch('SaveAggregationWD', slectData)
+
       this.$parent.init()
     },
     dialog (data, type, is) {
@@ -59,12 +65,15 @@ export default {
       if (type !== this.type) {
         this.selctCheckData = []
       }
-      if (is !== this.is) {
-        this.selctCheckData = []
-      }
-      this.options = this.saveNewSortList
+      // if (is === this.is || type !== this.type) {
+      //   this.selctCheckData = []
+      // }
+      // this.options = this.saveNewSortList
       this.type = type
       this.is = is
+    },
+    resetsData () {
+      this.selctCheckData = []
     }
   },
   computed: {
