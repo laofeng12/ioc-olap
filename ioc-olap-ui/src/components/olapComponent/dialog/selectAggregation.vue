@@ -86,10 +86,10 @@ export default {
           this.selctCheckData = this.selectDataidList[this.index].jointDataId[this.findIndex]
           break
         case 5:
-          this.selctCheckData = this.savedimensionDataId
+          this.selctCheckData = this.savedimensionDataId[this.index]
           break
         case 6:
-          this.selctCheckData = this.savehetComposeDataId
+          this.selctCheckData = this.savehetComposeDataId[this.index]
           break
         default:
           break
