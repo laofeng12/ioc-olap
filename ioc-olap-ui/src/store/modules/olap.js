@@ -43,8 +43,8 @@ const common = {
         jointDataId: [[]]
       }
     ],
-    savedimensionDataId: [],
-    savehetComposeDataId: []
+    savedimensionDataId: [[]],
+    savehetComposeDataId: [[]]
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -271,11 +271,11 @@ const common = {
           break
         case 5:
           Vue.set(state.savedimensionData, slectData.index, state.NewDataList)
-          state.savedimensionDataId = slectData.data
+          Vue.set(state.savedimensionDataId, slectData.index, slectData.data)
           break
         case 6:
           Vue.set(state.savehetComposeData, slectData.index, state.NewDataList)
-          state.savehetComposeDataId = slectData.data
+          Vue.set(state.savehetComposeDataId, slectData.index, slectData.data)
           break
         default:
           break
@@ -299,10 +299,12 @@ const common = {
     // 新增维度黑白名单
     AddimensionData ({ state }) {
       state.savedimensionData.push({})
+      state.savedimensionDataId.push([])
     },
     // 新增高级组合
     AddhetComposeData ({ state }) {
       state.savehetComposeData.push({})
+      state.savehetComposeDataId.push([])
     },
     // 根据id筛选出需要的数据
     WithidGetList ({ state }, id) {
@@ -325,48 +327,48 @@ const common = {
           state.totalSaveList[list.index].containData.filter((item, index) => {
             item.id === list.id && state.totalSaveList[list.index].containData.splice(index, 1)
           })
-          state.containDataId.map((item, index) => {
-            item === list.id && state.containDataId.splice(index, 1)
+          state.selectDataidList[list.index].containDataId.map((item, index) => {
+            item === list.id && state.selectDataidList[list.index].containDataId.splice(index, 1)
           })
           break
         case 2:
           state.totalSaveList[list.index].necessaryData.filter((item, index) => {
             item.id === list.id && state.totalSaveList[list.index].necessaryData.splice(index, 1)
           })
-          state.necessaryDataId.map((item, index) => {
-            item === list.id && state.necessaryDataId.splice(index, 1)
+          state.selectDataidList[list.index].necessaryDataId.map((item, index) => {
+            item === list.id && state.selectDataidList[list.index].necessaryDataId.splice(index, 1)
           })
           break
         case 3:
           state.totalSaveList[list.index].levelData[list.findIndex].filter((item, index) => {
             item.id === list.id && state.totalSaveList[list.index].levelData[list.findIndex].splice(index, 1)
           })
-          state.levelDataId.map((item, index) => {
-            item === list.id && state.levelDataId.splice(index, 1)
+          state.selectDataidList[list.index].levelDataId[list.findIndex].map((item, index) => {
+            item === list.id && state.selectDataidList[list.index].levelDataId[list.findIndex].splice(index, 1)
           })
           break
         case 4:
           state.totalSaveList[list.index].jointData[list.findIndex].filter((item, index) => {
             item.id === list.id && state.totalSaveList[list.index].jointData[list.findIndex].splice(index, 1)
           })
-          state.jointDataId.map((item, index) => {
-            item === list.id && state.jointDataId.splice(index, 1)
+          state.selectDataidList[list.index].jointDataId[list.findIndex].map((item, index) => {
+            item === list.id && state.selectDataidList[list.index].jointDataId[list.findIndex].splice(index, 1)
           })
           break
         case 5:
           state.savedimensionData[list.findIndex].filter((item, index) => {
             item.id === list.id && state.savedimensionData[list.findIndex].splice(index, 1)
           })
-          state.savedimensionDataId.map((item, index) => {
-            item === list.id && state.savedimensionDataId.splice(index, 1)
+          state.savedimensionDataId[list.findIndex].map((item, index) => {
+            item === list.id && state.savedimensionDataId[list.findIndex].splice(index, 1)
           })
           break
         case 6:
           state.savehetComposeData[list.findIndex].filter((item, index) => {
             item.id === list.id && state.savehetComposeData[list.findIndex].splice(index, 1)
           })
-          state.savehetComposeDataId.map((item, index) => {
-            item === list.id && state.savehetComposeDataId.splice(index, 1)
+          state.savehetComposeDataId[list.findIndex].map((item, index) => {
+            item === list.id && state.savehetComposeDataId[list.findIndex].splice(index, 1)
           })
           break
         default:

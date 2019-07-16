@@ -328,7 +328,7 @@ export default {
           width 30%
           float left
           margin-left 1%
-          margin-bottom 20px
+          margin-bottom 10px
           font-size 11px
           text-align center
           background #FBFBFB
@@ -402,6 +402,20 @@ export default {
           color green
         }
       }
+      >>>.el-tag{
+          width 30%
+          float left
+          margin-left 1%
+          margin-bottom 10px
+          font-size 11px
+          text-align center
+          background #FBFBFB
+          color #555555
+          i{
+            float right!important
+            margin-top 8px
+          }
+        }
     }
     .nos{
       margin-left 100px
