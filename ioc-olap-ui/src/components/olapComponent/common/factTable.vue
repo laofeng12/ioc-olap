@@ -23,6 +23,7 @@ export default {
   },
   data () {
     return {
+      isSetFact: false,
       value: '',
       current: '',
       dataList: []
@@ -34,16 +35,36 @@ export default {
   methods: {
     init () {
       this.dataList = this.selectTableTotal
+      this.checkFactFile()
+    },
+    checkFactFile() {
+      let datalist = this.dataList || []
+      for(let i=0; i<datalist.length; i++){
+        let t = datalist[i]
+        if(t.filed) {
+          this.isSetFact = true
+          this.$parent.clickTable(t)
+          break
+        }
+      }
     },
     changes (val) {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      this.current = index
-      this.$parent.clickTable(item)
+      if(this.isSetFact){
+        this.current = index
+        this.$parent.clickTable(item)
+      }else{
+        alert('请先设置事实表')
+      }
     },
     dragLi (item) {
-      this.$parent.dragTable(item)
+      if(this.isSetFact){
+        this.$parent.dragTable(item)
+      }else{
+        alert('请先设置事实表')
+      }
     }
   },
   computed: {
