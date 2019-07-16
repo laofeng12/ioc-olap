@@ -140,24 +140,6 @@ export default {
           }
         }
       }
-      .result {
-        overflow: auto;
-        .resultBox {
-          .top {
-            .left {
-              .item {
-                margin-right: 10px;
-                .tit {
-                  margin-right: 2px;
-                }
-              }
-            }
-            .right {
-              margin: 20px 0;
-            }
-          }
-        }
-      }
     }
     .visible {
       .visibleInput {

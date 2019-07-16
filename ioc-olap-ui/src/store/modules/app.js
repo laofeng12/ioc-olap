@@ -38,6 +38,13 @@ const app = {
       }, {
         resId: '1',
         index: '5',
+        resName: 'OLAP分析',
+        resURL: '/olapAnalysis',
+        resIcon: 'fa fa-columns',
+        subResList: []
+      }, {
+        resId: '1',
+        index: '5',
         resName: '即系查询',
         resURL: '/queries',
         resIcon: 'fa fa-columns',

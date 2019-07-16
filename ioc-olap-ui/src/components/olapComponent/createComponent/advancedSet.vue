@@ -8,7 +8,7 @@
             <span>维度分组聚合</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
-          <el-card class="box-card" v-for="(item, index) in aggregationData" :key="index">
+          <el-card class="box-card" v-for="(item, index) in totalSaveList" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
               <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
@@ -28,22 +28,24 @@
             <div class="item_box noflex">
               <span>层级维度</span>
               <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
-                <div class=""  @click="getTotalModal(index, 3, i)">
-                  <el-tag type="" v-for="(n, i) in itemData" :key="i" closable>{{n.columnName}}</el-tag>
+                <div @click="getTotalModal(index, 3, i)">
+                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
-                  <i class="el-icon-circle-plus" @click="addlevelData(i)"></i>
+                  <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
                 </p>
               </div>
             </div>
             <div class="item_box noflex">
               <span>联合维度</span>
-              <div class="adds" v-for="(k, t) in item.jointData" :key="t">
-                <div class=""  @click="getTotalModal(index, 4, t)"></div>
+              <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
+                <div @click="getTotalModal(index, 4, t)">
+                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
+                </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
-                  <i class="el-icon-circle-plus" @click="addjointData(t)"></i>
+                  <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
                 </p>
               </div>
             </div>
@@ -89,10 +91,12 @@
         <div class="listSet">
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
-            <div class="adds" v-for="(n, i) in dimensionData" :key="i">
-              <div class=""></div>
+            <div class="adds" v-for="(n, i) in savedimensionData" :key="i">
+              <div @click="lastGetModal(i, 5)">
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+              </div>
               <p>
-                <i class="el-icon-remove" @click="removedimensionData(index, i)"></i>
+                <i class="el-icon-remove" @click="removedimensionData(i)"></i>
                 <i class="el-icon-circle-plus" @click="addimensionData(i)"></i>
               </p>
             </div>
@@ -109,18 +113,20 @@
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>
-          <div class="listSet__box hetCompose__box" v-if="hetComposeData && hetComposeData.length">
-            <div class="adds" v-for="(n, i) in hetComposeData" :key="i">
-              <div class=""></div>
+          <div class="listSet__box hetCompose__box" v-if="savehetComposeData && savehetComposeData.length">
+            <div class="adds" v-for="(n, i) in savehetComposeData" :key="i">
+              <div @click="lastGetModal(i, 6)">
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+              </div>
               <p>
-                <i class="el-icon-remove" @click="removehetComposeData(index, i)"></i>
+                <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
                 <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
               </p>
             </div>
           </div>
           <div class="listSet__box hetCompose__box" v-else>
             <p class="nos">
-              <i class="el-icon-circle-plus" @click="addhetComposeData(i)"></i>
+              <i class="el-icon-circle-plus" @click="addhetComposeData()"></i>
             </p>
           </div>
         </div>
@@ -144,6 +150,9 @@ export default {
       dataMany: false,
       modalIndex: 0, // 记录当前点击的是哪个维度框
       levelDataIndex: 0, // 记录层级维度index
+      jointDataIndex: 0, // 记录联合维度index
+      dimensionDataIndex: 0, // 记录黑白名单index
+      hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
         engine: '1',
@@ -155,21 +164,7 @@ export default {
           { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '' }
         ]
       },
-      aggregationData: [ // 聚合小组
-        {
-          containData: [], // 包含维度
-          necessaryData: [], // 必要维度
-          levelData: [ // 层级维度
-            { columnName: '', comment: '' }
-          ],
-          jointData: [ // 联合维度
-            { index: '' }
-          ]
-        }
-      ],
-      dimensionData: [ // 维度黑白名单
-        { index: '' }
-      ],
+      dimensionData: [{}], // 维度黑白名单
       engineOptions: [ // 模型构建引擎
         { engine: '1', label: 'MapReduce ' },
         { engine: '2', label: 'MapReduce ' }
@@ -195,25 +190,17 @@ export default {
     }
   },
   mounted () {
-    this.init()
   },
   methods: {
-    init () {
-      // 渲染包含维度
-      console.log(this.saveAggregationlevelWD, '必要的', this.levelDataIndex)
-      this.aggregationData[this.modalIndex].containData = this.saveAggregationWD
-      this.aggregationData[this.modalIndex].necessaryData = this.saveAggregationnecessaryWD
-      this.aggregationData[this.modalIndex].levelData[this.levelDataIndex] = this.saveAggregationlevelWD
-      this.aggregationData[this.modalIndex].jointData = this.saveAggregationjointWD
-      console.log(this.aggregationData)
-    },
     nextModel (val) {
+      this.$store.dispatch('SaveTotalList', this.totalSaveList)
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/completeCreate')
       // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
+      this.$store.dispatch('SaveTotalList', this.totalSaveList)
       this.$router.push('/olap/createolap/reloadSet')
     },
     handleSelectionChange (val) {
@@ -221,59 +208,43 @@ export default {
     },
     // 添加聚合小组
     addaAggregation () {
-      this.aggregationData.push({
-        containData: [],
-        necessaryData: [],
-        levelData: [
-          { columnName: '', comment: '' }
-        ],
-        jointData: [
-          { index: '' }
-        ]
-      })
+      this.$store.dispatch('addAggregationList')
     },
     handleRms (index) {
-      if (this.aggregationData.length === 1) return this.$message.error('必须保留一个~')
-      this.aggregationData.splice(index, 1)
+      if (this.totalSaveList.length === 1) return this.$message.error('必须保留一个~')
+      this.totalSaveList.splice(index, 1)
     },
     // 添加层级维度
     addlevelData (index) {
-      this.aggregationData[index].levelData.push({
-        index: ''
-      })
-    },
-    removelevelData (index, i) {
-      if (this.aggregationData[index].levelData.length === 1) return this.$message.error('必须保留一个~')
-      this.aggregationData[index].levelData.splice(i, 1)
+      // this.$set(this.aggregationData[index].levelData, this.levelDataIndex, [...this.aggregationData[index].levelData], {})
+      this.totalSaveList[index].levelData.push({})
     },
     // 添加联合维度
     addjointData (index) {
-      this.aggregationData[index].jointData.push({
-        index: ''
-      })
+      this.totalSaveList[index].jointData.push({})
+    },
+    removelevelData (index, i) {
+      if (this.totalSaveList[index].levelData.length === 1) return this.$message.error('必须保留一个~')
+      this.totalSaveList[index].levelData.splice(i, 1)
     },
     removejointData (index, i) {
-      if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.dimensionData.splice(i, 1)
+      if (this.totalSaveList[index].jointData.length === 1) return this.$message.error('必须保留一个~')
+      this.totalSaveList[index].jointData.splice(i, 1)
     },
     // 添加维度黑白名单
-    addimensionData (index) {
-      this.dimensionData.push({
-        index: ''
-      })
+    addimensionData () {
+      this.$store.dispatch('AddimensionData')
     },
     removedimensionData (index) {
-      if (this.dimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.dimensionData.splice(index, 1)
+      if (this.savedimensionData.length === 1) return this.$message.error('必须保留一个~')
+      this.savedimensionData.splice(index, 1)
     },
     // 添加高级列组合
-    addhetComposeData (index) {
-      this.hetComposeData.push({
-        index: ''
-      })
+    addhetComposeData () {
+      this.$store.dispatch('AddhetComposeData')
     },
     removehetComposeData (index) {
-      this.hetComposeData.splice(index, 1)
+      this.savehetComposeData.splice(index, 1)
     },
     changeUploadNum (val) {
       console.log(val)
@@ -282,20 +253,21 @@ export default {
       console.log(val)
     },
     // 选择维度
-    getTotalModal (index, type, is) {
+    getTotalModal (index, type, findIndex) {
       this.modalIndex = index
-      this.levelDataIndex = is
-
-      this.$refs.selectFiled.dialog(this.saveSelectFiled, type, is)
+      this.$refs.selectFiled.dialog(type, index, findIndex)
+    },
+    lastGetModal (index, type) {
+      console.log('来了')
+      this.$refs.selectFiled.dialog(type, index)
     }
   },
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      saveAggregationWD: 'saveAggregationWD',
-      saveAggregationnecessaryWD: 'saveAggregationnecessaryWD',
-      saveAggregationlevelWD: 'saveAggregationlevelWD',
-      saveAggregationjointWD: 'saveAggregationjointWD'
+      savedimensionData: 'savedimensionData',
+      savehetComposeData: 'savehetComposeData',
+      totalSaveList: 'totalSaveList'
     })
   }
 }
@@ -332,19 +304,19 @@ export default {
           flex 1
           padding 25px
           cursor pointer
-          .el-tag{
-            width 30%
-            float left
-            margin-left 1%
-            margin-bottom 20px
-            font-size 12px
-            background #FBFBFB
-            color #555555
-            i{
-              float right
-              margin-top 8px
-              color #ffffff
-            }
+        }
+        >>>.el-tag{
+          width 30%
+          float left
+          margin-left 1%
+          margin-bottom 20px
+          font-size 11px
+          text-align center
+          background #FBFBFB
+          color #555555
+          i{
+            float right!important
+            margin-top 8px
           }
         }
         .adds{

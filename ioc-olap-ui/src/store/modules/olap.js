@@ -1,5 +1,6 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr } from '@/utils/index'
+import { filterArr, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
+import Vue from 'vue'
 const common = {
   state: {
     treeList: [], // 树形数据
@@ -22,10 +23,19 @@ const common = {
     /* 刷新过滤 */
     relaodFilterList: [],
     /* 高级设置 */
-    saveAggregationWD: [], // 存储已选择包含维度
-    saveAggregationnecessaryWD: [], // 存储已选择必要维度
-    saveAggregationlevelWD: [], // 存储已选择层级维度
-    saveAggregationjointWD: [] // 存储已选择联合维度
+    totalSaveList: [
+      {
+        containData: [], // 包含维度
+        necessaryData: [], // 必要维度
+        levelData: [{}], // 层级维度
+        jointData: [ {} ] // 联合维度
+      }
+    ], // 存储总的数据
+    savedimensionData: [{}], // 存储维度黑白名单
+    savehetComposeData: [], // 存储高级设置组合
+    NewDataList: [], // 根据id存储的
+    containDataId: [],
+    necessaryDataId: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -67,6 +77,7 @@ const common = {
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
+    // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
         getResourcedirectoryCategory().then(res => {
@@ -75,6 +86,7 @@ const common = {
         })
       })
     },
+    // 根据树的id获取对应的表
     GetSerchTable ({ commit }, id) {
       return new Promise((resolve, reject) => {
         getResourcedirectory(id).then(res => {
@@ -83,6 +95,7 @@ const common = {
         })
       })
     },
+    // 根据字段获取表头
     GetColumnList ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getColumnList(params).then(res => {
@@ -90,6 +103,7 @@ const common = {
         })
       })
     },
+    // 根据字段获取表体
     GetTableData ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getTableData(params).then(res => {
@@ -97,6 +111,7 @@ const common = {
         })
       })
     },
+    // 更新数据表
     GetdsUploadTable ({ commit }, params) {
       return new Promise((resolve, reject) => {
         getdsUploadTable(params).then(res => {
@@ -158,14 +173,16 @@ const common = {
      */
     // 存储已选择的维度
     SaveSelectFiled ({ state }, data) {
-      let datas = state.saveSelectFiled.concat(data)
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state }, data) {
-      state.saveSelectFiled && state.saveSelectFiled.forEach((item, index) => {
-        if (item.id === data.id) {
-          state.saveSelectFiled.splice(index, 1)
+      state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
         }
       })
     },
@@ -185,6 +202,7 @@ const common = {
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
       state.saveNewSortList = filterArr(data)
+      setLocalStorage('saveNewSortList', filterArr(data))
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
@@ -222,23 +240,65 @@ const common = {
       })
     },
     // 存储聚合小组选择的维度
-    SaveAggregationWD ({ state }, slectData) {
+    SaveAggregationWD ({ state, dispatch }, slectData) {
+      dispatch('WithidGetList', slectData.data)
       switch (slectData.type) {
         case 1:
-          state.saveAggregationWD = slectData.data
+          state.totalSaveList[slectData.index].containData = state.NewDataList
+          state.containDataId = slectData.data
           break
-        case 2:
-          state.saveAggregationnecessaryWD = slectData.data
+          case 2:
+          state.totalSaveList[slectData.index].necessaryData = state.NewDataList
+          state.necessaryDataId = slectData.data
           break
         case 3:
-          state.saveAggregationlevelWD = slectData.data
+          Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, state.NewDataList)
           break
         case 4:
-          state.saveAggregationjointWD = slectData.data
+          Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, state.NewDataList)
+          break
+        case 5:
+          Vue.set(state.savedimensionData, slectData.index, state.NewDataList)
+          break
+        case 6:
+          Vue.set(state.savehetComposeData, slectData.index, state.NewDataList)
           break
         default:
           break
       }
+    },
+    // 新增聚合小组
+    addAggregationList ({ state }) {
+      state.totalSaveList.push({
+        containData: [],
+        necessaryData: [],
+        levelData: [{}],
+        jointData: [{}]
+      })
+    },
+    // 新增维度黑白名单
+    AddimensionData ({ state }) {
+      state.savedimensionData.push({})
+    },
+    // 新增高级组合
+    AddhetComposeData ({ state }) {
+      state.savehetComposeData.push({})
+    },
+    // 根据id筛选出需要的数据
+    WithidGetList ({ state }, id) {
+      state.NewDataList = []
+      let data = JSON.parse(getLocalStorage('saveNewSortList'))
+      // console.log(data, '获取的id', id)
+      data.map(item => {
+        item.list.map((n, i) => {
+          id.map((k) => {
+            if (n.id === k) {
+              state.NewDataList.push(item.list[i])
+            }
+          })
+        })
+      })
+      // console.log('需要的', state.NewDataList)
     }
   }
 }
