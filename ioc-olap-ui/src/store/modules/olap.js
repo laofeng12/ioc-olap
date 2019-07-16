@@ -49,7 +49,7 @@ const common = {
   mutations: {
     GET_TREELIST: (state, data) => {
       state.treeList = data
-    },
+    }, 
     GET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
     },
