@@ -49,7 +49,7 @@ export default {
       this.dialogFormVisible = false
     },
     selectChange (value) {
-      console.log(this.selctCheckData)
+      console.log(this.selctCheckData, '啦啦啦啦啦')
     },
     submitBtn (index) {
       this.dialogFormVisible = false
@@ -62,12 +62,11 @@ export default {
       this.$store.dispatch('SaveAggregationWD', slectData)
     },
     dialog (type, index, findIndex) {
-      console.log(this.selctCheckData)
       this.dialogFormVisible = true
       // 判断点击的是否是当前的维度框
-      if (type !== this.type || index !== this.index || findIndex !== this.findIndex) {
-        this.selctCheckData = []
-      }
+      // if (type !== this.type || index !== this.index || findIndex !== this.findIndex) {
+      //   this.selctCheckData = []
+      // }
       // this.options = this.saveNewSortList
       this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index
@@ -75,13 +74,25 @@ export default {
       this.findIndex = findIndex
       switch (type) {
         case 1:
-          this.selctCheckData = this.containDataId
-          break;
+          this.selctCheckData = this.selectDataidList[this.index].containDataId
+          break
         case 2:
-          this.selctCheckData = this.necessaryDataId
-          break;
+          this.selctCheckData = this.selectDataidList[this.index].necessaryDataId
+          break
+        case 3:
+          this.selctCheckData = this.selectDataidList[this.index].levelDataId[this.findIndex]
+          break
+        case 4:
+          this.selctCheckData = this.jointDataId
+          break
+        case 5:
+          this.selctCheckData = this.savedimensionDataId
+          break
+        case 6:
+          this.selctCheckData = this.savehetComposeDataId
+          break
         default:
-          break;
+          break
       }
     },
     resetsData () {
@@ -91,8 +102,13 @@ export default {
   computed: {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
+      selectDataidList: 'selectDataidList',
       containDataId: 'containDataId',
-      necessaryDataId: 'necessaryDataId'
+      necessaryDataId: 'necessaryDataId',
+      levelDataId: 'levelDataId',
+      jointDataId: 'jointDataId',
+      savedimensionDataId: 'savedimensionDataId',
+      savehetComposeDataId: 'savehetComposeDataId'
     })
   }
 }

@@ -34,8 +34,17 @@ const common = {
     savedimensionData: [{}], // 存储维度黑白名单
     savehetComposeData: [], // 存储高级设置组合
     NewDataList: [], // 根据id存储的
-    containDataId: [],
-    necessaryDataId: []
+    /** 已选择的维度id 以及黑白名单/高级组合 */
+    selectDataidList: [ // 已选择的id集合
+      {
+        containDataId: [],
+        necessaryDataId: [],
+        levelDataId: [[]],
+        jointDataId: [[]]
+      }
+    ],
+    savedimensionDataId: [],
+    savehetComposeDataId: []
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -242,26 +251,31 @@ const common = {
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
       dispatch('WithidGetList', slectData.data)
+      console.log(slectData, '1111111111111111')
       switch (slectData.type) {
         case 1:
           state.totalSaveList[slectData.index].containData = state.NewDataList
-          state.containDataId = slectData.data
+          state.selectDataidList[slectData.index].containDataId = slectData.data
           break
-          case 2:
+        case 2:
           state.totalSaveList[slectData.index].necessaryData = state.NewDataList
-          state.necessaryDataId = slectData.data
+          state.selectDataidList[slectData.index].necessaryDataId = slectData.data
           break
         case 3:
           Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, state.NewDataList)
+          Vue.set(state.selectDataidList[slectData.index].levelDataId, slectData.findIndex, slectData.data)
           break
         case 4:
           Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, state.NewDataList)
+          Vue.set(state.selectDataidList[slectData.index].jointDataId, slectData.findIndex, slectData.data)
           break
         case 5:
           Vue.set(state.savedimensionData, slectData.index, state.NewDataList)
+          state.savedimensionDataId = slectData.data
           break
         case 6:
           Vue.set(state.savehetComposeData, slectData.index, state.NewDataList)
+          state.savehetComposeDataId = slectData.data
           break
         default:
           break
@@ -274,6 +288,12 @@ const common = {
         necessaryData: [],
         levelData: [{}],
         jointData: [{}]
+      })
+      state.selectDataidList.push({
+        containDataId: [],
+        necessaryDataId: [],
+        levelDataId: [{}],
+        jointDataId: []
       })
     },
     // 新增维度黑白名单
@@ -288,7 +308,6 @@ const common = {
     WithidGetList ({ state }, id) {
       state.NewDataList = []
       let data = JSON.parse(getLocalStorage('saveNewSortList'))
-      // console.log(data, '获取的id', id)
       data.map(item => {
         item.list.map((n, i) => {
           id.map((k) => {
@@ -298,7 +317,61 @@ const common = {
           })
         })
       })
-      // console.log('需要的', state.NewDataList)
+    },
+    // 根据id删除对应的标签以及弹框的标签
+    RmtagList ({ state }, list) {
+      switch (list.type) {
+        case 1:
+          state.totalSaveList[list.index].containData.filter((item, index) => {
+            item.id === list.id && state.totalSaveList[list.index].containData.splice(index, 1)
+          })
+          state.containDataId.map((item, index) => {
+            item === list.id && state.containDataId.splice(index, 1)
+          })
+          break
+        case 2:
+          state.totalSaveList[list.index].necessaryData.filter((item, index) => {
+            item.id === list.id && state.totalSaveList[list.index].necessaryData.splice(index, 1)
+          })
+          state.necessaryDataId.map((item, index) => {
+            item === list.id && state.necessaryDataId.splice(index, 1)
+          })
+          break
+        case 3:
+          state.totalSaveList[list.index].levelData[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.totalSaveList[list.index].levelData[list.findIndex].splice(index, 1)
+          })
+          state.levelDataId.map((item, index) => {
+            item === list.id && state.levelDataId.splice(index, 1)
+          })
+          break
+        case 4:
+          state.totalSaveList[list.index].jointData[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.totalSaveList[list.index].jointData[list.findIndex].splice(index, 1)
+          })
+          state.jointDataId.map((item, index) => {
+            item === list.id && state.jointDataId.splice(index, 1)
+          })
+          break
+        case 5:
+          state.savedimensionData[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.savedimensionData[list.findIndex].splice(index, 1)
+          })
+          state.savedimensionDataId.map((item, index) => {
+            item === list.id && state.savedimensionDataId.splice(index, 1)
+          })
+          break
+        case 6:
+          state.savehetComposeData[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.savehetComposeData[list.findIndex].splice(index, 1)
+          })
+          state.savehetComposeDataId.map((item, index) => {
+            item === list.id && state.savehetComposeDataId.splice(index, 1)
+          })
+          break
+        default:
+          break
+      }
     }
   }
 }

@@ -22,7 +22,12 @@ const getters = {
   savedimensionData: state => state.olap.savedimensionData,
   savehetComposeData: state => state.olap.savehetComposeData,
   totalSaveList: state => state.olap.totalSaveList,
+  selectDataidList: state => state.olap.selectDataidList,
   containDataId: state => state.olap.containDataId,
-  necessaryDataId: state => state.olap.necessaryDataId
+  necessaryDataId: state => state.olap.necessaryDataId,
+  levelDataId: state => state.olap.levelDataId,
+  jointDataId: state => state.olap.jointDataId,
+  savedimensionDataId: state => state.olap.savedimensionDataId,
+  savehetComposeDataId: state => state.olap.savehetComposeDataId
 }
 export default getters
