@@ -83,7 +83,7 @@ export default {
           this.selctCheckData = this.selectDataidList[this.index].levelDataId[this.findIndex]
           break
         case 4:
-          this.selctCheckData = this.jointDataId
+          this.selctCheckData = this.selectDataidList[this.index].jointDataId[this.findIndex]
           break
         case 5:
           this.selctCheckData = this.savedimensionDataId

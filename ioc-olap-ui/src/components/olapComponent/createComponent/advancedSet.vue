@@ -16,20 +16,20 @@
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
-                <el-tag type="" @close.stop="rmTag(index, 1, n.id)" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r" @click="getTotalModal(index, 2)">
-                <el-tag type="" @close.stop="rmTag(index, 2, n.id)" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
               <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
                 <div @click="getTotalModal(index, 3, i)">
-                  <el-tag v-for="(n, q) in itemData" @close.stop="rmTag(index, 3, n.id, i)" :key="q" closable>{{n.columnName}}</el-tag>
+                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
@@ -41,7 +41,7 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag v-for="(x, y) in jsonData" @close.stop="rmTag(index, 4, n.id, i)" :key="y" closable>{{x.columnName}}</el-tag>
+                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -93,7 +93,7 @@
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in savedimensionData" :key="i">
               <div @click="lastGetModal(i, 5)">
-                <el-tag v-for="(x, y) in n" @close.stop="lastrmTag(x.id, 5, i)" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removedimensionData(i)"></i>
@@ -116,7 +116,7 @@
           <div class="listSet__box hetCompose__box" v-if="savehetComposeData && savehetComposeData.length">
             <div class="adds" v-for="(n, i) in savehetComposeData" :key="i">
               <div @click="lastGetModal(i, 6)">
-                <el-tag v-for="(x, y) in n" @close.stop="lastrmTag(x.id, 6, i)" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
@@ -193,14 +193,12 @@ export default {
   },
   methods: {
     nextModel (val) {
-      this.$store.dispatch('SaveTotalList', this.totalSaveList)
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/completeCreate')
       // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$store.dispatch('SaveTotalList', this.totalSaveList)
       this.$router.push('/olap/createolap/reloadSet')
     },
     handleSelectionChange (val) {
@@ -216,14 +214,11 @@ export default {
     },
     // 添加层级维度
     addlevelData (index) {
-      // this.$set(this.aggregationData[index].levelData, this.levelDataIndex, [...this.aggregationData[index].levelData], {})
       this.totalSaveList[index].levelData.push({})
-      this.selectDataidList[index].levelDataId.push([])
     },
     // 添加联合维度
     addjointData (index) {
       this.totalSaveList[index].jointData.push({})
-      this.selectDataidList[index].jointDataId.push([])
     },
     removelevelData (index, i) {
       if (this.totalSaveList[index].levelData.length === 1) return this.$message.error('必须保留一个~')
@@ -254,36 +249,19 @@ export default {
     changeDataMany (val) {
       console.log(val)
     },
-    rmTag (index, type, id, findIndex) {
-      const list = {
-        index: index,
-        type: type,
-        id: id,
-        findIndex: findIndex
-      }
-      this.$store.dispatch('RmtagList', list)
-    },
-    lastrmTag (id, type, findIndex) {
-      const list = {
-        id: id,
-        type: type,
-        findIndex: findIndex
-      }
-      this.$store.dispatch('RmtagList', list)
-    },
     // 选择维度
     getTotalModal (index, type, findIndex) {
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
     lastGetModal (index, type) {
+      console.log('来了')
       this.$refs.selectFiled.dialog(type, index)
     }
   },
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      selectDataidList: 'selectDataidList',
       savedimensionData: 'savedimensionData',
       savehetComposeData: 'savehetComposeData',
       totalSaveList: 'totalSaveList'

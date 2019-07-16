@@ -292,7 +292,7 @@ const common = {
       state.selectDataidList.push({
         containDataId: [],
         necessaryDataId: [],
-        levelDataId: [{}],
+        levelDataId: [],
         jointDataId: []
       })
     },
