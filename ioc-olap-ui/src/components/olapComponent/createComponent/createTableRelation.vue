@@ -27,7 +27,7 @@
       <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
       <div class="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
-        <div id="myholder"></div>
+        <div id="myholder" ref="myHolder"></div>
         <div class="papers">
           <div class="halo-cell-layer">
             <div class="remove" data-type="remove"></div>
@@ -57,6 +57,9 @@ export default {
   data () {
     return {
       isDragRect: false,
+      filedPosition: {
+        x: 0, y: 0
+      },
       couponList: [
         {
           id: 'A',
@@ -72,13 +75,15 @@ export default {
         }
       ],
       dragRectPosition: {
-        label: 'test',
+        filed: 0,
+        id: 0,
+        label: '',
         x: 0,
         y: 0
       },
       linkModal: null,
       linkModalModel: null,
-      jointList: [] // [{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
+      jointList: [] //[{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
     }
   },
   mounted: function () {
@@ -127,11 +132,13 @@ export default {
             if (data && data.length > 0) {
               data.forEach(t => {
                 let source = {
+                  filed: t.source.filed || 0,
                   field: t.source.field || '',
                   label: t.source.label || '',
                   id: t.source.id
                 }
                 let target = {
+                  filed: t.target.filed || 0,
                   field: t.target.field || '',
                   label: t.target.label || '',
                   id: t.target.id
@@ -147,15 +154,20 @@ export default {
               this.linkModal = linkModal
               this.linkModalModel = e.model
             } else if (linkElements.source && linkElements.target) {
+              let sourceAttrs = linkElements.source.get('attrs')
               let source = {
+                filed: sourceAttrs.text.filed || 0,
                 field: '',
-                label: linkElements.source.attributes.attrs.text.text,
-                id: linkElements.source.attributes.attrs.text.id
+                label: sourceAttrs.text.text,
+                id: sourceAttrs.text.id
               }
+
+              let targetAttrs = linkElements.target.get('attrs')
               let target = {
+                filed: targetAttrs.text.filed || 0,
                 field: '',
-                label: linkElements.target.attributes.attrs.text.text,
-                id: linkElements.target.attributes.attrs.text.id
+                label: targetAttrs.text.text,
+                id: targetAttrs.text.id
               }
 
               linkModal.push({
@@ -182,16 +194,25 @@ export default {
 
       paper.on('cell:pointerdown', (e, d) => {
         this.isClick = true
+        this.filedPosition = e.model.get('position')
       })
 
       paper.on('cell:pointermove', (e, d) => {
         // console.log(e)
+        
+        let attrs = e.model.get('attrs')
+
+        if(attrs.text && attrs.text.filed){ 
+          e.model.position(this.filedPosition.x, this.filedPosition.y)
+        }
+
         this.isClick = false
       })
 
       $('.papers').on('click', e => {
         let element = $('.halo-cell-layer').data('element')
         let model = element.model
+        let position = model.get('position')
         // let id = element.id
 
         switch (e.target.dataset.type) {
@@ -202,7 +223,7 @@ export default {
           case 'link':
             let link = new joint.shapes.standard.Link({
               source: model,
-              target: { x: model.attributes.position.x, y: model.attributes.position.y - 5 },
+              target: { x: position.x, y: position.y - 5 },
               attrs: {
                 '.marker-target': {
                   fill: '#333333', // 箭头颜色
@@ -257,6 +278,7 @@ export default {
         this.isDragRect = true
         this.dragRectPosition.label = e.label
         this.dragRectPosition.id = e.id
+        this.dragRectPosition.filed = e.filed
         this.dragRectPosition.x = 0
         this.dragRectPosition.y = 0
       } else if (this.isDragRect && this.dragRectPosition) {
@@ -265,6 +287,7 @@ export default {
         let x = this.dragRectPosition.x - $holder.offset().left + $containers.offset().left
         let y = this.dragRectPosition.y - $holder.offset().top + $containers.offset().top
         let rect = this.addRectCell({
+          filed: this.dragRectPosition.ifiled,
           id: this.dragRectPosition.id,
           label: this.dragRectPosition.label,
           position: { x, y }
@@ -287,32 +310,58 @@ export default {
       }
     },
 
+    getCellRamdonPosition(item) {
+      let rectWidth = item.label.length * 10
+      let rectHeight = 30
+      let height = this.$refs.myHolder.offsetHeight
+      let width = this.$refs.myHolder.offsetWidth
+
+      let position = {
+        x: 200 + 30, 
+        y: 0,
+        width: rectWidth,
+        height: rectHeight
+      }
+
+      if(item.filed){
+        position.x = (width - rectWidth) / 2
+        position.y = (height - rectHeight) / 2
+      }
+
+      return  position
+
+    },
+
     addRectCell (item, startIdx = 0) {
       let isAdd = true
       let newRect = null
       let rectLength = 0
       let cells = this.graph.getCells()
 
+      if(!this.graph){
+        this.graph = new joint.dia.Graph()
+      }
+
+      this.getCellRamdonPosition(item)
+
       if (cells.length > 0) {
         cells.forEach(t => {
-          if (!t.isLink()) {
-            rectLength++
-          }
+          if (!t.isLink()) rectLength++
           if (t.id === item.id) isAdd = false
         })
       }
 
       if (isAdd) {
-        let left = 200 * (startIdx + rectLength) + 30
-        let width = item.label.length * 10
+        let fillColor = item.filed ? '#59AFF9' : '#009688'
+        let randomPosition = this.getCellRamdonPosition(item)
 
         newRect = new joint.shapes.basic.Rect({
           position: {
-            x: (item.position && item.position.x) || left,
-            y: (item.position && item.position.y) || 30
+            x: (item.position && item.position.x) || randomPosition.x,
+            y: (item.position && item.position.y) || randomPosition.y
           },
-          size: { width: width, height: 30 },
-          attrs: { rect: { fill: '#009688', stroke: '#ffffff' }, text: { text: item.label, id: item.id, fill: 'white' } }
+          size: { width: randomPosition.width, height: randomPosition.height },
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: item.label, id: item.id, filed: item.filed, fill: 'white' } }
         })
       }
 
@@ -323,6 +372,10 @@ export default {
       let result = []
       let source = item.data[0].source
       let target = item.data[0].target
+
+      if(!this.graph){
+        this.graph = new joint.dia.Graph()
+      }
 
       let sourceItem = this.addRectCell(source, result.length)
       if (sourceItem) {
@@ -489,13 +542,15 @@ export default {
       let linkModal = this.linkModal || []
       let source = {
         field: '',
+        filed: item.source.filed,
         label: item.source.label,
         id: item.source.id
       }
       let target = {
         field: '',
-        label: item.source.label,
-        id: item.source.id
+        filed: item.target.filed,
+        label: item.target.label,
+        id: item.target.id
       }
 
       linkModal.push({
