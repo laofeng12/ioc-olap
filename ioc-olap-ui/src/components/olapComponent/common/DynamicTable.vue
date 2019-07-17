@@ -1,6 +1,6 @@
 <template>
   <div class="con" :style="`width: ${tableBoxWidth}px; height: ${tableBoxHeight}px`">
-  <!--<div class="con" :style="`height: ${tableBoxHeight}px`">-->
+  <!--<div class="con" :style="`width: 100%; height: ${tableBoxHeight}px`">-->
     <div class="showCon" :style="`width: ${tableWidth}px; height: ${tableHeight}px`">
       <el-table :data="tableData">
         <el-table-column v-for="(item, index) in theadData" :key="index" :property="`column${index+1}`"
@@ -20,6 +20,10 @@ export default {
     theadData: {
       type: Array,
       required: true
+    },
+    diffWidth: {
+      type: Number,
+      default: 536
     }
   },
   data () {
@@ -37,7 +41,7 @@ export default {
     }
   },
   created () {
-    this.tableBoxWidth = document.body.offsetWidth - 536
+    this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
     this.tableBoxHeight = document.body.offsetHeight - 141
     this.tableWidth = this.theadData.length * 150
     this.tableHeight = this.tableData.length * 48

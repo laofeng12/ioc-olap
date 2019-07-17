@@ -1,49 +1,42 @@
 <template>
   <div class="folderAside">
-    <div class="folder" v-for="(item, index) in menuList" :key="index">
-      <div class="folderName dis-flex l-h-35">
-        <div class="name dis-flex">
-          <i class="icon-folder"></i>
-          <span class="f-w-b">{{item.title}}</span>
-        </div>
-        <div class="menu" @click="showShareVisible"><i class="el-icon-more"></i></div>
-        <div class="menuList" v-if="showMenuList">
-          <div class="close"><i class="el-icon-close"></i></div>
-          <div class="l-h-30 b-b text-center">编辑</div>
-          <div class="l-h-30 b-b text-center">共享</div>
-          <div class="l-h-30 text-center">删除</div>
-        </div>
-      </div>
-      <div class="file dis-flex l-h-30" v-for="(v, i) in item.row" :key="i">
-        <div class="name">
-          <span>{{v.name}}</span>
-        </div>
-        <div class="menu"><i class="el-icon-more"></i></div>
-      </div>
+    <el-row class="left-search">
+      <el-input
+        size="small"
+        suffix-icon="el-icon-search"
+        placeholder="请输入关键词"
+        v-model="searchKeyword_">
+      </el-input>
+    </el-row>
+    <el-tree
+      class="filter-tree"
+      icon-class="el-icon-folder"
+      :data="menuList"
+      :props="menuDefault"
+      default-expand-all
+      :filter-node-method="filterAll"
+      @node-click="clickTreeItem"
+      ref="alltree_">
+              <span class="custom-tree-node" slot-scope="{ node, data }">
+                <span class="cus-node-title" :title="data.dataName">{{ data.dataName }}</span>
+                <span class="cus-node-content">
+                  <el-dropdown size="mini" @command="handleItemShare($event, node, data)">
+                    <el-button type="primary" size="mini">
+                      操作<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item command="0">重命名</el-dropdown-item>
+                      <!--<el-dropdown-item v-if="!node.isLeaf" command="1">刷新</el-dropdown-item>-->
+                      <el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>
+                      <el-dropdown-item command="3">删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </span>
+              </span>
+    </el-tree>
+    <div style="text-align: center;">
+      <el-button type="primary" size="small" @click="newFolder()">新建文件夹</el-button>
     </div>
-    <el-button class="button" type="primary" size="mini" @click="showNewVisible">新建文件夹</el-button>
-    <el-dialog class="visible" title="选择共享人" :visible.sync="shareVisible" width="40%">
-      <el-tree :data="treeList" show-checkbox ></el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="shareVisible = false">取 消</el-button>
-        <el-button type="primary" @click="shareVisible = false">确 定</el-button>
-      </div>
-    </el-dialog>
-    <el-dialog :title="`${folderForm.isNew ? '新增' : '修改'}文件夹`" :visible.sync="newVisible" width="30%">
-    <el-form :model="folderForm" :rules="folderRules" ref="folderForm">
-        <el-form-item label="名称" label-width="70px" prop="name">
-          <el-input v-model="folderForm.name" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item class="m-t-30" label="排序号" label-width="70px" prop="sort">
-          <el-input v-model.number="folderForm.sort" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitFolderForm">
-          确认{{folderForm.isNew ? '新增' : '修改'}}
-        </el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -52,12 +45,17 @@ export default {
   props: {
     menuList: {
       type: Array,
-      required: true,
+      required: true
+    },
+    menuDefault: {
+      // type: Array,
+      required: true
     }
   },
   data () {
     return {
       showMenuList: false,
+      searchKeyword_: '', // 分享搜索
       treeList: [
         {
           id: 1,
@@ -109,7 +107,12 @@ export default {
     }
   },
   watch: {
-
+    searchKeyword (val) {
+      this.$refs.alltree.filter(val)
+    },
+    searchKeyword_ (val) {
+      this.$refs.alltree_.filter(val)
+    }
   },
   methods: {
     showShareVisible () {
@@ -120,63 +123,85 @@ export default {
     },
     showNewVisible () {
       this.newVisible = true
+    },
+    clickTreeItem (data, node, self) {
+      let that = this
+      if (node.parent.parent) {
+        // 子节点才进入
+        that.sheetTitle = data.dataName
+        that.sheetDataId = data.dataId
+        that.sheetShare = data.isShare
+        // 渲染表格数据
+        this.getTableData_(data.dataId)
+      }
+    },
+    filterAll (value, data) {
+      if (!value) return true
+      return data.dataName.indexOf(value) !== -1
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .folderAside {
     width: 200px;
     flex-shrink: 0;
     background-color: white;
     margin-right: 20px;
-    .folder {
-      padding: 0 15px;
-      box-sizing: border-box;
-      cursor: pointer;
-      .folderName {
-        justify-content: space-between;
-        position: relative;
-        .name {
-          align-items: center;
-          .icon-folder {
-            display: inline-block;
-            width: 23px;
-            height: 20px;
-            margin-right: 10px;
-            background-image: url("../../../assets/img/icon_folder.png");
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-          }
-        }
-        .menuList {
-          width: 100px;
-          position: absolute;
-          right: -70px;
-          top: 0;
-          background: #ffffff;
-          border-radius: 5px;
-          border: 1px #ddd solid;
-          z-index: 1;
-          .close {
-            width: 5px;
-            height: 5px;
-            position: relative;
-            top: -8px;
-            right: -80px;
-          }
-        }
-      }
-      .file {
-        justify-content: space-between;
-        padding-left: 40px;
-        box-sizing: border-box;
+    position: relative;
+    .left-search {
+      padding: 0 5px 5px 5px;
+    }
+    .cus-node-content {
+      //display: none;
+      opacity: 0;
+      filter:Alpha(opacity=0);
+      transition: opacity .5s;
+      position: absolute;
+      right: 5px;
+      top: 2px;
+      .el-button {
+        padding: 4px 6px;
       }
     }
-    .button {
-      display: block;
-      margin: 10px auto;
+    .custom-tree-node {
+      width: 84%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      .cus-node-title {
+        color: #606266;
+        font-size: 14px;
+      }
     }
+    .el-tree-node__content {
+      position: relative;
+    }
+    .el-tree-node__content:hover {
+      .cus-node-content {
+        display: inline-block;
+        opacity: 1;
+        filter:Alpha(opacity=100);
+        transition: opacity .5s;
+      }
+    }
+    .el-tree {
+      height: calc(100vh - 299px);
+      overflow: auto;
+      .el-tree-node__expand-icon.expanded {
+        transform: none;
+      }
+      .el-tree-node__expand-icon.expanded:before {
+        content: "\e784";
+      }
+      .el-tree-node__expand-icon {
+        color: #c0c4cc;
+      }
+    }
+  }
+  .el-tabs__content {
+    padding: 0;
+    margin-top: 10px;
+    background: #ffffff;
   }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <Aside :menuList="menuList"></Aside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
@@ -47,11 +47,11 @@
 </template>
 
 <script>
-import Aside from '@/components/olapComponent/common/Aside'
+import FolderAside from '@/components/olapComponent/common/FolderAside'
 import ResultBox from '@/components/olapComponent/common/ResultBox'
 
 export default {
-  components: { Aside, ResultBox },
+  components: { FolderAside, ResultBox },
   data () {
     return {
       search: '',
@@ -96,23 +96,54 @@ export default {
       formLabelWidth: '120px',
       menuList: [
         {
-          title: '交通数据模型',
-          id: '1',
-          row: [
-            { name: '路口违章车辆1', id: '1-1' },
-            { name: '路口违章车辆2', id: '1-2' },
-            { name: '路口违章车辆3', id: '1-3' },
-            { name: '路口违章车辆4', id: '1-4', row: [ { name: '闯红灯', id: '1-4-1' }, { name: '压线', id: '1-4-2' } ] }
-          ]
+          catalogList: [],
+          dataId: 779035117190185,
+          dataName: '测试嵌套报表'
         },
         {
-          title: '交通数据模型',
-          id: '2'
+          catalogList: [ {
+            dataId: 795406468250198,
+            dataName: '东莞中小学成绩报告',
+            dataType: 3,
+            isShare: 1
+          } ],
+          dataId: 796247848830160,
+          dataName: '东莞'
+        },
+        {
+          catalogList: [ {
+            dataId: 795247414460141,
+            dataName: '测试汇总88',
+            dataType: 1,
+            isShare: 1
+          } ],
+          dataId: 776468771050089,
+          dataName: '测试通用报表'
+        },
+        {
+          catalogList: [ {
+            dataId: 795385794900198,
+            dataName: '测试11',
+            dataType: 2,
+            isShare: 1
+          } ],
+          dataId: 777364408760098,
+          dataName: '测试主从报表'
         }
-      ]
+      ],
+      menuDefault: {
+        children: 'catalogList', // 子集的属性
+        label: 'dataName', // 标题的属性
+        disabled: function (resData) {
+          if (resData.isShare === 0) {
+            return false
+          } else {
+            return true
+          }
+        }
+      }
     }
   },
-  component: { Aside },
   methods: {
     handleOpen (key, keyPath) {
       console.log('open', key, keyPath)

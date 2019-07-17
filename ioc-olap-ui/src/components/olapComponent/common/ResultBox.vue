@@ -22,19 +22,20 @@
           </div>
         </div>
         <div class="right">
+          <el-button type="primary" size="mini" v-if="needNew" @click="goNewOlap">新建OLAP分析</el-button>
           <el-button type="primary" size="mini" @click="dialogFormVisible = true">保存结果</el-button>
           <el-button type="primary" size="mini">重新查询</el-button>
           <el-button type="primary" size="mini">导出结果</el-button>
           <el-button type="primary" size="mini">全屏</el-button>
         </div>
       </div>
-      <DynamicTable :theadData="theadData" :tableData="tableData"></DynamicTable>
+      <DynamicTable :theadData="theadData" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
     </div>
   </div>
 </template>
 
 <script>
-import DynamicTable from '@/components/olapComponent/common/DynamicTable'
+import DynamicTable from '../common/DynamicTable'
 
 export default {
   props: {
@@ -49,6 +50,14 @@ export default {
     titleShow: {
       type: Boolean,
       default: false
+    },
+    needNew: {
+      type: Boolean,
+      default: false
+    },
+    diffWidth: {
+      type: Number,
+      default: 536
     }
   },
   components: { DynamicTable },
@@ -57,6 +66,9 @@ export default {
       search: '',
       dialogFormVisible: false
     }
+  },
+  created () {
+    console.info('this.needNew', this.needNew)
   },
   methods: {
     handleOpen (key, keyPath) {
@@ -67,6 +79,9 @@ export default {
     },
     handleSelect (key, keyPath) {
       console.log('select', key, keyPath)
+    },
+    goNewOlap () {
+      this.$router.push('/olapAnalysis/newOlapAnalysis')
     }
   }
 }

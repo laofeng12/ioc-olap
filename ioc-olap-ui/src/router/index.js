@@ -121,6 +121,12 @@ export default new Router({
           name: 'olapAnalysisList',
           meta: { title: 'olap分析' },
           component: () => import('@/views/olap/olapAnalysisList.vue')
+        },
+        {
+          path: 'newOlapAnalysis',
+          name: 'newOlapAnalysis',
+          meta: { title: '新建olap分析' },
+          component: () => import('@/views/olap/olapAnalysis.vue')
         }
       ]
     }

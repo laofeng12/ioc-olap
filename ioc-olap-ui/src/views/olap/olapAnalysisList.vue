@@ -13,41 +13,41 @@
       </el-row>
     </el-aside>
     <div class="cus-right">
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :needNew="true"></ResultBox>
     </div>
 
     <!-- 分享弹窗 -->
-    <!--<share-dialog-->
-      <!--class="share-dialog"-->
-      <!--ref="sdialog"-->
-      <!--title="数据报表"-->
-      <!--topNodeKey="dataId"-->
-      <!--:defaultProps="defaultProps"-->
-      <!--:departTreeProps="departTreeProps"-->
-      <!--:shareDialogData="shareDialogData"-->
-      <!--@clickDepartNode="clickDepartNode"-->
-      <!--bottomNodeKey="orgId"-->
-      <!--@confirmShare="confirmShare"-->
-      <!--:show.sync="isShowSDialog">-->
-    <!--</share-dialog>-->
+    <share-dialog
+      class="share-dialog"
+      ref="sdialog"
+      title="数据报表"
+      topNodeKey="dataId"
+      :defaultProps="defaultProps"
+      :departTreeProps="departTreeProps"
+      :shareDialogData="shareDialogData"
+      @clickDepartNode="clickDepartNode"
+      bottomNodeKey="orgId"
+      @confirmShare="confirmShare"
+      :show.sync="isShowSDialog">
+    </share-dialog>
 
-    <!-- 移动弹窗 -->
-    <!--<move-dialog-->
-      <!--title="移动自助报表"-->
-      <!--:FolderList="DialogFolderList"-->
-      <!--@selectFolder="selectDialogFolder"-->
-      <!--@confirmMove="confirmMove"-->
-      <!--:show.sync="isShowMDialog">-->
-    <!--</move-dialog>-->
+     <!--移动弹窗 -->
+    <move-dialog
+      title="移动自助报表"
+      :FolderList="DialogFolderList"
+      @selectFolder="selectDialogFolder"
+      @confirmMove="confirmMove"
+      :show.sync="isShowMDialog">
+    </move-dialog>
 
   </el-container>
 </template>
 
 <script>
-import FolderAside from '@/components/olapComponent/common/FolderAside1'
-import ResultBox from '@/components/olapComponent/common/ResultBox'
-// import ShareDialog from '../../components/ShareDialog'
-// import MoveDialog from '../../components/MoveDialog'
+import FolderAside from '../../components/olapComponent/common/FolderAside'
+import ResultBox from '../../components/olapComponent/common/ResultBox'
+import ShareDialog from '../../components/ShareDialog'
+import MoveDialog from '../../components/MoveDialog'
 // import StatementTable from '@/components/BITemp/StatementTable'
 // import TableFilter from '../../components/TableFilter'
 // import {
@@ -56,7 +56,7 @@ import ResultBox from '@/components/olapComponent/common/ResultBox'
 // } from '../../api/statement'
 
 export default {
-  components: { FolderAside, ResultBox },
+  components: { FolderAside, ResultBox, ShareDialog, MoveDialog },
   watch: {
     searchKeyword (val) {
       this.$refs.alltree.filter(val)
