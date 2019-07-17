@@ -327,6 +327,7 @@ export default {
         position.x = (width - rectWidth) / 2
         position.y = (height - rectHeight) / 2
       }
+      
 
       return  position
 
@@ -444,7 +445,6 @@ export default {
       } else {
         this.jointList.push(item)
       }
-      console.log(JSON.stringify(this.jointList))
     },
 
     clearElementLink: function (target) {
@@ -454,7 +454,7 @@ export default {
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
         if (ele.attributes.type == 'standard.Link') {
-          if (ele.get('source').id == target.id || ele.get('target'.id == target.id)) {
+          if (ele.get('source').id == target.id || ele.get('target').id == target.id) {
             ele.remove()
           }
         }
