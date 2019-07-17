@@ -106,7 +106,7 @@
           <template>
             <div>
               <el-select v-model="formData.engine" placeholder="请选择">
-                <el-option v-for="item in engineOptions" :key="item.id" :label="item.label" :value="item.id"></el-option>
+                <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
           </template>

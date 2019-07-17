@@ -20,7 +20,7 @@
           <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">
             <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>
           </el-select>
-          <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
+          <!-- <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div> -->
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
@@ -83,7 +83,7 @@ export default {
       },
       linkModal: null,
       linkModalModel: null,
-      jointList: [] //[{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
+      jointList: [] // [{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
     }
   },
   mounted: function () {
@@ -199,10 +199,10 @@ export default {
 
       paper.on('cell:pointermove', (e, d) => {
         // console.log(e)
-        
+
         let attrs = e.model.get('attrs')
 
-        if(attrs.text && attrs.text.filed){ 
+        if (attrs.text && attrs.text.filed) {
           e.model.position(this.filedPosition.x, this.filedPosition.y)
         }
 
@@ -266,6 +266,9 @@ export default {
     },
 
     clickTable (e) {
+      // 存储已选择的表
+      console.log(e, '来了')
+      // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
         e.field = ''
         let rect = this.addRectCell(e)
@@ -310,26 +313,25 @@ export default {
       }
     },
 
-    getCellRamdonPosition(item) {
+    getCellRamdonPosition (item) {
       let rectWidth = item.label.length * 10
       let rectHeight = 30
       let height = this.$refs.myHolder.offsetHeight
       let width = this.$refs.myHolder.offsetWidth
 
       let position = {
-        x: 200 + 30, 
+        x: 200 + 30,
         y: 0,
         width: rectWidth,
         height: rectHeight
       }
 
-      if(item.filed){
+      if (item.filed) {
         position.x = (width - rectWidth) / 2
         position.y = (height - rectHeight) / 2
       }
 
-      return  position
-
+      return position
     },
 
     addRectCell (item, startIdx = 0) {
@@ -338,7 +340,7 @@ export default {
       let rectLength = 0
       let cells = this.graph.getCells()
 
-      if(!this.graph){
+      if (!this.graph) {
         this.graph = new joint.dia.Graph()
       }
 
@@ -373,7 +375,7 @@ export default {
       let source = item.data[0].source
       let target = item.data[0].target
 
-      if(!this.graph){
+      if (!this.graph) {
         this.graph = new joint.dia.Graph()
       }
 
@@ -470,7 +472,6 @@ export default {
       if (target && !target.id) {
         target = null
       }
-
       return {
         source,
         target

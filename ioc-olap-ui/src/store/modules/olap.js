@@ -12,6 +12,8 @@ const common = {
     lastClickTab: '', // 存储最后一次点击的tabID
     saveSelctchckoutone: [],
     saveSelctchckouttwo: [],
+    /* 建立表关系 */
+    savemousedownData: [], // 存储已拖拽的数据
     /* 维度 */
     saveSelectFiled: [], // 存储已选择的维度
     saveSelectFiledTree: [], // 存储已选择的左侧维度菜单
@@ -49,7 +51,7 @@ const common = {
   mutations: {
     GET_TREELIST: (state, data) => {
       state.treeList = data
-    }, 
+    },
     GET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
     },
@@ -176,6 +178,13 @@ const common = {
     setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
+    },
+    /*
+     *建立表关系
+     */
+    // 存储已拖拽到画布的表
+    SaveMousedownData ({ state }, data) {
+      state.savemousedownData.push(data)
     },
     /**
      * 维度步骤

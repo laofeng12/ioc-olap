@@ -12,6 +12,7 @@ const getters = {
   lastClickTab: state => state.olap.lastClickTab,
   saveSelctchckoutone: state => state.olap.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.olap.saveSelctchckouttwo,
+  savemousedownData: state => state.olap.savemousedownData,
   saveSelectFiled: state => state.olap.saveSelectFiled,
   saveSelectFiledTree: state => state.olap.saveSelectFiledTree,
   saveNewSortList: state => state.olap.saveNewSortList,
