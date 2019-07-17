@@ -305,8 +305,12 @@ public class OlapModelingAction extends BaseAction {
 //    }
 
 
-
-
+    @ApiOperation(value = "构建列表:删除JOB")
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @Security(session = true)
+    public void delete(String jobsId) {
+        new JobsAction().delete(jobsId);
+    }
 
 
     //求两个数组的差集
