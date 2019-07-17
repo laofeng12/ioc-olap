@@ -21,8 +21,8 @@ import java.util.HashMap;
 public class TableStructureAction extends KylinAction {
 
     @ApiOperation(value = "获取表结构信息")
-    @RequestMapping(value = "/List", method = RequestMethod.GET)
-    public TableStructureMapper List() {
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public TableStructureMapper list() {
         String url = config.address + "/kylin/api/tables/postman/KYLIN.KYLIN_SALES";
         Class<TableStructureMapper> clazz = (Class<TableStructureMapper>) new TableStructureMapper().getClass();
         TableStructureMapper result = HttpClient.get(url, config.authorization, clazz);
