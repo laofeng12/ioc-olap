@@ -1,6 +1,6 @@
 <template>
   <div class="tableRelation">
-    <div class="containers" @mousemove="mousemove" @mouseup="dragTable()">
+    <div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
@@ -25,11 +25,11 @@
       </div>
       <!-- <task-wark></task-wark> -->
       <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
-      <div class="holder">
+      <div class="holder" ref="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
-        <div class="papers">
-          <div class="halo-cell-layer">
+        <div class="papers" ref="papers">
+          <div class="halo-cell-layer" :style="cellLayerStyle"> 
             <div class="remove" data-type="remove"></div>
             <div class="link" data-type="link"></div>
             <div class="clone" data-type="clone"></div>
@@ -83,6 +83,8 @@ export default {
       },
       linkModal: null,
       linkModalModel: null,
+      cellLayerStyle: '',
+      cellLayerData: null,
       jointList: [] //[{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
     }
   },
@@ -97,7 +99,7 @@ export default {
       this.graph = new joint.dia.Graph()
 
       let paper = new joint.dia.Paper({
-        el: $('#myholder'),
+        el: document.querySelector('#myholder'),
         width: 100 + '%',
         height: 700,
         model: this.graph,
@@ -210,10 +212,9 @@ export default {
       })
 
       $('.papers').on('click', e => {
-        let element = $('.halo-cell-layer').data('element')
+        let element = this.cellLayerData || {}
         let model = element.model
         let position = model.get('position')
-        // let id = element.id
 
         switch (e.target.dataset.type) {
           case 'remove':
@@ -245,9 +246,10 @@ export default {
             break
         }
 
-        $('.halo-cell-layer').hide()
+        this.hideCellLayer()
       })
     },
+    
 
     initJoint () {
       let initTranslate = 0
@@ -282,10 +284,10 @@ export default {
         this.dragRectPosition.x = 0
         this.dragRectPosition.y = 0
       } else if (this.isDragRect && this.dragRectPosition) {
-        let $containers = $('.containers')
-        let $holder = $('.holder')
-        let x = this.dragRectPosition.x - $holder.offset().left + $containers.offset().left
-        let y = this.dragRectPosition.y - $holder.offset().top + $containers.offset().top
+        let containers = this.$refs.containers.getBoundingClientRect()
+        let holder = this.$refs.holder.getBoundingClientRect()
+        let x = this.dragRectPosition.x - holder.left + containers.left
+        let y = this.dragRectPosition.y - holder.top + containers.top
         let rect = this.addRectCell({
           filed: this.dragRectPosition.ifiled,
           id: this.dragRectPosition.id,
@@ -304,7 +306,7 @@ export default {
 
     mousemove (e) {
       if (this.isDragRect && e) {
-        let parentOffset = $('.containers').offset()
+        let parentOffset = this.$refs.containers.getBoundingClientRect()
         this.dragRectPosition.x = e.x - parentOffset.left - 100 / 2
         this.dragRectPosition.y = e.y - parentOffset.top
       }
@@ -333,6 +335,11 @@ export default {
 
     },
 
+    clearCells () {
+      this.jointList = []
+      this.graph.clear()
+    },
+
     addRectCell (item, startIdx = 0) {
       if(!this.graph) this.graph = new joint.dia.Graph()
 
@@ -353,6 +360,10 @@ export default {
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
         let randomPosition = this.getCellRamdonPosition(item)
+
+        if(item.filed){
+          this.clearCells()
+        }
 
         newRect = new joint.shapes.basic.Rect({
           position: {
@@ -500,40 +511,16 @@ export default {
     },
 
     hideCellLayer () {
-      $('.halo-cell-layer').css({
-        display: 'none'
-      })
+      this.cellLayerStyle = ''
     },
 
     showCellLayer (element) {
-      let haloTypes = ['remove', 'link', 'clone', 'resize']
-      let parentOffset = $('.holder').offset()
+      let parentOffset = this.$refs.holder.getBoundingClientRect()
       let rect = element.$el[0].getBoundingClientRect()
       let offset = element.$el.offset()
 
-      let $rect = $('.papers')
-      let $layer = $('.halo-cell-layer')
-
-      $layer.css({
-        display: 'block',
-        position: 'absolute',
-        width: rect.width,
-        height: rect.height,
-        left: offset.left - parentOffset.left,
-        top: offset.top - parentOffset.top,
-        zIndex: '1000'
-      })
-
-      $layer.data('element', element)
-
-      // haloTypes.forEach(haloType => {
-      //   let $item = $('<div class="halo-cell-item"></div>')
-      //   $item.addClass(haloType)
-      //   $layer.append($item)
-
-      // })
-
-      // $rect.append($layer)
+      this.cellLayerData = element
+      this.cellLayerStyle = `display:block;width:${rect.width}px;height:${rect.height}px;left:${offset.left - parentOffset.left}px;top:${offset.top - parentOffset.top}px`
     },
     // 增加关联信息
     addRelation (item) {
@@ -610,6 +597,8 @@ export default {
 
 .halo-cell-layer{
   display none
+  position absolute
+  z-index 100
 }
 
 .papers .remove {
