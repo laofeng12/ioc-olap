@@ -28,11 +28,11 @@
       <div class="holder" ref="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
-        <div class="papers" ref="papers">
+        <div class="papers" ref="papers" @click="papersClick">
           <div class="halo-cell-layer" :style="cellLayerStyle"> 
             <div class="remove" data-type="remove"></div>
             <div class="link" data-type="link"></div>
-            <div class="clone" data-type="clone"></div>
+            <!-- <div class="clone" data-type="clone"></div> -->
             <!-- <div class="resize" data-type="resize"></div> -->
           </div>
         </div>
@@ -47,7 +47,7 @@ import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
 import taskWark from '@/components/olapComponent/common/taskWark'
 import { mapGetters } from 'vuex'
-let $ = require('jquery')
+
 let joint = require('jointjs')
 
 export default {
@@ -96,8 +96,11 @@ export default {
   },
   methods: {
     init () {
-      this.graph = new joint.dia.Graph()
+      let initTranslate = 0
+      let result = []
+      let list = this.jointList || []
 
+      this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
         width: 100 + '%',
@@ -106,12 +109,21 @@ export default {
         gridSize: 1
       })
 
-      this.initJoint()
+      list.forEach(t => {
+        let linkCell = this.addLinkCell(t)
+        result.push(linkCell)
+      })
+
+      this.graph.addCells(result)
+
+      this.bindEvent(paper)
+    },
+
+    bindEvent(paper) {
 
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('blank:pointerup', () => {
         this.hideCellLayer()
-        this.linkList = null
       })
 
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
@@ -211,68 +223,51 @@ export default {
         this.isClick = false
       })
 
-      $('.papers').on('click', e => {
-        let element = this.cellLayerData || {}
-        let model = element.model
-        let position = model.get('position')
-
-        switch (e.target.dataset.type) {
-          case 'remove':
-            this.clearElementLink(model)
-            element.remove()
-            break
-          case 'link':
-            let link = new joint.shapes.standard.Link({
-              source: model,
-              target: { x: position.x, y: position.y - 5 },
-              attrs: {
-                '.marker-target': {
-                  fill: '#333333', // 箭头颜色
-                  d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-                },
-                line: {
-                  stroke: '#333333', // SVG attribute and value
-                  'stroke-width': 0.5// 连线粗细
-                }
-              },
-              router: { name: 'manhattan' }// 设置连线弯曲样式 manhattan直角
-            })
-            this.graph.addCell(link)
-            break
-          case 'clone':
-            let cell = model.clone()
-            cell.translate(50, 50)
-            this.graph.addCell(cell)
-            break
-        }
-
-        this.hideCellLayer()
-      })
     },
-    
-
-    initJoint () {
-      let initTranslate = 0
-      let result = []
-      let list = this.jointList || []
-
-      // let rect2 = rect.clone();
-      // rect2.translate(300);
-
-      list.forEach(t => {
-        let linkCell = this.addLinkCell(t)
-        result.push(linkCell)
-      })
-
-      this.graph.addCells(result)
-    },
-
     clickTable (e) {
       if (e) {
         e.field = ''
         let rect = this.addRectCell(e)
         this.graph.addCell(rect)
       }
+    },
+
+    papersClick(e) {
+      let element = this.cellLayerData || {}
+      let model = element.model
+      let position = model.get('position')
+
+      switch (e.target.dataset.type) {
+        case 'remove':
+          this.clearElementLink(model)
+          element.remove()
+          break
+        case 'link':
+          let link = new joint.shapes.standard.Link({
+            source: model,
+            target: { x: position.x, y: position.y - 5 },
+            attrs: {
+              '.marker-target': {
+                fill: '#333333', // 箭头颜色
+                d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
+              },
+              line: {
+                stroke: '#333333', // SVG attribute and value
+                'stroke-width': 0.5// 连线粗细
+              }
+            },
+            router: { name: 'manhattan' }// 设置连线弯曲样式 manhattan直角
+          })
+          this.graph.addCell(link)
+          break
+        case 'clone':
+          let cell = model.clone()
+          cell.translate(50, 50)
+          this.graph.addCell(cell)
+          break
+      }
+
+      this.hideCellLayer()
     },
 
     dragTable (e) {
@@ -512,6 +507,7 @@ export default {
 
     hideCellLayer () {
       this.cellLayerStyle = ''
+      this.cellLayerData = null
     },
 
     showCellLayer (element) {
