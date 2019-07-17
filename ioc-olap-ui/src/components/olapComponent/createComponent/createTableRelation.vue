@@ -333,14 +333,12 @@ export default {
     },
 
     addRectCell (item, startIdx = 0) {
+      if(!this.graph) this.graph = new joint.dia.Graph()
+
       let isAdd = true
       let newRect = null
       let rectLength = 0
       let cells = this.graph.getCells()
-
-      if(!this.graph){
-        this.graph = new joint.dia.Graph()
-      }
 
       this.getCellRamdonPosition(item)
 
