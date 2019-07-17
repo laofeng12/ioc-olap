@@ -98,7 +98,7 @@
         </div>
         <el-form-item label="过滤设置" class="item_line"></el-form-item>
         <el-table
-          :data="formData.tableData"
+          :data="relaodFilterList"
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
@@ -164,12 +164,11 @@ export default {
   methods: {
     init () {
       this.tableOptions = this.selectTableTotal
-      this.tableData = [...this.relaodFilterList]
+      this.tableData = this.relaodFilterList
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/advancedSet')
-      console.log(this.formData)
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

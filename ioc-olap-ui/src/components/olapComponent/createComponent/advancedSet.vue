@@ -54,34 +54,33 @@
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
-            :data="formData.tableData"
+            :data="tableData"
             ref="multipleTable"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
-            <el-table-column prop="apiName" label="序号" align="center"> </el-table-column>
-            <el-table-column prop="type" label="字段名称" align="center"> </el-table-column>
+            <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
-                <el-form-item :prop="'tableData.' + scope.$index + '.catalogName'" class="selects">
-                  <el-select v-model="scope.row.catalogName" placeholder="请选择">
-                    <el-option v-for="(item, index) in dataType" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                <el-form-item class="selects">
+                  <el-select v-model="scope.row.dataType" placeholder="请选择" @visible-change="codingType(scope.row.dataType)">
+                    <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
-                <div>
-                  <el-input type="text" v-model="scope.row.apiPaths"></el-input>
-                </div>
+                <el-form-item class="selects">
+                  <el-input type="text" v-model="scope.row.mode"></el-input>
+                </el-form-item>
               </template>
             </el-table-column>
             <el-table-column prop="apiPaths" label="碎片区" align="center">
               <template slot-scope="scope">
-                <el-form-item :prop="'tableData.' + scope.$index + '.catalogName'" class="selects">
-                  <el-select v-model="scope.row.catalogName" placeholder="请选择">
-                    <el-option v-for="(item, index) in dataCity" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                <el-form-item class="selects">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
+                    <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
@@ -105,7 +104,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine" placeholder="请选择">
+              <el-select v-model="formData.engine_type" placeholder="请选择">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -140,6 +139,7 @@
 import steps from '@/components/olapComponent/common/steps'
 import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
+import { getLocalStorage } from '@/utils/index'
 export default {
   components: {
     steps, selectAggregation
@@ -155,47 +155,58 @@ export default {
       hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
-        engine: '1',
-        tableData: [
-          { apiName: '111', type: '递归', catalogName: 'string', apiPaths: '' },
-          { apiName: '222', type: '递归', catalogName: 'string', apiPaths: '' },
-          { apiName: '333', type: '递归', catalogName: 'string', apiPaths: '' },
-          { apiName: '444', type: '递归', catalogName: 'string', apiPaths: '' },
-          { apiName: '555', type: '递归', catalogName: 'string', apiPaths: '' }
-        ]
+        engine_type: '1' // 构建引擎
       },
+      tableData: [],
       dimensionData: [{}], // 维度黑白名单
       engineOptions: [ // 模型构建引擎
         { engine: '1', label: 'MapReduce ' },
-        { engine: '2', label: 'MapReduce ' }
+        { engine: '2', label: 'Spark ' }
       ],
       hetComposeData: [], // 高级组合
-      dataType: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      encodingOption: [],
+      isShardByOptions: ['true', 'false'],
+      codingTypeData: {
+        'string': ['date', 'time', 'dict'],
+        'date': ['date', 'time', 'dict'],
+        'double': ['dict'],
+        'varchar': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
+        'number': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
+        'tinyint': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'numeric': ['dict'],
+        'integer': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'real': ['dict'],
+        'float': ['dict'],
+        'smallint': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'datetime': ['date', 'time', 'dict'],
+        'int4': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'char': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
+        'long8': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'time': ['date', 'time', 'dict'],
+        'decimal': ['dict'],
+        'bigint': ['boolean', 'date', 'time', 'dict', 'integer'],
+        'timestamp': ['date', 'time', 'dict']
+      },
       dataCity: []
     }
   },
   mounted () {
+    this.init()
   },
   methods: {
+    init () {
+      let datas = JSON.parse(getLocalStorage('saveSelectFiled'))
+      datas.map(item => {
+        item.column = item.columnName
+        item.encoding = item.encoding ? item.encoding : ''
+        item.isShardBy = item.isShardBy ? item.isShardBy : ''
+        item.length = item.length ? item.length : ''
+      })
+      this.tableData = datas
+    },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/completeCreate')
-      // this.$message.error('暂未开发')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -203,6 +214,14 @@ export default {
     },
     handleSelectionChange (val) {
 
+    },
+    // 选择对应的编码类型
+    codingType (val) {
+      for (let item in this.codingTypeData) {
+        if (val === item) {
+          this.encodingOption = this.codingTypeData[item]
+        }
+      }
     },
     // 添加聚合小组
     addaAggregation () {
@@ -243,19 +262,12 @@ export default {
     removehetComposeData (index) {
       this.savehetComposeData.splice(index, 1)
     },
-    changeUploadNum (val) {
-      console.log(val)
-    },
-    changeDataMany (val) {
-      console.log(val)
-    },
     // 选择维度
     getTotalModal (index, type, findIndex) {
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
     lastGetModal (index, type) {
-      console.log('来了')
       this.$refs.selectFiled.dialog(type, index)
     }
   },
@@ -280,6 +292,10 @@ export default {
   >>>.el-form-item__label{
     width 120px
     text-align left
+  }
+  >>>.el-table__body-wrapper{
+    height 350px
+    overflow-y auto
   }
   .selects{
     margin-bottom 0

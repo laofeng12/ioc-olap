@@ -193,6 +193,7 @@ const common = {
     SaveSelectFiled ({ state }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
+      setLocalStorage('saveSelectFiled', datas) // 存储未分类的数据
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state }, data) {
@@ -260,7 +261,6 @@ const common = {
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
       dispatch('WithidGetList', slectData.data)
-      console.log(slectData, '1111111111111111')
       switch (slectData.type) {
         case 1:
           state.totalSaveList[slectData.index].containData = state.NewDataList

@@ -97,7 +97,6 @@ export default {
       this.$parent.init()
     },
     dialog (data) {
-      console.log('来了', data)
       this.dialogFormVisible = true
       if (data) this.formData = data
     }

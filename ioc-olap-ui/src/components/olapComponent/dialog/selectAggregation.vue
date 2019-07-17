@@ -63,10 +63,6 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      // 判断点击的是否是当前的维度框
-      // if (type !== this.type || index !== this.index || findIndex !== this.findIndex) {
-      //   this.selctCheckData = []
-      // }
       // this.options = this.saveNewSortList
       this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index

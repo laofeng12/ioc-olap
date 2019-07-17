@@ -73,7 +73,7 @@ export default {
       let datalist = this.dataList || []
       for (let i = 0; i < datalist.length; i++) {
         let t = datalist[i]
-        if (t.filed === 1) {
+        if (t.filed) {
           this.isSetFact = true
           this.$parent.clickTable(t)
           break

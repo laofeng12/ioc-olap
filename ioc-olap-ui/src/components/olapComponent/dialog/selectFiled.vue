@@ -43,6 +43,7 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.options = this.saveNewSortList
+      // console.log(JSON.stringify(this.saveNewSortList))
     }
   },
   computed: {
