@@ -29,7 +29,7 @@ export default {
       showTree: true,
       value: '',
       treeList: [],
-      defaultOpenKeys: ['783740920110077'], // 默认展开的key
+      defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -42,18 +42,19 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$on('openDefaultTree', res => {
-      setTimeout(() => {
-        // this.fetchTreeList(this.lastClickTab)
-        this.$root.eventBus.$emit('getserchTableList', this.saveSelectTable, 1)
-        this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable, 1)
-        this.defaultOpenKeys = this.saveSelectTable.map(item => {
-          return item.id
-        })
-      }, 1000)
-    })
+    this.init()
   },
   methods: {
+    init () {
+      this.$root.eventBus.$on('openDefaultTree', res => {
+        setTimeout(() => {
+          this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
+          this.$store.dispatch('changeSerachtype', 1)
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+          this.$root.eventBus.$emit('saveSelectTables')
+        }, 1000)
+      })
+    },
     fetchTreeList (val) {
       this.treeLoading = true
       this.$store.dispatch('GetTreeList').then(res => {
@@ -66,6 +67,8 @@ export default {
           }, 500)
           this.defaultFrist(this.treeList)
         }
+      }).finally(() => {
+        this.treeLoading = false
       })
     },
     // 默认点击第一项的递归计算
@@ -104,17 +107,18 @@ export default {
       this.fetchTree(data.id, node.data.pId)
     },
     fetchTree (id, nodeId) {
-      console.log('调用了', id)
       this.$store.dispatch('GetSerchTable', id).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
+          // 点击时清除其他选择框
+          this.$root.eventBus.$emit('clearSelect')
+          // 存储当前选择数据源
+          this.$store.dispatch('setSerchTable', res)
+          // 存储当前点击的父节点的id
+          this.$store.dispatch('setLastClickTab', nodeId)
+          // 保存选择的数据源数据
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
-        // 点击时清除其他选择框
-        this.$root.eventBus.$emit('clearSelect')
-        // 存储当前选择数据源
-        this.$store.dispatch('setSerchTable', res)
-        // 存储当前点击的父节点的id
-        this.$store.dispatch('setLastClickTab', nodeId)
       })
     }
   },
@@ -122,12 +126,14 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
-      lastClickTab: 'lastClickTab'
+      lastClickTab: 'lastClickTab',
+      serchTableList: 'serchTableList'
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('clearSelect')
+    this.$root.eventBus.$off('saveSelectTables')
   },
   created () {
     this.fetchTreeList(this.lastClickTab)

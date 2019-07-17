@@ -9,7 +9,7 @@
             <local-upload></local-upload>
           </el-tab-pane>
           <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
-            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableCount.length || 0}}</i></span>
+            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
     </div>
@@ -38,24 +38,25 @@ export default {
       this.$refs.dialog.dialog()
     },
     nextModel (val) {
+      if (this.selectTableTotal.length === 0) return this.$message.warning('请选择创建模型的数据源')
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/createTableRelation')
     },
     tabClick (val) {
-      // 推送已选择的复选框按钮到serachTable
-      this.$root.eventBus.$emit('saveSelectTables', this.saveSelectTable, this.saveLocalSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
-        }) && this.$store.dispatch('changeSerachtype', 2)
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
+        }) && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
+        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+      // 推送已选择的复选框按钮到serachTable
+      this.$root.eventBus.$emit('saveSelectTables')
     }
   },
   computed: {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
-      selectTableCount: 'selectTableCount'
+      selectTableTotal: 'selectTableTotal'
     })
   },
   beforeDestroy () {

@@ -22,6 +22,10 @@ export function getSessionStorage (item) {
   return sessionStorage.getItem(item)
 }
 
+export function getLocalStorage (item) {
+  return localStorage.getItem(item)
+}
+
 export function GetQueryString (name) {
   var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
   var r = window.location.search.substr(1).match(reg) // search,查询？后面的参数，并匹配正则
@@ -36,6 +40,55 @@ export function throttle (fn, wait = 500, scope) {
   throttle.timer = setTimeout(function () {
     fn.apply(scope)
   }, wait)
+}
+
+// 去重对象
+export function reduceObj (arr, name) {
+  let obj = {}
+  let arrs = arr.reduce((item, next) => {
+    obj[next[name]] ? '' : obj[next[name]] = true && item.push(next)
+    return item
+  }, [])
+  return arrs
+}
+
+// 过滤分类组合
+export function filterArr (data) {
+  var map = {}
+  var dest = []
+  for (var i = 0; i < data.length; i++) {
+    var ai = data[i]
+    // 根据相同的tableName来进行分类
+    if (!map[ai.tableName]) {
+      dest.push({
+        comment: ai.comment,
+        tableName: ai.tableName,
+        columnName: ai.columnName,
+        filed: ai.filed,
+        list: [ai]
+      })
+      map[ai.tableName] = ai
+    } else {
+      for (var j = 0; j < dest.length; j++) {
+        var dj = dest[j]
+        if (dj.tableName === ai.tableName) {
+          dj.list.push(ai)
+          break
+        }
+      }
+    }
+  }
+  let itemData = []
+  dest.map((item, i) => {
+    let newData = {}
+    newData.columnName = item.columnName
+    newData.comment = item.comment
+    newData.tableName = item.tableName
+    newData.apiPaths = item.apiPaths
+    newData.list = item.list
+    itemData.push(newData)
+  })
+  return itemData
 }
 
 // 图片转为base64
