@@ -115,8 +115,14 @@ export default {
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         flag = item.filed !== 1 ? 1 : 0
       })
-      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
-      this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      if (flag === '1') {
+        this.$message.warning('请选择事实表维度字段')
+      } else {
+        this.$router.push('/olap/createolap/setMeasure')
+        this.$parent.getStepCountAdd(val)
+      }
+      // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      // this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
       this.$router.push('/olap/createolap/createTableRelation')
@@ -131,8 +137,6 @@ export default {
     },
     // 全选功能
     selectAllCheck (rows) {
-      // console.log(rows, '============', this.tableData)
-      // this.$message.warning('暂未开发~')
       let list = {
         list: rows,
         id: this.tableData[0].tableName

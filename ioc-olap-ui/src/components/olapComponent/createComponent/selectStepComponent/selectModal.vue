@@ -61,6 +61,7 @@ export default {
       font-size 13px
       background #009688
       color #ffffff
+      text-align center
       i{
         float right
         margin-top 8px

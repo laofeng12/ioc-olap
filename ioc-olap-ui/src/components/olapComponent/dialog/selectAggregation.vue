@@ -5,10 +5,9 @@
         <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
-            <el-checkbox-group ref="group" v-model="selctCheckData" true-label="false">
-              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item.id">{{item.columnName}}</el-checkbox-button>
+            <el-checkbox-group ref="group" v-model="selctCheckData">
+              <el-checkbox-button v-for="(item, index) in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
-            <!-- <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag> -->
           </div>
         </div>
       </div>
@@ -22,6 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getLocalStorage } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -39,8 +39,9 @@ export default {
         { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: [ { comment: '啦啦啦啦', columnName: 'lalalala3' }, { comment: '啦啦啦啦', columnName: 'lalalala33' } ] },
         { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: [ { comment: '啦啦啦啦', columnName: 'lalalala4' }, { comment: '啦啦啦啦', columnName: 'lalalala44' } ] }
       ],
+      index: '',
       type: '',
-      is: ''
+      findIndex: ''
     }
   },
   methods: {
@@ -48,29 +49,47 @@ export default {
       this.dialogFormVisible = false
     },
     selectChange (value) {
+      console.log(this.selctCheckData, '啦啦啦啦啦')
     },
     submitBtn (index) {
       this.dialogFormVisible = false
       let slectData = {
         data: this.selctCheckData,
-        type: this.type
+        index: this.index,
+        type: this.type,
+        findIndex: this.findIndex
       }
       this.$store.dispatch('SaveAggregationWD', slectData)
-
-      this.$parent.init()
     },
-    dialog (data, type, is) {
+    dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      // 判断点击的是否是当前的维度框
-      if (type !== this.type) {
-        this.selctCheckData = []
-      }
-      // if (is === this.is || type !== this.type) {
-      //   this.selctCheckData = []
-      // }
       // this.options = this.saveNewSortList
+      this.options = JSON.parse(getLocalStorage('saveNewSortList'))
+      this.index = index
       this.type = type
-      this.is = is
+      this.findIndex = findIndex
+      switch (type) {
+        case 1:
+          this.selctCheckData = this.selectDataidList[this.index].containDataId
+          break
+        case 2:
+          this.selctCheckData = this.selectDataidList[this.index].necessaryDataId
+          break
+        case 3:
+          this.selctCheckData = this.selectDataidList[this.index].levelDataId[this.findIndex]
+          break
+        case 4:
+          this.selctCheckData = this.selectDataidList[this.index].jointDataId[this.findIndex]
+          break
+        case 5:
+          this.selctCheckData = this.savedimensionDataId[this.index]
+          break
+        case 6:
+          this.selctCheckData = this.savehetComposeDataId[this.index]
+          break
+        default:
+          break
+      }
     },
     resetsData () {
       this.selctCheckData = []
@@ -78,7 +97,14 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortList: 'saveNewSortList',
+      selectDataidList: 'selectDataidList',
+      containDataId: 'containDataId',
+      necessaryDataId: 'necessaryDataId',
+      levelDataId: 'levelDataId',
+      jointDataId: 'jointDataId',
+      savedimensionDataId: 'savedimensionDataId',
+      savehetComposeDataId: 'savehetComposeDataId'
     })
   }
 }

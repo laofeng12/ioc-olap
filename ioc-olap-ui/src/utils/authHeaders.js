@@ -9,7 +9,6 @@ export function getAuthHeaders () {
   // }
   // 暂时写死
   const currentNamespace = 'ioc-paas-platform'
-
   const accessToken = getToken()
   const headers = {}
   const userInfo = store.getters.userInfo
