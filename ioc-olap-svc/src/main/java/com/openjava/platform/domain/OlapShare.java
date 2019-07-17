@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("文件夹表")
+@ApiModel("分享")
 @Entity
 @Table(name = "OLAP_SHARE")
 public class OlapShare implements Persistable<Long>,Serializable {

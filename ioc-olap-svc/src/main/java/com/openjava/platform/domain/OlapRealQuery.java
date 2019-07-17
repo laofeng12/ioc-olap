@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("文件夹表")
+@ApiModel("即时查询")
 @Entity
 @Table(name = "OLAP_REAL_QUERY")
 public class OlapRealQuery implements Persistable<Long>,Serializable {

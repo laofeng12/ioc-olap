@@ -19,29 +19,35 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("立方体")
+@ApiModel("OLAP分析")
 @Entity
-@Table(name = "OLAP_CUBE")
-public class OlapCube implements Persistable<Long>,Serializable {
+@Table(name = "OLAP_ANALYZE")
+public class OlapAnalyze implements Persistable<Long>,Serializable {
 	
-	@ApiModelProperty("主键ID")
+	@ApiModelProperty("ID")
 	private Long id;
-	@ApiModelProperty("立方体名称")
+	@ApiModelProperty("NAME")
 	private String name;
-	@ApiModelProperty("描述")
-	private String remark;
-	@ApiModelProperty("创建时间")
+	@ApiModelProperty("FOLDER_ID")
+	private Long folderId;
+	@ApiModelProperty("CREATE_TIME")
 	private Date createTime;
-	@ApiModelProperty("创建人id")
+	@ApiModelProperty("CREATE_ID")
 	private Long createId;
-	@ApiModelProperty("创建人名称")
+	@ApiModelProperty("CREATE_NAME")
 	private String createName;
-	@ApiModelProperty("更新时间")
-	private Date updateTime;
-	@ApiModelProperty("更新人id")
+	@ApiModelProperty("UPDATE_ID")
 	private Long updateId;
-	@ApiModelProperty("更新人名称")
+	@ApiModelProperty("UPDATE_TIME")
+	private Date updateTime;
+	@ApiModelProperty("UPDATE_NAME")
 	private String updateName;
+	@ApiModelProperty("FLAGS")
+	private Integer flags;
+	@ApiModelProperty("sql")
+	private String sql;
+	@ApiModelProperty("立方体id")
+	private Long cubeId;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -76,10 +82,10 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	
 	@Id
 	@Column(name = "ID")
-	public Long getCubeId() {
+	public Long getAnalyzeId() {
 		return id;
 	}
-	public void setCubeId(Long id) {
+	public void setAnalyzeId(Long id) {
 		this.id = id;
 	}
 	
@@ -93,12 +99,12 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	}
 	
 
-	@Column(name = "REMARK")
-	public String getRemark() {
-		return remark;
+	@Column(name = "FOLDER_ID")
+	public Long getFolderId() {
+		return folderId;
 	}
-	public void setRemark(String remark) {
-		this.remark = remark;
+	public void setFolderId(Long folderId) {
+		this.folderId = folderId;
 	}
 	
 	
@@ -131,6 +137,15 @@ public class OlapCube implements Persistable<Long>,Serializable {
 		this.createName = createName;
 	}
 	
+
+	@Column(name = "UPDATE_ID")
+	public Long getUpdateId() {
+		return updateId;
+	}
+	public void setUpdateId(Long updateId) {
+		this.updateId = updateId;
+	}
+	
 	
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
@@ -144,15 +159,6 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	}
 	
 
-	@Column(name = "UPDATE_ID")
-	public Long getUpdateId() {
-		return updateId;
-	}
-	public void setUpdateId(Long updateId) {
-		this.updateId = updateId;
-	}
-	
-
 	@Column(name = "UPDATE_NAME")
 	public String getUpdateName() {
 		return updateName;
@@ -161,4 +167,28 @@ public class OlapCube implements Persistable<Long>,Serializable {
 		this.updateName = updateName;
 	}
 	
+
+	@Column(name = "FLAGS")
+	public Integer getFlags() {
+		return flags;
+	}
+	public void setFlags(Integer flags) {
+		this.flags = flags;
+	}
+
+	@Column(name = "SQL")
+	public String getSql() {
+		return sql;
+	}
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	@Column(name = "CUBE_ID")
+	public Long getCubeId() {
+		return cubeId;
+	}
+	public void setCubeId(Long cubeId) {
+		this.cubeId = cubeId;
+	}
 }

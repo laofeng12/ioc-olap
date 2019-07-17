@@ -1,12 +1,11 @@
 package com.openjava.platform.repository;
 
-import com.openjava.platform.domain.OlapCubeTableColumn;
+import com.openjava.platform.domain.OlapAnalyzeAxis;
 import org.ljdp.core.spring.data.DynamicJpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,9 +13,7 @@ import java.util.List;
  * @author xiepc
  *
  */
-public interface OlapCubeTableColumnRepository extends DynamicJpaRepository<OlapCubeTableColumn, Long>, OlapCubeTableColumnRepositoryCustom{
+public interface OlapAnalyzeAxisRepository extends DynamicJpaRepository<OlapAnalyzeAxis, Long>, OlapAnalyzeAxisRepositoryCustom{
 
-    ArrayList<OlapCubeTableColumn> findByTableId(Long cubeTableId);
-
-    List<OlapCubeTableColumn> findByCubeId(Long id);
+    List<OlapAnalyzeAxis> findByAnalyzeId(Long id);
 }
