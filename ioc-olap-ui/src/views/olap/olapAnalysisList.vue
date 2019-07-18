@@ -13,7 +13,7 @@
       </el-row>
     </el-aside>
     <div class="cus-right">
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :needNew="true"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" showType="needNew"></ResultBox>
     </div>
 
     <!-- 分享弹窗 -->

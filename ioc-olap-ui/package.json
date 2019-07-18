@@ -26,6 +26,7 @@
     "sortablejs": "^1.10.0-rc3",
     "vue": "^2.6.6",
     "vue-codemirror": "^4.0.6",
+    "vue-fullscreen": "^2.1.5",
     "vue-router": "^3.0.1",
     "vue-task-node": "^1.3.3",
     "vuedraggable": "^2.23.0",

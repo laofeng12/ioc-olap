@@ -3,19 +3,20 @@
     <OlapAside></OlapAside>
     <div class="olapTable">
       <div class="top">
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-          <el-form-item label="活动名称" prop="name">
-            <el-input v-model="ruleForm.name"></el-input>
-          </el-form-item>
-          <el-form-item label="活动区域" prop="folder">
-            <el-select v-model="ruleForm.folder" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" :inline="true">
+          <el-form-item class="form-item" label="文件夹" prop="folder">
+            <el-select v-model="ruleForm.folder" placeholder="请选择文件夹">
+              <el-option label="文件夹1" value="1"></el-option>
+              <el-option label="文件夹2" value="2"></el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item class="form-item" label="文件名称" prop="name">
+            <el-input v-model="ruleForm.name" placeholder="请输入文件名称"></el-input>
           </el-form-item>
         </el-form>
       </div>
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :diffWidth="736"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :diffWidth="736"
+                 showType="isAnalysis"></ResultBox>
     </div>
   </div>
 </template>
@@ -44,26 +45,12 @@ export default {
       theadData: [
         { prop: 'column1', label: '日期' },
         { prop: 'column2', label: '姓名' },
-        { prop: 'column3', label: '地址' },
-        { prop: 'column4', label: '日期' },
-        { prop: 'column5', label: '姓名' },
         { prop: 'column6', label: '地址' }
       ],
       tableData: [
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
+        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' },
+        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' },
+        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' }
       ],
     }
   },
@@ -75,7 +62,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  /*.olapTable {*/
-    /*width: calc(100vh - 400px);*/
-  /*}*/
+  .olapTable {
+    .top {
+      .form-item {
+        width: 300px;
+        margin-right: 30px;
+      }
+    }
+  }
 </style>

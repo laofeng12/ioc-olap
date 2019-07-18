@@ -1,2 +1,4 @@
 @import './global.scss';
 @import './reset-element-ui.scss';
+@import "./scrollbar.scss";
+@include scrollbar;
