@@ -11,13 +11,16 @@ import com.openjava.platform.api.kylin.ProjectAction;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.domain.OlapCubeTableColumn;
+import com.openjava.platform.domain.OlapCubeTableRelation;
 import com.openjava.platform.mapper.kylin.*;
 import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapCubeTableColumnService;
+import com.openjava.platform.service.OlapCubeTableRelationService;
 import com.openjava.platform.service.OlapCubeTableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.aspectj.weaver.ast.Var;
 import org.ljdp.component.result.BasicApiResponse;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -50,6 +53,10 @@ public class OlapModelingAction extends BaseAction {
 
     @Resource
     private OlapCubeTableColumnService olapCubeTableColumnService;
+
+    @Resource
+    private OlapCubeTableRelationService olapCubeTableRelationService;
+
 
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.POST)
@@ -123,24 +130,21 @@ public class OlapModelingAction extends BaseAction {
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
 
-        ModelsMapper modesList = new ModelsAction().create(models);
-        CubeDescMapper cubeList = new CubeAction().create(cube);
+//        ModelsMapper modesList = new ModelsAction().create(models);
+//        CubeDescMapper cubeList = new CubeAction().create(cube);
 
         Date date = new Date();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-
         //保存OLAP_CUBE表
         Long cubeId = saveCube(cube, date, userVO);
 
         //保存OLAP_CUBE_TABLE表
-        saveCubeTable(models, date, userVO, cubeId);
+        saveCubeTable(models, cube, date, userVO, cubeId);
 
-        //保存OLAP_CUBE_TABLE_COLUMN表
-        saveCubeTableColumn(cube, date, userVO, cubeId);
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("ModesList", modesList);
-        paramMap.put("CubeList", cubeList);
+//        paramMap.put("ModesList", modesList);
+//        paramMap.put("CubeList", cubeList);
         return paramMap;
     }
 
@@ -165,52 +169,123 @@ public class OlapModelingAction extends BaseAction {
     }
 
     //保存OLAP_CUBE_TABLE表
-    public void saveCubeTable(ModelsMapper models, Date date, OaUserVO userVO, Long cubeId) {
-        ModelsDescDataMapper modelDescData = models.getModelDescData();
-        for (LookupsMapper lm : modelDescData.getLookups()) {
+    public void saveCubeTable(ModelsMapper models, CubeDescMapper cube, Date date, OaUserVO userVO, Long cubeId) {
+        ModelsDescDataMapper modelDescData = models.modelDescData;
 
+        CubeDescDataMapper cubeDescData = cube.getCubeDescData();
+        SequenceService ss = ConcurrentSequence.getInstance();
+        List<OlapCubeTable> cubeTablesList = null;
+
+        //取到事实表
+        String factTable = modelDescData.getFact_table();
+
+        //取到cube维度信息cubeDescData
+        ArrayList<DimensionMapper> dimensions = cube.cubeDescData.getDictionaries();
+
+        for (LookupsMapper lm : modelDescData.getLookups()) {
+            String libraryName = lm.getTable().substring(0, lm.getTable().indexOf("."));
             OlapCubeTable cubeTable = new OlapCubeTable();
-//            cubeTable.setName("");//表中文名称
+
+//            cubeTable.setCubeId(ss.getSequence());
+            cubeTable.setName(lm.getAlias());//表中文名称
             cubeTable.setCubeId(cubeId);//立方体ID
             cubeTable.setTableName(lm.getTable());//表名称
             cubeTable.setTableAlias(lm.getAlias());//表别名
-            cubeTable.setJoinType(lm.join.getType());//关联类型 left join 或者 inner join
-//            cubeTable.setIsDict("");//是否是事实表
-//            cubeTable.setJoinTable("");//关联表名
-//            cubeTable.setPkKey("");//主键列名称
-//            cubeTable.setFkKey("");//外键列名称
-//            cubeTable.setPkDataType("");//主键数据类型
-//            cubeTable.setFkDataType("");//外键数据类型
-//            cubeTable.setRemark("");//备注
-//            cubeTable.setIsDict();//数据库名称
+            cubeTable.setIsDict(lm.getTable() == factTable ? 1 : 0);//是否是事实表
+            cubeTable.setDatabaseName(libraryName);//数据库名称
+            cubeTable.setIsNew(true);
             olapCubeTableService.doSave(cubeTable);
+            cubeTablesList.add(cubeTable);
         }
+        //保存OLAP_CUBE_TABLE_COLUMN表
+        saveCubeTableColumn(cube, date, userVO, cubeId, cubeTablesList);
+
+        //保存OLAP_CUBE_TABLE_RELATION表
+        saveCubeTableRelation(models, date, userVO, cubeId, cubeTablesList);
     }
 
     //保存OLAP_CUBE_TABLE_COLUMN表
-    public void saveCubeTableColumn(CubeDescMapper cube, Date date, OaUserVO userVO, Long cubeId) {
+    public void saveCubeTableColumn(CubeDescMapper cube, Date date, OaUserVO userVO, Long cubeId, List<OlapCubeTable> dmEntity) {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
+        SequenceService ss = ConcurrentSequence.getInstance();
+
+
+        for (DimensionMapper mm : cubeDescData.getDimensions()) {
+            Optional<OlapCubeTable> dmCube = dmEntity.stream()
+                    .filter(p -> p.getTableAlias().equals(mm.getTable())).findFirst();//mm只有一个getTable 不知道是别名还是表名
+            if (dmCube.isPresent()) {
+                String expression = "";
+                OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
+                CubeTableColumn.setName(mm.getName());//列中文名称
+                CubeTableColumn.setCubeId(cubeId);//立方体ID
+                CubeTableColumn.setTableId(dmCube.get().getId());//表ID
+                CubeTableColumn.setColumnName(mm.getRealName());//列名称
+                CubeTableColumn.setColumnAlias(mm.getName());//列别名
+                CubeTableColumn.setIsNew(true);
+                //CubeTableColumn.setExpressionType();//表达式类型max、min、sum
+                CubeTableColumn.setExpressionFull("{0}.{1}");//完整表达式
+                olapCubeTableColumnService.doSave(CubeTableColumn);
+            }
+        }
+
+
         for (MeasureMapper mm : cubeDescData.getMeasures()) {
-            OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
-//            CubeTableColumn.setName("");//列中文名称
-//            CubeTableColumn.setCubeId(cubeId);//立方体ID
-//            CubeTableColumn.setTableId();//表ID
-//            CubeTableColumn.setColumnName();//列名称
-//            CubeTableColumn.setColumnAlias("");//列别名
-//            CubeTableColumn.setExpressionType(mm.function.parameter.getType());//表达式类型max、min、sum
-//            CubeTableColumn.setExpressionFull("");//完整表达式
-//            olapCubeTableColumnService.doSave(CubeTableColumn);
+            String tableName = mm.function.parameter.getValue();
+            Optional<OlapCubeTable> dmCube = dmEntity.stream()
+                    .filter(p -> p.getTableName().equals(tableName)).findFirst();
+
+            if (dmCube.isPresent()) {
+                OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
+//                CubeTableColumn.setName(mm.getName());//列中文名称
+                CubeTableColumn.setCubeId(cubeId);//立方体ID
+                CubeTableColumn.setTableId(dmCube.get().getId());//表ID
+//                CubeTableColumn.setColumnName(mm.getRealName());//列名称
+                CubeTableColumn.setColumnAlias(mm.function.parameter.getValue());//列别名
+                CubeTableColumn.setIsNew(true);
+
+                String expression = mm.function.getExpression() + "({0}.{1}) as {2}";
+
+                CubeTableColumn.setExpressionType(mm.function.getExpression());//表达式类型max、min、sum
+                CubeTableColumn.setExpressionFull(expression);//完整表达式
+                olapCubeTableColumnService.doSave(CubeTableColumn);
+            }
         }
     }
 
-    //TABLE_ID                  源表id
-    //JOIN_TABLE_ID             关联表ID
-    //JOIN_TYPE                 关联类型
-    //PK_KEY                    主键列名称
-    //FK_KEY                    外键列名称
-    //PK_DATA_TYPE              主键数据类型
-    //FK_DATA_TYPE              外键数据类型
-    //CUBE_ID                   立方体ID
+
+    //保存OLAP_CUBE_TABLE_RELATION表
+    public void saveCubeTableRelation(ModelsMapper models, Date date, OaUserVO userVO, Long cubeId, List<OlapCubeTable> dmEntity) {
+        ArrayList<LookupsMapper> modelDescData = models.modelDescData.getLookups();
+        SequenceService ss = ConcurrentSequence.getInstance();
+
+
+        for (LookupsMapper lm : modelDescData) {
+            OlapCubeTableRelation Relation = new OlapCubeTableRelation();
+
+            String Primary_key = StringUtils.join(lm.join.getPrimary_key(), ",");
+            String Foreign_key = StringUtils.join(lm.join.getForeign_key(), ",");
+            String Pk_type = StringUtils.join(lm.join.getPk_type(), ",");
+            String Fk_type = StringUtils.join(lm.join.getFk_type(), ",");
+
+            Optional<OlapCubeTable> tableId = dmEntity.stream()
+                    .filter(p -> p.getTableName().equals(lm.getTable())).findFirst();
+
+            Optional<OlapCubeTable> joinTableId = dmEntity.stream()
+                    .filter(p -> p.getTableName().equals(lm.getJoinTable())).findFirst();
+
+
+            Relation.setId(ss.getSequence());
+            Relation.setTableId(joinTableId.get().getId()); //源表id
+            Relation.setJoinTableId(tableId.get().getId()); //关联表ID
+            Relation.setJoinType(lm.join.getType());            //关联类型
+            Relation.setPkKey(Primary_key);                     //主键列名称
+            Relation.setFkKey(Foreign_key);                     //外键列名称
+            Relation.setPkDataType(Pk_type);                    //主键数据类型
+            Relation.setFkDataType(Fk_type);                    //外键数据类型
+            Relation.setCubeId(cubeId);                         //立方体ID
+            olapCubeTableRelationService.doSave(Relation);
+        }
+    }
 
 
 //    @ApiOperation(value = "立方体:重命名")
