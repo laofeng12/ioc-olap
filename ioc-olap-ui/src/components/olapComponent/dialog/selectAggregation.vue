@@ -49,7 +49,7 @@ export default {
       this.dialogFormVisible = false
     },
     selectChange (value) {
-      console.log(this.selctCheckData, '啦啦啦啦啦')
+      // console.log(this.selctCheckData, '啦啦啦啦啦')
     },
     submitBtn (index) {
       this.dialogFormVisible = false
@@ -63,7 +63,6 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      console.log(this.saveNewSortList)
       this.options = this.saveNewSortList
       // this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index

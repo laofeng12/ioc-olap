@@ -141,6 +141,7 @@ export default {
         id: this.tableData[0].tableName
       }
       rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
+      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
     },
     selectFiled () {
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
