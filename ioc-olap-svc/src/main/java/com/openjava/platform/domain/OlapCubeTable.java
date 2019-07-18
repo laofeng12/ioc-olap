@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("文件夹表")
+@ApiModel("立方体表")
 @Entity
 @Table(name = "OLAP_CUBE_TABLE")
 public class OlapCubeTable implements Persistable<Long>,Serializable {
@@ -35,22 +35,9 @@ public class OlapCubeTable implements Persistable<Long>,Serializable {
 	@ApiModelProperty("表别名")
 	private String tableAlias;
 	@ApiModelProperty("是否是事实表")
-	private Long isDict;
-	@ApiModelProperty("关联表名")
-	private String joinTable;
-	@ApiModelProperty("关联类型 left join 或者 inner join")
-	private String joinType;
-	@ApiModelProperty("主键列名称")
-	private String pkKey;
-	@ApiModelProperty("外键列名称")
-	private String fkKey;
-	@ApiModelProperty("主键数据类型")
-	private String pkDataType;
-	@ApiModelProperty("外键数据类型")
-	private String fkDataType;
-	@ApiModelProperty("备注")
-	private String remark;
-	
+	private Integer isDict;
+	@ApiModelProperty("数据库名称")
+	private String databaseName;
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
 	
@@ -129,74 +116,19 @@ public class OlapCubeTable implements Persistable<Long>,Serializable {
 	
 
 	@Column(name = "IS_DICT")
-	public Long getIsDict() {
+	public Integer getIsDict() {
 		return isDict;
 	}
-	public void setIsDict(Long isDict) {
+	public void setIsDict(Integer isDict) {
 		this.isDict = isDict;
 	}
 	
 
-	@Column(name = "JOIN_TABLE")
-	public String getJoinTable() {
-		return joinTable;
+	@Column(name = "DATABASE_NAME")
+	public String getDatabaseName() {
+		return databaseName;
 	}
-	public void setJoinTable(String joinTable) {
-		this.joinTable = joinTable;
+	public void setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
 	}
-	
-
-	@Column(name = "JOIN_TYPE")
-	public String getJoinType() {
-		return joinType;
-	}
-	public void setJoinType(String joinType) {
-		this.joinType = joinType;
-	}
-	
-
-	@Column(name = "PK_KEY")
-	public String getPkKey() {
-		return pkKey;
-	}
-	public void setPkKey(String pkKey) {
-		this.pkKey = pkKey;
-	}
-	
-
-	@Column(name = "FK_KEY")
-	public String getFkKey() {
-		return fkKey;
-	}
-	public void setFkKey(String fkKey) {
-		this.fkKey = fkKey;
-	}
-	
-
-	@Column(name = "PK_DATA_TYPE")
-	public String getPkDataType() {
-		return pkDataType;
-	}
-	public void setPkDataType(String pkDataType) {
-		this.pkDataType = pkDataType;
-	}
-	
-
-	@Column(name = "FK_DATA_TYPE")
-	public String getFkDataType() {
-		return fkDataType;
-	}
-	public void setFkDataType(String fkDataType) {
-		this.fkDataType = fkDataType;
-	}
-	
-
-	@Column(name = "REMARK")
-	public String getRemark() {
-		return remark;
-	}
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
-	
 }

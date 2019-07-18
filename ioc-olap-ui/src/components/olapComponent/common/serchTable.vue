@@ -28,60 +28,64 @@ export default {
       loading: false,
       defaultKey: [],
       dataList: [{
+        // id: 1,
         label: '全选',
         children: []
       }]
     }
   },
   mounted () {
-    // 接收数据湖传递的信息
-    this.$root.eventBus.$on('getserchTableList', res => {
-      this.dataList[0].children = []
-      this.loading = true
-      if (res.code === 200) {
-        res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
-        setTimeout(() => { this.loading = false }, 300)
-      }
-    })
-    // 接收本地上传传递的信息
-    this.$root.eventBus.$on('getUploadTable', res => {
-      this.dataList[0].children = []
-      this.loading = true
-      if (res.code === 200) {
-        res.rows.map(res => {
-          this.dataList[0].children.push({
-            id: res.dsUploadTableId,
-            label: res.tableCode
-          })
-        })
-        if (this.dataList[0].children.length < 1) {
-          this.$refs.trees.setCheckedKeys([])
-        }
-        setTimeout(() => { this.loading = false }, 300)
-      }
-    })
-    // 接收已选择的复选框数据
-    this.$root.eventBus.$on('saveSelectTables', (res1, res2, type) => {
-      this.defaultKey = []
-      this.$refs.trees.setCheckedKeys([])
-      if (this.$store.state.common.searchType === 1) {
-        this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
-      } else {
-        this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
-      }
-      setTimeout(() => {
-        this.loading = false
-        this.defaultKey = [...new Set(this.defaultKey)]
-      }, 500)
-    })
-    // 重置复选框
-    this.$root.eventBus.$on('clearSelect', _ => {
-      this.$refs.trees.setCheckedKeys([])
-    })
+    this.init()
   },
   methods: {
+    init () {
+      // 接收数据湖传递的信息
+      this.$root.eventBus.$on('getserchTableList', res => {
+        this.dataList[0].children = []
+        this.loading = true
+        if (res.code === 200) {
+          res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
+          setTimeout(() => { this.loading = false }, 300)
+        }
+      })
+      // 接收本地上传传递的信息
+      this.$root.eventBus.$on('getUploadTable', res => {
+        this.dataList[0].children = []
+        this.loading = true
+        if (res.code === 200) {
+          res.rows.map(res => {
+            this.dataList[0].children.push({
+              id: res.dsUploadTableId,
+              label: res.tableCode
+            })
+          })
+          if (this.dataList[0].children.length < 1) {
+            this.$refs.trees.setCheckedKeys([])
+          }
+          setTimeout(() => { this.loading = false }, 300)
+        }
+      })
+      // 接收已选择的复选框数据
+      this.$root.eventBus.$on('saveSelectTables', _ => {
+        // this.defaultKey = []
+        this.$refs.trees.setCheckedKeys([])
+        if (this.$store.state.olap.searchType === 1) {
+          this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
+        } else {
+          this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
+        }
+        setTimeout(() => {
+          this.loading = false
+          this.defaultKey = [...new Set(this.defaultKey)]
+        }, 500)
+      })
+      // 重置复选框
+      this.$root.eventBus.$on('clearSelect', _ => {
+        this.$refs.trees.setCheckedKeys([])
+      })
+    },
     handleNodeClick (value) {
-      let searchType = this.$store.state.common.searchType
+      let searchType = this.$store.state.olap.searchType
       let dsDataSourceId = searchType === 1 ? 10 : 2
       let dbType = searchType === 1 ? 3 : 0
       let tableName = value.label
@@ -125,18 +129,21 @@ export default {
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      this.$store.state.common.searchType === 1
+      this.$store.state.olap.searchType === 1
         ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
         : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
       // 设置已选择的数据表的数量
-      this.$store.dispatch('setSelectTableCount')
+      this.$store.dispatch('setSelectTableTotal')
     }
   },
   computed: {
     ...mapGetters({
+      treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
       saveSelctchckoutone: 'saveSelctchckoutone',
-      saveSelctchckouttwo: 'saveSelctchckouttwo'
+      saveSelctchckouttwo: 'saveSelctchckouttwo',
+      serchTableList: 'serchTableList'
+
     })
   },
   beforeDestroy () {
@@ -145,6 +152,7 @@ export default {
     this.$root.eventBus.$off('getLocalTableHeadList')
     this.$root.eventBus.$off('getTableContentList')
     this.$root.eventBus.$off('getLocalTableContentList')
+    this.$root.eventBus.$off('saveSelectTables')
   }
 }
 </script>

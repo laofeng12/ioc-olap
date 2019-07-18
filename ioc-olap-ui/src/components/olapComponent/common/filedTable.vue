@@ -8,6 +8,7 @@
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
+         <span v-if="item.filed === 1">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -18,7 +19,6 @@
 <script>
 import setfactTable from '@/components/olapComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 export default {
   components: {
     setfactTable
@@ -32,34 +32,29 @@ export default {
     }
   },
   mounted () {
-    // 接收设置表关系的数据
-    this.$root.eventBus.$on('createTable', res => {
-      res && res.map(res => {
-        this.dataList.push({
-          id: res.id,
-          label: res.label
-        })
-      })
-      setTimeout(() => { this.loading = false }, 300)
-    })
-    // 接收已选择的表
-    this.$root.eventBus.$on('tableNameActive', _ => {
-      setTimeout(() => {
-        console.log(this.saveSelectFiled)
-        let reduceObjs = reduceObj(this.saveSelectFiled, 'tableName')
-        this.dataList.forEach((item, index) => {
-          reduceObjs.forEach((n, i) => {
-            if (item.label === n.tableName) {
-              item['isActive'] = 1
-            }
-          })
-        })
-        this.dataList = reduceObj(this.dataList, 'label')
-        console.log(this.dataList)
-      }, 300)
-    })
+    this.init()
   },
   methods: {
+    init () {
+    // 初始化已选择的表
+      setTimeout(() => { this.changeLi(this.dataList[0], 0) }, 300)
+      // 接收设置表关系的数据
+      this.dataList = this.selectTableTotal
+      // 接收已选择的表
+      this.$root.eventBus.$on('tableNameActive', _ => {
+        setTimeout(() => {
+          this.dataList.forEach((item, index) => {
+            this.saveSelectFiled.forEach((n, i) => {
+              if (item.label === n.tableName) {
+                item['isActive'] = 1
+              }
+            })
+          })
+          // 存储已选择后的维度表
+          this.$store.dispatch('saveSelectFiledTree', this.dataList)
+        }, 300)
+      })
+    },
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
@@ -70,15 +65,16 @@ export default {
         tableName: item.label
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
-        let datas = []
-        res.data.map(n => {
-          datas.push({
-            comment: n.comment,
-            columnName: n.columnName,
-            tableName: item.label
-          })
+        res.data.map((n, i) => {
+          n.mode = n.mode ? n.mode : '2'
+          n.apiPaths = n.apiPaths ? n.apiPaths : ''
+          n.tableName = item.label
+          n.filed = item.filed
+          n.id = `${item.label}${i}`
         })
-        this.$root.eventBus.$emit('filedTable', datas, res.code)
+        // 存储选择对应的表
+        this.$store.dispatch('SaveRightTableList', res.data)
+        this.$root.eventBus.$emit('filedTable', res.data, res.code)
       })
     }
   },
@@ -87,7 +83,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectFiled: 'saveSelectFiled',
+      saveSelectFiledTree: 'saveSelectFiledTree'
     })
   }
 }
@@ -95,10 +93,10 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  min-width 200px
-  width 200px
+  max-width 230px
+  // width 200px
   float left
-  padding 0 25px
+  // padding 0 25px
   border-right 1px solid #f0f0f0
   height calc(100vh - 100px)
   overflow auto
@@ -108,6 +106,13 @@ export default {
       height 30px
       line-height 30px
       color #000000
+      span{
+        background #009688
+        color #ffffff
+        padding 2px 6px
+        font-size 10px
+        border-radius 3px
+      }
     }
     .actives{
       color #009688

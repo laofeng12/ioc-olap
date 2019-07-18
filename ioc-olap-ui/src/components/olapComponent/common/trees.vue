@@ -42,16 +42,19 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$on('openDefaultTree', res => {
-      setTimeout(() => {
-        this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList)
-        this.$root.eventBus.$emit('saveSelectTables')
-        this.$store.dispatch('changeSerachtype', 1)
-        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
-      }, 1000)
-    })
+    this.init()
   },
   methods: {
+    init () {
+      this.$root.eventBus.$on('openDefaultTree', res => {
+        setTimeout(() => {
+          this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
+          this.$store.dispatch('changeSerachtype', 1)
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+          this.$root.eventBus.$emit('saveSelectTables')
+        }, 1000)
+      })
+    },
     fetchTreeList (val) {
       this.treeLoading = true
       this.$store.dispatch('GetTreeList').then(res => {
@@ -64,6 +67,8 @@ export default {
           }, 500)
           this.defaultFrist(this.treeList)
         }
+      }).finally(() => {
+        this.treeLoading = false
       })
     },
     // 默认点击第一项的递归计算
@@ -105,15 +110,15 @@ export default {
       this.$store.dispatch('GetSerchTable', id).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
+          // 点击时清除其他选择框
+          this.$root.eventBus.$emit('clearSelect')
+          // 存储当前选择数据源
+          this.$store.dispatch('setSerchTable', res)
+          // 存储当前点击的父节点的id
+          this.$store.dispatch('setLastClickTab', nodeId)
+          // 保存选择的数据源数据
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
-        // 点击时清除其他选择框
-        this.$root.eventBus.$emit('clearSelect')
-        // 存储当前选择数据源
-        this.$store.dispatch('setSerchTable', res)
-        // 存储当前点击的父节点的id
-        this.$store.dispatch('setLastClickTab', nodeId)
-
-        this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
       })
     }
   },
@@ -121,12 +126,14 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
-      lastClickTab: 'lastClickTab'
+      lastClickTab: 'lastClickTab',
+      serchTableList: 'serchTableList'
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('clearSelect')
+    this.$root.eventBus.$off('saveSelectTables')
   },
   created () {
     this.fetchTreeList(this.lastClickTab)

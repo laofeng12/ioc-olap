@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("文件夹表")
+@ApiModel("立方体表中的列")
 @Entity
 @Table(name = "OLAP_CUBE_TABLE_COLUMN")
 public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
@@ -40,8 +40,6 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	private String expressionType;
 	@ApiModelProperty("完整表达式")
 	private String expressionFull;
-	@ApiModelProperty("备注")
-	private String remark;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -145,14 +143,4 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	public void setExpressionFull(String expressionFull) {
 		this.expressionFull = expressionFull;
 	}
-	
-
-	@Column(name = "REMARK")
-	public String getRemark() {
-		return remark;
-	}
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
-	
 }

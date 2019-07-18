@@ -1,42 +1,22 @@
 package com.openjava.platform.api;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
-import com.openjava.platform.query.OlapRealQueryDBParam;
 import com.openjava.platform.service.*;
 import com.openjava.platform.vo.FolderHierarchicalVo;
 import com.openjava.platform.vo.TreeNodeVo;
 import com.openjava.platform.vo.TreeVo;
-import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
-import org.ljdp.common.file.ContentType;
-import org.ljdp.common.file.POIExcelBuilder;
-import org.ljdp.component.result.ApiResponse;
-import org.ljdp.component.result.BasicApiResponse;
-import org.ljdp.component.result.DataApiResponse;
 import org.ljdp.component.sequence.SequenceService;
-import org.ljdp.component.sequence.TimeSequence;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
-import org.ljdp.ui.bootstrap.TablePage;
-import org.ljdp.ui.bootstrap.TablePageImpl;
-import org.ljdp.util.DateFormater;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +29,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
-import springfox.documentation.annotations.ApiIgnore;
 
 
 /**
@@ -142,7 +121,7 @@ public class OlapRealQueryAction extends BaseAction {
 		olapRealQueryService.doRemove(ids);
 	}
 
-	@ApiOperation(value = "获取自己创建的立方体树形列表")
+	@ApiOperation(value = "获取自己创建的立方体树形结构列表")
 	@Security(session=true)
 	@RequestMapping(value="/CubeTree",method=RequestMethod.GET)
 	public ArrayList<TreeVo> CubeTree(){
@@ -160,11 +139,13 @@ public class OlapRealQueryAction extends BaseAction {
 				nodeVo.setId(table.getId().toString());
 				nodeVo.setName(table.getTableName());
 				nodeVo.setRow(new ArrayList<TreeNodeVo>());
+				nodeVo.setAttrs(table);
 				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
 				for (OlapCubeTableColumn column : cubeTableColumns){
 					TreeNodeVo leafNode=new TreeNodeVo();
 					nodeVo.setId(column.getId().toString());
 					nodeVo.setName(column.getExpressionFull());
+                    nodeVo.setAttrs(column);
 					nodeVo.getRow().add(leafNode);
 				}
 				tree.getRow().add(nodeVo);
