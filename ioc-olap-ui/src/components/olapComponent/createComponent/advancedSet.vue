@@ -195,7 +195,7 @@ export default {
   },
   methods: {
     init () {
-      let datas = JSON.parse(getLocalStorage('saveSelectFiled'))
+      let datas = [...this.saveSelectFiled]
       datas.map(item => {
         item.column = item.columnName
         item.encoding = item.encoding ? item.encoding : ''

@@ -100,10 +100,6 @@ export default {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
       selectDataidList: 'selectDataidList',
-      containDataId: 'containDataId',
-      necessaryDataId: 'necessaryDataId',
-      levelDataId: 'levelDataId',
-      jointDataId: 'jointDataId',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId'
     })

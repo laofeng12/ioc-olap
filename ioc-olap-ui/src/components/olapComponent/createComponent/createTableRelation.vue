@@ -213,7 +213,6 @@ export default {
     },
     clickTable (e) {
       // 存储已选择的表
-      console.log(e, '来了')
       // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
         e.field = ''
@@ -221,8 +220,7 @@ export default {
         this.graph.addCell(rect)
       }
     },
-
-    papersClick(e) {
+    papersClick (e) {
       let element = this.cellLayerData || {}
       let model = element.model
       let position = model.get('position')
@@ -314,8 +312,6 @@ export default {
         position.x = (width - rectWidth) / 2
         position.y = (height - rectHeight) / 2
       }
-      
-
       return position
     },
 
@@ -349,7 +345,7 @@ export default {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
         let randomPosition = this.getCellRamdonPosition(item)
 
-        if(item.filed){
+        if (item.filed) {
           this.clearCells()
         }
 
@@ -547,7 +543,6 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      console.log(this.prevId, '======', id)
       if (this.prevId === id) {
         console.log('已经请求过了~')
       } else {
