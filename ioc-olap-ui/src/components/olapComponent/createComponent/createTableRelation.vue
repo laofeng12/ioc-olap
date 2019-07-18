@@ -6,21 +6,18 @@
         <h2 class="title">设置关联关系</h2>
         <div class="item" v-for="(item, index) in linkModal" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}：</h3>
-          <el-select name="public-choice" v-model="item.relation" @change="getModalSelected">
-            <option value="">请选择</option>
-            <option value="1">左连接</option>
-            <option value="2">右连接</option>
-            <option value="3">内连接</option>
+          <el-select name="public-choice"  placeholder="请选择关联关系" v-model="item.relation" @change="getModalSelected">
+            <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{item.source.label}}</h4>
-          <el-select name="public-choice" v-model="item.source.field" placeholder="请选择关联字段" @change="getModalSelected">
-            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>
+          <h4 class="itemTableTitle">{{item.source.label}}<span @click="lookDetailData(item.source.label)">查看</span></h4>
+          <el-select name="public-choice" v-model="item.source.field" placeholder="请选择关联字段" @visible-change="getModalDataList(item.source.label)" @change="getModalSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment"  >{{coupon.columnName}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{item.target.label}}</h4>
-          <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @change="getModalSelected">
-            <option :value="coupon.id" :key="coupon.id" v-for="coupon in couponList" >{{coupon.name}}</option>
+          <h4 class="itemTableTitle">{{item.target.label}}<span @click="lookDetailData(item.target.label)">查看</span></h4>
+          <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @visible-change="getModalDataList(item.target.label)" @change="getModalSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment" >{{coupon.columnName}}</el-option>
           </el-select>
-          <!-- <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div> -->
+          <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
@@ -38,6 +35,7 @@
         </div>
       </div>
     </div>
+    <create-table-modal ref="dialog"></create-table-modal>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
 </template>
@@ -45,14 +43,14 @@
 <script>
 import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
-import taskWark from '@/components/olapComponent/common/taskWark'
+import createTableModal from '@/components/olapComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
 let $ = require('jquery')
 let joint = require('jointjs')
 
 export default {
   components: {
-    factTable, steps, taskWark
+    factTable, steps, createTableModal
   },
   data () {
     return {
@@ -60,20 +58,9 @@ export default {
       filedPosition: {
         x: 0, y: 0
       },
-      couponList: [
-        {
-          id: 'A',
-          name: '啦啦啦啊'
-        },
-        {
-          id: '1',
-          name: '拉上来的拉升到啦'
-        },
-        {
-          id: '2',
-          name: '拉上来的拉升到啦'
-        }
-      ],
+      couponList: [],
+      prevId: '', // 记录上一个id
+      relationData: [{ label: 1, value: '左连接' }, { label: 2, value: '内连接' }],
       dragRectPosition: {
         filed: 0,
         id: 0,
@@ -572,8 +559,21 @@ export default {
       this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
       this.$root.eventBus.$emit('openDefaultTree')
+    },
+    lookDetailData (id) {
+      this.$refs.dialog.dialog(id)
+    },
+    getModalDataList (id) {
+      console.log(this.prevId, '======', id)
+      if (this.prevId === id) {
+        console.log('已经请求过了~')
+      } else {
+        this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
+          this.couponList = res.data
+        })
+      }
+      this.prevId = id
     }
-
   },
   computed: {
     ...mapGetters({
@@ -671,6 +671,11 @@ export default {
   border-left 1px solid #cccccc
   h2,h3,.itemTableTitle{
     margin 5px 0
+    span{
+      margin-left 10px
+      color #009688
+      cursor pointer
+    }
   }
   >>>.el-input__inner{
     height 30px

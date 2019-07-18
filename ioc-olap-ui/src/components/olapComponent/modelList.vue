@@ -49,7 +49,7 @@
 </template>
 
 <script>
-// import { getApiList } from '@/api/common'
+import { getApiList } from '@/api/common'
 export default {
   data () {
     return {
@@ -66,9 +66,9 @@ export default {
       sort: 'createtime,desc',
       page: this.currentPage - 1
     }
-    // getApiList(params).then(res => {
-    //   this.tableData = res.rows
-    // })
+    getApiList(params).then(res => {
+      this.tableData = res.rows
+    })
   },
   methods: {
     searchFetch (val) {

@@ -162,7 +162,6 @@ const common = {
           })
         }
       })
-      console.log(state.saveSelectTable)
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state }, data) {
