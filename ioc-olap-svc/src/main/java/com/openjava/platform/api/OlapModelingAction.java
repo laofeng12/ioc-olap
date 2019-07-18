@@ -70,35 +70,32 @@ public class OlapModelingAction extends BaseAction {
     @Security(session = false)
     public void projectList(
             @RequestBody ProjectDescDataMapper body,
-            @RequestParam(name = "tableName") String tableName,
+            @RequestParam(name = "tableName") String[] tableName,
             @RequestParam(name = "libraryName") String libraryName) {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         //拿到所有Poreject
         List<ProjectDescDataMapper> projectList = new ProjectAction().list();
         projectList = (List<ProjectDescDataMapper>) projectList.stream()
-                .filter(a -> a.getName().equals(userVO.getOrgname()
+                .filter(a -> a.getName().equals(userVO.getUserId()
                 ));
-
         //如果当前用户在Poreject没有数据,则在Poreject创建一条数据
         if (projectList.size() != 0) {
-            new ProjectAction().create(body);
             String[] strArrayTrue = (String[]) projectList.get(0).getTables().toArray(new String[0]);
-            String[] TableNameArr = tableName.split(",");
             //对比是否存在,存在的就不要加进去了tables
-            String[] TableNameArray = minus(strArrayTrue, TableNameArr);
-            if (TableNameArray.length != 0) {
-                HiveMapper Hive = new HiveMapper();
-                Hive.tableNameArr = TableNameArray;
-                Hive.libraryName = libraryName;
-                new HiveAction().create(Hive);
+            String[] tableNameArray = minus(strArrayTrue, tableName);
+            if (tableNameArray.length != 0) {
+                HiveMapper hive = new HiveMapper();
+                hive.tableNameArr = tableNameArray;
+                hive.libraryName = libraryName;
+                new HiveAction().create(hive);
             }
         } else {
-            String[] TableNameArr = tableName.split(",");
-            if (TableNameArr.length != 0) {
-                HiveMapper Hive = new HiveMapper();
-                Hive.tableNameArr = TableNameArr;
-                Hive.libraryName = libraryName;
-                new HiveAction().create(Hive);
+            new ProjectAction().create(body);
+            if (tableName.length != 0) {
+                HiveMapper hive = new HiveMapper();
+                hive.tableNameArr = tableName;
+                hive.libraryName = libraryName;
+                new HiveAction().create(hive);
             }
         }
     }
@@ -129,7 +126,6 @@ public class OlapModelingAction extends BaseAction {
         ModelsMapper modesList = new ModelsAction().create(models);
         CubeDescMapper cubeList = new CubeAction().create(cube);
 
-
         Date date = new Date();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 
@@ -154,8 +150,10 @@ public class OlapModelingAction extends BaseAction {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
 
         SequenceService ss = ConcurrentSequence.getInstance();
+        Long cubeId = ss.getSequence();
 
         OlapCube CubeColumn = new OlapCube();
+        CubeColumn.setCubeId(ss.getSequence());
         CubeColumn.setName(cube.getCubeName());
         CubeColumn.setRemark(cubeDescData.getDescription());
         CubeColumn.setCreateTime(date);
@@ -163,7 +161,7 @@ public class OlapModelingAction extends BaseAction {
         CubeColumn.setCreateName(userVO.getUserAccount());
         CubeColumn.setIsNew(true);
         olapCubeService.doSave(CubeColumn);
-        return CubeColumn.getId();
+        return cubeId;
     }
 
     //保存OLAP_CUBE_TABLE表
@@ -213,8 +211,6 @@ public class OlapModelingAction extends BaseAction {
     //PK_DATA_TYPE              主键数据类型
     //FK_DATA_TYPE              外键数据类型
     //CUBE_ID                   立方体ID
-
-
 
 
 //    @ApiOperation(value = "立方体:重命名")
