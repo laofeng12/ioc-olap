@@ -70,6 +70,8 @@ export default {
       },
       linkModal: null,
       linkModalModel: null,
+      cellLayerStyle: '',
+      cellLayerData: null,
       jointList: [] // [{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
     }
   },
