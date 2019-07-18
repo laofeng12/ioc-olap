@@ -12,9 +12,17 @@
         :data="tableData"
         ref="multipleTable"
         tooltip-effect="dark"
+        @row-click="clickTable"
         @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
-        <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip type="expand">
+          <template>
+            <el-popover>
+              <!-- <v-details></v-details> -->
+              <model-detail></model-detail>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column prop="catalogName" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="apiPaths" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="apiProtocols" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
@@ -30,7 +38,7 @@
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :command="{type: 'testModal', params: scope.row.apiId}">重命名</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">查看</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookDetail', params: scope.row.apiId}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">刷新</el-dropdown-item>
@@ -50,14 +58,26 @@
 
 <script>
 import { getApiList } from '@/api/common'
+import modelDetail from '@/components/olapComponent/modelListComponent/modelDetail'
 export default {
+  components: {
+    modelDetail
+  },
   data () {
     return {
       like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
-      tableData: []
+      expands: [],
+      tableData: [],
+      dataList: [
+        { id: 1, name: 'aaaa' },
+        { id: 2, name: 'aaaa' },
+        { id: 3, name: 'aaaa' },
+        { id: 4, name: 'aaaa' },
+        { id: 5, name: 'aaaa' }
+      ]
     }
   },
   mounted () {
@@ -77,8 +97,14 @@ export default {
     createolap () {
       this.$router.push('/olap/createolap/selectStep')
     },
-    handleCommand () {
-
+    // 展开详情
+    clickTable (val) {
+      console.log(val)
+    },
+    handleCommand (val) {
+      if (val.type === 'lookDetail') {
+        console.log(val.params)
+      }
     },
     handleSelectionChange () {
 
@@ -99,6 +125,19 @@ export default {
     }
     >>>.el-button{
       float right
+    }
+  }
+  >>>.el-table__expanded-cell{
+    height 350px
+    width 100%
+    padding 10px
+    .el-popover{
+      display block!important
+      position absolute
+      top 0 
+      left 0
+      width 100%
+      height 100%
     }
   }
 }

@@ -545,6 +545,7 @@ export default {
     getModalDataList (id) {
       if (this.prevId === id) {
         console.log('已经请求过了~')
+        this.couponList = this.couponList
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
           this.couponList = res.data
