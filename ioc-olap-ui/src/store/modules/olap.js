@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
+import { filterArr, filterArrData, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
 import Vue from 'vue'
 const common = {
   state: {
@@ -17,6 +17,7 @@ const common = {
     /* 维度 */
     saveSelectFiled: [], // 存储已选择的维度
     saveSelectFiledTree: [], // 存储已选择的左侧维度菜单
+    saveNewSortListstructure: [], // 存储最新分类后的维度(传给后端的数据接口)
     saveNewSortList: [], // 存储最新分类后的维度
     saveList: [], // 存储维度输入框以及维度组合
     saveRightTableList: [], // 维度对应的表
@@ -161,6 +162,7 @@ const common = {
           })
         }
       })
+      console.log(state.saveSelectTable)
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state }, data) {
@@ -193,7 +195,7 @@ const common = {
     SaveSelectFiled ({ state }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
-      setLocalStorage('saveSelectFiled', datas) // 存储未分类的数据
+      // setLocalStorage('saveSelectFiled', datas) // 存储未分类的数据
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state }, data) {
@@ -220,8 +222,9 @@ const common = {
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
-      state.saveNewSortList = filterArr(data)
-      setLocalStorage('saveNewSortList', filterArr(data))
+      state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
+      state.saveNewSortList = filterArr(data) // 需要传给后端的数据结构
+      // setLocalStorage('saveNewSortList', filterArr(data))
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {

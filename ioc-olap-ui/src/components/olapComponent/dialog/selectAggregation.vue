@@ -6,7 +6,7 @@
           <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-checkbox-group ref="group" v-model="selctCheckData">
-              <el-checkbox-button v-for="(item, index) in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
+              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
           </div>
         </div>
@@ -63,8 +63,9 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      // this.options = this.saveNewSortList
-      this.options = JSON.parse(getLocalStorage('saveNewSortList'))
+      console.log(this.saveNewSortList)
+      this.options = this.saveNewSortList
+      // this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index
       this.type = type
       this.findIndex = findIndex

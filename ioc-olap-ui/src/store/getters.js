@@ -16,6 +16,7 @@ const getters = {
   saveSelectFiled: state => state.olap.saveSelectFiled,
   saveSelectFiledTree: state => state.olap.saveSelectFiledTree,
   saveNewSortList: state => state.olap.saveNewSortList,
+  saveNewSortListstructure: state => state.olap.saveNewSortListstructure,
   saveList: state => state.olap.saveList,
   saveRightTableList: state => state.olap.saveRightTableList,
   measureTableList: state => state.olap.measureTableList,
