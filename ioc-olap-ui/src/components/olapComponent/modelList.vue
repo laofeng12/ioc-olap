@@ -11,6 +11,8 @@
     <el-table
         :data="tableData"
         ref="multipleTable"
+        :row-key="getRowKeys"
+        :expand-row-keys="expands"
         tooltip-effect="dark"
         @row-click="clickTable"
         @selection-change="handleSelectionChange"
@@ -18,7 +20,6 @@
         <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip type="expand">
           <template>
             <el-popover>
-              <!-- <v-details></v-details> -->
               <model-detail></model-detail>
             </el-popover>
           </template>
@@ -69,6 +70,10 @@ export default {
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
+      getRowKeys (row) {
+        return row.apiId
+      },
+      // 要展开的行，数值的元素是row的key值
       expands: [],
       tableData: [],
       dataList: [
@@ -103,7 +108,7 @@ export default {
     },
     handleCommand (val) {
       if (val.type === 'lookDetail') {
-        console.log(val.params)
+        this.expands.push(val.params)
       }
     },
     handleSelectionChange () {
@@ -134,7 +139,7 @@ export default {
     .el-popover{
       display block!important
       position absolute
-      top 0 
+      top 0
       left 0
       width 100%
       height 100%

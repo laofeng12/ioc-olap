@@ -21,12 +21,12 @@
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
-      <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
+      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=0 || dragRectPosition.y>=0) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
       <div class="holder" ref="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
         <div class="papers" ref="papers" @click="papersClick">
-          <div class="halo-cell-layer" :style="cellLayerStyle"> 
+          <div class="halo-cell-layer" :style="cellLayerStyle">
             <div class="remove" data-type="remove"></div>
             <div class="link" data-type="link"></div>
             <!-- <div class="clone" data-type="clone"></div> -->
@@ -65,8 +65,8 @@ export default {
         filed: 0,
         id: 0,
         label: '',
-        x: 0,
-        y: 0
+        x: -1,
+        y: -1
       },
       linkModal: null,
       linkModalModel: null,
@@ -106,8 +106,7 @@ export default {
       this.bindEvent(paper)
     },
 
-    bindEvent(paper) {
-
+    bindEvent (paper) {
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('blank:pointerup', () => {
         this.hideCellLayer()
@@ -209,7 +208,6 @@ export default {
 
         this.isClick = false
       })
-
     },
     clickTable (e) {
       // 存储已选择的表
@@ -281,8 +279,8 @@ export default {
         this.isDragRect = false
         this.dragRectPosition = {
           label: 'test',
-          x: 0,
-          y: 0
+          x: -1,
+          y: -1
         }
       }
     },
@@ -545,7 +543,6 @@ export default {
     getModalDataList (id) {
       if (this.prevId === id) {
         console.log('已经请求过了~')
-        this.couponList = this.couponList
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
           this.couponList = res.data
@@ -566,6 +563,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.hide{
+  display none
+}
+
 .tableRelation{
   height calc(100vh - 150px)
   position relative
