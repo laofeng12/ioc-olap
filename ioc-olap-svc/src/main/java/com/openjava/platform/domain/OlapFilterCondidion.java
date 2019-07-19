@@ -22,54 +22,50 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 实体
- * @author x_pc
+ * @author zy
  *
  */
-@ApiModel("立方体关系")
+@ApiModel("过滤条件")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Entity
-@Table(name = "OLAP_CUBE_TABLE_RELATION")
-public class OlapCubeTableRelation implements Persistable<Long>,Serializable {
+@Table(name = "OLAP_FILTER_CONDIDION")
+public class OlapFilterCondidion implements Persistable<Long>,Serializable {
 	
-	@ApiModelProperty("主键id")
+	@ApiModelProperty("主键ID")
 	@Id
 	@Column(name = "ID")
 	private Long id;
 	
-	@ApiModelProperty("源表id")
-	@Column(name = "TABLE_ID")
-	private Long tableId;
+	@ApiModelProperty("过滤表ID")
+	@Column(name = "FILTER_ID")
+	private Long filterId;
 	
-	@ApiModelProperty("关联表ID")
-	@Column(name = "JOIN_TABLE_ID")
-	private Long joinTableId;
+	@ApiModelProperty("表名称")
+	@Length(min=0, max=50)
+	@Column(name = "TABLENAME")
+	private String tablename;
 	
-	@ApiModelProperty("关联类型")
-	@Column(name = "JOIN_TYPE")
-	private String joinType;
+	@ApiModelProperty("表字段")
+	@Length(min=0, max=500)
+	@Column(name = "FIELD")
+	private String field;
 	
-	@ApiModelProperty("主键列名称")
-	@Column(name = "PK_KEY")
-	private String pkKey;
+	@ApiModelProperty("过滤方式")
+	@Length(min=0, max=500)
+	@Column(name = "PATTERN")
+	private String pattern;
 	
-	@ApiModelProperty("外键列名称")
-	@Column(name = "FK_KEY")
-	private String fkKey;
-	
-	@ApiModelProperty("主键数据类型")
-	@Column(name = "PK_DATA_TYPE")
-	private String pkDataType;
-	
-	@ApiModelProperty("外键数据类型")
-	@Column(name = "FK_DATA_TYPE")
-	private String fkDataType;
-	
-	@ApiModelProperty("立方体ID")
-	@Column(name = "CUBE_ID")
-	private Long cubeId;
-	
+	@ApiModelProperty("过滤值")
+	@Length(min=0, max=500)
+	@Column(name = "PARAMETER")
+	private String parameter;
+
+	@ApiModelProperty("过滤值")
+	@Length(min=0, max=500)
+	@Column(name = "PARAMETERBE")
+	private String parameterbe;
 	
 	@ApiModelProperty("是否新增")
 	@Transient
