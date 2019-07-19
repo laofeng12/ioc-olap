@@ -1,17 +1,8 @@
 <template>
-  <div class="details">
-    <ul>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-      <li>123123</li>
-    </ul>
+  <div class="modelDetail">
+    <div class="tabHead_item">
+      <div v-for="(item, index) in dataHead" @click="selectTab(item.id)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
+    </div>
   </div>
 </template>
 
@@ -19,8 +10,111 @@
 export default {
   data () {
     return {
-      
+      cureent: 1,
+      dataHead: [
+        { id: '1', value: '1、选择数据源' },
+        { id: '2', value: '2、建立表关系' },
+        { id: '3', value: '3、设置维度字段' },
+        { id: '4', value: '4、设置度量字段' },
+        { id: '5', value: '5、刷新及过滤设置' },
+        { id: '6', value: '6、高级设置' },
+        { id: '7', value: '7、完成创建' }
+      ]
+    }
+  },
+  methods: {
+    selectTab (id) {
+      this.cureent = id
     }
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.modelDetail{
+  width 100%
+  overflow hidden
+  .tabHead_item{
+    height 25px
+    margin 0 auto
+    width 90%
+    display:flex;
+      &>div{
+      flex:1;
+      cursor pointer
+      // width 200px
+      // float left
+      height:25px;
+      line-height 25px
+      font-size 10px
+      text-align center
+      background #f5f5f6
+      color #8a8a8a
+      position relative
+      span{
+        width 23px
+        height 23px
+        line-height 20px
+        text-align center
+        color #ffffff
+        font-size 14px
+        border-radius 50%
+        margin-right 5px
+        background #8a8a8a
+        display inline-block
+      }
+    }
+    &>div:nth-child(1)::before{
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
+      background: #ffffff;
+      border-left: 5px solid #ffffff
+      border-bottom: 5px solid #ffffff;
+      transform: rotate(225deg);
+      z-index:10;
+    }
+    &>div::after{
+      content: "";
+      position: absolute;
+      right: -12px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
+      background: #f5f5f6;
+      border-left: 5px solid #ffffff
+      border-bottom: 5px solid #ffffff;
+      transform: rotate(225deg);
+      z-index:10;
+    }
+    &>div.actives{
+      background #59AFF9
+      color #ffffff
+      span{
+        background #3085d7
+      }
+    }
+    &>div.actives::after{
+      content: "";
+      position: absolute;
+      right: -12px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
+      background: #59AFF9!important;
+    }
+    &>div.actives::after{
+      content: "";
+      position: absolute;
+      right: -12px;
+      top: 1px;
+      width: 23px;
+      height: 23px;
+      background: #59AFF9!important;
+    }
+  }
+}
+</style>
