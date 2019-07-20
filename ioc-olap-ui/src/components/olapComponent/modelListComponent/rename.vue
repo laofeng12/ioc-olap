@@ -25,6 +25,9 @@ export default {
   methods: {
     handlebtn () {
       this.dialogFormVisible = false
+    },
+    dialog () {
+      this.dialogFormVisible = true
     }
   }
 }

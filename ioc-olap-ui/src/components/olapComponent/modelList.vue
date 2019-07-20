@@ -39,7 +39,7 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'testModal', params: scope.row.apiId}">重命名</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'rename', params: scope.row.apiId}">重命名</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookDetail', params: scope.row.apiId}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">构建</el-dropdown-item>
@@ -55,6 +55,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <rename ref="rename"></rename>
   </div>
 </template>
 
@@ -105,6 +106,7 @@ export default {
       if (val.type === 'lookDetail') {
         this.expands.push(val.params)
       }
+      this.$refs[val.type].dialog()
     },
     closeExpands () {
       this.expands = []
