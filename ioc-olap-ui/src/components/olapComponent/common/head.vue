@@ -1,13 +1,6 @@
 <template>
   <div class="tabHead">
     <div class="tabHead_item">
-      <!-- <div :class="Number(selectId) === 1 ? 'actives' : ''">1、选择数据源</div>
-      <div :class="Number(selectId) === 2 ? 'actives' : ''">2、建立表关系</div>
-      <div :class="Number(selectId) === 3 ? 'actives' : ''">3、设置维度字段</div>
-      <div :class="Number(selectId) === 4 ? 'actives' : ''">4、设置度量字段</div>
-      <div :class="Number(selectId) === 5 ? 'actives' : ''">5、刷新及过滤设置</div>
-      <div :class="Number(selectId) === 6 ? 'actives' : ''">6、高级设置</div>
-      <div :class="Number(selectId) === 7 ? 'actives' : ''">7、完成创建</div> -->
       <div v-for="(item, index) in dataHead" :class="String(selectId) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
   </div>
@@ -19,9 +12,6 @@ export default {
     selectId: {
       type: [String, Number],
       default: 1
-    },
-    titleData: {
-      type: Array
     }
   },
   data () {
@@ -38,7 +28,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.selectId, '==============')
   }
 }
 </script>

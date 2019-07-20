@@ -1,30 +1,40 @@
 <template>
   <div class="modelDetail">
     <div class="tabHead_item">
-      <div v-for="(item, index) in dataHead" @click="selectTab(item.id)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
+      <div v-for="(item, index) in dataHead" @click="selectTab(item.id, item.view)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
+    <div class="content_box">
+      <component :is="currentView"></component>
+    </div>
+    <el-button type="primary">关闭</el-button>
   </div>
 </template>
 
 <script>
+import { selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate } from '@/components/olapComponent/modelListComponent/moreDetail'
 export default {
+  components: {
+    selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate
+  },
   data () {
     return {
       cureent: 1,
+      currentView: 'selects',
       dataHead: [
-        { id: '1', value: '1、选择数据源' },
-        { id: '2', value: '2、建立表关系' },
-        { id: '3', value: '3、设置维度字段' },
-        { id: '4', value: '4、设置度量字段' },
-        { id: '5', value: '5、刷新及过滤设置' },
-        { id: '6', value: '6、高级设置' },
-        { id: '7', value: '7、完成创建' }
+        { id: '1', value: '1、选择数据源', view: 'selects' },
+        { id: '2', value: '2、建立表关系', view: 'settableLine' },
+        { id: '3', value: '3、设置维度字段', view: 'setFiled' },
+        { id: '4', value: '4、设置度量字段', view: 'setMeasure' },
+        { id: '5', value: '5、刷新及过滤设置', view: 'setReload' },
+        { id: '6', value: '6、高级设置', view: 'setAdvance' },
+        { id: '7', value: '7、完成创建', view: 'setcomplate' }
       ]
     }
   },
   methods: {
-    selectTab (id) {
+    selectTab (id, view) {
       this.cureent = id
+      this.currentView = view
     }
   }
 }
@@ -115,6 +125,15 @@ export default {
       height: 23px;
       background: #59AFF9!important;
     }
+  }
+  .content_box{
+    height 300px
+  }
+  >>>.el-button{
+    margin-left 50%
+    transform translateX(-50%)
+    width 120px
+    margin-top 50px
   }
 }
 </style>

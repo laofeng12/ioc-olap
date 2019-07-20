@@ -17,13 +17,14 @@
         @row-click="clickTable"
         @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
-        <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip type="expand">
+        <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
             <el-popover>
               <model-detail></model-detail>
             </el-popover>
           </template>
         </el-table-column>
+        <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="catalogName" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="apiPaths" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="apiProtocols" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
@@ -132,17 +133,21 @@ export default {
       float right
     }
   }
+  >>>.el-table__expand-column{
+    opacity 0
+  }
   >>>.el-table__expanded-cell{
-    height 350px
+    height 500px
+    overflow auto
     width 100%
     padding 10px
+    padding-bottom 50px
     .el-popover{
       display block!important
       position absolute
       top 0
       left 0
       width 100%
-      height 100%
     }
   }
 }
