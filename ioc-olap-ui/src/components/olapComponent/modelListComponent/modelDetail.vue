@@ -6,7 +6,7 @@
     <div class="content_box">
       <component :is="currentView"></component>
     </div>
-    <el-button type="primary">关闭</el-button>
+    <el-button type="primary" @click="closeDetail">关闭</el-button>
   </div>
 </template>
 
@@ -35,6 +35,9 @@ export default {
     selectTab (id, view) {
       this.cureent = id
       this.currentView = view
+    },
+    closeDetail () {
+      this.$emit('closeExpands')
     }
   }
 }

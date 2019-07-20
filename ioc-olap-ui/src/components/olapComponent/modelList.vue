@@ -20,7 +20,7 @@
         <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
             <el-popover>
-              <model-detail></model-detail>
+              <model-detail @closeExpands="closeExpands"></model-detail>
             </el-popover>
           </template>
         </el-table-column>
@@ -60,10 +60,10 @@
 
 <script>
 import { getApiList } from '@/api/common'
-import modelDetail from '@/components/olapComponent/modelListComponent/modelDetail'
+import {  modelDetail, rename } from '@/components/olapComponent/modelListComponent'
 export default {
   components: {
-    modelDetail
+    modelDetail, rename
   },
   data () {
     return {
@@ -76,14 +76,7 @@ export default {
       },
       // 要展开的行，数值的元素是row的key值
       expands: [],
-      tableData: [],
-      dataList: [
-        { id: 1, name: 'aaaa' },
-        { id: 2, name: 'aaaa' },
-        { id: 3, name: 'aaaa' },
-        { id: 4, name: 'aaaa' },
-        { id: 5, name: 'aaaa' }
-      ]
+      tableData: []
     }
   },
   mounted () {
@@ -108,9 +101,13 @@ export default {
       console.log(val)
     },
     handleCommand (val) {
+      this.expands = []
       if (val.type === 'lookDetail') {
         this.expands.push(val.params)
       }
+    },
+    closeExpands () {
+      this.expands = []
     },
     handleSelectionChange () {
 
@@ -133,8 +130,10 @@ export default {
       float right
     }
   }
-  >>>.el-table__expand-column{
-    opacity 0
+  >>>.el-table__row{
+    .el-table__expand-column{
+      opacity 0
+    }
   }
   >>>.el-table__expanded-cell{
     height 500px
