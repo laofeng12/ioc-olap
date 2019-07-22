@@ -15,7 +15,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :diffWidth="736"
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :diffWidth="736"
                  showType="isAnalysis"></ResultBox>
     </div>
   </div>
@@ -42,16 +42,78 @@ export default {
           { required: true, message: '请选择活动区域', trigger: 'change' }
         ]
       },
-      theadData: [
-        { prop: 'column1', label: '日期' },
-        { prop: 'column2', label: '姓名' },
-        { prop: 'column6', label: '地址' }
-      ],
       tableData: [
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄' }
-      ],
+        [
+          { colspan: 1, rowspan: 1, value: '标题1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ]
+      ]
     }
   },
   watch: {},
