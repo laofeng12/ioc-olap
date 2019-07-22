@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="comment" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -65,7 +65,23 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: []
+      tableData: [],
+      dimensions: [
+        // {
+        //   name: '2',
+        //   table: 'KYLIN_CAL_DT',
+        //   derived: null,
+        //   column: 'WEEK_BEG_DT'
+        // }
+        // {
+        //   'name': 'LEAF_CATEG_ID',
+        //   'table': 'KYLIN_CATEGORY_GROUPINGS',
+        //   'derived': [
+        //     'LEAF_CATEG_ID'
+        //   ],
+        //   'column': null
+        // }
+      ]
     }
   },
   mounted () {
@@ -131,6 +147,7 @@ export default {
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.replaceData()
       // 若点击 左侧对应父级菜单高亮
       this.$root.eventBus.$emit('tableNameActive')
     },
@@ -142,6 +159,21 @@ export default {
       }
       rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.replaceData()
+    },
+    // 替换后端需要的数据
+    replaceData () {
+      // 对接数据格式
+      this.dimensions = []
+      this.saveSelectFiled && this.saveSelectFiled.map((item, i) => {
+        this.dimensions.push({
+          table: item.tableName,
+          column: item.columnName,
+          derived: item.mode === 1 ? null : item.columnName.split(','),
+          name: '别名'
+        })
+      })
+      console.log('新的', this.dimensions, '数据2====', this.saveNewSortListstructure)
     },
     selectFiled () {
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
@@ -160,6 +192,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      saveNewSortListstructure: 'saveNewSortListstructure',
       saveNewSortList: 'saveNewSortList',
       saveList: 'saveList'
     })
@@ -178,6 +211,10 @@ export default {
     >>>.el-table::before{
     content: ''!important
     height 0!important
+    }
+    >>>.el-table__body-wrapper{
+      height calc(100vh - 150px)
+      padding-bottom 50px
     }
     >>>.el-table__body td{
       border none!important

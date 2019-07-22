@@ -4,29 +4,29 @@
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
-        <div class="item" v-for="(item, index) in linkModal" :key="index">
+        <div class="item" v-for="(item, index) in linkModal.join.primary_key" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}：</h3>
-          <el-select name="public-choice"  placeholder="请选择关联关系" v-model="item.relation" @change="getModalSelected">
+          <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalSelected">
             <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{item.source.label}}<span @click="lookDetailData(item.source.label)">查看</span></h4>
-          <el-select name="public-choice" v-model="item.source.field" placeholder="请选择关联字段" @visible-change="getModalDataList(item.source.label)" @change="getModalSelected">
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <el-select name="public-choice" v-model="linkModal.join.primary_key[index]" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.table)" @change="getModalSelected">
             <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment"  >{{coupon.columnName}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{item.target.label}}<span @click="lookDetailData(item.target.label)">查看</span></h4>
-          <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @visible-change="getModalDataList(item.target.label)" @change="getModalSelected">
+          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
+          <el-select name="public-choice" v-model="linkModal.join.foreign_key[index]" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinTable)" @change="getModalSelected">
             <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment" >{{coupon.columnName}}</el-option>
           </el-select>
-          <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
+          <div class="itemAdd"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
-      <div class="dragRect" :style="'display:' + (isDragRect ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
+      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=0 || dragRectPosition.y>=0) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
       <div class="holder" ref="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
         <div class="papers" ref="papers" @click="papersClick">
-          <div class="halo-cell-layer" :style="cellLayerStyle"> 
+          <div class="halo-cell-layer" :style="cellLayerStyle">
             <div class="remove" data-type="remove"></div>
             <div class="link" data-type="link"></div>
             <!-- <div class="clone" data-type="clone"></div> -->
@@ -65,14 +65,52 @@ export default {
         filed: 0,
         id: 0,
         label: '',
-        x: 0,
-        y: 0
+        x: -1,
+        y: -1
       },
       linkModal: null,
       linkModalModel: null,
       cellLayerStyle: '',
       cellLayerData: null,
-      jointList: [] // [{ 'type': 'link', 'data': [{ 'relation': '2', 'source': { 'field': '2', 'label': 'my box1', 'id': 9994 }, 'target': { 'field': '1', 'label': 'my box1', 'id': 9996 } }] }]
+      demo: {
+        name: '',
+        description: '',
+        fact_table: '',
+        lookups: [
+          {
+            'table': 'KYLIN.KYLIN_CAL_DT',
+            'alias': 'KYLIN_CAL_DT',
+            'joinTable': 'KYLIN_SALES',
+            'kind': 'LOOKUP',
+            'join': {
+              'type': 'inner',
+              'primary_key': [
+                'KYLIN_CAL_DT.CAL_DT'
+              ],
+              'foreign_key': [
+                'KYLIN_SALES.PART_DT'
+              ],
+              'isCompatible': [
+                true
+              ],
+              'pk_type': [
+                'date'
+              ],
+              'fk_type': [
+                'date'
+              ]
+            }
+          }
+        ]
+      },
+      // jointResult: {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // },
+      jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['123'], 'foreign_key': ['asdasdasd'], 'isCompatible': [true], 'pk_type': ['date'], 'fk_type': ['date'] } }] }
+
     }
   },
   mounted: function () {
@@ -85,7 +123,7 @@ export default {
     init () {
       let initTranslate = 0
       let result = []
-      let list = this.jointList || []
+      let list = this.jointResult.lookups || []
 
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -106,8 +144,7 @@ export default {
       this.bindEvent(paper)
     },
 
-    bindEvent(paper) {
-
+    bindEvent (paper) {
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('blank:pointerup', () => {
         this.hideCellLayer()
@@ -127,32 +164,11 @@ export default {
           if (e.model.isLink()) {
             let data = e.model.attributes.data
             let linkElements = this.getLinkElements(e.model)
-            let linkModal = []
+            let linkModal = null
             this.linkModalModel = null
 
-            if (data && data.length > 0) {
-              data.forEach(t => {
-                let source = {
-                  filed: t.source.filed || 0,
-                  field: t.source.field || '',
-                  label: t.source.label || '',
-                  id: t.source.id
-                }
-                let target = {
-                  filed: t.target.filed || 0,
-                  field: t.target.field || '',
-                  label: t.target.label || '',
-                  id: t.target.id
-                }
-
-                linkModal.push({
-                  relation: t.relation,
-                  source,
-                  target
-                })
-              })
-
-              this.linkModal = linkModal
+            if (data) {
+              this.linkModal = data
               this.linkModalModel = e.model
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
@@ -171,11 +187,32 @@ export default {
                 id: targetAttrs.text.id
               }
 
-              linkModal.push({
-                relation: '',
-                source,
-                target
-              })
+              linkModal = {
+                'table': source.label || '',
+                'alias': source.label || '',
+                'joinTable': target.label || '',
+                'kind': 'LOOKUP',
+                'join': {
+                  'type': '', // inner
+                  'primary_key': [
+                    ''
+                    // source.field || 0
+                  ],
+                  'foreign_key': [
+                    ''
+                    // target.field || 0
+                  ],
+                  'isCompatible': [
+                    true
+                  ],
+                  'pk_type': [
+                    'date'
+                  ],
+                  'fk_type': [
+                    'date'
+                  ]
+                }
+              }
 
               this.linkModal = linkModal
               this.linkModalModel = e.model
@@ -209,7 +246,6 @@ export default {
 
         this.isClick = false
       })
-
     },
     clickTable (e) {
       // 存储已选择的表
@@ -224,7 +260,6 @@ export default {
       let element = this.cellLayerData || {}
       let model = element.model
       let position = model.get('position')
-
       switch (e.target.dataset.type) {
         case 'remove':
           this.clearElementLink(model)
@@ -281,8 +316,8 @@ export default {
         this.isDragRect = false
         this.dragRectPosition = {
           label: 'test',
-          x: 0,
-          y: 0
+          x: -1,
+          y: -1
         }
       }
     },
@@ -316,7 +351,10 @@ export default {
     },
 
     clearCells () {
-      this.jointList = []
+      this.jointResult.fact_table = ''
+      this.jointResult.lookups = []
+      this.linkModal = null
+      this.linkModalModel = null
       this.graph.clear()
     },
 
@@ -332,8 +370,6 @@ export default {
         this.graph = new joint.dia.Graph()
       }
 
-      this.getCellRamdonPosition(item)
-
       if (cells.length > 0) {
         cells.forEach(t => {
           if (!t.isLink()) rectLength++
@@ -341,13 +377,18 @@ export default {
         })
       }
 
+      if (item.label === this.jointResult.fact_table) {
+        item.filed = 1
+      }
+
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
-        let randomPosition = this.getCellRamdonPosition(item)
-
         if (item.filed) {
+          this.jointResult.fact_table = item.label
           this.clearCells()
         }
+
+        let randomPosition = this.getCellRamdonPosition(item)
 
         newRect = new joint.shapes.basic.Rect({
           position: {
@@ -364,19 +405,25 @@ export default {
 
     addLinkCell (item) {
       let result = []
-      let source = item.data[0].source
-      let target = item.data[0].target
+      let source = {
+        id: item.table,
+        label: item.table
+      }
+      let target = {
+        id: item.joinTable,
+        label: item.joinTable
+      }
 
       if (!this.graph) {
         this.graph = new joint.dia.Graph()
       }
 
-      let sourceItem = this.addRectCell(source, result.length)
+      let sourceItem = this.addRectCell(source)
       if (sourceItem) {
         result.push(sourceItem)
       }
 
-      let targetItem = this.addRectCell(target, result.length)
+      let targetItem = this.addRectCell(target)
       if (targetItem) {
         result.push(targetItem)
       }
@@ -384,7 +431,7 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
-        data: item.data,
+        data: item,
         router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
@@ -400,28 +447,13 @@ export default {
       })
       result.push(newLink)
 
-      // newLink.source(t.data[0].source)
-      // newLink.target(t.data[0].target)
-      // newLink.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold','font-size': '12px' } } }])
-
       return result
     },
 
     getModalSelected (e) {
-      let result = []
-      let linkModal = this.linkModal
-      linkModal.forEach(t => {
-        if (t.relation && t.source.field && t.target.field) {
-          result.push(t)
-        }
-      })
-
-      if (result.length > 0) {
+      if (this.linkModal.join.primary_key.length > 0) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
-        this.addJointList({
-          type: 'link',
-          data: result
-        })
+        this.addJointList(this.linkModal)
       }
     },
 
@@ -431,20 +463,21 @@ export default {
       if (list.length >= 1) {
         let isAdd = true
         list.forEach((t, i) => {
-          if (t.type === item.type) {
-            if (t.type === 'link' && t.data[0].source.id === item.data[0].souce.id) {
-              this.jointList.splice(i, 1, item)
-            }
+          if (t.table === item.table && t.joinTable === item.joinTable) {
+            this.jointResult.lookups.splice(i, 1, item)
           }
         })
       } else {
-        this.jointList.push(item)
+        this.jointResult.lookups.push(item)
       }
     },
 
     clearElementLink: function (target) {
       let eles = target.collection.models || []
       let elements = []
+
+      this.linkModal = null
+      this.linkModalModel = null
 
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
@@ -508,31 +541,13 @@ export default {
     },
     // 增加关联信息
     addRelation (item) {
-      let linkModal = this.linkModal || []
-      let source = {
-        field: '',
-        filed: item.source.filed,
-        label: item.source.label,
-        id: item.source.id
-      }
-      let target = {
-        field: '',
-        filed: item.target.filed,
-        label: item.target.label,
-        id: item.target.id
-      }
-
-      linkModal.push({
-        relation: '',
-        source,
-        target
-      })
-
-      this.linkModal = linkModal
+      this.linkModal.join.primary_key.push('')
+      this.linkModal.join.foreign_key.push('')
     },
     nextModel (val) {
       this.$router.push('/olap/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
+      console.log(this.jointResult)
     },
     prevModel (val) {
       this.$router.push('/olap/createolap/selectStep')
@@ -545,7 +560,6 @@ export default {
     getModalDataList (id) {
       if (this.prevId === id) {
         console.log('已经请求过了~')
-        this.couponList = this.couponList
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
           this.couponList = res.data
@@ -566,6 +580,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.hide{
+  display none
+}
+
 .tableRelation{
   height calc(100vh - 150px)
   position relative
@@ -647,6 +665,7 @@ export default {
   float right
   width 200px
   height 100%
+  overflow auto
   text-align left
   padding-left 20px
   border-left 1px solid #cccccc
