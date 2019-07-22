@@ -24,7 +24,7 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="handlebtn">确 定</el-button>
       </div>
-    </el-dialog>  
+    </el-dialog>
   </div>
 </template>
 
@@ -47,7 +47,7 @@ export default {
         this.$message({
           type: 'success',
           message: '合并成功!'
-        });
+        })
         this.dialogFormVisible = false
       })
     },
@@ -61,4 +61,3 @@ export default {
 <style lang="stylus" scoped>
 .rename{}
 </style>
-

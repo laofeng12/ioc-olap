@@ -5,17 +5,19 @@
       <div class="level">
         <el-tree
           :data="data"
+          ref="trees1"
           show-checkbox
           node-key="id"
-          :default-expanded-keys="[2, 3]"
-          :default-checked-keys="[5]"
+          :default-expanded-keys="defaultExpand"
+          :default-checked-keys="defaultCheckd"
+          @check-change="handleCheckChange"
           :props="defaultProps">
         </el-tree>
         <div class="interaction">
           <i class="el-icon-sort"></i>
         </div>
         <div class="openList">
-          <p v-for="(item, index) in dataList" :key="index">{{item}}</p>
+          <p v-for="(item, index) in dataList1" :key="index">{{item}}</p>
         </div>
       </div>
       <h5>选择共享人：</h5>
@@ -39,7 +41,7 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="handlebtn">确 定</el-button>
       </div>
-    </el-dialog>  
+    </el-dialog>
   </div>
 </template>
 
@@ -48,20 +50,16 @@ export default {
   data () {
     return {
       defaultProps: [],
+      defaultExpand: [],
+      defaultCheckd: [],
       dataList: ['2019年1月南城交通数据', '2019年2月东城交通数据'],
+      dataList1: [],
       data: [{
         id: 1,
         label: '一级 1',
         children: [{
           id: 4,
-          label: '二级 1-1',
-          children: [{
-            id: 9,
-            label: '三级 1-1-1'
-          }, {
-            id: 10,
-            label: '三级 1-1-2'
-          }]
+          label: '二级 1-1'
         }]
       }, {
         id: 2,
@@ -89,6 +87,21 @@ export default {
   },
   methods: {
     handlebtn () {
+    },
+    handleCheckChange (data, type, node) {
+      // console.log(data, '1111111111', this.$refs.trees1.getCheckedNodes())
+      let datas = this.$refs.trees1.getCheckedNodes()
+      this.reduceList(datas)
+    },
+    reduceList (item) {
+      console.log(item)
+      item && item.map(item => {
+        if (item.children) {
+          this.reduceList(item)
+        } else {
+          console.log('获取的', item)
+        }
+      })
     },
     dialog () {
       this.dialogFormVisible = true
@@ -132,4 +145,3 @@ export default {
   }
 }
 </style>
-
