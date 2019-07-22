@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" :needNewFolder="true"></FolderAside>
     <div class="content">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
     </div>

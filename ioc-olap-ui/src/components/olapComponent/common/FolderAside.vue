@@ -13,13 +13,13 @@
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.dataName">{{ data.dataName }}</span>
           <span class="cus-node-content">
-            <el-dropdown size="mini" @command="handleItemShare($event, node, data)">
+            <el-dropdown size="mini" @command="handleCommand($event, node, data)">
               <el-button type="primary" size="mini">
                 操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="0">重命名</el-dropdown-item>
-                <!--<el-dropdown-item v-if="!node.isLeaf" command="1">刷新</el-dropdown-item>-->
+                <el-dropdown-item command="0">编辑</el-dropdown-item>
+                <el-dropdown-item command="1">分享</el-dropdown-item>
                 <el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>
                 <el-dropdown-item command="3">删除</el-dropdown-item>
               </el-dropdown-menu>
@@ -27,10 +27,10 @@
           </span>
        </span>
     </el-tree>
-    <div style="text-align: center;">
+    <div style="text-align: center;" v-if="needNewFolder">
       <el-button type="primary" size="small" @click="newFolder()">新建文件夹</el-button>
     </div>
-    <el-dialog title="新建文件夹" :visible.sync="newVisible" :width="30">
+    <el-dialog title="新建文件夹" :visible.sync="newVisible" width="30">
       <el-form :model="folderForm" :rules="folderRules">
         <el-form-item label="文件夹名称" label-width="140px" prop="name">
           <el-input v-model="folderForm.name"></el-input>
@@ -66,6 +66,10 @@ export default {
     menuDefault: {
       // type: Array,
       required: true
+    },
+    needNewFolder: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -82,7 +86,7 @@ export default {
     };
     return {
       searchKeyword_: '', // 分享搜索
-      shareVisible: true,
+      shareVisible: false,
       newVisible: false,
       folderForm: {
         isNew: true,
@@ -124,7 +128,7 @@ export default {
         that.sheetDataId = data.dataId
         that.sheetShare = data.isShare
         // 渲染表格数据
-        this.getTableData_(data.dataId)
+        // this.getTableData_(data.dataId)
       }
     },
     filterAll (value, data) {
@@ -132,6 +136,21 @@ export default {
       return data.dataName.indexOf(value) !== -1
     },
     newFolder () {
+      this.newVisible = true
+    },
+    handleCommand (dropIndex, node, data) {
+      // console.info('dropIndex', dropIndex)
+      // console.info('node', node)
+      // console.info('data', data)
+      switch (dropIndex) {
+        case '0': // 编辑
+          return this.edit(node, data, 0)
+        case '1': // 分享
+          this.shareVisible = true
+          break
+      }
+    },
+    edit () {
       this.newVisible = true
     }
   }
