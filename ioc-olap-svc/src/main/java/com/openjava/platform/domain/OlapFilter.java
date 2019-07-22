@@ -22,53 +22,62 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 实体
- * @author x_pc
+ * @author zy
  *
  */
-@ApiModel("立方体关系")
+@ApiModel("构建过滤")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Entity
-@Table(name = "OLAP_CUBE_TABLE_RELATION")
-public class OlapCubeTableRelation implements Persistable<Long>,Serializable {
+@Table(name = "OLAP_FILTER")
+public class OlapFilter implements Persistable<Long>,Serializable {
 	
-	@ApiModelProperty("主键id")
+	@ApiModelProperty("主键ID")
 	@Id
 	@Column(name = "ID")
 	private Long id;
 	
-	@ApiModelProperty("源表id")
-	@Column(name = "TABLE_ID")
-	private Long tableId;
-	
-	@ApiModelProperty("关联表ID")
-	@Column(name = "JOIN_TABLE_ID")
-	private Long joinTableId;
-	
-	@ApiModelProperty("关联类型")
-	@Column(name = "JOIN_TYPE")
-	private String joinType;
-	
-	@ApiModelProperty("主键列名称")
-	@Column(name = "PK_KEY")
-	private String pkKey;
-	
-	@ApiModelProperty("外键列名称")
-	@Column(name = "FK_KEY")
-	private String fkKey;
-	
-	@ApiModelProperty("主键数据类型")
-	@Column(name = "PK_DATA_TYPE")
-	private String pkDataType;
-	
-	@ApiModelProperty("外键数据类型")
-	@Column(name = "FK_DATA_TYPE")
-	private String fkDataType;
-	
 	@ApiModelProperty("立方体ID")
 	@Column(name = "CUBE_ID")
 	private Long cubeId;
+	
+	@ApiModelProperty("过滤最终形成的sql")
+	@Length(min=0, max=500)
+	@Column(name = "FILTER_SQL")
+	private String filterSql;
+	
+	@ApiModelProperty("创建时间")
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "CREATE_TIME")
+	private Date createTime;
+	
+	@ApiModelProperty("创建人id")
+	@Column(name = "CREATE_ID")
+	private Long createId;
+	
+	@ApiModelProperty("创建人名称")
+	@Length(min=0, max=50)
+	@Column(name = "CREATE_NAME")
+	private String createName;
+	
+	@ApiModelProperty("更新时间")
+	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "UPDATE_TIME")
+	private Date updateTime;
+	
+	@ApiModelProperty("更新人id")
+	@Column(name = "UPDATE_ID")
+	private Long updateId;
+	
+	@ApiModelProperty("更新人名称")
+	@Length(min=0, max=50)
+	@Column(name = "UPDATE_NAME")
+	private String updateName;
 	
 	
 	@ApiModelProperty("是否新增")

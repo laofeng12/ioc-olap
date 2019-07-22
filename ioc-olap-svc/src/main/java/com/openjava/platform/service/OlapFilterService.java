@@ -1,0 +1,27 @@
+package com.openjava.platform.service;
+
+import java.util.List;
+
+import com.openjava.platform.domain.OlapFilter;
+import com.openjava.platform.query.OlapFilterDBParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+
+/**
+ * 构建过滤业务层接口
+ * @author zy
+ *
+ */
+public interface OlapFilterService {
+	Page<OlapFilter> query(OlapFilterDBParam params, Pageable pageable);
+	
+	List<OlapFilter> queryDataOnly(OlapFilterDBParam params, Pageable pageable);
+	
+	OlapFilter get(Long id);
+	
+	OlapFilter doSave(OlapFilter m);
+	
+	void doDelete(Long id);
+	void doRemove(String ids);
+}
