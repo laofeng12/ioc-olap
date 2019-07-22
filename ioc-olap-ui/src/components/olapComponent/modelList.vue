@@ -65,7 +65,7 @@
 
 <script>
 import { getApiList } from '@/api/common'
-import {  modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/olapComponent/modelListComponent'
+import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/olapComponent/modelListComponent'
 export default {
   components: {
     modelDetail, rename, construct, reloads, merge, sharedTable
@@ -107,13 +107,13 @@ export default {
     },
     handleCommand (val) {
       this.expands = []
-      let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！' :
-          (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
+      let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
+        : (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
       if (val.type === 'lookDetail') {
         this.expands.push(val.params)
         return
       }
-      if (val.type === 'disableds' || 'clones' || 'dels') {
+      if (val.type === 'disableds' || val.type === 'clones' || val.type === 'dels') {
         this.$confirm(texts, {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -122,7 +122,7 @@ export default {
           this.$message({
             type: 'success',
             message: '成功!'
-          });
+          })
           this.dialogFormVisible = false
         })
         return

@@ -17,7 +17,7 @@
           <el-select name="public-choice" v-model="item.target.field" placeholder="请选择关联字段" @visible-change="getModalDataList(item.target.label)" @change="getModalSelected">
             <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment" >{{coupon.columnName}}</el-option>
           </el-select>
-          <div class="itemAdd hide"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
+          <div class="itemAdd"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
       </div>
       <!-- <task-wark></task-wark> -->
