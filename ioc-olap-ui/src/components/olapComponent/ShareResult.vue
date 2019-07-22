@@ -28,6 +28,7 @@
 
 import ResultBox from '@/components/olapComponent/common/ResultBox'
 import FolderAside from '@/components/olapComponent/common/FolderAside'
+import { getQueryShareApi } from '../../api/instantInquiry'
 
 export default {
   components: { ResultBox, FolderAside },
@@ -170,7 +171,9 @@ export default {
       }
     }
   },
-  mounted () {},
+  mounted () {
+    this.getAsideList()
+  },
   methods: {
     handleOpen (key, keyPath) {
       console.log('open', key, keyPath)
@@ -180,6 +183,10 @@ export default {
     },
     handleSelect (key, keyPath) {
       console.log('select', key, keyPath)
+    },
+    async getAsideList () {
+      const res = await getQueryShareApi()
+      console.info('res', res)
     }
   }
 }
