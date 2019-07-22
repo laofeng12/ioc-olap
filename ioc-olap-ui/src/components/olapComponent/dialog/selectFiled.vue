@@ -3,9 +3,9 @@
     <el-dialog title="已选维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
         <div class="item" v-for="(n, index) in options" :key="index">
-          <p>{{n.tableName}}</p>
+          <p>{{n.table}}</p>
           <div class="itemFind">
-            <el-tag v-for="(item, index) in n.list" :key="index">{{item.columnName}}</el-tag>
+            <el-tag v-for="(item, index) in n.columns" :key="index">{{item}}</el-tag>
           </div>
         </div>
       </div>
@@ -42,13 +42,12 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      this.options = this.saveNewSortList
-      // console.log(JSON.stringify(this.saveNewSortList))
+      this.options = this.saveNewSortListstructure
     }
   },
   computed: {
     ...mapGetters({
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortListstructure: 'saveNewSortListstructure'
     })
   }
 }

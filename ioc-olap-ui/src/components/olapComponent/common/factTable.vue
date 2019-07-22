@@ -85,7 +85,6 @@ export default {
     },
     changeLi (item, index) {
       if (this.isSetFact) {
-        console.log(this.savemousedownData)
         this.current = index
         this.$parent.clickTable(item)
       } else {

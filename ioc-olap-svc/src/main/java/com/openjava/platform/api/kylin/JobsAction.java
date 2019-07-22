@@ -18,8 +18,8 @@ public class JobsAction extends KylinAction {
 
 
     @ApiOperation(value = "获取正在执行的作业")
-    @RequestMapping(value = "/List", method = RequestMethod.GET)
-    public JobsMapper[] List(String jobSearchMode, Long limit, Long offset, String projectName, Long timeFilter) {
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public JobsMapper[] list(String jobSearchMode, Long limit, Long offset, String projectName, Long timeFilter) {
         String url = config.address + "/kylin/api/jobs";
         StringBuffer sBuffer = new StringBuffer(url);
         sBuffer.append("?jobSearchMode=" + jobSearchMode);
@@ -35,8 +35,8 @@ public class JobsAction extends KylinAction {
 
 
     @ApiOperation(value = "删除JOB")
-    @RequestMapping(value = "/Delete", method = RequestMethod.DELETE)
-    public JobsMapper Delete(String jobsId) {
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public JobsMapper delete(String jobsId) {
         String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/drop", config.address, jobsId);
         Class<JobsMapper> clazz = (Class<JobsMapper>) new JobsMapper().getClass();
         JobsMapper result = HttpClient.get(url, config.authorization, clazz);

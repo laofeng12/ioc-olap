@@ -1,14 +1,14 @@
 <template>
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <ul v-if="dataList && dataList.length">
-       <li v-for="(item, index) in dataList"
+     <ul v-if="dataList.lookups && dataList.lookups.length">
+       <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
-        :key="index" @click="changeLi(item, index)">
+        :key="index" @click="changeLi(titleData[index], dataList.fact_table, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
-         {{item.label}}
-         <span v-if="item.filed === 1">事实表</span>
+         {{titleData[index]}}
+         <span v-if="index===0">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -28,7 +28,109 @@ export default {
       value: '',
       current: '',
       colors: 'red',
-      dataList: []
+      titleData: [], // 表名
+      // 模拟数据
+      dataList: {
+        'name': 'bb',
+        'description': '',
+        'fact_table': 'DS_U_sIDNmLKXM',
+        lookups: [{
+          'table': 'DS_U_x5OSRKK1c',
+          'alias': 'DS_U_1Z2zyQFtD',
+          'joinTable': 'KYLIN_SALES',
+          'kind': 'LOOKUP',
+          'join': {
+            'type': 'inner',
+            'primary_key': [
+              'KYLIN_CAL_DT.CAL_DT'
+            ],
+            'foreign_key': [
+              'KYLIN_SALES.PART_DT'
+            ],
+            'isCompatible': [
+              true
+            ],
+            'pk_type': [
+              'date'
+            ],
+            'fk_type': [
+              'date'
+            ]
+          }
+        },
+        {
+          'table': 'DS_U_sIDNmLKXM',
+          'alias': 'KYLIN_CAL_DT',
+          'joinTable': 'DS_U_sXvf440QG',
+          'kind': 'LOOKUP',
+          'join': {
+            'type': 'inner',
+            'primary_key': [
+              'KYLIN_CAL_DT.CAL_DT'
+            ],
+            'foreign_key': [
+              'KYLIN_SALES.PART_DT'
+            ],
+            'isCompatible': [
+              true
+            ],
+            'pk_type': [
+              'date'
+            ],
+            'fk_type': [
+              'date'
+            ]
+          }
+        },
+        {
+          'table': 'DS_U_sXvf440QG',
+          'alias': 'KYLIN_CAL_DT',
+          'joinTable': 'DS_U_BJMxXakML',
+          'kind': 'LOOKUP',
+          'join': {
+            'type': 'inner',
+            'primary_key': [
+              'KYLIN_CAL_DT.CAL_DT'
+            ],
+            'foreign_key': [
+              'KYLIN_SALES.PART_DT'
+            ],
+            'isCompatible': [
+              true
+            ],
+            'pk_type': [
+              'date'
+            ],
+            'fk_type': [
+              'date'
+            ]
+          }
+        },
+        {
+          'table': 'DS_U_BJMxXakML',
+          'alias': 'KYLIN_CAL_DT',
+          'joinTable': 'DS_U_OBkpFiiWr',
+          'kind': 'LOOKUP',
+          'join': {
+            'type': 'inner',
+            'primary_key': [
+              'KYLIN_CAL_DT.CAL_DT'
+            ],
+            'foreign_key': [
+              'KYLIN_SALES.PART_DT'
+            ],
+            'isCompatible': [
+              true
+            ],
+            'pk_type': [
+              'date'
+            ],
+            'fk_type': [
+              'date'
+            ]
+          }
+        }]
+      }
     }
   },
   mounted () {
@@ -36,41 +138,46 @@ export default {
   },
   methods: {
     init () {
-    // 初始化已选择的表
-      setTimeout(() => { this.changeLi(this.dataList[0], 0) }, 300)
+      // 遍历去重数据拿到表名称
+      this.dataList.lookups.map((item, index) => {
+        this.titleData.push(item.table, item.joinTable)
+      })
+      this.titleData = [...new Set(this.titleData)]
+      // 初始化已选择的表
+      setTimeout(() => { this.changeLi(this.titleData[0], 0) }, 300)
       // 接收设置表关系的数据
-      this.dataList = this.selectTableTotal
+      // this.dataList = this.selectTableTotal
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
         setTimeout(() => {
-          this.dataList.forEach((item, index) => {
+          this.titleData.forEach((item, index) => {
             this.saveSelectFiled.forEach((n, i) => {
-              if (item.label === n.tableName) {
-                item['isActive'] = 1
+              if (item === n.tableName) {
+                this.dataList.lookups[index]['isActive'] = 1
               }
             })
           })
           // 存储已选择后的维度表
-          this.$store.dispatch('saveSelectFiledTree', this.dataList)
+          // this.$store.dispatch('saveSelectFiledTree', this.dataList.lookups)
         }, 300)
       })
     },
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
-    changeLi (item, index) {
+    changeLi (item, name, index) {
       this.current = index
       const parmas = {
         dsDataSourceId: 2,
-        tableName: item.label
+        tableName: item
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
         res.data.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
-          n.apiPaths = n.apiPaths ? n.apiPaths : ''
-          n.tableName = item.label
-          n.filed = item.filed
-          n.id = `${item.label}${i}`
+          n.apiPaths = n.columnName
+          n.tableName = item
+          n.filed = name
+          n.id = `${item}${i}`
         })
         // 存储选择对应的表
         this.$store.dispatch('SaveRightTableList', res.data)

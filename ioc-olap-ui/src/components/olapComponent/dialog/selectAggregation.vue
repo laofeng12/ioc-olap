@@ -6,7 +6,7 @@
           <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-checkbox-group ref="group" v-model="selctCheckData">
-              <el-checkbox-button v-for="(item, index) in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
+              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default {
       this.dialogFormVisible = false
     },
     selectChange (value) {
-      console.log(this.selctCheckData, '啦啦啦啦啦')
+      // console.log(this.selctCheckData, '啦啦啦啦啦')
     },
     submitBtn (index) {
       this.dialogFormVisible = false
@@ -63,8 +63,8 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      // this.options = this.saveNewSortList
-      this.options = JSON.parse(getLocalStorage('saveNewSortList'))
+      this.options = this.saveNewSortList
+      // this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -99,10 +99,6 @@ export default {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
       selectDataidList: 'selectDataidList',
-      containDataId: 'containDataId',
-      necessaryDataId: 'necessaryDataId',
-      levelDataId: 'levelDataId',
-      jointDataId: 'jointDataId',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId'
     })

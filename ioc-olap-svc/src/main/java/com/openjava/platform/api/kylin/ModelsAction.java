@@ -16,8 +16,8 @@ import java.util.HashMap;
 public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "获取所有模型接口")
-    @RequestMapping(value = "/List", method = RequestMethod.GET)
-    public ArrayList<ModelsDescDataMapper> List() {
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ArrayList<ModelsDescDataMapper> list() {
         String url = config.address + "/kylin/api/models";
         Class<ArrayList<ModelsDescDataMapper>> clazz = (Class<ArrayList<ModelsDescDataMapper>>) new ArrayList<ModelsDescDataMapper>().getClass();
         ArrayList<ModelsDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
@@ -25,8 +25,8 @@ public class ModelsAction extends KylinAction {
     }
 
     @ApiOperation(value = "获取指定项目的模型")
-    @RequestMapping(value = "/Entity", method = RequestMethod.GET)
-    public ArrayList<ModelsDescDataMapper> Entity(String postman) {
+    @RequestMapping(value = "/entity", method = RequestMethod.GET)
+    public ArrayList<ModelsDescDataMapper> entity(String postman) {
         String url = config.address + "/kylin/api/models/" + postman;
         Class<ArrayList<ModelsDescDataMapper>> clazz = (Class<ArrayList<ModelsDescDataMapper>>) new ArrayList<ModelsDescDataMapper>().getClass();
         ArrayList<ModelsDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
@@ -35,8 +35,8 @@ public class ModelsAction extends KylinAction {
 
 
     @ApiOperation(value = "新增模型")
-    @RequestMapping(value = "/Create", method = RequestMethod.POST)
-    public ModelsMapper Create(@RequestBody ModelsMapper body) {
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public ModelsMapper create(@RequestBody ModelsMapper body) {
         String url = config.address + "/kylin/api/models";
         HashMap hash = new HashMap();
         hash.put("modelDescData", JSON.toJSONString(body.modelDescData));
@@ -48,8 +48,8 @@ public class ModelsAction extends KylinAction {
 
 
     @ApiOperation(value = "修改指定的模型")
-    @RequestMapping(value = "/Update", method = RequestMethod.PUT)
-    public ModelsMapper Update(@RequestBody ModelsMapper body) {
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    public ModelsMapper update(@RequestBody ModelsMapper body) {
         String url = config.address + "/kylin/api/models";
         HashMap hash = new HashMap();
         hash.put("modelDescData", JSON.toJSONString(body.modelDescData));

@@ -23,6 +23,8 @@ public class ModelsDescDataMapper {
     public boolean is_draft;
     @JSONField(name = "description")
     public String description;
+    @JSONField(name = "fact_table")
+    public String fact_table;
     @JSONField(name = "lookups")
     public ArrayList<LookupsMapper> lookups;
     @JSONField(name = "dimensions")
