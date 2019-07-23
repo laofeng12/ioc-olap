@@ -562,6 +562,7 @@ export default {
         console.log('已经请求过了~')
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
+          console.log(JSON.stringify(res.data))
           this.couponList = res.data
         })
       }

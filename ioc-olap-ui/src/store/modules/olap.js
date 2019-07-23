@@ -237,8 +237,17 @@ const common = {
     // 新增的table表
     MeasureTableList ({ state }, data) {
       return new Promise((resolve, reject) => {
-        state.measureTableList.push(data)
-        resolve('ok')
+        if (data.isNew === 0) {
+          state.measureTableList.push(data)
+          resolve('ok')
+        } else {
+          state.measureTableList.map((item, index) => {
+            if (data.id === item.id) {
+              state.measureTableList[index] = data
+              resolve('ok')
+            }
+          })
+        }
       })
     },
     // 根据生成的id删除对应表
@@ -251,8 +260,17 @@ const common = {
     // 新增的过滤表
     ReloadFilterTableList ({ state }, data) {
       return new Promise((resolve, reject) => {
-        state.relaodFilterList.push(data)
-        resolve('ok')
+        if (data.isNew === 0) {
+          state.relaodFilterList.push(data)
+          resolve('ok')
+        } else {
+          state.relaodFilterList.map((item, index) => {
+            if (data.id === item.id) {
+              state.relaodFilterList[index] = data
+              resolve('ok')
+            }
+          })
+        }
       })
     },
     // 根据生成的id删除对应表

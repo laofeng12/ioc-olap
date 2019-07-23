@@ -20,7 +20,7 @@
           <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
-      </el-tabs>
+      </el-tabs>  
   </div>
  </div>
 </template>
@@ -43,7 +43,7 @@ export default {
       descriptionHead: [
         { prop: 'comment', label: '字段名称' },
         { prop: 'dataType', label: '字段类型' },
-        { prop: 'columnName', label: '字段描述' }
+        { prop: 'columnName', label: '字段描述' } 
       ]
     }
   },
