@@ -39,42 +39,34 @@ public class OlapCubeTableRelation implements Persistable<Long>,Serializable {
 	private Long id;
 	
 	@ApiModelProperty("源表id")
-	@Max(0L)
 	@Column(name = "TABLE_ID")
 	private Long tableId;
 	
 	@ApiModelProperty("关联表ID")
-	@Max(0L)
 	@Column(name = "JOIN_TABLE_ID")
 	private Long joinTableId;
 	
 	@ApiModelProperty("关联类型")
-	@Length(min=0, max=20)
 	@Column(name = "JOIN_TYPE")
 	private String joinType;
 	
 	@ApiModelProperty("主键列名称")
-	@Length(min=0, max=100)
 	@Column(name = "PK_KEY")
 	private String pkKey;
 	
 	@ApiModelProperty("外键列名称")
-	@Length(min=0, max=100)
 	@Column(name = "FK_KEY")
 	private String fkKey;
 	
 	@ApiModelProperty("主键数据类型")
-	@Length(min=0, max=100)
 	@Column(name = "PK_DATA_TYPE")
 	private String pkDataType;
 	
 	@ApiModelProperty("外键数据类型")
-	@Length(min=0, max=100)
 	@Column(name = "FK_DATA_TYPE")
 	private String fkDataType;
 	
 	@ApiModelProperty("立方体ID")
-	@Max(0L)
 	@Column(name = "CUBE_ID")
 	private Long cubeId;
 	

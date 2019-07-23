@@ -91,16 +91,16 @@ export default new Router({
       ]
     },
     {
-      path: '/queries',
+      path: '/',
       name: 'queries',
       component: ContainerWrapper,
-      redirect: '/queries/adHocQueries',
+      redirect: '/instantInquiry',
       children: [
         {
-          path: 'adHocQueries',
-          name: 'adHocQueries',
+          path: 'instantInquiry',
+          name: 'instantInquiry',
           meta: { title: '即席分析' },
-          component: () => import('@/views/olap/adHocQueries.vue')
+          component: () => import('@/views/olap/instantInquiry.vue')
         }
         // {
         //   path: 'createolap',
@@ -121,6 +121,12 @@ export default new Router({
           name: 'olapAnalysisList',
           meta: { title: 'olap分析' },
           component: () => import('@/views/olap/olapAnalysisList.vue')
+        },
+        {
+          path: 'newOlapAnalysis',
+          name: 'newOlapAnalysis',
+          meta: { title: '新建olap分析' },
+          component: () => import('@/views/olap/olapAnalysis.vue')
         }
       ]
     }

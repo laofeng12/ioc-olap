@@ -11,9 +11,19 @@
     <el-table
         :data="tableData"
         ref="multipleTable"
+        :row-key="getRowKeys"
+        :expand-row-keys="expands"
         tooltip-effect="dark"
+        @row-click="clickTable"
         @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
+        <el-table-column align="center" show-overflow-tooltip type="expand">
+          <template>
+            <el-popover>
+              <model-detail @closeExpands="closeExpands"></model-detail>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="catalogName" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="apiPaths" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
@@ -29,34 +39,48 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'testModal', params: scope.row.apiId}">重命名</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">查看</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'rename', params: scope.row.apiId}">重命名</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookDetail', params: scope.row.apiId}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">编辑</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">构建</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">刷新</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">合并</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">禁用</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">共享</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">复制</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">删除</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'clones', params: scope.row}">复制</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
           </template>
         </el-table-column>
       </el-table>
+      <rename ref="rename"></rename>
+      <construct ref="construct"></construct>
+      <reloads ref="reloads"></reloads>
+      <merge ref="merge"></merge>
+      <sharedTable ref="sharedTable"></sharedTable>
   </div>
 </template>
 
 <script>
-// import { getApiList } from '@/api/common'
+import { getApiList } from '@/api/common'
+import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/olapComponent/modelListComponent'
 export default {
+  components: {
+    modelDetail, rename, construct, reloads, merge, sharedTable
+  },
   data () {
     return {
       like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
+      getRowKeys (row) {
+        return row.apiId
+      },
+      // 要展开的行，数值的元素是row的key值
+      expands: [],
       tableData: []
     }
   },
@@ -66,9 +90,9 @@ export default {
       sort: 'createtime,desc',
       page: this.currentPage - 1
     }
-    // getApiList(params).then(res => {
-    //   this.tableData = res.rows
-    // })
+    getApiList(params).then(res => {
+      this.tableData = res.rows
+    })
   },
   methods: {
     searchFetch (val) {
@@ -77,8 +101,36 @@ export default {
     createolap () {
       this.$router.push('/olap/createolap/selectStep')
     },
-    handleCommand () {
-
+    // 展开详情
+    clickTable (val) {
+      console.log(val)
+    },
+    handleCommand (val) {
+      this.expands = []
+      let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
+        : (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
+      if (val.type === 'lookDetail') {
+        this.expands.push(val.params)
+        return
+      }
+      if (val.type === 'disableds' || val.type === 'clones' || val.type === 'dels') {
+        this.$confirm(texts, {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '成功!'
+          })
+          this.dialogFormVisible = false
+        })
+        return
+      }
+      this.$refs[val.type].dialog()
+    },
+    closeExpands () {
+      this.expands = []
     },
     handleSelectionChange () {
 
@@ -99,6 +151,25 @@ export default {
     }
     >>>.el-button{
       float right
+    }
+  }
+  >>>.el-table__row{
+    .el-table__expand-column{
+      opacity 0
+    }
+  }
+  >>>.el-table__expanded-cell{
+    height 500px
+    overflow auto
+    width 100%
+    padding 10px
+    padding-bottom 50px
+    .el-popover{
+      display block!important
+      position absolute
+      top 0
+      left 0
+      width 100%
     }
   }
 }

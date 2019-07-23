@@ -11,12 +11,12 @@ import '@/styles/element-variables.scss'
 import '@/permission' // permission control
 import './icons'
 import '@/styles/index.scss'
-
 import 'vue-task-node/dist/css/vnode.css'
+import fullscreen from 'vue-fullscreen'
 
 Vue.use(ElementUI)
-
 Vue.use(Layout)
+Vue.use(fullscreen)
 Vue.config.productionTip = false
 
 new Vue({

@@ -13,41 +13,41 @@
       </el-row>
     </el-aside>
     <div class="cus-right">
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew"></ResultBox>
     </div>
 
     <!-- 分享弹窗 -->
-    <!--<share-dialog-->
-      <!--class="share-dialog"-->
-      <!--ref="sdialog"-->
-      <!--title="数据报表"-->
-      <!--topNodeKey="dataId"-->
-      <!--:defaultProps="defaultProps"-->
-      <!--:departTreeProps="departTreeProps"-->
-      <!--:shareDialogData="shareDialogData"-->
-      <!--@clickDepartNode="clickDepartNode"-->
-      <!--bottomNodeKey="orgId"-->
-      <!--@confirmShare="confirmShare"-->
-      <!--:show.sync="isShowSDialog">-->
-    <!--</share-dialog>-->
+    <share-dialog
+      class="share-dialog"
+      ref="sdialog"
+      title="数据报表"
+      topNodeKey="dataId"
+      :defaultProps="defaultProps"
+      :departTreeProps="departTreeProps"
+      :shareDialogData="shareDialogData"
+      @clickDepartNode="clickDepartNode"
+      bottomNodeKey="orgId"
+      @confirmShare="confirmShare"
+      :show.sync="isShowSDialog">
+    </share-dialog>
 
-    <!-- 移动弹窗 -->
-    <!--<move-dialog-->
-      <!--title="移动自助报表"-->
-      <!--:FolderList="DialogFolderList"-->
-      <!--@selectFolder="selectDialogFolder"-->
-      <!--@confirmMove="confirmMove"-->
-      <!--:show.sync="isShowMDialog">-->
-    <!--</move-dialog>-->
+     <!--移动弹窗 -->
+    <move-dialog
+      title="移动自助报表"
+      :FolderList="DialogFolderList"
+      @selectFolder="selectDialogFolder"
+      @confirmMove="confirmMove"
+      :show.sync="isShowMDialog">
+    </move-dialog>
 
   </el-container>
 </template>
 
 <script>
-import FolderAside from '@/components/olapComponent/common/FolderAside1'
-import ResultBox from '@/components/olapComponent/common/ResultBox'
-// import ShareDialog from '../../components/ShareDialog'
-// import MoveDialog from '../../components/MoveDialog'
+import FolderAside from '../../components/olapComponent/common/FolderAside'
+import ResultBox from '../../components/olapComponent/common/ResultBox'
+import ShareDialog from '../../components/ShareDialog'
+import MoveDialog from '../../components/MoveDialog'
 // import StatementTable from '@/components/BITemp/StatementTable'
 // import TableFilter from '../../components/TableFilter'
 // import {
@@ -56,7 +56,7 @@ import ResultBox from '@/components/olapComponent/common/ResultBox'
 // } from '../../api/statement'
 
 export default {
-  components: { FolderAside, ResultBox },
+  components: { FolderAside, ResultBox, ShareDialog, MoveDialog },
   watch: {
     searchKeyword (val) {
       this.$refs.alltree.filter(val)
@@ -115,29 +115,77 @@ export default {
           }
         }
       },
-      theadData: [
-        { prop: 'column1', label: '日期' },
-        { prop: 'column2', label: '姓名' },
-        { prop: 'column3', label: '地址' },
-        { prop: 'column4', label: '日期' },
-        { prop: 'column5', label: '姓名' },
-        { prop: 'column6', label: '地址' }
-      ],
       tableData: [
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
+        [
+          { colspan: 1, rowspan: 1, value: '标题1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '标题8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ],
+        [
+          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
+          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
+        ]
       ]
     }
   },
