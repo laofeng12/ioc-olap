@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" :needNewFolder="true"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
     <div class="content">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
     </div>
@@ -27,6 +27,7 @@
 <script>
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
+import { getFolderWithQueryApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -124,37 +125,44 @@ export default {
         {
           catalogList: [],
           dataId: 779035117190185,
-          dataName: '测试嵌套报表'
+          dataName: '测试嵌套报表',
+          sort: 1
         },
         {
           catalogList: [ {
             dataId: 795406468250198,
             dataName: '东莞中小学成绩报告',
             dataType: 3,
-            isShare: 1
+            isShare: 1,
+            sort: 2
           } ],
           dataId: 796247848830160,
-          dataName: '东莞'
+          dataName: '东莞',
+          sort: 2
         },
         {
           catalogList: [ {
             dataId: 795247414460141,
             dataName: '测试汇总88',
             dataType: 1,
-            isShare: 1
+            isShare: 1,
+            sort: 3
           } ],
           dataId: 776468771050089,
-          dataName: '测试通用报表'
+          dataName: '测试通用报表',
+          sort: 3
         },
         {
           catalogList: [ {
             dataId: 795385794900198,
             dataName: '测试11',
             dataType: 2,
-            isShare: 1
+            isShare: 1,
+            sort: 4
           } ],
           dataId: 777364408760098,
-          dataName: '测试主从报表'
+          dataName: '测试主从报表',
+          sort: 4
         }
       ],
       menuDefault: {
@@ -170,7 +178,9 @@ export default {
       }
     }
   },
-  mounted () {},
+  mounted () {
+    this.getAsideList()
+  },
   methods: {
     handleOpen (key, keyPath) {
       console.log('open', key, keyPath)
@@ -180,6 +190,10 @@ export default {
     },
     handleSelect (key, keyPath) {
       console.log('select', key, keyPath)
+    },
+    async getAsideList () {
+      const res = await getFolderWithQueryApi()
+      console.info('res', res)
     }
   }
 }

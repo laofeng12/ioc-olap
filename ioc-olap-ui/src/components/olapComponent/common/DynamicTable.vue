@@ -38,10 +38,10 @@ export default {
       type: Array,
       required: true
     },
-    theadData: {
-      type: Array,
-      required: true
-    },
+    // theadData: {
+    //   type: Array,
+    //   required: true
+    // },
     diffWidth: {
       type: Number,
       default: 536
