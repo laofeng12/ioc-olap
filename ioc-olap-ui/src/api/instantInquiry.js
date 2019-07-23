@@ -29,6 +29,7 @@ export function searchOlapApi (data) {
   return fetch({
     url: '/olapweb/olap/apis/olapRealQuery/query',
     method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
     data
   })
 }

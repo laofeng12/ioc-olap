@@ -26,7 +26,7 @@
         </div>
       </div>
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                 @reset="reset"></ResultBox>
+                 @reset="reset" :folderList="folderList"></ResultBox>
     </div>
     <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form">
@@ -51,7 +51,7 @@
 <script>
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { getCubeTreeApi, saveOlapApi, deleteOlapApi, searchOlapApi } from '../../api/instantInquiry'
+import { getCubeTreeApi, saveOlapApi, deleteOlapApi, searchOlapApi, getFolderWithQueryApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -59,8 +59,8 @@ export default {
     return {
       search: '',
       textarea: '',
-      lineNumber: '',
-      checked: false,
+      lineNumber: '100',
+      checked: true,
       tableData: [
         [
           { colspan: 1, rowspan: 1, value: '标题1', type: 3, attrs: {} },
@@ -152,13 +152,24 @@ export default {
             return true
           }
         }
-      }
+      },
+      folderList: []
     }
   },
   mounted () {
     this.getAsideList()
   },
   methods: {
+    async getAsideList () {
+      const res = await getFolderWithQueryApi()
+      const folderList = res.map(v => {
+        return (
+          { catalogList: v.leafs, dataId: v.folderId, dataName: v.name }
+        )
+      })
+      console.info('folderList', folderList)
+      this.folderList = folderList
+    },
     async getAsideList () {
       const res = await getCubeTreeApi()
       console.info('res', res)
@@ -169,11 +180,29 @@ export default {
     },
     async searchOlap () {
       const data = {
-        limit: this.checked ? this.lineNumber : null,
+        limit: this.checked ? this.lineNumber : -1,
         sql: this.textarea
       }
-      const res = searchOlapApi(data)
-      console.info('res', res)
+      try {
+        const { columnMetas, results } = await searchOlapApi(data)
+        const columnMetasList = columnMetas.map(v => {
+          return (
+            { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
+          )
+        })
+        const resultsList = results.map(item => {
+          let list = []
+          item.forEach(v => {
+            const obj = { colspan: 1, rowspan: 1, value: v, type: 'td' }
+            list.push(obj)
+          })
+          return list
+        })
+        this.tableData = [...[columnMetasList], ...resultsList]
+        this.$message.success('查询完成')
+      } catch (e) {
+        this.$message.error('查询失败')
+      }
     },
     async saveOlap (callbackData) {
       const data = {

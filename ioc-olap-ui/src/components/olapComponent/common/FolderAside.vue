@@ -137,9 +137,9 @@ export default {
       return data.dataName.indexOf(value) !== -1
     },
     submitNewFolder () {
-      console.info(this.folderForm.sort, typeof this.folderForm.sort)
       const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
         flags: 0,
+        parentId: 0,
         isNew: true,
         name: this.folderForm.name,
         sortNum: this.folderForm.sort,
@@ -147,11 +147,19 @@ export default {
       }
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
-          const res = await newOlapFolderApi(data)
-          console.info('res', res)
+          try {
+            const { createId } = await newOlapFolderApi(data)
+            if (createId) {
+              this.$message.success('新建成功')
+              this.newVisible = false
+            } else {
+              this.$message.error('新建失败')
+            }
+          } catch (e) {
+           this.$message.error('新建失败')
+          }
         }
       })
-
     },
     handleCommand (dropIndex, node, data) {
       // console.info('dropIndex', dropIndex)

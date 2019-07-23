@@ -45,8 +45,8 @@
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
         <el-form-item label="文件夹" label-width="100px" prop="folder">
           <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
-            <el-option label="文件夹一" value="1"></el-option>
-            <el-option label="文件夹二" value="2"></el-option>
+            <el-option v-for="(item, index) in folderList" :key="index" :label="item.dataName"
+                       :value="item.dataId"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
@@ -89,6 +89,10 @@ export default {
     diffWidth: {
       type: Number,
       default: 536
+    },
+    folderList: {
+      type: Array,
+      default: []
     }
   },
   components: { DynamicTable },

@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Queries from '../../components/olapComponent/Queries'
 import SaveResult from '../../components/olapComponent/SaveResult'
 import ShareResult from '../../components/olapComponent/ShareResult'
@@ -25,6 +26,12 @@ export default {
     return {
       activeName: '1'
     }
+  },
+  computed: {
+    ...mapGetters(['userInfo'])
+  },
+  mounted () {
+    console.info('this.userInfo============', this.userInfo)
   },
   methods: {
 

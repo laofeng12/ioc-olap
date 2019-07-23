@@ -193,7 +193,13 @@ export default {
     },
     async getAsideList () {
       const res = await getFolderWithQueryApi()
-      console.info('res', res)
+      const menuList = res.map(v => {
+        return (
+          { catalogList: v.leafs, dataId: v.folderId, dataName: v.name }
+        )
+      })
+      console.info('menuList', menuList)
+      this.menuList = menuList
     }
   }
 }
