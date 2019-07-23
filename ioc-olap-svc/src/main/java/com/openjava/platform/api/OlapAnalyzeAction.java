@@ -5,10 +5,7 @@ import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.service.*;
-import com.openjava.platform.vo.AnalyzeVo;
-import com.openjava.platform.vo.FolderHierarchicalVo;
-import com.openjava.platform.vo.TreeNodeVo;
-import com.openjava.platform.vo.TreeVo;
+import com.openjava.platform.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.ljdp.common.bean.MyBeanUtils;
@@ -41,6 +38,8 @@ public class OlapAnalyzeAction {
     private OlapFolderService olapFolderService;
     @Resource
     private OlapAnalyzeService olapAnalyzeService;
+    @Resource
+    private CubeAction cubeAction;
 
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
@@ -48,7 +47,7 @@ public class OlapAnalyzeAction {
     public ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapAnalyze>>();
-        List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"RealQuery");
+        List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"DataAnalyze");
         for (OlapFolder folder : folders){
             FolderHierarchicalVo<OlapAnalyze> folderHierarchicalVo=new FolderHierarchicalVo<OlapAnalyze>();
             MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
@@ -66,12 +65,21 @@ public class OlapAnalyzeAction {
         return olapAnalyzeService.getAllShares(Long.parseLong(userVO.getUserId()));
     }
 
-    @ApiOperation(value = "查询OLAP分析的数据")
+    @ApiOperation(value = "查询已构建好的OLAP分析数据")
+    @RequestMapping(value = "/query", method = RequestMethod.GET)
+    @Security(session=true)
+    public AnyDimensionVo query(Long analyzeId,Long cubeId) {
+        return null;
+        //return olapAnalyzeService.query(analyzeId,cubeId);
+        //return new CubeAction().query(sql,0,5000,userVO.getUserId());
+    }
+
+    @ApiOperation(value = "直接查询OLAP分析的数据")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @Security(session=true)
-    public QueryResultMapper queryShare(String sql) {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        return new CubeAction().query(sql,0,5000,userVO.getUserId());
+    public AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises) {
+        return null;
+        //return olapAnalyzeService.query(cubeId,axises);
     }
 
     @ApiOperation(value = "保存OLAP分析接口")

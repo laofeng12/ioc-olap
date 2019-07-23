@@ -3,6 +3,7 @@ package com.openjava.platform.api;
 import java.util.*;
 
 import javax.annotation.Resource;
+import javax.persistence.PreUpdate;
 
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
@@ -50,6 +51,9 @@ public class OlapRealQueryAction extends BaseAction {
 	private OlapCubeTableColumnService olapCubeTableColumnService;
 	@Resource
 	private OlapFolderService olapFolderService;
+	@Resource
+	private CubeAction cubeAction;
+
 	
 	/**
 	 * 用主键获取数据
@@ -160,7 +164,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@Security(session=true)
 	public QueryResultMapper query(String sql, Integer limit) {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		return new CubeAction().query(sql,0,limit,userVO.getUserId());
+		return cubeAction.query(sql,0,limit,userVO.getUserId());
 	}
 
 	@ApiOperation(value = "获取层级文件夹结构")
