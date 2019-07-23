@@ -47,7 +47,7 @@ export default {
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
         }) && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
-        : this.$root.eventBus.$emit('getserchTableList', this.$store.state.common.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+        : this.$root.eventBus.$emit('getserchTableList', this.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
       // 推送已选择的复选框按钮到serachTable
       this.$root.eventBus.$emit('saveSelectTables')
     }
@@ -56,11 +56,13 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      serchTableList: 'serchTableList'
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getUploadTable')
+    this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('saveSelectTables')
   }
 }

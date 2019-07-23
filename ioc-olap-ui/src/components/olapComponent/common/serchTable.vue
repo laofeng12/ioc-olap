@@ -67,7 +67,7 @@ export default {
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
-        // this.defaultKey = []
+        this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
         if (this.$store.state.olap.searchType === 1) {
           this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })

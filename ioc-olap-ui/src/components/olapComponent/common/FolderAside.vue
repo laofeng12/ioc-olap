@@ -8,35 +8,51 @@
         v-model="searchKeyword_">
       </el-input>
     </el-row>
-    <el-tree
-      class="filter-tree"
-      icon-class="el-icon-folder"
-      :data="menuList"
-      :props="menuDefault"
-      default-expand-all
-      :filter-node-method="filterAll"
-      @node-click="clickTreeItem"
-      ref="alltree_">
-              <span class="custom-tree-node" slot-scope="{ node, data }">
-                <span class="cus-node-title" :title="data.dataName">{{ data.dataName }}</span>
-                <span class="cus-node-content">
-                  <el-dropdown size="mini" @command="handleItemShare($event, node, data)">
-                    <el-button type="primary" size="mini">
-                      操作<i class="el-icon-arrow-down el-icon--right"></i>
-                    </el-button>
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item command="0">重命名</el-dropdown-item>
-                      <!--<el-dropdown-item v-if="!node.isLeaf" command="1">刷新</el-dropdown-item>-->
-                      <el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>
-                      <el-dropdown-item command="3">删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </span>
-              </span>
+    <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
+      default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree_">
+      <span class="custom-tree-node" slot-scope="{ node, data }">
+        <span class="cus-node-title" :title="data.dataName">{{ data.dataName }}</span>
+          <span class="cus-node-content">
+            <el-dropdown size="mini" @command="handleCommand($event, node, data)">
+              <el-button type="primary" size="mini">
+                操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="0">编辑</el-dropdown-item>
+                <el-dropdown-item command="1">分享</el-dropdown-item>
+                <el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>
+                <el-dropdown-item command="3">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </span>
+       </span>
     </el-tree>
-    <div style="text-align: center;">
+    <div style="text-align: center;" v-if="needNewFolder">
       <el-button type="primary" size="small" @click="newFolder()">新建文件夹</el-button>
     </div>
+    <el-dialog title="新建文件夹" :visible.sync="newVisible" width="30">
+      <el-form :model="folderForm" :rules="folderRules">
+        <el-form-item label="文件夹名称" label-width="140px" prop="name">
+          <el-input v-model="folderForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="文件夹序号" label-width="140px" prop="sort">
+          <el-input v-model="folderForm.sort"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="newVisible = false">取 消</el-button>
+        <el-button type="primary" @click="newVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="选择共享" :visible.sync="shareVisible">
+      <div class="">
+        <el-transfer v-model="shareValue" :data="shareData"></el-transfer>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="shareVisible = false">取 消</el-button>
+        <el-button type="primary" @click="shareVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -50,39 +66,26 @@ export default {
     menuDefault: {
       // type: Array,
       required: true
+    },
+    needNewFolder: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
+    const generateData = _ => {
+      const data = [];
+      for (let i = 1; i <= 15; i++) {
+        data.push({
+          key: i,
+          label: `备选项 ${ i }`,
+          disabled: i % 4 === 0
+        });
+      }
+      return data;
+    };
     return {
-      showMenuList: false,
       searchKeyword_: '', // 分享搜索
-      treeList: [
-        {
-          id: 1,
-          label: '交通局',
-          children: [{
-            id: 4,
-            label: '检查组',
-            children: [{
-              id: 9,
-              label: '张三'
-            }, {
-              id: 10,
-              label: '李四'
-            }]
-          }]
-        }, {
-          id: 2,
-          label: '教育局',
-          children: [{
-            id: 5,
-            label: '张三'
-          }, {
-            id: 6,
-            label: '李四'
-          }]
-        }
-      ],
       shareVisible: false,
       newVisible: false,
       folderForm: {
@@ -97,13 +100,15 @@ export default {
             message: '请输入文件夹名称',
             trigger: 'blur'
           },
-          { max: 50, message: '请不要超过50个字符', trigger: 'blur' }
+          { max: 50, message: '请不要超过50个字', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '请输入序号', trigger: 'blur' },
           { type: 'number', message: '序号必须为数字值' }
         ]
-      }
+      },
+      shareData: generateData(),
+      shareValue: [1, 4]
     }
   },
   watch: {
@@ -115,15 +120,6 @@ export default {
     }
   },
   methods: {
-    showShareVisible () {
-      this.shareVisible = true
-    },
-    submitFolderForm () {
-      console.info('this.folderForm', this.folderForm)
-    },
-    showNewVisible () {
-      this.newVisible = true
-    },
     clickTreeItem (data, node, self) {
       let that = this
       if (node.parent.parent) {
@@ -132,12 +128,30 @@ export default {
         that.sheetDataId = data.dataId
         that.sheetShare = data.isShare
         // 渲染表格数据
-        this.getTableData_(data.dataId)
+        // this.getTableData_(data.dataId)
       }
     },
     filterAll (value, data) {
       if (!value) return true
       return data.dataName.indexOf(value) !== -1
+    },
+    newFolder () {
+      this.newVisible = true
+    },
+    handleCommand (dropIndex, node, data) {
+      // console.info('dropIndex', dropIndex)
+      // console.info('node', node)
+      // console.info('data', data)
+      switch (dropIndex) {
+        case '0': // 编辑
+          return this.edit(node, data, 0)
+        case '1': // 分享
+          this.shareVisible = true
+          break
+      }
+    },
+    edit () {
+      this.newVisible = true
     }
   }
 }

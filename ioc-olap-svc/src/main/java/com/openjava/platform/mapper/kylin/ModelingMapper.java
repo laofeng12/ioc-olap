@@ -1,10 +1,14 @@
 package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.openjava.platform.domain.OlapFilter;
+import com.openjava.platform.domain.OlapFilterCondidion;
+import com.openjava.platform.domain.OlapTimingrefresh;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,6 +19,12 @@ public class ModelingMapper {
 
     @JSONField(name = "cube")
     public CubeDescMapper cube;
+
+    @JSONField(name = "filterCondidion")
+    public List<OlapFilterCondidion> filterCondidion;
+
+    @JSONField(name = "filterCondidion")
+    public OlapTimingrefresh timingreFresh;
 
 
 //    @JSONField(name = "partition_desc")

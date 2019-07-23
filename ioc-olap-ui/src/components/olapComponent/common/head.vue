@@ -1,13 +1,7 @@
 <template>
   <div class="tabHead">
     <div class="tabHead_item">
-      <div :class="Number(selectId) === 1 ? 'actives' : ''">1、选择数据源</div>
-      <div :class="Number(selectId) === 2 ? 'actives' : ''">2、建立表关系</div>
-      <div :class="Number(selectId) === 3 ? 'actives' : ''">3、设置维度字段</div>
-      <div :class="Number(selectId) === 4 ? 'actives' : ''">4、设置度量字段</div>
-      <div :class="Number(selectId) === 5 ? 'actives' : ''">5、刷新及过滤设置</div>
-      <div :class="Number(selectId) === 6 ? 'actives' : ''">6、高级设置</div>
-      <div :class="Number(selectId) === 7 ? 'actives' : ''">7、完成创建</div>
+      <div v-for="(item, index) in dataHead" :class="String(selectId) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
   </div>
 </template>
@@ -18,19 +12,22 @@ export default {
     selectId: {
       type: [String, Number],
       default: 1
-    },
-    titleData: {
-      type: Array,
-      default: () => {
-        return [{
-          value: '填写基本信息'
-        }, {
-          value: '邮箱激活'
-        }, {
-          value: '完善信息'
-        }]
-      }
     }
+  },
+  data () {
+    return {
+      dataHead: [
+        { id: '1', value: '1、选择数据源' },
+        { id: '2', value: '2、建立表关系' },
+        { id: '3', value: '3、设置维度字段' },
+        { id: '4', value: '4、设置度量字段' },
+        { id: '5', value: '5、刷新及过滤设置' },
+        { id: '6', value: '6、高级设置' },
+        { id: '7', value: '7、完成创建' }
+      ]
+    }
+  },
+  mounted () {
   }
 }
 </script>

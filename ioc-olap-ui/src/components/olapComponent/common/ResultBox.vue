@@ -39,7 +39,7 @@
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable class="allScreen" :theadData="theadData" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
     </div>
     <el-dialog title="提示" :visible.sync="tipVisible" width="30%">
       <span>确认{{translate(word)}}数据吗？</span>
@@ -57,10 +57,6 @@ import DynamicTable from '../common/DynamicTable'
 export default {
   props: {
     tableData: {
-      type: Array,
-      required: true
-    },
-    theadData: {
       type: Array,
       required: true
     },
