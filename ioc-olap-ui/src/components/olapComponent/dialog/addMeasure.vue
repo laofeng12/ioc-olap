@@ -6,17 +6,17 @@
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
         </el-form-item>
         <el-form-item label="计算方式" :label-width="formLabelWidth">
-          <el-select v-model="formDatasfunction.expression" placeholder="请选择" @change="selectChange">
+          <el-select v-model="formData.function.expression" placeholder="请选择" @change="selectChange">
             <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth">
-          <el-select v-model="formDatasfunction.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
+          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="formDatasfunction.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
+          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
@@ -218,18 +218,13 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal'
-    }),
-    formDatasfunction: {
-      get () {
-        return this.formData.function
-      },
-      set (val) {
-        this.formData.function = val
-      }
-    }
+    })
+  },
+  mounted () {
+    console.log(this.formData)
   },
   methods: {
-    sortData () {
+    resetData () {
       this.formData = {
         function: {
           expression: '',
@@ -254,7 +249,7 @@ export default {
       this.$store.dispatch('MeasureTableList', this.formData).then(res => {
         if (res) {
           this.$message.success('保存成功~')
-          this.sortData()
+          this.resetData()
         }
       })
       this.$parent.init()
@@ -265,7 +260,7 @@ export default {
         this.formData = data
         this.isNew = 1
       } else {
-        this.sortData()
+        this.resetData()
         this.isNew = 0
       }
     },

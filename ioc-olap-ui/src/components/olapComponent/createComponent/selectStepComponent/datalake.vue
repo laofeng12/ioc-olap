@@ -10,8 +10,8 @@
               <!-- <li v-if="managementHead && managementHead.length">序号</li> -->
               <span v-for="(item, index) in managementHead" :key="index">{{item.label}}</span>
             </div>
-            <div class="tableBox_item">
-              <span v-for="(n, index) in managementData[0]" :key="index">{{n}}</span>
+            <div class="tableBox_item" v-for="(n, index) in managementData" :key="index">
+              <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
@@ -20,7 +20,7 @@
           <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
-      </el-tabs>  
+      </el-tabs>
   </div>
  </div>
 </template>
@@ -43,7 +43,7 @@ export default {
       descriptionHead: [
         { prop: 'comment', label: '字段名称' },
         { prop: 'dataType', label: '字段类型' },
-        { prop: 'columnName', label: '字段描述' } 
+        { prop: 'columnName', label: '字段描述' }
       ]
     }
   },

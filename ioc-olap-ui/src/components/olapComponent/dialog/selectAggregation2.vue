@@ -6,7 +6,7 @@
           <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-checkbox-group ref="group" v-model="selctCheckData">
-              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item">{{item}}</el-checkbox-button>
+              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
             </el-checkbox-group>
           </div>
         </div>
@@ -21,6 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getLocalStorage } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -33,10 +34,10 @@ export default {
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
-        { comment: '啦啦啦啦1', columnName: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
-        { comment: '啦啦啦啦2', columnName: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
-        { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
-        { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
+        { comment: '啦啦啦啦1', columnName: 'lalalalal1', tableName: 'a1', list: [ { comment: '啦啦啦啦', columnName: 'lalalalal' }, { comment: '啦啦啦啦', columnName: 'lalalalal1' } ] },
+        { comment: '啦啦啦啦2', columnName: 'lalalalal2', tableName: 'a2', list: [ { comment: '啦啦啦啦', columnName: 'lalalala2' }, { comment: '啦啦啦啦', columnName: 'lalalala22' } ] },
+        { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: [ { comment: '啦啦啦啦', columnName: 'lalalala3' }, { comment: '啦啦啦啦', columnName: 'lalalala33' } ] },
+        { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: [ { comment: '啦啦啦啦', columnName: 'lalalala4' }, { comment: '啦啦啦啦', columnName: 'lalalala44' } ] }
       ],
       index: '',
       type: '',
@@ -62,13 +63,14 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      // this.options = this.saveNewSortList
+      this.options = this.saveNewSortList
+      // this.options = JSON.parse(getLocalStorage('saveNewSortList'))
       this.index = index
       this.type = type
       this.findIndex = findIndex
       switch (type) {
         case 1:
-          this.selctCheckData = this.selectDataidList[this.index].includesId
+          this.selctCheckData = this.selectDataidList[this.index].containDataId
           break
         case 2:
           this.selctCheckData = this.selectDataidList[this.index].necessaryDataId

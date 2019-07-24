@@ -182,8 +182,8 @@ export default {
     },
     nextModel (val) {
       console.log(this.formData)
-      // this.$parent.getStepCountAdd(val)
-      // this.$router.push('/olap/createolap/advancedSet')
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/olap/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
