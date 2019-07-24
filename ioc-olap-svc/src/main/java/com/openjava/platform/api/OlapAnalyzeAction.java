@@ -14,6 +14,7 @@ import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Api(tags="OLAP分析接口")
+@Api(tags = "OLAP分析接口")
 @RestController
 @RequestMapping("/olap/apis/olapAnalyze")
 public class OlapAnalyzeAction {
@@ -43,13 +44,13 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-    @Security(session=true)
+    @Security(session = true)
     public ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapAnalyze>>();
-        List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"DataAnalyze");
-        for (OlapFolder folder : folders){
-            FolderHierarchicalVo<OlapAnalyze> folderHierarchicalVo=new FolderHierarchicalVo<OlapAnalyze>();
+        ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderHierarchicalVos = new ArrayList<FolderHierarchicalVo<OlapAnalyze>>();
+        List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "DataAnalyze");
+        for (OlapFolder folder : folders) {
+            FolderHierarchicalVo<OlapAnalyze> folderHierarchicalVo = new FolderHierarchicalVo<OlapAnalyze>();
             MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
             folderHierarchicalVo.setLeafs(olapAnalyzeService.getListWithFolderId(folder.getFolderId()));
             folderHierarchicalVos.add(folderHierarchicalVo);
@@ -59,7 +60,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "获取共享的OLAP分析")
     @RequestMapping(value = "/queryShare", method = RequestMethod.GET)
-    @Security(session=true)
+    @Security(session = true)
     public List<OlapAnalyze> queryShare() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapAnalyzeService.getAllShares(Long.parseLong(userVO.getUserId()));
@@ -67,28 +68,27 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询已构建好的OLAP分析数据")
     @RequestMapping(value = "/query", method = RequestMethod.GET)
-    @Security(session=true)
-    public AnyDimensionVo query(Long analyzeId,Long cubeId) {
-        return null;
-        //return olapAnalyzeService.query(analyzeId,cubeId);
-        //return new CubeAction().query(sql,0,5000,userVO.getUserId());
+    @Security(session = true)
+    public AnyDimensionVo query(Long analyzeId, Long cubeId) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        return olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
     }
 
     @ApiOperation(value = "直接查询OLAP分析的数据")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    @Security(session=true)
-    public AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises) {
-        return null;
-        //return olapAnalyzeService.query(cubeId,axises);
+    @Security(session = true)
+    public AnyDimensionVo query(Long cubeId, @RequestBody List<AnalyzeAxisVo> axises) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        return olapAnalyzeService.query(cubeId, axises, userVO.getUserId());
     }
 
     @ApiOperation(value = "保存OLAP分析接口")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @Security(session=true)
+    @Security(session = true)
     public AnalyzeVo save(AnalyzeVo analyzeVo) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Date date = new Date();
-        if(analyzeVo.getIsNew() == null || analyzeVo.getIsNew()) {
+        if (analyzeVo.getIsNew() == null || analyzeVo.getIsNew()) {
             SequenceService ss = ConcurrentSequence.getInstance();
             analyzeVo.setAnalyzeId(ss.getSequence());
             analyzeVo.setCreateTime(date);
@@ -109,7 +109,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "获取指定的OLAP分析接口")
     @RequestMapping(value = "/get", method = RequestMethod.POST)
-    @Security(session=true)
+    @Security(session = true)
     public AnalyzeVo get(Long id) {
         return olapAnalyzeService.getVo(id);
     }

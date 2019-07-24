@@ -164,7 +164,11 @@ public class OlapRealQueryAction extends BaseAction {
 	@Security(session=true)
 	public QueryResultMapper query(String sql, Integer limit) {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		return cubeAction.query(sql,0,limit,userVO.getUserId());
+		//return cubeAction.query(sql,0,limit,userVO.getUserId());
+		if(limit==-1){
+			limit=Integer.MAX_VALUE;
+		}
+		return cubeAction.query(sql,0,limit,"learn_kylin");
 	}
 
 	@ApiOperation(value = "获取层级文件夹结构")

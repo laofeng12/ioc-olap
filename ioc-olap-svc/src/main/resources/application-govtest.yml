@@ -18,11 +18,12 @@ spring:
 #    url: jdbc:mysql://rm-wz9a1c8d803l35e2hio.mysql.rds.aliyuncs.com:3306/cloud?useUnicode=true&characterEncoding=utf-8&useSSL=false
 #    username: alitest
 #    password: Ch#123456
-    # 用Oracle 
+    # 用Oracle
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@nhc.smart-info.cn:8521:orcl
-    username: c##dgioc
-    password: bigdata@0769
+    url: jdbc:oracle:thin:@19.104.9.109:1521:C88IOC
+    username: platformtest
+    password: ch#123456
+
     druid:
       initial-size: 1
       max-active: 100
@@ -85,4 +86,10 @@ ljdp:
   security:
     api:
       skey: abdefghijklmnopqrstuvwxyz1234567890
+
+kylin:
+  address:  http://19.104.59.1:7070
+  account:  ADMIN
+  pwd:  KYLIN
+  authorization:  Basic QURNSU46S1lMSU4=
 
