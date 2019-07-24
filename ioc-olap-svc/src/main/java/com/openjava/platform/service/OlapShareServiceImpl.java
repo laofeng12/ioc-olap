@@ -56,4 +56,14 @@ public class OlapShareServiceImpl implements OlapShareService {
 			olapShareRepository.deleteById(new Long(items[i]));
 		}
 	}
+
+	@Override
+	public void save(List<Long> userIds, String sourceType, String sourceId, long parseLong) {
+
+	}
+
+	@Override
+	public List<OlapShare> getList(String sourceType, String sourceId, long parseLong) {
+		return null;
+	}
 }
