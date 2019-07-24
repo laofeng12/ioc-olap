@@ -28,20 +28,20 @@
        </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
-      <el-button type="primary" size="small" @click="newFolder()">新建文件夹</el-button>
+      <el-button type="primary" size="small" @click="newVisible = true">新建文件夹</el-button>
     </div>
-    <el-dialog title="新建文件夹" :visible.sync="newVisible" width="30">
-      <el-form :model="folderForm" :rules="folderRules">
-        <el-form-item label="文件夹名称" label-width="140px" prop="name">
+    <el-dialog title="新建文件夹" :visible.sync="newVisible" width="30%">
+      <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
+        <el-form-item label="文件夹名称" label-width="100px" prop="name">
           <el-input v-model="folderForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="文件夹序号" label-width="140px" prop="sort">
-          <el-input v-model="folderForm.sort"></el-input>
+        <el-form-item label="文件夹序号" label-width="100px" prop="sort">
+          <el-input type="number" v-model="folderForm.sort"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newVisible = false">取 消</el-button>
-        <el-button type="primary" @click="newVisible = false">确 定</el-button>
+        <el-button type="primary" @click="submitNewFolder">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="选择共享" :visible.sync="shareVisible">
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { newOlapFolderApi } from '../../../api/instantInquiry'
+
 export default {
   props: {
     menuList: {
@@ -69,21 +71,21 @@ export default {
     },
     needNewFolder: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   data () {
-    const generateData = _ => {
-      const data = [];
+    const generateData = () => {
+      const data = []
       for (let i = 1; i <= 15; i++) {
         data.push({
           key: i,
-          label: `备选项 ${ i }`,
+          label: `备选项${i}`,
           disabled: i % 4 === 0
-        });
+        })
       }
-      return data;
-    };
+      return data
+    }
     return {
       searchKeyword_: '', // 分享搜索
       shareVisible: false,
@@ -103,8 +105,7 @@ export default {
           { max: 50, message: '请不要超过50个字', trigger: 'blur' }
         ],
         sort: [
-          { required: true, message: '请输入序号', trigger: 'blur' },
-          { type: 'number', message: '序号必须为数字值' }
+          { required: true, message: '请输入序号', trigger: 'blur' }
         ]
       },
       shareData: generateData(),
@@ -135,8 +136,22 @@ export default {
       if (!value) return true
       return data.dataName.indexOf(value) !== -1
     },
-    newFolder () {
-      this.newVisible = true
+    submitNewFolder () {
+      console.info(this.folderForm.sort, typeof this.folderForm.sort)
+      const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
+        flags: 0,
+        isNew: true,
+        name: this.folderForm.name,
+        sortNum: this.folderForm.sort,
+        type: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
+      }
+      this.$refs.folderForm.validate(async (valid) => {
+        if (valid) {
+          const res = await newOlapFolderApi(data)
+          console.info('res', res)
+        }
+      })
+
     },
     handleCommand (dropIndex, node, data) {
       // console.info('dropIndex', dropIndex)
@@ -144,14 +159,24 @@ export default {
       // console.info('data', data)
       switch (dropIndex) {
         case '0': // 编辑
-          return this.edit(node, data, 0)
+          return this.edit(node, data)
         case '1': // 分享
           this.shareVisible = true
           break
+        case '3': // 删除
+          this.delete(data)
       }
     },
-    edit () {
+    edit (node, data) {
       this.newVisible = true
+      this.folderForm = {
+        isNew: false,
+        name: data.dataName,
+        sort: ''
+      }
+    },
+    delete (data) {
+      this.$emit('deleteFunc', data.dataId)
     }
   }
 }

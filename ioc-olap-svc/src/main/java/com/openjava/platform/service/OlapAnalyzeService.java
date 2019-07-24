@@ -5,7 +5,9 @@ import java.util.List;
 import com.openjava.platform.domain.OlapAnalyze;
 import com.openjava.platform.domain.OlapRealQuery;
 import com.openjava.platform.query.OlapAnalyzeDBParam;
+import com.openjava.platform.vo.AnalyzeAxisVo;
 import com.openjava.platform.vo.AnalyzeVo;
+import com.openjava.platform.vo.AnyDimensionVo;
 import org.ljdp.component.exception.APIException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +36,8 @@ public interface OlapAnalyzeService {
 	AnalyzeVo save(AnalyzeVo analyzeVo) throws APIException;
 
 	AnalyzeVo getVo(Long id);
+
+    AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises,String userId) throws APIException;
+
+	AnyDimensionVo query(Long analyzeId, Long cubeId,String userId) throws APIException;
 }

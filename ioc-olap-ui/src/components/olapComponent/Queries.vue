@@ -1,6 +1,7 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
+                 :needNewFolder="false"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
@@ -19,12 +20,13 @@
           <el-input class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
         </div>
         <div class="bottom">
-          <el-button type="primary" size="mini">查询</el-button>
+          <el-button type="primary" size="mini" @click="searchOlap">查询</el-button>
           <el-checkbox class="checkbox" v-model="checked">限制查询行数</el-checkbox>
           <el-input class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini"></el-input>
         </div>
       </div>
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
+                 @reset="reset"></ResultBox>
     </div>
     <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form">
@@ -47,8 +49,9 @@
 </template>
 
 <script>
-import FolderAside from '@/components/olapComponent/common/FolderAside'
-import ResultBox from '@/components/olapComponent/common/ResultBox'
+import FolderAside from './common/FolderAside'
+import ResultBox from './common/ResultBox'
+import { getCubeTreeApi, saveOlapApi, deleteOlapApi, searchOlapApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -152,15 +155,41 @@ export default {
       }
     }
   },
+  mounted () {
+    this.getAsideList()
+  },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
+    async getAsideList () {
+      const res = await getCubeTreeApi()
+      console.info('res', res)
     },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
+    async deleteOlap (id) {
+      const res = await deleteOlapApi({id})
+      console.info('res', res)
     },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
+    async searchOlap () {
+      const data = {
+        limit: this.checked ? this.lineNumber : null,
+        sql: this.textarea
+      }
+      const res = searchOlapApi(data)
+      console.info('res', res)
+    },
+    async saveOlap (callbackData) {
+      const data = {
+        limit: this.checked ? this.lineNumber : '',
+        sql: this.textarea,
+        flags: 0 // 标志 0：正常 1：共享
+      }
+      console.info('Object.assign({}, data, callbackData)', Object.assign({}, data, callbackData))
+      const res = saveOlapApi(Object.assign({}, data, callbackData))
+      console.info('res', res)
+    },
+    reset () {
+      this.textarea = ''
+      this.checked = false
+      this.lineNumber = ''
+      this.tableData = []
     }
   }
 }

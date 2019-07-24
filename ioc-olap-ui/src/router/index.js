@@ -91,16 +91,16 @@ export default new Router({
       ]
     },
     {
-      path: '/queries',
+      path: '/',
       name: 'queries',
       component: ContainerWrapper,
-      redirect: '/queries/adHocQueries',
+      redirect: '/instantInquiry',
       children: [
         {
-          path: 'adHocQueries',
-          name: 'adHocQueries',
+          path: 'instantInquiry',
+          name: 'instantInquiry',
           meta: { title: '即席分析' },
-          component: () => import('@/views/olap/adHocQueries.vue')
+          component: () => import('@/views/olap/instantInquiry.vue')
         }
         // {
         //   path: 'createolap',
