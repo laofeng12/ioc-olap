@@ -46,7 +46,7 @@ const app = {
         resId: '1',
         index: '5',
         resName: '即系查询',
-        resURL: '/queries',
+        resURL: '/instantInquiry',
         resIcon: 'fa fa-columns',
         subResList: []
       }]

@@ -25,7 +25,7 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" @click="showTipVisible('save')">保存结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="showNewFormVisible()">保存结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="showTipVisible('reset')">重置</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
@@ -41,11 +41,29 @@
       </div>
       <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
     </div>
+    <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
+      <el-form :model="newForm" :rules="newFormRules" ref="newForm">
+        <el-form-item label="文件夹" label-width="100px" prop="folder">
+          <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+            <el-option label="文件夹一" value="1"></el-option>
+            <el-option label="文件夹二" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
+          <el-input v-model="newForm.resultName" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="newFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitNewForm()">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-dialog title="提示" :visible.sync="tipVisible" width="30%">
-      <span>确认{{translate(word)}}数据吗？</span>
+      <span>确认{{translateWord}}数据吗？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="tipVisible = false">取 消</el-button>
-        <el-button type="primary" @click="tipVisible = false">确 定</el-button>
+        <el-button v-if="word === 'save'" type="primary" @click="save">确 定</el-button>
+        <el-button v-else type="primary" @click="reset">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -78,12 +96,29 @@ export default {
     return {
       search: '',
       tipVisible: false,
+      newFormVisible: false,
       word: '',
       autoSearch: false,
-      isFullscreen: false
+      isFullscreen: false,
+      newForm: {
+        folder: '',
+        resultName: ''
+      },
+      newFormRules: {
+        resultName: [
+          { required: true, message: '请输入查询结果名称', trigger: 'blur' }
+        ],
+        folder: [
+          { required: true, message: '请选择文件夹', trigger: 'change' }
+        ]
+      }
     }
   },
-  beforeUpdate () {},
+  computed: {
+    translateWord: function () {
+      return this.translate(this.word)
+    }
+  },
   methods: {
     translate (word) {
       switch (word) {
@@ -96,6 +131,16 @@ export default {
     showTipVisible (word) {
       this.word = word
       this.tipVisible = true
+    },
+    showNewFormVisible () {
+      this.newFormVisible = true
+    },
+    submitNewForm () {
+      this.$refs.newForm.validate((valid) => {
+        if (valid) {
+          this.showTipVisible('save')
+        }
+      })
     },
     goNewOlap () {
       this.$router.push('/olapAnalysis/newOlapAnalysis')
@@ -112,6 +157,20 @@ export default {
     },
     fullscreenChange (fullscreen) {
       this.isFullscreen = fullscreen
+    },
+    save () {
+      const data = {
+        type: this.word === 'save',
+        folder: this.newForm.folder,
+        name: this.newForm.resultName
+      }
+      this.$emit('saveFunc', data)
+      this.newFormVisible = false
+      this.tipVisible = false
+    },
+    reset () {
+      this.$emit('reset')
+      this.tipVisible = false
     }
   }
 }
