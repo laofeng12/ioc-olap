@@ -45,7 +45,10 @@ export default {
       })
       this.titleData = [...new Set(this.titleData)]
       // 初始化已选择的表
-      setTimeout(() => { this.changeLi(this.titleData[0], 0) }, 300)
+      setTimeout(() => {
+        this.changeLi(this.titleData[0], 0)
+        this.current = 0
+      }, 300)
       // 接收设置表关系的数据
       // this.dataList = this.selectTableTotal
       // 接收已选择的表
@@ -81,6 +84,8 @@ export default {
         })
         // 存储选择对应的表
         this.$root.eventBus.$emit('filedTable', res.data, res.code)
+        // 存储已选择的表
+        this.$store.dispatch('SaveList', res.data)
       })
     }
   },

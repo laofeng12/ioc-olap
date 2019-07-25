@@ -2,14 +2,17 @@
   <div class="slectFiled">
     <el-dialog title="选择维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
-        <div class="item" v-for="(n, index) in options" :key="index">
+        <!-- <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-checkbox-group ref="group" v-model="selctCheckData">
               <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item">{{item}}</el-checkbox-button>
             </el-checkbox-group>
           </div>
-        </div>
+        </div> -->
+        <el-checkbox-group ref="group" v-model="selctCheckData">
+          <el-checkbox-button v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="closeBtn()">取消</el-button>
@@ -33,10 +36,10 @@ export default {
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
-        { comment: '啦啦啦啦1', columnName: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
-        { comment: '啦啦啦啦2', columnName: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
-        { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
-        { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
+        { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
+        { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
+        { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
+        { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
       ],
       index: '',
       type: '',
@@ -63,6 +66,7 @@ export default {
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
+      // this.options = this.reloadNeedData
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -98,7 +102,8 @@ export default {
       saveNewSortList: 'saveNewSortList',
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
-      savehetComposeDataId: 'savehetComposeDataId'
+      savehetComposeDataId: 'savehetComposeDataId',
+      reloadNeedData: 'reloadNeedData' // 包含维度
     })
   }
 }

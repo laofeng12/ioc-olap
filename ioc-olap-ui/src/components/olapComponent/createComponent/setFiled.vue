@@ -22,7 +22,7 @@
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
-                    <el-input type="text" v-model="scope.row.name" @blur="iptChange(scope.row)"></el-input>
+                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -89,6 +89,8 @@ export default {
   },
   methods: {
     init () {
+      // console.log(this.saveSelectFiled)
+      this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
@@ -100,6 +102,8 @@ export default {
             this.tableData.forEach((item, i) => {
               this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                 if (val.id === item.id) {
+                  this.tableData[i].name = val.name
+                  this.tableData[i].mode = val.mode
                   arr.push(item)
                 }
               })
@@ -174,6 +178,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      saveList: 'saveList',
       saveNewSortList: 'saveNewSortList'
     })
   },

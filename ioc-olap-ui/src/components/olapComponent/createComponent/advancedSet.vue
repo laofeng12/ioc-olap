@@ -4,7 +4,6 @@
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
-
             <span>维度分组聚合</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
@@ -90,7 +89,7 @@
         <div class="listSet">
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
-            <div class="adds" v-for="(n, i) in savedimensionData" :key="i">
+            <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
                 <el-tag @close.stop="lastrmTag(5, x, i)" v-for="(x, y) in n" :key="y" closable>{{x}}</el-tag>
               </div>
@@ -112,10 +111,10 @@
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>
-          <div class="listSet__box hetCompose__box" v-if="savehetComposeData && savehetComposeData.length">
-            <div class="adds" v-for="(n, i) in savehetComposeData" :key="i">
+          <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
+            <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
-                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n" :key="y" closable>{{x}}</el-tag>
+                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable>{{x}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
@@ -139,7 +138,6 @@
 import steps from '@/components/olapComponent/common/steps'
 import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
-import { getLocalStorage } from '@/utils/index'
 export default {
   components: {
     steps, selectAggregation
@@ -186,8 +184,7 @@ export default {
         'decimal': ['dict'],
         'bigint': ['boolean', 'date', 'time', 'dict', 'integer'],
         'timestamp': ['date', 'time', 'dict']
-      },
-      dataCity: []
+      }
     }
   },
   mounted () {
@@ -205,8 +202,9 @@ export default {
       this.tableData = datas
     },
     nextModel (val) {
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/completeCreate')
+      console.log(this.aggregation_groups, '高级', this.hbase_mapping)
+      // this.$parent.getStepCountAdd(val)
+      // this.$router.push('/olap/createolap/completeCreate')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -252,18 +250,19 @@ export default {
       this.$store.dispatch('AddimensionData')
     },
     removedimensionData (index) {
-      if (this.savedimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.savedimensionData.splice(index, 1)
+      if (this.mandatory_dimension_set_list.length === 1) return this.$message.error('必须保留一个~')
+      this.mandatory_dimension_set_list.splice(index, 1)
     },
     // 添加高级列组合
     addhetComposeData () {
       this.$store.dispatch('AddhetComposeData')
     },
     removehetComposeData (index) {
-      this.savehetComposeData.splice(index, 1)
+      this.hbase_mapping.column_family.splice(index, 1)
     },
     // 选择维度
     getTotalModal (index, type, findIndex) {
+      console.log(this.reloadNeedData)
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
@@ -291,9 +290,9 @@ export default {
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      savedimensionData: 'savedimensionData',
+      mandatory_dimension_set_list: 'mandatory_dimension_set_list',
       selectDataidList: 'selectDataidList',
-      savehetComposeData: 'savehetComposeData',
+      hbase_mapping: 'hbase_mapping',
       aggregation_groups: 'aggregation_groups'
     })
   }

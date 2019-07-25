@@ -68,6 +68,7 @@ const common = {
         }
       }]
     }, // 左侧的维度数据
+    saveList: [],
     saveSelectFiled: [], // 存储已选择的维度
     saveFiledNormalList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
     saveFiledDerivativelList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
@@ -90,8 +91,21 @@ const common = {
         }
       }
     ], // 存储总的数据
-    savedimensionData: [[]], // 存储维度黑白名单
-    savehetComposeData: [], // 存储高级设置组合
+    mandatory_dimension_set_list: [[]], // 存储维度黑白名单
+    // savehetComposeData: [], // 存储高级设置组合
+    hbase_mapping: {
+      'column_family': [
+        // {
+        //   'name': 'F1', // 序号
+        //   'columns': [
+        //     {
+        //       'qualifier': 'M', // 写死
+        //       'measure_refs': []
+        //     }
+        //   ]
+        // }
+      ]
+    },
     NewDataList: [], // 根据id存储的
     /** 已选择的维度id 以及黑白名单/高级组合 */
     selectDataidList: [ // 已选择的id集合
@@ -257,7 +271,6 @@ const common = {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
       dispatch('changePushSelectFiled', data)
-      console.log(state.reloadNeedData, '============', data)
     },
     // 删除取消的selct
     RemoveSelectFiled ({ state, dispatch }, data) {
@@ -268,18 +281,16 @@ const common = {
           return item.id !== data.id
         }
       })
-      dispatch('changePushSelectFiled', data)
-      state.reloadNeedData.map((item, index) => {
-        if (data.list) {
-
-        } else {
-          if (item.id === data.id) {
-            state.reloadNeedData.splice(index, 1)
-          }
-        }
+      // 删除对应的表
+      state.saveFiledDerivativelList = state.saveFiledDerivativelList.filter(item => {
+        return item.id !== data.id
       })
-      console.log(reduceObj(state.reloadNeedData, 'id'), '============', data)
-      // state.reloadNeedData = state.reloadNeedData
+      state.saveFiledNormalList = state.saveFiledNormalList.filter(item => {
+        return item.id !== data.id
+      })
+      state.reloadNeedData = state.reloadNeedData.filter(item => {
+        return item.id !== data.id
+      })
     },
     // 存储加了显示名称的数据
     changePushSelectFiled ({ state, dispatch }, val) {
@@ -287,36 +298,33 @@ const common = {
         if (val.id === item.id) {
           state.saveSelectFiled[index].mode = val.mode
           state.saveSelectFiled[index].name = val.name
-        }
-        if (item.mode === '1') {
-          // 普通模式
-          state.saveFiledNormalList.push(item)
-          state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
-          // 删除选择的衍生模式
-          state.saveFiledDerivativelList.forEach((item, index) => {
-            if (item.id === val.id) {
-              state.saveFiledDerivativelList.splice(index, 1)
-            }
-          })
-        } else if (item.mode === '2') {
-          // 衍生模式
-          state.saveFiledDerivativelList.push(item)
-          state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
-          // 删除选择的普通模式
-          state.saveFiledNormalList.forEach((item, index) => {
-            if (item.id === val.id) {
-              state.saveFiledNormalList.splice(index, 1)
-            }
-          })
+          if (item.mode === '1') {
+            // 普通模式
+            state.saveFiledNormalList.push(item)
+            state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
+            // 删除选择的衍生模式
+            state.saveFiledDerivativelList.forEach((item, index) => {
+              if (item.id === val.id) {
+                state.saveFiledDerivativelList.splice(index, 1)
+              }
+            })
+          } else if (item.mode === '2') {
+            // 衍生模式
+            state.saveFiledDerivativelList.push(item)
+            state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
+            // 删除选择的普通模式
+            state.saveFiledNormalList.forEach((item, index) => {
+              if (item.id === val.id) {
+                state.saveFiledNormalList.splice(index, 1)
+              }
+            })
+          }
         }
       })
       dispatch('filterFiledTable', state.saveFiledDerivativelList)
-      // console.log(state.saveFiledDerivativelList, '啦啦啦啦啦啦啦')
-      // console.log('李帆', state.saveFiledNormalList)
     },
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state }, data) {
-      // console.log('万靓', state.saveSelectFiled)
       // 筛选对应的foreign_key名
       let datas = []
       state.saveLeftFiled.lookups.map((item, index) => {
@@ -340,7 +348,7 @@ const common = {
         })
       })
       state.reloadNeedData = [...nomrlData, ...datas]
-      console.log(state.reloadNeedData)
+      // console.log(state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的）
     SaveFiledData ({ state }) {
@@ -360,6 +368,9 @@ const common = {
     SaveNewSortList ({ state }, data) {
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
+    },
+    SaveList ({ state }, data) {
+      state.saveList = data
     },
     /* 度量 */
     // 新增的table表
@@ -428,11 +439,11 @@ const common = {
           Vue.set(state.selectDataidList[slectData.index].jointDataId, slectData.findIndex, slectData.data)
           break
         case 5:
-          Vue.set(state.savedimensionData, slectData.index, slectData.data)
+          Vue.set(state.mandatory_dimension_set_list, slectData.index, slectData.data)
           Vue.set(state.savedimensionDataId, slectData.index, slectData.data)
           break
         case 6:
-          Vue.set(state.savehetComposeData, slectData.index, slectData.data)
+          Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
           Vue.set(state.savehetComposeDataId, slectData.index, slectData.data)
           break
         default:
@@ -468,12 +479,20 @@ const common = {
     },
     // 新增维度黑白名单
     AddimensionData ({ state }) {
-      state.savedimensionData.push([])
+      state.mandatory_dimension_set_list.push([])
       state.savedimensionDataId.push([])
     },
     // 新增高级组合
     AddhetComposeData ({ state }) {
-      state.savehetComposeData.push([])
+      state.hbase_mapping.column_family.push({
+        'name': 'F1',
+        'columns': [
+          {
+            'qualifier': 'M',
+            'measure_refs': []
+          }
+        ]
+      })
       state.savehetComposeDataId.push([])
     },
     // 根据id筛选出需要的数据
@@ -527,16 +546,17 @@ const common = {
           })
           break
         case 5:
-          state.savedimensionData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.savedimensionData[list.findIndex].splice(index, 1)
+          state.mandatory_dimension_set_list[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.mandatory_dimension_set_list[list.findIndex].splice(index, 1)
           })
           state.savedimensionDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savedimensionDataId[list.findIndex].splice(index, 1)
           })
           break
         case 6:
-          state.savehetComposeData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.savehetComposeData[list.findIndex].splice(index, 1)
+          // Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
+          state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.filter((item, index) => {
+            item.id === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
           })
           state.savehetComposeDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savehetComposeDataId[list.findIndex].splice(index, 1)
