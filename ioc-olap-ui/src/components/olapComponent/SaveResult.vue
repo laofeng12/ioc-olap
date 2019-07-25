@@ -1,6 +1,7 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @clickItem="getTableById" vueType="saveResult"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @clickItem="getTableById"
+                 vueType="saveResult" @deleteFunc="deleteFolder"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportDataId="exportDataId"></ResultBox>
     </div>
@@ -71,18 +72,17 @@ export default {
   },
   methods: {
     async getAsideList () {
-      const res = await getFolderWithQueryApi()
-      const menuList = res.map(v => {
-        return (
-          { leafs: v.leafs, folderId: v.folderId, name: v.name }
-        )
-      })
+      const menuList = await getFolderWithQueryApi()
+      // const menuList = res.map(v => {
+      //   return (
+      //     { leafs: v.leafs, folderId: v.folderId, name: v.name, sortNum: v.sortNum }
+      //   )
+      // })
       console.info('menuList', menuList)
       this.menuList = menuList
     },
     async getTableById (sql, limit, id) {
       this.loading = true
-      debugger
       try {
         const { columnMetas, results } = await searchOlapApi({ sql, limit })
         const columnMetasList = columnMetas.map(v => {
@@ -106,6 +106,9 @@ export default {
       }
       this.loading = false
     }
+    // async deleteFolder () {
+    //   const res = await
+    // }
   }
 }
 </script>

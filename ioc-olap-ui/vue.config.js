@@ -31,11 +31,11 @@ module.exports = {
         changeOrigin: true
       },
       '/olapweb/': {
-        target: 'http://183.6.55.26:30003', // 公司测试环境
+        target: 'http://19.104.40.36', // 麒麟测试环境
         changeOrigin: true
       }
       // '/olapweb/': {
-      //   target: 'http://172.16.60.25:8080', // 沛辰本机
+      //   target: 'http://172.16.60.25:9090', // 沛辰本机
       //   changeOrigin: true
       // }
       // '/olapweb/': {

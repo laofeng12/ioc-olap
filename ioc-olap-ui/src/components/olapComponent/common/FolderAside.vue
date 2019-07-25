@@ -9,7 +9,7 @@
       </el-input>
     </el-row>
     <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
-      default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree_">
+      default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
           <span class="cus-node-content">
@@ -28,9 +28,9 @@
        </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
-      <el-button type="primary" size="small" @click="newVisible = true">新建文件夹</el-button>
+      <el-button type="primary" size="small" @click="newFolder">新建文件夹</el-button>
     </div>
-    <el-dialog title="新建文件夹" :visible.sync="newVisible" width="30%">
+    <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
         <el-form-item label="文件夹名称" label-width="100px" prop="name">
           <el-input v-model="folderForm.name"></el-input>
@@ -41,7 +41,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitNewFolder">确 定</el-button>
+        <el-button type="primary" @click="submitFolder">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="选择共享" :visible.sync="shareVisible">
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { newOlapFolderApi } from '../../../api/instantInquiry'
+import { newOlapFolderApi, deleteOlapFolderApi } from '../../../api/instantInquiry'
 
 export default {
   props: {
@@ -119,9 +119,6 @@ export default {
   watch: {
     searchKeyword (val) {
       this.$refs.alltree.filter(val)
-    },
-    searchKeyword_ (val) {
-      this.$refs.alltree_.filter(val)
     }
   },
   methods: {
@@ -142,15 +139,15 @@ export default {
       if (!value) return true
       return data.name.indexOf(value) !== -1
     },
-    submitNewFolder () {
+    submitFolder () {
       const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
         flags: 0,
         parentId: 0,
-        isNew: true,
-        name: this.folderForm.name,
-        sortNum: this.folderForm.sort,
         type: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
       }
+      Object.assign(data, this.folderForm)
+      console.info('data', data)
+      debugger
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
           try {
@@ -162,15 +159,16 @@ export default {
               this.$message.error('新建失败')
             }
           } catch (e) {
-           this.$message.error('新建失败')
+            this.$message.error('新建失败')
           }
         }
       })
     },
     handleCommand (dropIndex, node, data) {
-      // console.info('dropIndex', dropIndex)
-      // console.info('node', node)
-      // console.info('data', data)
+      console.info('dropIndex', dropIndex)
+      console.info('node', node)
+      console.info('data', data)
+      debugger
       switch (dropIndex) {
         case '0': // 编辑
           return this.edit(node, data)
@@ -178,19 +176,41 @@ export default {
           this.shareVisible = true
           break
         case '3': // 删除
-          this.delete(data)
+          this.delete(data, node.isLeaf)
       }
+    },
+    newFolder () {
+      this.newVisible = true
+      this.folderForm.isNew = true
     },
     edit (node, data) {
       this.newVisible = true
       this.folderForm = {
+        folderId: data.folderId,
         isNew: false,
         name: data.name,
-        sort: ''
+        sort: data.sortNum
+      }
+      // this.$emit('editFunc', this.folderForm)
+    },
+    delete (data, isLeaf) {
+      if (isLeaf) {
+        if (data.realQueryId) {
+          this.$emit('deleteFunc', data.realQueryId)
+        } else {
+          this.deleteFolder(data.folderId)
+        }
+      } else {
+        this.$message.error('删除失败，请先删除文件夹中的文件')
       }
     },
-    delete (data) {
-      this.$emit('deleteFunc', data.folderId)
+    async deleteFolder (folderId) {
+      try {
+        await deleteOlapFolderApi({ id: folderId })
+        this.$message.success('删除成功')
+      } catch (e) {
+        this.$message.error('删除失败')
+      }
     }
   }
 }

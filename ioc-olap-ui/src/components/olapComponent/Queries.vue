@@ -1,7 +1,7 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
-                 :needNewFolder="false"></FolderAside>
+                 :needNewFolder="false" vueType="queries"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">

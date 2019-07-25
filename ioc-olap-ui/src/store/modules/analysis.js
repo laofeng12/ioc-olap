@@ -1,22 +1,20 @@
-import { login, logout } from '@/api/login'
-
-const defaultAvatar = require('@/assets/img/administrator.png')
+import { getFolderWithQueryApi } from '../../api/instantInquiry'
 
 const analysis = {
   state: {
-    folderList: []
+    saveFolderList: []
   },
 
   mutations: {
-    GET_FOLDERLIST: (state, folderList) => {
-      state.folderList = folderList
+    GET_SAVEFOLDERLIST: (state, saveFolderList) => {
+      state.saveFolderList = saveFolderList
     }
   },
 
   actions: {
-    GetFolderList ({ commit, dispatch }, userInfo) {
-      commit('GET_FOLDERLIST', userInfo)
-      setUserInfo(userInfo)
+    getSaveFolderList ({ commit }, userInfo) {
+      commit('GET_SAVEFOLDERLIST', userInfo)
+      // setUserInfo(userInfo)
     }
   }
 }

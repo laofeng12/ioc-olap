@@ -1,26 +1,26 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="queries"></FolderAside>
     <div class="content">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
     </div>
-    <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form">
-        <el-form-item label="选择文件夹" label-width="120px">
-          <el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">
-            <el-option label="文件夹1" value="shanghai"></el-option>
-            <el-option label="文件夹2" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="查询结果名称" label-width="120px">
-          <el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-      </div>
-    </el-dialog>
+    <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
+      <!--<el-form :model="form">-->
+        <!--<el-form-item label="选择文件夹" label-width="120px">-->
+          <!--<el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">-->
+            <!--<el-option label="文件夹1" value="shanghai"></el-option>-->
+            <!--<el-option label="文件夹2" value="beijing"></el-option>-->
+          <!--</el-select>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="查询结果名称" label-width="120px">-->
+          <!--<el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
