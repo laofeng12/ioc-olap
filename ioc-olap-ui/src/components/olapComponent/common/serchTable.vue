@@ -69,7 +69,7 @@ export default {
       this.$root.eventBus.$on('saveSelectTables', _ => {
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
-        if (this.$store.state.olap.searchType === 1) {
+        if (this.$store.state.selectStep.searchType === 1) {
           this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
         } else {
           this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
@@ -85,7 +85,7 @@ export default {
       })
     },
     handleNodeClick (value) {
-      let searchType = this.$store.state.olap.searchType
+      let searchType = this.$store.state.selectStep.searchType
       let dsDataSourceId = searchType === 1 ? 10 : 2
       let dbType = searchType === 1 ? 3 : 3
       let tableName = value.label
@@ -129,7 +129,7 @@ export default {
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      this.$store.state.olap.searchType === 1
+      this.$store.state.selectStep.searchType === 1
         ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
         : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
       // 设置已选择的数据表的数量

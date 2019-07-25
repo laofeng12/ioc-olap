@@ -75,7 +75,7 @@ export default {
         tableName: item
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
-        res.data.map((n, i) => {
+        res.data && res.data.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
           n.derived = n.columnName
           n.tableName = item
