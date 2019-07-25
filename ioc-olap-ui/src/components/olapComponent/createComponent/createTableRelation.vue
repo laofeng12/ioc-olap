@@ -4,32 +4,35 @@
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
-        <div class="item" v-for="(item, index) in linkModal.join.primary_key" :key="index">
-          <h3 class="itemTitle">关联关系{{index+1}}：</h3>
-          <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalSelected">
-            <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
-          </el-select>
+        <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
+          <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
+        </el-select>
+        <div class="item" v-for="(item, index) in linkModalFields" :key="index">
+          <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModal.join.primary_key[index]" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.table)" @change="getModalSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment"  >{{coupon.columnName}}</el-option>
+          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.table)" @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="{index, pk_type: coupon.dataType, primary_key: coupon.columnName}"  >{{coupon.columnName}}</el-option>
           </el-select>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModal.join.foreign_key[index]" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinTable)" @change="getModalSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="coupon.comment" >{{coupon.columnName}}</el-option>
+          <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinTable)" @change="getModalForeignSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.comment" :label="coupon.columnName" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.columnName}" >{{coupon.columnName}}</el-option>
           </el-select>
-          <div class="itemAdd"><a href="javascript:;" @click="addRelation(item)" class="itemAddBtn">添加关联关系</a></div>
         </div>
+        <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
       </div>
       <!-- <task-wark></task-wark> -->
-      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=0 || dragRectPosition.y>=0) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
+      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=1 || dragRectPosition.y>=1) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
       <div class="holder" ref="holder">
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
         <div class="papers" ref="papers" @click="papersClick">
           <div class="halo-cell-layer" :style="cellLayerStyle">
+            <!-- 删除 -->
             <div class="remove" data-type="remove"></div>
+            <!-- 设置关联 -->
             <div class="link" data-type="link"></div>
-            <!-- <div class="clone" data-type="clone"></div> -->
+            <!-- 设置别名 -->
+            <div class="clone" data-type="clone"></div>
             <!-- <div class="resize" data-type="resize"></div> -->
           </div>
         </div>
@@ -45,6 +48,8 @@ import factTable from '@/components/olapComponent/common/factTable'
 import steps from '@/components/olapComponent/common/steps'
 import createTableModal from '@/components/olapComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
+import { setTimeout } from 'timers'
+import { constants } from 'crypto'
 
 let joint = require('jointjs')
 
@@ -103,13 +108,19 @@ export default {
           }
         ]
       },
+      jointResult: {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      },
+      linkModalFields: []
       // jointResult: {
       //   name: 'joint',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
+      //   description: '2424',
+      //   fact_table: 'DS_DATALAKE_TABLE',
+      //   lookups: [{"table":"DS_DATALAKE_TABLE","alias":"DS_DATALAKE_TABLE","fact_table": "DS_DATALAKE_TABLE","joinTable":"test_juan","kind":"LOOKUP","join":{"type":"左连接","primary_key":["LAO_BAN_DIAN_HUA","LAO_BAN_DIAN_HUA"],"foreign_key":["CAN_GUAN_MING_CHENG","CAN_GUAN_DI_ZHI"],"isCompatible":[true],"pk_type":["string","string"],"fk_type":["string","string"]}}],
       // },
-      jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['123'], 'foreign_key': ['asdasdasd'], 'isCompatible': [true], 'pk_type': ['date'], 'fk_type': ['date'] } }] }
 
     }
   },
@@ -121,7 +132,6 @@ export default {
   },
   methods: {
     init () {
-      let initTranslate = 0
       let result = []
       let list = this.jointResult.lookups || []
 
@@ -166,10 +176,15 @@ export default {
             let linkElements = this.getLinkElements(e.model)
             let linkModal = null
             this.linkModalModel = null
+            this.linkModalFields = []
 
             if (data) {
+              let fields = this.getFields(data.join)
+
               this.linkModal = data
               this.linkModalModel = e.model
+
+              this.addFields(fields)
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
@@ -194,25 +209,15 @@ export default {
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
-                  'primary_key': [
-                    ''
-                    // source.field || 0
-                  ],
-                  'foreign_key': [
-                    ''
-                    // target.field || 0
-                  ],
-                  'isCompatible': [
-                    true
-                  ],
-                  'pk_type': [
-                    'date'
-                  ],
-                  'fk_type': [
-                    'date'
-                  ]
+                  'primary_key': [],
+                  'foreign_key': [],
+                  'isCompatible': [true],
+                  'pk_type': [],
+                  'fk_type': []
                 }
               }
+
+              this.addFields()
 
               this.linkModal = linkModal
               this.linkModalModel = e.model
@@ -251,7 +256,6 @@ export default {
       // 存储已选择的表
       // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
-        e.field = ''
         let rect = this.addRectCell(e)
         this.graph.addCell(rect)
       }
@@ -264,6 +268,9 @@ export default {
         case 'remove':
           this.clearElementLink(model)
           element.remove()
+          break
+        case 'clone':
+          this.setAlias(model)
           break
         case 'link':
           let link = new joint.shapes.standard.Link({
@@ -291,6 +298,11 @@ export default {
       }
 
       this.hideCellLayer()
+    },
+
+    // 设置别名
+    setAlias (item) {
+
     },
 
     dragTable (e) {
@@ -377,15 +389,19 @@ export default {
         })
       }
 
-      if (item.label === this.jointResult.fact_table) {
-        item.filed = 1
-      }
-
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
+        // 判断是否主表
+        if (item.label === this.jointResult.fact_table) {
+          item.filed = 1
+        }
+        // 如果是主表， 就清空所有文件
         if (item.filed) {
-          this.jointResult.fact_table = item.label
           this.clearCells()
+        }
+        // 设置主表
+        if (item.filed == 1 && !this.jointResult.fact_table) {
+          this.jointResult.fact_table = item.label
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
@@ -406,10 +422,12 @@ export default {
     addLinkCell (item) {
       let result = []
       let source = {
+        filed: item.table === item.alias ? 1 : 0,
         id: item.table,
         label: item.table
       }
       let target = {
+        filed: item.joinTable === item.alias ? 1 : 0,
         id: item.joinTable,
         label: item.joinTable
       }
@@ -431,10 +449,10 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
-        data: item,
         router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
+          'data': item,
           '.marker-target': {
             fill: '##59aff9', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
@@ -450,15 +468,100 @@ export default {
       return result
     },
 
-    getModalSelected (e) {
-      if (this.linkModal.join.primary_key.length > 0) {
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
-        this.addJointList(this.linkModal)
+    getFields (data) {
+      let list = []
+      let primary_key = data.primary_key || []
+      let foreign_key = data.foreign_key || []
+      let pk_type = data.pk_type || []
+      let fk_type = data.fk_type || []
+
+      primary_key.forEach((t, i) => {
+        list.push({
+          primary_key: primary_key[i],
+          foreign_key: foreign_key[i],
+          pk_type: pk_type[i],
+          fk_type: fk_type[i]
+        })
+      })
+
+      return list
+    },
+
+    addFields (field) {
+      if (!field || {}.toString.call(field) != '[object Array]') {
+        field = [{
+          primary_key: '',
+          foreign_key: '',
+          pk_type: '',
+          fk_type: ''
+        }]
+      }
+
+      this.linkModalFields = [...this.linkModalFields, ...field]
+    },
+
+    removeField (index) {
+      if (this.linkModalFields.length > 1) {
+        this.linkModalFields.splice(index, 1)
+        this.updateFields(this.linkModalFields)
       }
     },
 
+    getModalRelationSelected (e) {
+
+    },
+
+    getModalPrimarySelected (e) {
+      console.log(e)
+
+      let index = e.index
+      if (index >= 0 && e.primary_key && e.pk_type) {
+        this.linkModalFields[index].primary_key = e.primary_key
+        this.linkModalFields[index].pk_type = e.pk_type
+
+        if (this.linkModalFields[index].foreign_key && this.linkModalFields[index].fk_type) {
+          this.updateFields(this.linkModalFields)
+        }
+      }
+    },
+
+    getModalForeignSelected (e) {
+      console.log(e)
+
+      let index = e.index
+      if (index >= 0 && e.foreign_key && e.fk_type) {
+        this.linkModalFields[index].foreign_key = e.foreign_key
+        this.linkModalFields[index].fk_type = e.fk_type
+
+        if (this.linkModalFields[index].primary_key && this.linkModalFields[index].pk_type) {
+          this.updateFields(this.linkModalFields)
+        }
+      }
+    },
+
+    updateFields (fields) {
+      let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
+      fields.forEach((t, i) => {
+        primary_key.push(t.primary_key)
+        foreign_key.push(t.foreign_key)
+        pk_type.push(t.pk_type)
+        fk_type.push(t.fk_type)
+      })
+
+      this.linkModal.join.primary_key = primary_key
+      this.linkModal.join.foreign_key = foreign_key
+      this.linkModal.join.pk_type = pk_type
+      this.linkModal.join.fk_type = fk_type
+
+      this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
+      // this.linkModalModel.attrs(this.linkModal)
+
+      this.addJointList(this.linkModal)
+      console.log(JSON.stringify(this.jointResult))
+    },
+
     addJointList: function (item) {
-      let list = this.jointList || []
+      let list = this.jointResult.lookups || []
 
       if (list.length >= 1) {
         let isAdd = true
@@ -539,15 +642,10 @@ export default {
       this.cellLayerData = element
       this.cellLayerStyle = `display:block;width:${rect.width}px;height:${rect.height}px;left:${offset.left - parentOffset.left}px;top:${offset.top - parentOffset.top}px`
     },
-    // 增加关联信息
-    addRelation (item) {
-      this.linkModal.join.primary_key.push('')
-      this.linkModal.join.foreign_key.push('')
-    },
+
     nextModel (val) {
       this.$router.push('/olap/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
-      console.log(this.jointResult)
     },
     prevModel (val) {
       this.$router.push('/olap/createolap/selectStep')
@@ -562,7 +660,8 @@ export default {
         console.log('已经请求过了~')
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-          this.couponList = res.data
+          // this.couponList = res.data
+          this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
         })
       }
       this.prevId = id
