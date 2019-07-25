@@ -123,44 +123,51 @@ export default {
       },
       menuList: [
         {
-          catalogList: [],
-          dataId: 779035117190185,
-          dataName: '测试嵌套报表'
+          leafs: [],
+          folderId: 779035117190185,
+          name: '测试嵌套报表',
+          sort: 1
         },
         {
-          catalogList: [ {
-            dataId: 795406468250198,
-            dataName: '东莞中小学成绩报告',
+          leafs: [ {
+            folderId: 795406468250198,
+            name: '东莞中小学成绩报告',
             dataType: 3,
-            isShare: 1
+            isShare: 1,
+            sort: 2
           } ],
-          dataId: 796247848830160,
-          dataName: '东莞'
+          folderId: 796247848830160,
+          name: '东莞',
+          sort: 2
         },
         {
-          catalogList: [ {
-            dataId: 795247414460141,
-            dataName: '测试汇总88',
+          leafs: [ {
+            folderId: 795247414460141,
+            name: '测试汇总88',
             dataType: 1,
-            isShare: 1
+            isShare: 1,
+            sort: 3
           } ],
-          dataId: 776468771050089,
-          dataName: '测试通用报表'
+          folderId: 776468771050089,
+          name: '测试通用报表',
+          sort: 3
         },
         {
-          catalogList: [ {
-            dataId: 795385794900198,
-            dataName: '测试11',
+          leafs: [ {
+            folderId: 795385794900198,
+            name: '测试11',
             dataType: 2,
-            isShare: 1
+            isShare: 1,
+            sort: 4
           } ],
-          dataId: 777364408760098,
-          dataName: '测试主从报表'
+          folderId: 777364408760098,
+          name: '测试主从报表',
+          sort: 4
         }
       ],
       menuDefault: {
-        children: 'catalogList', // 子集的属性
-        label: 'dataName', // 标题的属性
+        children: 'leafs', // 子集的属性
+        label: 'name', // 标题的属性
         disabled: function (resData) {
           if (resData.isShare === 0) {
             return false
@@ -175,15 +182,6 @@ export default {
     this.getAsideList()
   },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
-    },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
-    },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
-    },
     async getAsideList () {
       const res = await getQueryShareApi()
       console.info('res', res)

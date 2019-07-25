@@ -57,3 +57,18 @@ export function newOlapFolderApi (data) {
     data
   })
 }
+
+export function exportApi (params) {
+  return fetch({
+    url: '/olapweb/olap/apis/olapRealQuery/export',
+    method: 'get',
+    params
+  })
+}
+
+export function getTableByIdApi (id) {
+  return fetch({
+    url: `/olapweb/olap/apis/olapRealQuery/${id}`,
+    method: 'get'
+  })
+}

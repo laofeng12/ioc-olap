@@ -35,7 +35,7 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">求和</el-button>
-          <el-button class="button" type="primary" size="mini">导出结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
@@ -45,8 +45,8 @@
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
         <el-form-item label="文件夹" label-width="100px" prop="folder">
           <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
-            <el-option v-for="(item, index) in folderList" :key="index" :label="item.dataName"
-                       :value="item.dataId"></el-option>
+            <el-option v-for="(item, index) in folderList" :key="index" :label="item.name"
+                       :value="item.folderId"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
@@ -86,13 +86,17 @@ export default {
       type: String,
       default: ''
     },
-    diffWidth: {
-      type: Number,
-      default: 536
-    },
     folderList: {
       type: Array,
       default: []
+    },
+    exportDataId: {
+      type: String,
+      default: ''
+    },
+    diffWidth: {
+      type: Number,
+      default: 536
     }
   },
   components: { DynamicTable },
@@ -164,8 +168,8 @@ export default {
     },
     save () {
       const data = {
-        type: this.word === 'save',
-        folder: this.newForm.folder,
+        isNew: this.word === 'save',
+        folderId: this.newForm.folder,
         name: this.newForm.resultName
       }
       this.$emit('saveFunc', data)
@@ -175,6 +179,13 @@ export default {
     reset () {
       this.$emit('reset')
       this.tipVisible = false
+    },
+    async exportTable () {
+      // window.open('http://www.baidu.com')
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?id=${this.exportDataId}`)
+      // window.location.href = `${window.location.host}/olapweb/olap/apis/olapRealQuery/export?id=${this.exportDataId}`
+      // const res = await exportApi({id: this.exportDataId})
+      // this.$message.success('下载成功')
     }
   }
 }

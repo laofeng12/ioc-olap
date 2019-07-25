@@ -11,7 +11,7 @@
     <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
       default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree_">
       <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span class="cus-node-title" :title="data.dataName">{{ data.dataName }}</span>
+        <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
           <span class="cus-node-content">
             <el-dropdown size="mini" @command="handleCommand($event, node, data)">
               <el-button type="primary" size="mini">
@@ -72,6 +72,10 @@ export default {
     needNewFolder: {
       type: Boolean,
       default: true
+    },
+    vueType: {
+      type: String,
+      required: true
     }
   },
   data () {
@@ -125,16 +129,18 @@ export default {
       let that = this
       if (node.parent.parent) {
         // 子节点才进入
-        that.sheetTitle = data.dataName
-        that.sheetDataId = data.dataId
+        that.sheetTitle = data.name
+        that.sheetDataId = data.folderId
         that.sheetShare = data.isShare
         // 渲染表格数据
-        // this.getTableData_(data.dataId)
+        if (this.vueType === 'saveResult') {
+          this.$emit('clickItem', data.sql, data.limit, data.realQueryId)
+        }
       }
     },
     filterAll (value, data) {
       if (!value) return true
-      return data.dataName.indexOf(value) !== -1
+      return data.name.indexOf(value) !== -1
     },
     submitNewFolder () {
       const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
@@ -179,12 +185,12 @@ export default {
       this.newVisible = true
       this.folderForm = {
         isNew: false,
-        name: data.dataName,
+        name: data.name,
         sort: ''
       }
     },
     delete (data) {
-      this.$emit('deleteFunc', data.dataId)
+      this.$emit('deleteFunc', data.folderId)
     }
   }
 }
