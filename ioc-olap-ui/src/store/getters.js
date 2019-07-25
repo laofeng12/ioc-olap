@@ -14,18 +14,18 @@ const getters = {
   saveSelctchckouttwo: state => state.olap.saveSelctchckouttwo,
   savemousedownData: state => state.olap.savemousedownData,
   saveSelectFiled: state => state.olap.saveSelectFiled,
-  saveSelectFiledTree: state => state.olap.saveSelectFiledTree,
+  saveList: state => state.olap.saveList,
   saveNewSortList: state => state.olap.saveNewSortList,
   saveNewSortListstructure: state => state.olap.saveNewSortListstructure,
-  saveList: state => state.olap.saveList,
-  saveRightTableList: state => state.olap.saveRightTableList,
   measureTableList: state => state.olap.measureTableList,
   relaodFilterList: state => state.olap.relaodFilterList,
-  savedimensionData: state => state.olap.savedimensionData,
-  savehetComposeData: state => state.olap.savehetComposeData,
-  totalSaveList: state => state.olap.totalSaveList,
+  mandatory_dimension_set_list: state => state.olap.mandatory_dimension_set_list,
+  hbase_mapping: state => state.olap.hbase_mapping,
+  aggregation_groups: state => state.olap.aggregation_groups,
   selectDataidList: state => state.olap.selectDataidList,
   savedimensionDataId: state => state.olap.savedimensionDataId,
-  savehetComposeDataId: state => state.olap.savehetComposeDataId
+  savehetComposeDataId: state => state.olap.savehetComposeDataId,
+  saveLeftFiled: state => state.olap.saveLeftFiled,
+  reloadNeedData: state => state.olap.reloadNeedData
 }
 export default getters

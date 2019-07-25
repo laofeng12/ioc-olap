@@ -1,6 +1,6 @@
 <template>
   <div class="reloadSet">
-     <el-form :model="formData">
+     <el-form :model="formData" ref="formData">
         <el-form-item label="刷新设置" class="item_line"></el-form-item>
         <el-form-item label="自动刷新" class="item_line"></el-form-item>
         <el-form-item label="自动刷新模型？">
@@ -18,8 +18,8 @@
         <el-form-item label="更新频率" v-if="formData.autoReload">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.reloadCount"></el-input>
-              <el-radio-group v-model="formData.timeType">
+              <el-input type="text" v-model="formData.INTERVAL"></el-input>
+              <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
                 <el-radio :label="3">月</el-radio>
@@ -31,7 +31,7 @@
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="formData.serveTable" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -40,7 +40,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="formData.dateText" placeholder="请选择日期字段">
+               <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -49,7 +49,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="formData.dateFormat" placeholder="请选择日期格式">
+               <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -71,7 +71,7 @@
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="formData.serveTable1" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -80,7 +80,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="formData.dateText1" placeholder="请选择日期字段">
+               <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -89,7 +89,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="formData.dateFormat1" placeholder="请选择日期格式">
+               <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -103,17 +103,24 @@
           tooltip-effect="dark"
           style="margin-top: 10px;">
           <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
-          <el-table-column prop="reloadName" label="表名称" align="center"> </el-table-column>
-          <el-table-column prop="reloadText" label="字段" align="center"> </el-table-column>
-          <el-table-column prop="filterType" label="过滤方式" align="center"> </el-table-column>
-          <el-table-column prop="filterValue" label="过滤值" align="center"> </el-table-column>
+          <el-table-column prop="TABLENAME" label="表名称" align="center"> </el-table-column>
+          <el-table-column prop="FIELD" label="字段" align="center"> </el-table-column>
+          <el-table-column prop="PATTERN" label="过滤方式" align="center"> </el-table-column>
+          <el-table-column prop="PARAMETER" label="过滤值" align="center">
+            <template slot-scope="scope">
+              <div>
+                <span>{{scope.row.PARAMETER}}</span>
+                <span v-if="scope.row.PATTERN === 'BETWEED'">，{{scope.row.PARAMETERBE}}</span>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column
             label="操作"
             width="100"
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="text" size="mini" @click="addMeasure(scope.row)" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
                 <el-button type="text" size="mini" icon="el-icon-delete" @click="handleChange(scope)"></el-button>
               </div>
             </template>
@@ -139,17 +146,24 @@ export default {
       formData: {
         autoReload: false,
         dataMany: false,
-        reloadCount: '',
-        timeType: 1,
-        serveTable: '',
-        serveTable1: '',
-        dateText: '',
-        dateText1: '',
-        dateFormat: '',
-        dateFormat1: ''
+        partition_date_column: [],
+        partition_date_format: [],
+        partition_time_format: [],
+        INTERVAL: '',
+        frequencytype: 1
       },
-      tableOptions: [],
-      textOptions: [],
+      tableOptions: [
+        { label: 'a' },
+        { label: 'b' },
+        { label: 'c' }
+      ],
+      textOptions: [
+        { comment: 'aaa', columnName: 'aaa' },
+        { comment: 'bbb', columnName: 'bbb' },
+        { comment: 'vccc', columnName: 'vccc' },
+        { comment: 'vvvv', columnName: 'vvvv' },
+        { comment: 'bbbbb', columnName: 'bbbbb' }
+      ],
       formatOptions: [
         { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
         { id: 2, value: 'yyyy-MM-dd' },
@@ -163,10 +177,11 @@ export default {
   },
   methods: {
     init () {
-      this.tableOptions = this.selectTableTotal
+      // this.tableOptions = this.selectTableTotal
       this.tableData = this.relaodFilterList
     },
     nextModel (val) {
+      console.log(this.formData)
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/advancedSet')
     },
@@ -183,7 +198,7 @@ export default {
         tableName: val
       }
       this.$store.dispatch('GetColumnList', params).then(res => {
-        this.textOptions = res.data
+        // this.textOptions = res.data
       })
     },
     handleChange (val) {
@@ -205,6 +220,11 @@ export default {
     },
     changeDataMany (val) {
       console.log(val)
+      if (val !== true) {
+        this.formData.partition_date_column.splice(1, 1)
+        this.formData.partition_date_format.splice(1, 1)
+        this.formData.partition_time_format.splice(1, 1)
+      }
     }
   },
   computed: {

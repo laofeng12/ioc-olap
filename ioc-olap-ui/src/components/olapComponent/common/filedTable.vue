@@ -30,107 +30,7 @@ export default {
       colors: 'red',
       titleData: [], // 表名
       // 模拟数据
-      dataList: {
-        'name': 'bb',
-        'description': '',
-        'fact_table': 'DS_U_sIDNmLKXM',
-        lookups: [{
-          'table': 'DS_U_x5OSRKK1c',
-          'alias': 'DS_U_1Z2zyQFtD',
-          'joinTable': 'KYLIN_SALES',
-          'kind': 'LOOKUP',
-          'join': {
-            'type': 'inner',
-            'primary_key': [
-              'KYLIN_CAL_DT.CAL_DT'
-            ],
-            'foreign_key': [
-              'KYLIN_SALES.PART_DT'
-            ],
-            'isCompatible': [
-              true
-            ],
-            'pk_type': [
-              'date'
-            ],
-            'fk_type': [
-              'date'
-            ]
-          }
-        },
-        {
-          'table': 'DS_U_sIDNmLKXM',
-          'alias': 'KYLIN_CAL_DT',
-          'joinTable': 'DS_U_sXvf440QG',
-          'kind': 'LOOKUP',
-          'join': {
-            'type': 'inner',
-            'primary_key': [
-              'KYLIN_CAL_DT.CAL_DT'
-            ],
-            'foreign_key': [
-              'KYLIN_SALES.PART_DT'
-            ],
-            'isCompatible': [
-              true
-            ],
-            'pk_type': [
-              'date'
-            ],
-            'fk_type': [
-              'date'
-            ]
-          }
-        },
-        {
-          'table': 'DS_U_sXvf440QG',
-          'alias': 'KYLIN_CAL_DT',
-          'joinTable': 'DS_U_BJMxXakML',
-          'kind': 'LOOKUP',
-          'join': {
-            'type': 'inner',
-            'primary_key': [
-              'KYLIN_CAL_DT.CAL_DT'
-            ],
-            'foreign_key': [
-              'KYLIN_SALES.PART_DT'
-            ],
-            'isCompatible': [
-              true
-            ],
-            'pk_type': [
-              'date'
-            ],
-            'fk_type': [
-              'date'
-            ]
-          }
-        },
-        {
-          'table': 'DS_U_BJMxXakML',
-          'alias': 'KYLIN_CAL_DT',
-          'joinTable': 'DS_U_OBkpFiiWr',
-          'kind': 'LOOKUP',
-          'join': {
-            'type': 'inner',
-            'primary_key': [
-              'KYLIN_CAL_DT.CAL_DT'
-            ],
-            'foreign_key': [
-              'KYLIN_SALES.PART_DT'
-            ],
-            'isCompatible': [
-              true
-            ],
-            'pk_type': [
-              'date'
-            ],
-            'fk_type': [
-              'date'
-            ]
-          }
-        }]
-      }
+      dataList: {}
     }
   },
   mounted () {
@@ -138,13 +38,17 @@ export default {
   },
   methods: {
     init () {
+      this.dataList = this.saveLeftFiled
       // 遍历去重数据拿到表名称
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.table, item.joinTable)
       })
       this.titleData = [...new Set(this.titleData)]
       // 初始化已选择的表
-      setTimeout(() => { this.changeLi(this.titleData[0], 0) }, 300)
+      setTimeout(() => {
+        this.changeLi(this.titleData[0], 0)
+        this.current = 0
+      }, 300)
       // 接收设置表关系的数据
       // this.dataList = this.selectTableTotal
       // 接收已选择的表
@@ -157,10 +61,9 @@ export default {
               }
             })
           })
-          // 存储已选择后的维度表
-          // this.$store.dispatch('saveSelectFiledTree', this.dataList.lookups)
         }, 300)
       })
+      console.log(this.dataList)
     },
     cahngges (val) {
       this.$refs.dialog.dialog()
@@ -174,14 +77,15 @@ export default {
       this.$store.dispatch('GetColumnList', parmas).then(res => {
         res.data.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
-          n.apiPaths = n.columnName
+          n.derived = n.columnName
           n.tableName = item
           n.filed = name
           n.id = `${item}${i}`
         })
         // 存储选择对应的表
-        this.$store.dispatch('SaveRightTableList', res.data)
         this.$root.eventBus.$emit('filedTable', res.data, res.code)
+        // 存储已选择的表
+        this.$store.dispatch('SaveList', res.data)
       })
     }
   },
@@ -192,6 +96,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     })
   }

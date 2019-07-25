@@ -1,5 +1,5 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr, filterArrData, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
+import { filterArr, filterArrData, reduceObj } from '@/utils/index'
 import Vue from 'vue'
 const common = {
   state: {
@@ -15,32 +15,102 @@ const common = {
     /* 建立表关系 */
     savemousedownData: [], // 存储已拖拽的数据
     /* 维度 */
+    saveLeftFiled: {
+      'name': 'bb',
+      'description': '',
+      'fact_table': 'DS_U_GN9N1SADS',
+      lookups: [{
+        'table': 'DS_U_GN9N1SADS',
+        'alias': 'DS_U_GN9N1SADS',
+        'joinTable': 'DS_U_I66UXON7J',
+        'kind': 'LOOKUP',
+        'join': {
+          'type': 'inner',
+          'primary_key': [
+            'KYLIN_CAL_DT.CAL_DT'
+          ],
+          'foreign_key': [
+            'KYLIN_SALES.PART_DT' // 衍生模式需要取到包含维度里
+          ],
+          'isCompatible': [
+            true
+          ],
+          'pk_type': [
+            'date'
+          ],
+          'fk_type': [
+            'date'
+          ]
+        }
+      },
+      {
+        'table': 'DS_U_I66UXON7J',
+        'alias': 'DS_U_I66UXON7J',
+        'joinTable': 'DS_U_I66UXON7J',
+        'kind': 'LOOKUP',
+        'join': {
+          'type': 'inner',
+          'primary_key': [
+            'KYLIN_CAL_DT.CAL_DT'
+          ],
+          'foreign_key': [
+            'KYLIN_SALES.PART_DT'
+          ],
+          'isCompatible': [
+            true
+          ],
+          'pk_type': [
+            'date'
+          ],
+          'fk_type': [
+            'date'
+          ]
+        }
+      }]
+    }, // 左侧的维度数据
+    saveList: [],
     saveSelectFiled: [], // 存储已选择的维度
-    saveSelectFiledTree: [], // 存储已选择的左侧维度菜单
-    saveNewSortListstructure: [], // 存储最新分类后的维度(传给后端的数据接口)
+    saveFiledNormalList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
+    saveFiledDerivativelList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
+    saveFiledData: [], // 存储已选择的(传给后端的结构)------------------------
+    reloadNeedData: [],
+    saveNewSortListstructure: [], // 存储最新分类后的维度
     saveNewSortList: [], // 存储最新分类后的维度
-    saveList: [], // 存储维度输入框以及维度组合
-    saveRightTableList: [], // 维度对应的表
     /* 度量 */
     measureTableList: [],
     /* 刷新过滤 */
     relaodFilterList: [],
     /* 高级设置 */
-    totalSaveList: [
+    aggregation_groups: [
       {
-        containData: [], // 包含维度
-        necessaryData: [], // 必要维度
-        levelData: [{}], // 层级维度
-        jointData: [ {} ] // 联合维度
+        includes: [], // 包含维度
+        select_rule: {
+          mandatory_dims: [], // 必要维度
+          hierarchy_dims: [[]], // 层级维度
+          joint_dims: [[]] // 联合维度
+        }
       }
     ], // 存储总的数据
-    savedimensionData: [{}], // 存储维度黑白名单
-    savehetComposeData: [], // 存储高级设置组合
+    mandatory_dimension_set_list: [[]], // 存储维度黑白名单
+    // savehetComposeData: [], // 存储高级设置组合
+    hbase_mapping: {
+      'column_family': [
+        // {
+        //   'name': 'F1', // 序号
+        //   'columns': [
+        //     {
+        //       'qualifier': 'M', // 写死
+        //       'measure_refs': []
+        //     }
+        //   ]
+        // }
+      ]
+    },
     NewDataList: [], // 根据id存储的
     /** 已选择的维度id 以及黑白名单/高级组合 */
     selectDataidList: [ // 已选择的id集合
       {
-        containDataId: [],
+        includesId: [],
         necessaryDataId: [],
         levelDataId: [[]],
         jointDataId: [[]]
@@ -87,7 +157,6 @@ const common = {
       state.saveSelctchckoutone = []
       state.saveSelctchckouttwo = []
       state.saveSelectFiled = []
-      state.saveSelectFiledTree = []
     },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
@@ -187,45 +256,6 @@ const common = {
     SaveMousedownData ({ state }, data) {
       state.savemousedownData.push(data)
     },
-    /**
-     * 维度步骤
-     */
-    // 存储已选择的维度
-    SaveSelectFiled ({ state }, data) {
-      let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
-      state.saveSelectFiled = datas
-      // setLocalStorage('saveSelectFiled', datas) // 存储未分类的数据
-    },
-    // 删除取消的selct
-    RemoveSelectFiled ({ state }, data) {
-      state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
-        if (data.list) {
-          return item.tableName !== data.id
-        } else {
-          return item.id !== data.id
-        }
-      })
-    },
-    // 存储已选择对应的表
-    SaveRightTableList ({ state }, data) {
-      state.saveRightTableList = data
-    },
-    // 存储已选择的维度表
-    saveSelectFiledTree ({ state }, data) {
-      state.saveSelectFiledTree = data
-    },
-    // 存储加了显示名称的数据
-    changePushSelectFiled ({ state }, index) {
-      let datas = state.saveList.concat(state.saveRightTableList)
-      state.saveList = datas
-    },
-    // 存储最新分类后的维度
-    SaveNewSortList ({ state }, data) {
-      // console.log('接受的数据', data)
-      state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
-      state.saveNewSortList = filterArr(data) // 需要传给后端的数据结构
-      // setLocalStorage('saveNewSortList', filterArr(data))
-    },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, dispatch }, data) {
       state.selectTableTotal.forEach((item, index) => {
@@ -233,12 +263,130 @@ const common = {
       })
       dispatch('setSelectTableTotal')
     },
+    /**
+     * 维度步骤
+     */
+    // 存储已选择的维度
+    SaveSelectFiled ({ state, dispatch }, data) {
+      let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
+      state.saveSelectFiled = datas
+      dispatch('changePushSelectFiled', data)
+    },
+    // 删除取消的selct
+    RemoveSelectFiled ({ state, dispatch }, data) {
+      state.saveSelectFiled = state.saveSelectFiled.filter((item, index) => {
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
+        }
+      })
+      // 删除对应的表
+      state.saveFiledDerivativelList = state.saveFiledDerivativelList.filter(item => {
+        return item.id !== data.id
+      })
+      state.saveFiledNormalList = state.saveFiledNormalList.filter(item => {
+        return item.id !== data.id
+      })
+      state.reloadNeedData = state.reloadNeedData.filter(item => {
+        return item.id !== data.id
+      })
+    },
+    // 存储加了显示名称的数据
+    changePushSelectFiled ({ state, dispatch }, val) {
+      state.saveSelectFiled.forEach((item, index) => {
+        if (val.id === item.id) {
+          state.saveSelectFiled[index].mode = val.mode
+          state.saveSelectFiled[index].name = val.name
+          if (item.mode === '1') {
+            // 普通模式
+            state.saveFiledNormalList.push(item)
+            state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
+            // 删除选择的衍生模式
+            state.saveFiledDerivativelList.forEach((item, index) => {
+              if (item.id === val.id) {
+                state.saveFiledDerivativelList.splice(index, 1)
+              }
+            })
+          } else if (item.mode === '2') {
+            // 衍生模式
+            state.saveFiledDerivativelList.push(item)
+            state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
+            // 删除选择的普通模式
+            state.saveFiledNormalList.forEach((item, index) => {
+              if (item.id === val.id) {
+                state.saveFiledNormalList.splice(index, 1)
+              }
+            })
+          }
+        }
+      })
+      dispatch('filterFiledTable', state.saveFiledDerivativelList)
+    },
+    // 整合正常模式或者衍生模式的数据
+    filterFiledTable ({ state }, data) {
+      // 筛选对应的foreign_key名
+      let datas = []
+      state.saveLeftFiled.lookups.map((item, index) => {
+        data.map((n, i) => {
+          if (item.alias === n.tableName) {
+            // datas.push(item.join.foreign_key.join(','))
+            datas.push({
+              id: n.id,
+              value: item.join.foreign_key.join(',')
+            })
+          }
+        })
+      })
+      // 整合正常模式数据
+      let nomrlData = []
+      state.saveFiledNormalList.map((res, index) => {
+        // nomrlData.push(res.tableName + '.' + res.columnName)
+        nomrlData.push({
+          id: res.id,
+          value: res.tableName + '.' + res.columnName
+        })
+      })
+      state.reloadNeedData = [...nomrlData, ...datas]
+      // console.log(state.reloadNeedData)
+    },
+    // 存储洗选的维度（传给后端的）
+    SaveFiledData ({ state }) {
+      // 对接数据格式
+      state.saveFiledData = []
+      state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
+        state.saveFiledData.push({
+          table: item.tableName,
+          column: item.columnName,
+          derived: item.mode === '1' ? null : item.columnName.split(','),
+          name: item.name ? item.name : item.columnName
+        })
+      })
+      // console.log('需要的', state.saveFiledData)
+    },
+    // 存储最新分类后的维度
+    SaveNewSortList ({ state }, data) {
+      state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
+      state.saveNewSortList = filterArr(data)
+    },
+    SaveList ({ state }, data) {
+      state.saveList = data
+    },
     /* 度量 */
     // 新增的table表
     MeasureTableList ({ state }, data) {
       return new Promise((resolve, reject) => {
-        state.measureTableList.push(data)
-        resolve('ok')
+        if (data.isNew === 0) {
+          state.measureTableList.push(data)
+          resolve('ok')
+        } else {
+          state.measureTableList.map((item, index) => {
+            if (data.id === item.id) {
+              state.measureTableList[index] = data
+              resolve('ok')
+            }
+          })
+        }
       })
     },
     // 根据生成的id删除对应表
@@ -251,8 +399,17 @@ const common = {
     // 新增的过滤表
     ReloadFilterTableList ({ state }, data) {
       return new Promise((resolve, reject) => {
-        state.relaodFilterList.push(data)
-        resolve('ok')
+        if (data.isNew === 0) {
+          state.relaodFilterList.push(data)
+          resolve('ok')
+        } else {
+          state.relaodFilterList.map((item, index) => {
+            if (data.id === item.id) {
+              state.relaodFilterList[index] = data
+              resolve('ok')
+            }
+          })
+        }
       })
     },
     // 根据生成的id删除对应表
@@ -263,30 +420,30 @@ const common = {
     },
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
-      dispatch('WithidGetList', slectData.data)
+      // dispatch('WithidGetList', slectData.data)
       switch (slectData.type) {
         case 1:
-          state.totalSaveList[slectData.index].containData = state.NewDataList
-          state.selectDataidList[slectData.index].containDataId = slectData.data
+          state.aggregation_groups[slectData.index].includes = slectData.data
+          state.selectDataidList[slectData.index].includesId = slectData.data
           break
         case 2:
-          state.totalSaveList[slectData.index].necessaryData = state.NewDataList
+          state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data
           state.selectDataidList[slectData.index].necessaryDataId = slectData.data
           break
         case 3:
-          Vue.set(state.totalSaveList[slectData.index].levelData, slectData.findIndex, state.NewDataList)
+          Vue.set(state.aggregation_groups[slectData.index].select_rule.hierarchy_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].levelDataId, slectData.findIndex, slectData.data)
           break
         case 4:
-          Vue.set(state.totalSaveList[slectData.index].jointData, slectData.findIndex, state.NewDataList)
+          Vue.set(state.aggregation_groups[slectData.index].select_rule.joint_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].jointDataId, slectData.findIndex, slectData.data)
           break
         case 5:
-          Vue.set(state.savedimensionData, slectData.index, state.NewDataList)
+          Vue.set(state.mandatory_dimension_set_list, slectData.index, slectData.data)
           Vue.set(state.savedimensionDataId, slectData.index, slectData.data)
           break
         case 6:
-          Vue.set(state.savehetComposeData, slectData.index, state.NewDataList)
+          Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
           Vue.set(state.savehetComposeDataId, slectData.index, slectData.data)
           break
         default:
@@ -295,27 +452,47 @@ const common = {
     },
     // 新增聚合小组
     addAggregationList ({ state }) {
-      state.totalSaveList.push({
-        containData: [],
-        necessaryData: [],
-        levelData: [{}],
-        jointData: [{}]
+      state.aggregation_groups.push({
+        includes: [],
+        select_rule: {
+          mandatory_dims: [], // 必要维度
+          hierarchy_dims: [[]], // 层级维度
+          joint_dims: [[]] // 联合维度
+        }
       })
       state.selectDataidList.push({
-        containDataId: [],
+        includesId: [],
         necessaryDataId: [],
-        levelDataId: [],
-        jointDataId: []
+        levelDataId: [[]],
+        jointDataId: [[]]
       })
+    },
+    // 新增层级维度
+    AddlevelData ({ state }, index) {
+      state.aggregation_groups[index].select_rule.hierarchy_dims.push([])
+      state.selectDataidList[index].levelDataId.push([])
+    },
+    // 新增联合维度
+    AddjointData ({ state }, index) {
+      state.aggregation_groups[index].select_rule.joint_dims.push([])
+      state.selectDataidList[index].jointDataId.push([])
     },
     // 新增维度黑白名单
     AddimensionData ({ state }) {
-      state.savedimensionData.push({})
+      state.mandatory_dimension_set_list.push([])
       state.savedimensionDataId.push([])
     },
     // 新增高级组合
     AddhetComposeData ({ state }) {
-      state.savehetComposeData.push({})
+      state.hbase_mapping.column_family.push({
+        'name': 'F1',
+        'columns': [
+          {
+            'qualifier': 'M',
+            'measure_refs': []
+          }
+        ]
+      })
       state.savehetComposeDataId.push([])
     },
     // 根据id筛选出需要的数据
@@ -337,48 +514,49 @@ const common = {
     RmtagList ({ state }, list) {
       switch (list.type) {
         case 1:
-          state.totalSaveList[list.index].containData.filter((item, index) => {
-            item.id === list.id && state.totalSaveList[list.index].containData.splice(index, 1)
+          state.aggregation_groups[list.index].includes.filter((item, index) => {
+            item.id === list.id && state.aggregation_groups[list.index].includes.splice(index, 1)
           })
-          state.selectDataidList[list.index].containDataId.map((item, index) => {
-            item === list.id && state.selectDataidList[list.index].containDataId.splice(index, 1)
+          state.selectDataidList[list.index].includesId.map((item, index) => {
+            item === list.id && state.selectDataidList[list.index].includesId.splice(index, 1)
           })
           break
         case 2:
-          state.totalSaveList[list.index].necessaryData.filter((item, index) => {
-            item.id === list.id && state.totalSaveList[list.index].necessaryData.splice(index, 1)
+          state.aggregation_groups[list.index].select_rule.mandatory_dims.filter((item, index) => {
+            item.id === list.id && state.aggregation_groups[list.index].necessaryData.splice(index, 1)
           })
           state.selectDataidList[list.index].necessaryDataId.map((item, index) => {
             item === list.id && state.selectDataidList[list.index].necessaryDataId.splice(index, 1)
           })
           break
         case 3:
-          state.totalSaveList[list.index].levelData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.totalSaveList[list.index].levelData[list.findIndex].splice(index, 1)
+          state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].splice(index, 1)
           })
           state.selectDataidList[list.index].levelDataId[list.findIndex].map((item, index) => {
             item === list.id && state.selectDataidList[list.index].levelDataId[list.findIndex].splice(index, 1)
           })
           break
         case 4:
-          state.totalSaveList[list.index].jointData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.totalSaveList[list.index].jointData[list.findIndex].splice(index, 1)
+          state.aggregation_groups[list.index].select_rule.joint_dims[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.aggregation_groups[list.index].select_rule.joint_dims[list.findIndex].splice(index, 1)
           })
           state.selectDataidList[list.index].jointDataId[list.findIndex].map((item, index) => {
             item === list.id && state.selectDataidList[list.index].jointDataId[list.findIndex].splice(index, 1)
           })
           break
         case 5:
-          state.savedimensionData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.savedimensionData[list.findIndex].splice(index, 1)
+          state.mandatory_dimension_set_list[list.findIndex].filter((item, index) => {
+            item.id === list.id && state.mandatory_dimension_set_list[list.findIndex].splice(index, 1)
           })
           state.savedimensionDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savedimensionDataId[list.findIndex].splice(index, 1)
           })
           break
         case 6:
-          state.savehetComposeData[list.findIndex].filter((item, index) => {
-            item.id === list.id && state.savehetComposeData[list.findIndex].splice(index, 1)
+          // Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
+          state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.filter((item, index) => {
+            item.id === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
           })
           state.savehetComposeDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savehetComposeDataId[list.findIndex].splice(index, 1)
