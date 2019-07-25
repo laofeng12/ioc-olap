@@ -128,14 +128,15 @@ const setFiled = {
     },
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state }, data) {
+      let resultVal = reduceObj(data, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
       state.saveLeftFiled.lookups.map((item, index) => {
-        data.map((n, i) => {
+        resultVal.map((n, i) => {
           if (item.alias === n.tableName) {
-            // datas.push(item.join.foreign_key.join(','))
             datas.push({
               id: n.id,
+              type: n.dataType,
               value: item.join.foreign_key.join(',')
             })
           }
@@ -144,14 +145,13 @@ const setFiled = {
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {
-        // nomrlData.push(res.tableName + '.' + res.columnName)
         nomrlData.push({
           id: res.id,
+          type: res.dataType,
           value: res.tableName + '.' + res.columnName
         })
       })
       state.reloadNeedData = [...nomrlData, ...datas]
-      // console.log(state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的）
     SaveFiledData ({ state }) {

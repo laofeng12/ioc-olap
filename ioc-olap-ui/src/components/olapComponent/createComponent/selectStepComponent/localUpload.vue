@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import serchTable from '@/components/olapComponent/modelCommon/serchTable'
 import elementTable from '@/components/ElementTable/index'
 export default {
   components: {

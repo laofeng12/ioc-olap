@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import headBox from '@/components/olapComponent/common/head'
+import headBox from '@/components/olapComponent/modelCommon/head'
 export default {
   components: { headBox },
   data () {

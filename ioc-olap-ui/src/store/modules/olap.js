@@ -26,11 +26,11 @@ const common = {
       state.savemousedownData.push(data)
     },
     // 合并设置的事实表到总表
-    mergeFiledTable ({ state, dispatch }, data) {
-      state.selectTableTotal.forEach((item, index) => {
-        data[0].label === item.label ? state.selectTableTotal[index]['filed'] = 1 : state.selectTableTotal[index]['filed'] = 0
+    mergeFiledTable ({ state, getters, dispatch }, data) {
+      getters.selectTableTotal.forEach((item, index) => {
+        data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      dispatch('setSelectTableTotal')
+      // dispatch('setSelectTableTotal')
     }
   }
 }

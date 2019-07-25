@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
-import trees from '@/components/olapComponent/common/trees'
+import serchTable from '@/components/olapComponent/modelCommon/serchTable'
+import trees from '@/components/olapComponent/modelCommon/trees'
 import elementTable from '@/components/ElementTable/index'
 export default {
   components: {

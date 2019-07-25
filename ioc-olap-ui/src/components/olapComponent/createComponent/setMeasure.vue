@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 import addMeasure from '@/components/olapComponent/dialog/addMeasure'
 import { mapGetters } from 'vuex'
 export default {

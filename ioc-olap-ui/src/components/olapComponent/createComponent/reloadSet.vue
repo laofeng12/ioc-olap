@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 import addReloadSet from '@/components/olapComponent/dialog/addReloadSet'
 import { mapGetters } from 'vuex'
 export default {

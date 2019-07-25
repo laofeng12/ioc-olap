@@ -53,16 +53,16 @@
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
-            :data="tableData"
+            :data="rowkey.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
-            <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
+            <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.dataType" placeholder="请选择" @visible-change="codingType(scope.row.dataType)">
+                  <el-select v-model="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -71,7 +71,7 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text" v-model="scope.row.mode"></el-input>
+                  <el-input type="text" v-model="scope.row.encoding" @change="encodingIpt"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
 export default {
@@ -158,8 +158,8 @@ export default {
       tableData: [],
       dimensionData: [{}], // 维度黑白名单
       engineOptions: [ // 模型构建引擎
-        { engine: '1', label: 'MapReduce ' },
-        { engine: '2', label: 'Spark ' }
+        { engine: '2', label: 'MapReduce ' },
+        { engine: '4', label: 'Spark ' }
       ],
       hetComposeData: [], // 高级组合
       encodingOption: [],
@@ -184,6 +184,16 @@ export default {
         'decimal': ['dict'],
         'bigint': ['boolean', 'date', 'time', 'dict', 'integer'],
         'timestamp': ['date', 'time', 'dict']
+      },
+      rowkey: {
+        'rowkey_columns': [
+          // {
+          //   'column': 'KYLIN_SALES.PART_DT',
+          //   'encoding': 'dict',
+          //   'isShardBy': 'false',
+          //   'encoding_version': 1
+          // }
+        ]
       }
     }
   },
@@ -192,14 +202,15 @@ export default {
   },
   methods: {
     init () {
-      let datas = [...this.saveSelectFiled]
-      datas.map(item => {
-        item.column = item.columnName
-        item.encoding = item.encoding ? item.encoding : ''
-        item.isShardBy = item.isShardBy ? item.isShardBy : ''
-        item.length = item.length ? item.length : ''
+      let datas = [...this.reloadNeedData]
+      datas.forEach(item => {
+        this.rowkey.rowkey_columns.push({
+          column: item.value,
+          encoding: item.encoding ? item.encoding : '',
+          engine_type: item.type ? item.type : '',
+          isShardBy: item.isShardBy ? item.isShardBy : ''
+        })
       })
-      this.tableData = datas
     },
     nextModel (val) {
       console.log(this.aggregation_groups, '高级', this.hbase_mapping)
@@ -285,6 +296,13 @@ export default {
         findIndex: findIndex
       }
       this.$store.dispatch('RmtagList', list)
+    },
+    // 改变对应的长度格式
+    encodingIpt () {
+      this.rowkey.rowkey_columns.map(item => {
+        // item.encoding = 'integer' + item.encoding
+      })
+      console.log(this.rowkey.rowkey_columns)
     }
   },
   computed: {
@@ -292,7 +310,9 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       mandatory_dimension_set_list: 'mandatory_dimension_set_list',
       selectDataidList: 'selectDataidList',
+      reloadNeedData: 'reloadNeedData',
       hbase_mapping: 'hbase_mapping',
+      measureTableList: 'measureTableList',
       aggregation_groups: 'aggregation_groups'
     })
   }

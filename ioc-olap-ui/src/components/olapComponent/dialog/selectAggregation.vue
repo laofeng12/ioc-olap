@@ -66,7 +66,7 @@ export default {
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
-      // this.options = this.reloadNeedData
+      this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -103,6 +103,7 @@ export default {
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId',
+      measureTableList: 'measureTableList', // 度量数据
       reloadNeedData: 'reloadNeedData' // 包含维度
     })
   }
