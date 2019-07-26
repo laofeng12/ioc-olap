@@ -265,8 +265,9 @@ export default {
       this.hideCellLayer()
     },
     setAlias (model) {
-      console.log(model)
-      this.$prompt(`设置别名：`, {
+      // console.log(model.attributes.attrs.text.text)
+      let val = model.attributes.attrs.text.text
+      this.$prompt(`（${val}）设置别名：`, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPattern: /^.{0,20}$/,
