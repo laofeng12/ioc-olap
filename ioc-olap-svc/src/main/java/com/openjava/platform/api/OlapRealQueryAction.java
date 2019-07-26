@@ -6,28 +6,25 @@ import javax.annotation.Resource;
 
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
+import com.openjava.platform.common.Export;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.service.*;
 import com.openjava.platform.vo.TreeNodeVo;
 import com.openjava.platform.vo.TreeVo;
+import io.swagger.annotations.*;
 import org.ljdp.common.bean.MyBeanUtils;
-import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponses;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -199,4 +196,15 @@ public class OlapRealQueryAction extends BaseAction {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
 	}
+
+	@ApiOperation(value = "导出即时查询", nickname="exportWithRealQuery", notes = "报文格式：content-type=application/download")
+	@RequestMapping(value="/export",method= RequestMethod.GET)
+	//@Security(session=true)
+	public void export(String sql,Integer limit, HttpServletResponse response)
+	{
+		QueryResultMapper mapper=cubeAction.query(sql,0,limit,"learn_kylin");
+		Export.dualDate(mapper,response);
+	}
+
+
 }

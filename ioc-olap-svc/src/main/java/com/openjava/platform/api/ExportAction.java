@@ -13,13 +13,21 @@ import javax.servlet.http.HttpServletResponse;
 
 @Api(tags="导出接口")
 @RestController
-@RequestMapping(value="/export")
+@RequestMapping(value="/olap/apis/export")
 public class ExportAction {
     @ApiOperation(value = "导出即时查询", nickname="exportWithRealQuery", notes = "报文格式：content-type=application/json")
-    @RequestMapping(method= RequestMethod.POST)
+    @RequestMapping(value="/exportWithRealQuery",method= RequestMethod.GET)
     public void exportWithRealQuery(@RequestBody QueryResultMapper queryResult, HttpServletResponse response)
     {
-        Export.dualDateExportExcel(queryResult,response);
+        Export.dualDate(queryResult,response);
     }
+
+    @ApiOperation(value = "测试")
+    @RequestMapping(value="/callExample1",method= RequestMethod.GET)
+    public void callExample1(HttpServletResponse response) throws Exception {
+        Export.dualDateExportExcel2(response);
+    }
+
+
 
 }
