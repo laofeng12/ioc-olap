@@ -2,7 +2,7 @@
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-button type="text" @click="changes">设置事实表</el-button>
-     <ul v-if="dataList && dataList.length">
+     <ul v-if="dataList && dataList.length" onselectstart = "return false">
        <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     init () {
-      this.dataList = this.selectTableTotal
+      this.dataList = [...this.selectTableTotal]
       this.checkFactFile()
     },
     checkFactFile () {
