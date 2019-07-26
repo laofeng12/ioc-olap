@@ -40,12 +40,11 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "修改project")
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
-    public void update(@RequestBody ProjectMapper body) {
+    public ProjectDescDataMapper update(@RequestBody ProjectMapper body) {
         String url = config.address + "/kylin/api/projects";
         HashMap hash = new HashMap();
         hash.put("formerProjectName", body.formerProjectName);
         hash.put("projectDescData", JSON.toJSONString(body.projectDescData));
-        
         ProjectDescDataMapper mapper = HttpClient.put(url, JSON.toJSONString(hash), config.authorization, ProjectDescDataMapper.class);
         return mapper;
     }
