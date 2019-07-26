@@ -1,7 +1,7 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
-                 :needNewFolder="false" vueType="queries"></FolderAside>
+                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
@@ -96,6 +96,7 @@ export default {
           }
         }
       },
+      menuListLoading: false,
       loading: false,
       exportData: {}
     }
@@ -106,6 +107,7 @@ export default {
   },
   methods: {
     async getFolderList () {
+      this.menuListLoading = true
       const res = await getFolderWithQueryApi()
       const folderList = res.map(v => {
         return (
@@ -113,6 +115,7 @@ export default {
         )
       })
       this.folderList = folderList
+      this.menuListLoading = false
     },
     async getAsideList () {
       const res = await getCubeTreeApi()

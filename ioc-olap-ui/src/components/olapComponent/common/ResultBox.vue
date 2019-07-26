@@ -97,6 +97,10 @@ export default {
     diffWidth: {
       type: Number,
       default: 536
+    },
+    folderData: {
+      type: Object,
+      required: true
     }
   },
   components: { DynamicTable },

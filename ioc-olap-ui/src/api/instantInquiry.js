@@ -82,13 +82,11 @@ export function getShareUserApi (params) {
   })
 }
 
-export function saveShareApi (params, data) {
-  debugger
+export function saveShareApi (url, data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapShare/save',
+    url,
     method: 'post',
     contentType: 'application/x-www-form-urlencoded',
-    params,
     data
   })
 }

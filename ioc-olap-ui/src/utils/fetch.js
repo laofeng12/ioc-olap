@@ -22,7 +22,6 @@ service.interceptors.request.use(
     if (!config.contentType) {
       config.headers['Content-type'] = 'application/json'
     } else {
-      debugger
       config.headers['Content-type'] = config.contentType
     }
     // form

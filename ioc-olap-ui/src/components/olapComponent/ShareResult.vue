@@ -1,6 +1,7 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="queries"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="queries"
+                 :menuListLoading="menuListLoading"></FolderAside>
     <div class="content">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
     </div>
@@ -175,7 +176,8 @@ export default {
             return true
           }
         }
-      }
+      },
+      menuListLoading: false
     }
   },
   mounted () {
@@ -183,8 +185,10 @@ export default {
   },
   methods: {
     async getAsideList () {
+      this.menuListLoading = true
       const res = await getQueryShareApi()
       console.info('res', res)
+      this.menuListLoading = false
     }
   }
 }

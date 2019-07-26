@@ -1,9 +1,10 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" @clickItem="getTableById"
-                 vueType="saveResult" @deleteFunc="deleteFolder"></FolderAside>
+                 vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
+                 :folderData="folderData"></ResultBox>
     </div>
     <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form">
@@ -63,8 +64,10 @@ export default {
           }
         }
       },
+      menuListLoading: false,
       exportData: {},
-      loading: false
+      loading: false,
+      folderData: {}
     }
   },
   mounted () {
@@ -72,6 +75,7 @@ export default {
   },
   methods: {
     async getAsideList () {
+      this.menuListLoading = true
       const menuList = await getFolderWithQueryApi()
       // const menuList = res.map(v => {
       //   return (
@@ -80,11 +84,17 @@ export default {
       // })
       console.info('menuList', menuList)
       this.menuList = menuList
+      this.menuListLoading = false
     },
-    async getTableById (sql, limit, id) {
+    async getTableById (folderData) {
       this.loading = true
+      this.folderData = folderData
       try {
-        const { columnMetas, results } = await searchOlapApi({ sql, limit })
+        const data = {
+          sql: folderData.attrs.sql,
+          limit: folderData.attrs.limit
+        }
+        const { columnMetas, results, duration } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }

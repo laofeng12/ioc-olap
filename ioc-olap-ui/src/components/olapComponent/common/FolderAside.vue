@@ -46,7 +46,7 @@
     </el-dialog>
     <el-dialog title="选择共享" :visible.sync="shareVisible">
       <div class="">
-        <el-transfer class="share" v-model="shareValue" :data="shareData"></el-transfer>
+        <el-transfer class="share" v-loading="shareLoading" v-model="shareValue" :data="shareData"></el-transfer>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="shareVisible = false">取 消</el-button>
@@ -65,6 +65,10 @@ export default {
     menuList: {
       type: Array,
       required: true
+    },
+    menuListLoading: {
+      type: Boolean,
+      default: false
     },
     menuDefault: {
       // type: Array,
@@ -104,16 +108,14 @@ export default {
       },
       shareData: [],
       shareValue: [],
-      shareId: null
+      shareId: null,
+      shareLoading: false
     }
   },
   watch: {
     searchKeyword (val) {
       this.$refs.alltree.filter(val)
     }
-  },
-  mounted () {
-    this.getUserList()
   },
   methods: {
     clickTreeItem (data, node, self) {
@@ -125,7 +127,7 @@ export default {
         that.sheetShare = data.isShare
         // 渲染表格数据
         if (this.vueType === 'saveResult') {
-          this.$emit('clickItem', data.sql, data.limit, data.realQueryId)
+          this.$emit('clickItem', data)
         }
       }
     },
@@ -141,7 +143,6 @@ export default {
       }
       Object.assign(data, this.folderForm)
       console.info('data', data)
-      debugger
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
           try {
@@ -186,12 +187,10 @@ export default {
       // this.$emit('editFunc', this.folderForm)
     },
     delete (data, isLeaf) {
-      debugger
       if (isLeaf) {
         if (data.realQueryId) {
           this.$emit('deleteFunc', data.realQueryId)
         } else {
-          debugger
           this.deleteFolder(data.id)
         }
       } else {
@@ -202,19 +201,24 @@ export default {
       await deleteOlapFolderApi({ id })
       this.$message.success('删除成功')
     },
-    async getUserList () {
-      const { rows } = await getUserListApi()
-      console.info('rows', rows)
-      const shareData = rows.map(v => Object.assign(v, { key: v.userid, label: v.fullname, disabled: false }))
-      this.shareData = shareData
-    },
     async getShareUserList (node, data) {
+      this.shareLoading = true
       console.info('data', data.attrs.realQueryId)
       if (data.attrs.realQueryId) {
         this.shareId = data.attrs.realQueryId
         this.shareVisible = true
+        const { rows } = await getUserListApi()
+        const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
+        console.info('res', res)
+        let shareValue = []
+        res.forEach(v => shareValue.push(v.shareUserId))
+        this.shareValue = shareValue
+        const shareData = rows.map(v => Object.assign(v, { key: v.userid, label: v.fullname, disabled: false }))
+        this.shareData = shareData
+        this.shareLoading = false
       } else {
         this.$message.error('分享失败')
+        this.shareLoading = false
       }
     },
     async share () {
@@ -222,12 +226,17 @@ export default {
         sourceId: this.shareId,
         sourceType: 'RealQuery'
       }
-      const params = {
-        userIds: this.shareValue.join('&')
-      }
-
-      const res = await saveShareApi(params, data)
-      console.info(res)
+      let url = '/olapweb/olap/apis/olapShare/save?'
+      this.shareValue.forEach((v, i) => {
+        if (i === 0) {
+          url += `userIds=${v}`
+        } else {
+          url += `&userIds=${v}`
+        }
+      })
+      await saveShareApi(url, data)
+      this.$message.success('分享成功')
+      this.shareVisible = false
     }
   }
 }
