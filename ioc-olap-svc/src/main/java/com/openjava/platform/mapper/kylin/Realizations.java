@@ -12,5 +12,5 @@ public class Realizations {
     @JSONField(name = "type")
     public String type;
     @JSONField(name = "realization")
-    public Long realization;
+    public String realization;
 }
