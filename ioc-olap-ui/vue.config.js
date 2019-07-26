@@ -30,14 +30,14 @@ module.exports = {
         pathRewrite: { '^/pds/': '/pds/' },
         changeOrigin: true
       },
-      '/olapweb/': {
-        target: 'http://19.104.40.36', // 麒麟测试环境
-        changeOrigin: true
-      }
       // '/olapweb/': {
-      //   target: 'http://172.16.60.25:9090', // 沛辰本机
+      //   target: 'http://19.104.40.36', // 麒麟测试环境
       //   changeOrigin: true
       // }
+      '/olapweb/': {
+        target: 'http://172.16.60.25:9090', // 沛辰本机
+        changeOrigin: true
+      }
       // '/olapweb/': {
       //   target: 'http://172.16.60.5:8080', // 宝珠本机
       //   changeOrigin: true

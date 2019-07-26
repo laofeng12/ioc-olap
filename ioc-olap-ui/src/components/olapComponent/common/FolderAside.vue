@@ -46,18 +46,19 @@
     </el-dialog>
     <el-dialog title="选择共享" :visible.sync="shareVisible">
       <div class="">
-        <el-transfer v-model="shareValue" :data="shareData"></el-transfer>
+        <el-transfer class="share" v-model="shareValue" :data="shareData"></el-transfer>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="shareVisible = false">取 消</el-button>
-        <el-button type="primary" @click="shareVisible = false">确 定</el-button>
+        <el-button type="primary" @click="share">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { newOlapFolderApi, deleteOlapFolderApi } from '../../../api/instantInquiry'
+import { newOlapFolderApi, deleteOlapFolderApi, getShareUserApi, saveShareApi } from '../../../api/instantInquiry'
+import { getUserListApi } from '../../../api/login'
 
 export default {
   props: {
@@ -79,17 +80,6 @@ export default {
     }
   },
   data () {
-    const generateData = () => {
-      const data = []
-      for (let i = 1; i <= 15; i++) {
-        data.push({
-          key: i,
-          label: `备选项${i}`,
-          disabled: i % 4 === 0
-        })
-      }
-      return data
-    }
     return {
       searchKeyword_: '', // 分享搜索
       shareVisible: false,
@@ -112,8 +102,9 @@ export default {
           { required: true, message: '请输入序号', trigger: 'blur' }
         ]
       },
-      shareData: generateData(),
-      shareValue: [1, 4]
+      shareData: [],
+      shareValue: [],
+      shareId: null
     }
   },
   watch: {
@@ -121,13 +112,16 @@ export default {
       this.$refs.alltree.filter(val)
     }
   },
+  mounted () {
+    this.getUserList()
+  },
   methods: {
     clickTreeItem (data, node, self) {
       let that = this
       if (node.parent.parent) {
         // 子节点才进入
         that.sheetTitle = data.name
-        that.sheetDataId = data.folderId
+        that.sheetDataId = data.id
         that.sheetShare = data.isShare
         // 渲染表格数据
         if (this.vueType === 'saveResult') {
@@ -168,13 +162,11 @@ export default {
       console.info('dropIndex', dropIndex)
       console.info('node', node)
       console.info('data', data)
-      debugger
       switch (dropIndex) {
         case '0': // 编辑
           return this.edit(node, data)
         case '1': // 分享
-          this.shareVisible = true
-          break
+          return this.getShareUserList(node, data)
         case '3': // 删除
           this.delete(data, node.isLeaf)
       }
@@ -186,7 +178,7 @@ export default {
     edit (node, data) {
       this.newVisible = true
       this.folderForm = {
-        folderId: data.folderId,
+        id: data.id,
         isNew: false,
         name: data.name,
         sort: data.sortNum
@@ -194,23 +186,48 @@ export default {
       // this.$emit('editFunc', this.folderForm)
     },
     delete (data, isLeaf) {
+      debugger
       if (isLeaf) {
         if (data.realQueryId) {
           this.$emit('deleteFunc', data.realQueryId)
         } else {
-          this.deleteFolder(data.folderId)
+          debugger
+          this.deleteFolder(data.id)
         }
       } else {
         this.$message.error('删除失败，请先删除文件夹中的文件')
       }
     },
-    async deleteFolder (folderId) {
-      try {
-        await deleteOlapFolderApi({ id: folderId })
-        this.$message.success('删除成功')
-      } catch (e) {
-        this.$message.error('删除失败')
+    async deleteFolder (id) {
+      await deleteOlapFolderApi({ id })
+      this.$message.success('删除成功')
+    },
+    async getUserList () {
+      const { rows } = await getUserListApi()
+      console.info('rows', rows)
+      const shareData = rows.map(v => Object.assign(v, { key: v.userid, label: v.fullname, disabled: false }))
+      this.shareData = shareData
+    },
+    async getShareUserList (node, data) {
+      console.info('data', data.attrs.realQueryId)
+      if (data.attrs.realQueryId) {
+        this.shareId = data.attrs.realQueryId
+        this.shareVisible = true
+      } else {
+        this.$message.error('分享失败')
       }
+    },
+    async share () {
+      const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
+        sourceId: this.shareId,
+        sourceType: 'RealQuery'
+      }
+      const params = {
+        userIds: this.shareValue.join('&')
+      }
+
+      const res = await saveShareApi(params, data)
+      console.info(res)
     }
   }
 }
@@ -270,6 +287,9 @@ export default {
       .el-tree-node__expand-icon {
         color: #c0c4cc;
       }
+    }
+    .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {
+      display: block!important;
     }
   }
   .el-tabs__content {

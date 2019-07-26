@@ -3,7 +3,7 @@
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" @clickItem="getTableById"
                  vueType="saveResult" @deleteFunc="deleteFolder"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportDataId="exportDataId"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"></ResultBox>
     </div>
     <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form">
@@ -53,7 +53,7 @@ export default {
       formLabelWidth: '120px',
       menuList: [],
       menuDefault: {
-        children: 'leafs', // 子集的属性
+        children: 'children', // 子集的属性
         label: 'name', // 标题的属性
         disabled: function (resData) {
           if (resData.isShare === 0) {
@@ -63,7 +63,7 @@ export default {
           }
         }
       },
-      exportDataId: {},
+      exportData: {},
       loading: false
     }
   },
@@ -75,7 +75,7 @@ export default {
       const menuList = await getFolderWithQueryApi()
       // const menuList = res.map(v => {
       //   return (
-      //     { leafs: v.leafs, folderId: v.folderId, name: v.name, sortNum: v.sortNum }
+      //     { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum }
       //   )
       // })
       console.info('menuList', menuList)
@@ -98,7 +98,7 @@ export default {
           })
           return list
         })
-        this.exportDataId = id
+        this.exportData = { sql, limit }
         this.tableData = [...[columnMetasList], ...resultsList]
         this.$message.success('查询完成')
       } catch (e) {

@@ -123,50 +123,50 @@ export default {
       },
       menuList: [
         {
-          leafs: [],
-          folderId: 779035117190185,
+          children: [],
+          id: 779035117190185,
           name: '测试嵌套报表',
           sort: 1
         },
         {
-          leafs: [ {
-            folderId: 795406468250198,
+          children: [ {
+            id: 795406468250198,
             name: '东莞中小学成绩报告',
             dataType: 3,
             isShare: 1,
             sort: 2
           } ],
-          folderId: 796247848830160,
+          id: 796247848830160,
           name: '东莞',
           sort: 2
         },
         {
-          leafs: [ {
-            folderId: 795247414460141,
+          children: [ {
+            id: 795247414460141,
             name: '测试汇总88',
             dataType: 1,
             isShare: 1,
             sort: 3
           } ],
-          folderId: 776468771050089,
+          id: 776468771050089,
           name: '测试通用报表',
           sort: 3
         },
         {
-          leafs: [ {
-            folderId: 795385794900198,
+          children: [ {
+            id: 795385794900198,
             name: '测试11',
             dataType: 2,
             isShare: 1,
             sort: 4
           } ],
-          folderId: 777364408760098,
+          id: 777364408760098,
           name: '测试主从报表',
           sort: 4
         }
       ],
       menuDefault: {
-        children: 'leafs', // 子集的属性
+        children: 'children', // 子集的属性
         label: 'name', // 标题的属性
         disabled: function (resData) {
           if (resData.isShare === 0) {

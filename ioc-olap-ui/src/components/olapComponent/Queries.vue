@@ -27,7 +27,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :folderList="folderList"></ResultBox>
+                   @reset="reset" :folderList="folderList" :exportData="exportData"></ResultBox>
       </div>
     </div>
     <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
@@ -84,52 +84,9 @@ export default {
       //   ]
       // },
       formLabelWidth: '120px',
-      menuList: [
-        {
-          leafs: [],
-          folderId: 779035117190185,
-          name: '测试嵌套报表',
-          sort: 1
-        },
-        {
-          leafs: [ {
-            folderId: 795406468250198,
-            name: '东莞中小学成绩报告',
-            dataType: 3,
-            isShare: 1,
-            sort: 2
-          } ],
-          folderId: 796247848830160,
-          name: '东莞',
-          sort: 2
-        },
-        {
-          leafs: [ {
-            folderId: 795247414460141,
-            name: '测试汇总88',
-            dataType: 1,
-            isShare: 1,
-            sort: 3
-          } ],
-          folderId: 776468771050089,
-          name: '测试通用报表',
-          sort: 3
-        },
-        {
-          leafs: [ {
-            folderId: 795385794900198,
-            name: '测试11',
-            dataType: 2,
-            isShare: 1,
-            sort: 4
-          } ],
-          folderId: 777364408760098,
-          name: '测试主从报表',
-          sort: 4
-        }
-      ],
+      menuList: [],
       menuDefault: {
-        children: 'leafs', // 子集的属性
+        children: 'children', // 子集的属性
         label: 'name', // 标题的属性
         disabled: function (resData) {
           if (resData.isShare === 0) {
@@ -139,7 +96,8 @@ export default {
           }
         }
       },
-      loading: false
+      loading: false,
+      exportData: {}
     }
   },
   mounted () {
@@ -151,13 +109,14 @@ export default {
       const res = await getFolderWithQueryApi()
       const folderList = res.map(v => {
         return (
-          { catalogList: v.leafs, dataId: v.folderId, dataName: v.name }
+          { children: v.children, id: v.id, name: v.name }
         )
       })
       this.folderList = folderList
     },
     async getAsideList () {
       const res = await getCubeTreeApi()
+      this.menuList = res
     },
     async deleteOlap (id) {
       const res = await deleteOlapApi({id})
@@ -168,6 +127,7 @@ export default {
         limit: this.checked ? this.lineNumber : -1,
         sql: this.textarea
       }
+      this.exportData = data
       try {
         const { columnMetas, results } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {

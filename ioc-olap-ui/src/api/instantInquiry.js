@@ -67,8 +67,28 @@ export function getTableByIdApi (id) {
 
 export function deleteOlapFolderApi (data) {
   return fetch({
-    url: '/olap/apis/olapFolder/delete',
+    url: '/olapweb/olap/apis/olapFolder/delete',
     method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}
+
+export function getShareUserApi (params) {
+  return fetch({
+    url: '/olapweb/olap/apis/olapShare/get',
+    method: 'get',
+    params
+  })
+}
+
+export function saveShareApi (params, data) {
+  debugger
+  return fetch({
+    url: '/olapweb/olap/apis/olapShare/save',
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    params,
     data
   })
 }

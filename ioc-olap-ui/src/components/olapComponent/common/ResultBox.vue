@@ -46,7 +46,7 @@
         <el-form-item label="文件夹" label-width="100px" prop="folder">
           <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
             <el-option v-for="(item, index) in folderList" :key="index" :label="item.name"
-                       :value="item.folderId"></el-option>
+                       :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
@@ -90,9 +90,9 @@ export default {
       type: Array,
       default: []
     },
-    exportDataId: {
-      type: String,
-      default: ''
+    exportData: {
+      type: Object,
+      required: true
     },
     diffWidth: {
       type: Number,
@@ -181,11 +181,7 @@ export default {
       this.tipVisible = false
     },
     async exportTable () {
-      // window.open('http://www.baidu.com')
-      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?id=${this.exportDataId}`)
-      // window.location.href = `${window.location.host}/olapweb/olap/apis/olapRealQuery/export?id=${this.exportDataId}`
-      // const res = await exportApi({id: this.exportDataId})
-      // this.$message.success('下载成功')
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
     }
   }
 }
