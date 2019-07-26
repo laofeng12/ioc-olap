@@ -18,7 +18,7 @@ const setFiled = {
             'KYLIN_CAL_DT.CAL_DT'
           ],
           'foreign_key': [
-            'KYLIN_SALES.PART_DT' // 衍生模式需要取到包含维度里
+            'KYLIN_SALES.PART_DT1' // 衍生模式需要取到包含维度里
           ],
           'isCompatible': [
             true
@@ -42,7 +42,7 @@ const setFiled = {
             'KYLIN_CAL_DT.CAL_DT'
           ],
           'foreign_key': [
-            'KYLIN_SALES.PART_DT'
+            'KYLIN_SALES.PART_DT2'
           ],
           'isCompatible': [
             true
@@ -85,50 +85,73 @@ const setFiled = {
         }
       })
       // 删除对应的表
-      state.saveFiledDerivativelList = state.saveFiledDerivativelList.filter(item => {
-        return item.id !== data.id
-      })
       state.saveFiledNormalList = state.saveFiledNormalList.filter(item => {
-        return item.id !== data.id
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
+        }
+      })
+      state.saveFiledDerivativelList = state.saveFiledDerivativelList.filter(item => {
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
+        }
       })
       state.reloadNeedData = state.reloadNeedData.filter(item => {
-        return item.id !== data.id
+        if (data.list) {
+          return item.tableName !== data.id
+        } else {
+          return item.id !== data.id
+        }
       })
     },
     // 存储加了显示名称的数据
     changePushSelectFiled ({ state, dispatch }, val) {
       state.saveSelectFiled.forEach((item, index) => {
-        if (val.id === item.id) {
-          state.saveSelectFiled[index].mode = val.mode
-          state.saveSelectFiled[index].name = val.name
-          if (item.mode === '1') {
-            // 普通模式
-            state.saveFiledNormalList.push(item)
-            state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
-            // 删除选择的衍生模式
-            state.saveFiledDerivativelList.forEach((item, index) => {
-              if (item.id === val.id) {
-                state.saveFiledDerivativelList.splice(index, 1)
-              }
-            })
-          } else if (item.mode === '2') {
-            // 衍生模式
-            state.saveFiledDerivativelList.push(item)
-            state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
-            // 删除选择的普通模式
-            state.saveFiledNormalList.forEach((item, index) => {
-              if (item.id === val.id) {
-                state.saveFiledNormalList.splice(index, 1)
-              }
-            })
+        if (val.length) {
+          val.map(res => {
+            if (res.id === item.id) {
+              state.saveSelectFiled[index].mode = res.mode
+              state.saveSelectFiled[index].name = res.name
+            }
+          })
+        } else {
+          if (val.id === item.id) {
+            state.saveSelectFiled[index].mode = val.mode
+            state.saveSelectFiled[index].name = val.name
           }
         }
+        if (item.mode === '1') {
+          // 普通模式
+          state.saveFiledNormalList = state.saveFiledNormalList.concat(item)
+          state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
+          // 删除选择的衍生模式
+          state.saveFiledDerivativelList && state.saveFiledDerivativelList.forEach((item, index) => {
+            if (item.id === val.id) {
+              state.saveFiledDerivativelList.splice(index, 1)
+            }
+          })
+        } else if (item.mode === '2') {
+          // 衍生模式
+          state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat(item)
+          state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
+          // 删除选择的普通模式
+          state.saveFiledNormalList && state.saveFiledNormalList.forEach((item, index) => {
+            if (item.id === val.id) {
+              state.saveFiledNormalList.splice(index, 1)
+            }
+          })
+        }
       })
-      dispatch('filterFiledTable', state.saveFiledDerivativelList)
+      dispatch('filterFiledTable')
+      // console.log(state.saveFiledDerivativelList, '衍生模式')
+      // console.log(state.saveFiledNormalList, '普通模式')
     },
     // 整合正常模式或者衍生模式的数据
-    filterFiledTable ({ state }, data) {
-      let resultVal = reduceObj(data, 'tableName')
+    filterFiledTable ({ state }) {
+      let resultVal = reduceObj(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
       state.saveLeftFiled.lookups.map((item, index) => {
@@ -145,13 +168,14 @@ const setFiled = {
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {
-        nomrlData.push({
+        nomrlData = nomrlData.concat({
           id: res.id,
           type: res.dataType,
           value: res.tableName + '.' + res.columnName
         })
       })
       state.reloadNeedData = [...nomrlData, ...datas]
+      // console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的）
     SaveFiledData ({ state }) {
@@ -165,7 +189,6 @@ const setFiled = {
           name: item.name ? item.name : item.columnName
         })
       })
-      // console.log('需要的', state.saveFiledData)
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
