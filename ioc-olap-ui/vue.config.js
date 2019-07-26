@@ -30,7 +30,7 @@ module.exports = {
         pathRewrite: { '^/olapweb/pds/': '/pds/' },
         changeOrigin: true
       },
-      '/olapweb/': {
+      '/olapweb/olap/': {
         target: 'http://183.6.55.26:30003', // 公司测试环境
         changeOrigin: true
       }
