@@ -45,7 +45,8 @@ public class ProjectAction extends KylinAction {
         HashMap hash = new HashMap();
         hash.put("formerProjectName", body.formerProjectName);
         hash.put("projectDescData", JSON.toJSONString(body.projectDescData));
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, ProjectDescDataMapper.class);
+        ProjectDescDataMapper mapper = HttpClient.put(url, JSON.toJSONString(hash), config.authorization, ProjectDescDataMapper.class);
+        return mapper;
     }
 
 
