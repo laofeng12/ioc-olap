@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "共享接口")
@@ -26,9 +27,9 @@ public class OlapShareAction {
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @Security(session=true)
-    public void save(List<Long> userIds,String sourceType,String sourceId) {
+    public void save(Long[] userIds, String sourceType, Long sourceId) {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        olapShareService.save(userIds,sourceType,sourceId,Long.parseLong(userVO.getUserId()));
+        olapShareService.save(userIds,sourceType,sourceId,Long.parseLong(userVO.getUserId()),userVO.getUserName());
     }
 
     @ApiOperation(value = "读取共享")

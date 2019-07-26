@@ -1,13 +1,14 @@
 package com.openjava.platform.service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Resource;
 
 import com.openjava.platform.domain.OlapShare;
 import com.openjava.platform.query.OlapShareDBParam;
 import com.openjava.platform.repository.OlapShareRepository;
+import org.ljdp.component.sequence.ConcurrentSequence;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,12 +59,25 @@ public class OlapShareServiceImpl implements OlapShareService {
 	}
 
 	@Override
-	public void save(List<Long> userIds, String sourceType, String sourceId, long parseLong) {
-
+	@Transactional(readOnly=false)
+	public void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId,String userName) {
+		olapShareRepository.deleteByFkIdAndSourceId(sourceId,sourceType);
+		for (Long shareUserId : shareUserIds){
+			OlapShare share=new OlapShare();
+			share.setCreateId(userId);
+			share.setCreateName(userName);
+			share.setCreateTime(new Date());
+			share.setFkId(sourceId);
+			share.setFkType(sourceType);
+			share.setIsNew(true);
+			share.setShareId(ConcurrentSequence.getInstance().getSequence());
+			share.setShareUserId(shareUserId);
+			olapShareRepository.save(share);
+		}
 	}
 
 	@Override
-	public List<OlapShare> getList(String sourceType, String sourceId, long parseLong) {
-		return null;
+	public List<OlapShare> getList(String sourceType, String sourceId, Long userId) {
+		return olapShareRepository.getList(sourceType,sourceId,userId);
 	}
 }
