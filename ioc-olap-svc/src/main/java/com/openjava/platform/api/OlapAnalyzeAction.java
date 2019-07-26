@@ -45,17 +45,19 @@ public class OlapAnalyzeAction {
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
     @Security(session = true)
-    public ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderWithQuery() {
+    public List<TreeVo> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderHierarchicalVos = new ArrayList<FolderHierarchicalVo<OlapAnalyze>>();
+        List<TreeVo> trees=new ArrayList<TreeVo>();
         List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "DataAnalyze");
-        for (OlapFolder folder : folders) {
-            FolderHierarchicalVo<OlapAnalyze> folderHierarchicalVo = new FolderHierarchicalVo<OlapAnalyze>();
-            MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
-            folderHierarchicalVo.setLeafs(olapAnalyzeService.getListWithFolderId(folder.getFolderId()));
-            folderHierarchicalVos.add(folderHierarchicalVo);
+        for (OlapFolder folder : folders){
+            TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
+            List<OlapAnalyze> olapAnalyzes=olapAnalyzeService.getListWithFolderId(folder.getFolderId());
+            for(OlapAnalyze analyze : olapAnalyzes){
+                tree.getChildren().add(new TreeNodeVo(analyze.getName(),analyze.getAnalyzeId().toString(),null,analyze));
+            }
+            trees.add(tree);
         }
-        return folderHierarchicalVos;
+        return trees;
     }
 
     @ApiOperation(value = "获取共享的OLAP分析")
