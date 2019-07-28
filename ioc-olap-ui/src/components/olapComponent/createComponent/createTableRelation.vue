@@ -225,7 +225,9 @@ export default {
       // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
         let rect = this.addRectCell(e)
-        this.graph.addCell(rect)
+        if (rect) {
+          this.graph.addCell(rect)
+        }
       }
     },
     papersClick (e) {
@@ -266,7 +268,7 @@ export default {
     },
     setAlias (model) {
       // console.log(model.attributes.attrs.text.text)
-      let val = model.attributes.attrs.text.text
+      let val = model.get('attrs').text.text
       this.$prompt(`（${val}）设置别名：`, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -282,7 +284,7 @@ export default {
     },
 
     dragTable (e) {
-      if (e) {
+      if (e && !e.filed) {
         this.isDragRect = true
         this.dragRectPosition.label = e.label
         this.dragRectPosition.id = e.id
@@ -300,12 +302,15 @@ export default {
           label: this.dragRectPosition.label,
           position: { x, y }
         })
-        this.graph.addCell(rect)
-        this.isDragRect = false
-        this.dragRectPosition = {
-          label: 'test',
-          x: -1,
-          y: -1
+
+        if (rect) {
+          this.graph.addCell(rect)
+          this.isDragRect = false
+          this.dragRectPosition = {
+            label: 'test',
+            x: 0,
+            y: 0
+          }
         }
       }
     },
@@ -338,6 +343,21 @@ export default {
       return position
     },
 
+    checkCellsExist (item) {
+      if (!this.graph) this.graph = new joint.dia.Graph()
+
+      let status = 0
+      let cells = this.graph.getCells()
+
+      if (cells.length > 0) {
+        cells.forEach(t => {
+          if (t.label === item.label) {
+            status = 1
+          }
+        })
+      }
+    },
+
     clearCells () {
       this.jointResult.fact_table = ''
       this.jointResult.lookups = []
@@ -354,10 +374,6 @@ export default {
       let rectLength = 0
       let cells = this.graph.getCells()
 
-      if (!this.graph) {
-        this.graph = new joint.dia.Graph()
-      }
-
       if (cells.length > 0) {
         cells.forEach(t => {
           if (!t.isLink()) rectLength++
@@ -369,7 +385,7 @@ export default {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
         // 判断是否主表
         if (item.label === this.jointResult.fact_table) {
-          item.filed = 1
+          return false
         }
         // 如果是主表， 就清空所有文件
         if (item.filed) {
@@ -439,7 +455,6 @@ export default {
           }
         }
       })
-      console.log(newLink)
       result.push(newLink)
 
       return result
@@ -501,11 +516,22 @@ export default {
       console.log(e)
 
       let index = e.index
-      if (index >= 0 && e.primary_key && e.pk_type) {
-        this.linkModalFields[index].primary_key = e.primary_key
-        this.linkModalFields[index].pk_type = e.pk_type
+      let primary_key = e.primary_key
+      let pk_type = e.pk_type
+      let foreign_key = this.linkModalFields[index].foreign_key
+      let fk_type = this.linkModalFields[index].fk_type
 
-        if (this.linkModalFields[index].foreign_key && this.linkModalFields[index].fk_type) {
+      if (index >= 0 && primary_key && pk_type) {
+        if (fk_type && pk_type && pk_type != fk_type) {
+          alert('请选择类型一致的字段')
+          primary_key = ''
+          pk_type = ''
+        }
+
+        this.linkModalFields[index].primary_key = primary_key
+        this.linkModalFields[index].pk_type = pk_type
+
+        if (foreign_key && fk_type) {
           this.updateFields(this.linkModalFields)
         }
       }
@@ -515,11 +541,22 @@ export default {
       console.log(e)
 
       let index = e.index
-      if (index >= 0 && e.foreign_key && e.fk_type) {
-        this.linkModalFields[index].foreign_key = e.foreign_key
-        this.linkModalFields[index].fk_type = e.fk_type
+      let primary_key = this.linkModalFields[index].primary_key
+      let pk_type = this.linkModalFields[index].pk_type
+      let foreign_key = e.foreign_key
+      let fk_type = e.fk_type
 
-        if (this.linkModalFields[index].primary_key && this.linkModalFields[index].pk_type) {
+      if (index >= 0 && foreign_key && fk_type) {
+        if (fk_type && pk_type && pk_type != fk_type) {
+          alert('请选择类型一致的字段')
+          foreign_key = ''
+          fk_type = ''
+        }
+
+        this.linkModalFields[index].foreign_key = foreign_key
+        this.linkModalFields[index].fk_type = fk_type
+
+        if (primary_key && pk_type) {
           this.updateFields(this.linkModalFields)
         }
       }
@@ -528,10 +565,12 @@ export default {
     updateFields (fields) {
       let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
       fields.forEach((t, i) => {
-        primary_key.push(t.primary_key)
-        foreign_key.push(t.foreign_key)
-        pk_type.push(t.pk_type)
-        fk_type.push(t.fk_type)
+        if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
+          primary_key.push(t.primary_key)
+          foreign_key.push(t.foreign_key)
+          pk_type.push(t.pk_type)
+          fk_type.push(t.fk_type)
+        }
       })
 
       this.linkModal.join.primary_key = primary_key
@@ -539,7 +578,9 @@ export default {
       this.linkModal.join.pk_type = pk_type
       this.linkModal.join.fk_type = fk_type
 
-      this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
+      if (primary_key.length > 0) {
+        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
+      }
       // this.linkModalModel.attrs(this.linkModal)
 
       this.addJointList(this.linkModal)
@@ -548,55 +589,6 @@ export default {
 
     getModalRelationSelected (e) {
 
-    },
-
-    getModalPrimarySelected (e) {
-      console.log(e)
-
-      let index = e.index
-      if (index >= 0 && e.primary_key && e.pk_type) {
-        this.linkModalFields[index].primary_key = e.primary_key
-        this.linkModalFields[index].pk_type = e.pk_type
-
-        if (this.linkModalFields[index].foreign_key && this.linkModalFields[index].fk_type) {
-          this.updateFields(this.linkModalFields)
-        }
-      }
-    },
-
-    getModalForeignSelected (e) {
-      console.log(e)
-
-      let index = e.index
-      if (index >= 0 && e.foreign_key && e.fk_type) {
-        this.linkModalFields[index].foreign_key = e.foreign_key
-        this.linkModalFields[index].fk_type = e.fk_type
-
-        if (this.linkModalFields[index].primary_key && this.linkModalFields[index].pk_type) {
-          this.updateFields(this.linkModalFields)
-        }
-      }
-    },
-
-    updateFields (fields) {
-      let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
-      fields.forEach((t, i) => {
-        primary_key.push(t.primary_key)
-        foreign_key.push(t.foreign_key)
-        pk_type.push(t.pk_type)
-        fk_type.push(t.fk_type)
-      })
-
-      this.linkModal.join.primary_key = primary_key
-      this.linkModal.join.foreign_key = foreign_key
-      this.linkModal.join.pk_type = pk_type
-      this.linkModal.join.fk_type = fk_type
-
-      this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
-      this.linkModalModel.attr('data', this.linkModal)
-
-      this.addJointList(this.linkModal)
-      console.log(JSON.stringify(this.jointResult))
     },
 
     addJointList: function (item) {
@@ -700,8 +692,6 @@ export default {
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
           this.couponList = res.data
-          console.log(333)
-          console.log(this.couponList)
           // this.couponList = [{"comment":"所属老板","isSupport":"true","columnName":"SUO_SHU_LAO_BAN","dataType":"string"},{"comment":"老板电话","isSupport":"true","columnName":"LAO_BAN_DIAN_HUA","dataType":"string"},{"comment":"餐馆名称","isSupport":"true","columnName":"CAN_GUAN_MING_CHENG","dataType":"string"},{"comment":"餐馆地址","isSupport":"true","columnName":"CAN_GUAN_DI_ZHI","dataType":"string"},{"comment":null,"isSupport":"true","columnName":"DS_U_X5OSRKK1C_ID","dataType":"number"}]
         })
       }
