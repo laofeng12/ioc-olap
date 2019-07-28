@@ -153,7 +153,7 @@ export default {
       hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
-        engine_type: '1' // 构建引擎
+        engine_type: '2' // 构建引擎
       },
       tableData: [],
       dimensionData: [{}], // 维度黑白名单
@@ -213,7 +213,15 @@ export default {
       })
     },
     nextModel (val) {
-      console.log(this.aggregation_groups, '高级', this.hbase_mapping)
+      // 整理接口数据-----
+      this.totalSaveData.models.modelDescData.dimensions = this.dimensions
+      this.totalSaveData.models.modelDescData.partition_desc = this.reloadData
+      this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
+      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
+      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
+      this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
+      console.log(this.totalSaveData, '高级', this.hbase_mapping)
       // this.$parent.getStepCountAdd(val)
       // this.$router.push('/olap/createolap/completeCreate')
     },
@@ -273,7 +281,6 @@ export default {
     },
     // 选择维度
     getTotalModal (index, type, findIndex) {
-      console.log(this.reloadNeedData)
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
@@ -308,12 +315,16 @@ export default {
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      mandatory_dimension_set_list: 'mandatory_dimension_set_list',
+      mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
-      hbase_mapping: 'hbase_mapping',
-      measureTableList: 'measureTableList',
-      aggregation_groups: 'aggregation_groups'
+      hbase_mapping: 'hbase_mapping', // 高级组合
+      aggregation_groups: 'aggregation_groups', // 聚合
+      dimensions: 'dimensions', // 设置维度表
+      saveNewSortListstructure: 'saveNewSortListstructure', // 设置维度表(已选维度)
+      measureTableList: 'measureTableList', // 设置度量
+      reloadData: 'reloadData', // 刷新页面
+      totalSaveData: 'totalSaveData'
     })
   }
 }

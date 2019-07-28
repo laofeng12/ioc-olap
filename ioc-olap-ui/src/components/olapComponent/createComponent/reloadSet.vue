@@ -1,13 +1,13 @@
 <template>
   <div class="reloadSet">
-     <el-form :model="formData" ref="formData">
+     <el-form :model="reloadData" ref="reloadData">
         <el-form-item label="刷新设置" class="item_line"></el-form-item>
         <el-form-item label="自动刷新" class="item_line"></el-form-item>
         <el-form-item label="自动刷新模型？">
           <template>
             <div>
               <el-switch
-                v-model="formData.autoReload"
+                v-model="reloadData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -15,11 +15,11 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率" v-if="formData.autoReload">
+        <el-form-item label="更新频率" v-if="reloadData.autoReload">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.INTERVAL"></el-input>
-              <el-radio-group v-model="formData.frequencytype">
+              <el-input type="text" v-model="reloadData.INTERVAL"></el-input>
+              <el-radio-group v-model="reloadData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
                 <el-radio :label="3">月</el-radio>
@@ -31,7 +31,7 @@
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="reloadData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -40,7 +40,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
+               <el-select v-model="reloadData.partition_date_format[0]" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -49,7 +49,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
+               <el-select v-model="reloadData.partition_time_format[0]" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -59,7 +59,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.dataMany"
+                v-model="reloadData.dataMany"
                 active-color="#13ce66"
                 @change="changeDataMany"
                 inactive-color="#cccccc">
@@ -67,11 +67,11 @@
             </div>
           </template>
         </el-form-item>
-        <div v-if="formData.dataMany">
+        <div v-if="reloadData.dataMany">
         <el-form-item label="日期字段表" class="datarowmore">
           <template>
             <div>
-               <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
+               <el-select v-model="reloadData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
                 <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
@@ -80,7 +80,7 @@
         <el-form-item label="日期字段">
           <template>
             <div>
-               <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
+               <el-select v-model="reloadData.partition_date_format[1]" placeholder="请选择日期字段">
                 <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
@@ -89,7 +89,7 @@
         <el-form-item label="日期格式">
           <template>
             <div>
-               <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
+               <el-select v-model="reloadData.partition_time_format[1]" placeholder="请选择日期格式">
                 <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
               </el-select>
             </div>
@@ -143,15 +143,15 @@ export default {
   },
   data () {
     return {
-      formData: {
-        autoReload: false,
-        dataMany: false,
-        partition_date_column: [],
-        partition_date_format: [],
-        partition_time_format: [],
-        INTERVAL: '',
-        frequencytype: 1
-      },
+      // reloadData: {
+      //   autoReload: false,
+      //   dataMany: false,
+      //   partition_date_column: [],
+      //   partition_date_format: [],
+      //   partition_time_format: [],
+      //   INTERVAL: '',
+      //   frequencytype: 1
+      // },
       tableOptions: [
         { label: 'a' },
         { label: 'b' },
@@ -181,7 +181,7 @@ export default {
       this.tableData = this.relaodFilterList
     },
     nextModel (val) {
-      console.log(this.formData)
+      console.log(this.reloadData)
       this.$parent.getStepCountAdd(val)
       this.$router.push('/olap/createolap/advancedSet')
     },
@@ -219,18 +219,18 @@ export default {
       console.log(val)
     },
     changeDataMany (val) {
-      console.log(val)
       if (val !== true) {
-        this.formData.partition_date_column.splice(1, 1)
-        this.formData.partition_date_format.splice(1, 1)
-        this.formData.partition_time_format.splice(1, 1)
+        this.reloadData.partition_date_column.splice(1, 1)
+        this.reloadData.partition_date_format.splice(1, 1)
+        this.reloadData.partition_time_format.splice(1, 1)
       }
     }
   },
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
-      relaodFilterList: 'relaodFilterList'
+      relaodFilterList: 'relaodFilterList',
+      reloadData: 'reloadData'
     })
   }
 }

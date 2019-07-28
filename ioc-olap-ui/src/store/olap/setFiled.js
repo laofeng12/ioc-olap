@@ -58,9 +58,9 @@ const setFiled = {
     }, // 左侧的维度数据
     saveList: [],
     saveSelectFiled: [], // 存储已选择的维度
-    saveFiledNormalList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
-    saveFiledDerivativelList: [], // 存储正常模式下的数据(传给后端的结构)------------------------
-    saveFiledData: [], // 存储已选择的(传给后端的结构)------------------------
+    saveFiledNormalList: [], // 存储正常模式下的数据
+    saveFiledDerivativelList: [], // 存储正常模式下的数据
+    dimensions: [], // 存储已选择的(传给后端的结构)------------------------
     reloadNeedData: [],
     saveNewSortListstructure: [], // 存储最新分类后的维度
     saveNewSortList: [] // 存储最新分类后的维度
@@ -177,12 +177,12 @@ const setFiled = {
       state.reloadNeedData = [...nomrlData, ...datas]
       // console.log('啦啦啦啦', state.reloadNeedData)
     },
-    // 存储洗选的维度（传给后端的）
+    // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
       // 对接数据格式
-      state.saveFiledData = []
+      state.dimensions = []
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
-        state.saveFiledData.push({
+        state.dimensions.push({
           table: item.tableName,
           column: item.columnName,
           derived: item.mode === '1' ? null : item.columnName.split(','),

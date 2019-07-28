@@ -5,6 +5,7 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   savemousedownData: state => state.olap.savemousedownData,
+  totalSaveData: state => state.olap.totalSaveData,
   treeList: state => state.selectStep.treeList,
   serchTableList: state => state.selectStep.serchTableList,
   saveSelectTable: state => state.selectStep.saveSelectTable,
@@ -20,9 +21,11 @@ const getters = {
   saveNewSortListstructure: state => state.setFiled.saveNewSortListstructure,
   reloadNeedData: state => state.setFiled.reloadNeedData,
   saveLeftFiled: state => state.setFiled.saveLeftFiled,
+  dimensions: state => state.setFiled.dimensions,
   /* */
   measureTableList: state => state.setMeasure.measureTableList,
   relaodFilterList: state => state.reloadSet.relaodFilterList,
+  reloadData: state => state.reloadSet.reloadData,
   /* */
   mandatory_dimension_set_list: state => state.advancedSet.mandatory_dimension_set_list,
   hbase_mapping: state => state.advancedSet.hbase_mapping,

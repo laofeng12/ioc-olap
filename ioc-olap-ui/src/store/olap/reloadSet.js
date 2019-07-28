@@ -1,7 +1,16 @@
 
 const reloadSet = {
   state: {
-    relaodFilterList: []
+    relaodFilterList: [],
+    reloadData: {
+      autoReload: false,
+      dataMany: false,
+      partition_date_column: [],
+      partition_date_format: [],
+      partition_time_format: [],
+      INTERVAL: '',
+      frequencytype: 1
+    }
   },
   actions: {
     // 新增的过滤表
