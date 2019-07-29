@@ -87,7 +87,7 @@ export default {
     handleNodeClick (value) {
       let searchType = this.$store.state.selectStep.searchType
       let dsDataSourceId = searchType === 1 ? 10 : 2
-      let dbType = searchType === 1 ? 3 : 3
+      let dbType = searchType === 1 ? 3 : 0
       let tableName = value.label
       const parmas = {
         dsDataSourceId,

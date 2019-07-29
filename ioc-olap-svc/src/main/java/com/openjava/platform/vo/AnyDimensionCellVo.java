@@ -9,7 +9,7 @@ public class AnyDimensionCellVo {
     private Integer colspan;
     private Integer rowspan;
     private String value;
-    private Integer type;
+    private Integer type;//1.X  2.Y  3.指标  4.数据
     private Object attrs;
 
     public AnyDimensionCellVo(){

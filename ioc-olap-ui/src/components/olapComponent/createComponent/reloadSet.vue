@@ -103,24 +103,17 @@
           tooltip-effect="dark"
           style="margin-top: 10px;">
           <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
-          <el-table-column prop="TABLENAME" label="表名称" align="center"> </el-table-column>
-          <el-table-column prop="FIELD" label="字段" align="center"> </el-table-column>
-          <el-table-column prop="PATTERN" label="过滤方式" align="center"> </el-table-column>
-          <el-table-column prop="PARAMETER" label="过滤值" align="center">
-            <template slot-scope="scope">
-              <div>
-                <span>{{scope.row.PARAMETER}}</span>
-                <span v-if="scope.row.PATTERN === 'BETWEED'">，{{scope.row.PARAMETERBE}}</span>
-              </div>
-            </template>
-          </el-table-column>
+          <el-table-column prop="reloadName" label="表名称" align="center"> </el-table-column>
+          <el-table-column prop="reloadText" label="字段" align="center"> </el-table-column>
+          <el-table-column prop="filterType" label="过滤方式" align="center"> </el-table-column>
+          <el-table-column prop="filterValue" label="过滤值" align="center"> </el-table-column>
           <el-table-column
             label="操作"
             width="100"
             align="center">
             <template slot-scope="scope">
               <div class="play">
-                <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
+                <el-button type="text" size="mini" @click="addMeasure(scope.row)" icon="el-icon-edit"></el-button>
                 <el-button type="text" size="mini" icon="el-icon-delete" @click="handleChange(scope)"></el-button>
               </div>
             </template>
@@ -177,7 +170,7 @@ export default {
   },
   methods: {
     init () {
-      // this.tableOptions = this.selectTableTotal
+      this.tableOptions = this.selectTableTotal
       this.tableData = this.relaodFilterList
     },
     nextModel (val) {
@@ -198,7 +191,7 @@ export default {
         tableName: val
       }
       this.$store.dispatch('GetColumnList', params).then(res => {
-        // this.textOptions = res.data
+        this.textOptions = res.data
       })
     },
     handleChange (val) {

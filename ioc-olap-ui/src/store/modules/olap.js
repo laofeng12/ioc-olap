@@ -224,6 +224,7 @@ const common = {
       state.saveSelctchckoutone = []
       state.saveSelctchckouttwo = []
       state.saveSelectFiled = []
+      state.saveSelectFiledTree = []
     },
     /*
      *建立表关系

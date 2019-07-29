@@ -42,3 +42,10 @@ export function logout () {
     method: 'post'
   })
 }
+
+export function getUserListApi () {
+  return fetch({
+    url: '/admin/user/sysUser/search',
+    method: 'get'
+  })
+}

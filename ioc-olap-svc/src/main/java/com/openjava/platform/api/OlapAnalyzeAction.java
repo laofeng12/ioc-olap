@@ -1,9 +1,11 @@
 package com.openjava.platform.api;
 
+import com.alibaba.fastjson.JSON;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
-import com.openjava.platform.domain.*;
-import com.openjava.platform.mapper.kylin.QueryResultMapper;
+import com.openjava.platform.common.Export;
+import com.openjava.platform.domain.OlapAnalyze;
+import com.openjava.platform.domain.OlapFolder;
 import com.openjava.platform.service.*;
 import com.openjava.platform.vo.*;
 import io.swagger.annotations.Api;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,17 +48,19 @@ public class OlapAnalyzeAction {
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
     @Security(session = true)
-    public ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderWithQuery() {
+    public List<TreeVo> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ArrayList<FolderHierarchicalVo<OlapAnalyze>> folderHierarchicalVos = new ArrayList<FolderHierarchicalVo<OlapAnalyze>>();
+        List<TreeVo> trees=new ArrayList<TreeVo>();
         List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "DataAnalyze");
-        for (OlapFolder folder : folders) {
-            FolderHierarchicalVo<OlapAnalyze> folderHierarchicalVo = new FolderHierarchicalVo<OlapAnalyze>();
-            MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
-            folderHierarchicalVo.setLeafs(olapAnalyzeService.getListWithFolderId(folder.getFolderId()));
-            folderHierarchicalVos.add(folderHierarchicalVo);
+        for (OlapFolder folder : folders){
+            TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
+            List<OlapAnalyze> olapAnalyzes=olapAnalyzeService.getListWithFolderId(folder.getFolderId());
+            for(OlapAnalyze analyze : olapAnalyzes){
+                tree.getChildren().add(new TreeNodeVo(analyze.getName(),analyze.getAnalyzeId().toString(),null,analyze));
+            }
+            trees.add(tree);
         }
-        return folderHierarchicalVos;
+        return trees;
     }
 
     @ApiOperation(value = "获取共享的OLAP分析")
@@ -112,5 +117,14 @@ public class OlapAnalyzeAction {
     @Security(session = true)
     public AnalyzeVo get(Long id) {
         return olapAnalyzeService.getVo(id);
+    }
+
+    @ApiOperation(value = "导出olap分析数据", nickname="exportWitholapAnalyze", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value="/export",method= RequestMethod.GET)
+    //@Security(session=true)
+    public void export(HttpServletResponse response) throws Exception {
+        String date="{\"totalRows\":1,\"totalColumns\":6,\"results\":[[{\"colspan\":2,\"rowspan\":1,\"value\":\"null\",\"type\":1},{\"colspan\":4,\"rowspan\":1,\"value\":\"Bachelors Degree\",\"type\":1},{\"colspan\":4,\"rowspan\":1,\"value\":\"Graduate Degree\",\"type\":1},{\"colspan\":4,\"rowspan\":1,\"value\":\"High School Degree\",\"type\":1}],[{\"colspan\":2,\"rowspan\":1,\"value\":\"Customer - Gender - Gender\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"F\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"M\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"F\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"M\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"F\",\"type\":1},{\"colspan\":2,\"rowspan\":1,\"value\":\"M\",\"type\":1}],[{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Country\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store State\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Unit Sales\",\"type\":3},{\"colspan\":1,\"rowspan\":1,\"value\":\"Store Cost\",\"type\":3}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"USA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"CA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"USA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"OR\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"USA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"WA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"ESA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"CA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"ESA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"OR\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}],[{\"colspan\":1,\"rowspan\":3,\"value\":\"ESA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"WA\",\"type\":2},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"22.22\",\"type\":4},{\"colspan\":1,\"rowspan\":1,\"value\":\"33.33\",\"type\":4}]],\"cube\":\"\",\"affectedRowCount\":1,\"isException\":true,\"exceptionMessage\":14,\"duration\":2,\"totalScanCount\":2,\"totalScanBytes\":2}";
+        AnyDimensionVo anyDimensionVo=JSON.parseObject(date,AnyDimensionVo.class);
+        Export.dualAnyDimensionVoDate(anyDimensionVo,response);
     }
 }
