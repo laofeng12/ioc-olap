@@ -34,13 +34,13 @@ export default new Router({
         {
           path: 'olapList',
           name: 'olapList',
-          meta: { title: 'OLAP分析' },
+          meta: { title: 'OLAP模型' },
           component: () => import('@/views/olap/olapList.vue')
         },
         {
           path: 'createolap',
           name: 'createolap',
-          // meta: { title: '新建OLAP模型' },
+          meta: { title: '新建OLAP模型' },
           component: stepContainer,
           redirect: 'createolap/selectStep',
           children: [
@@ -73,22 +73,34 @@ export default new Router({
               name: 'reloadSet',
               meta: { title: '刷新及过滤设置' },
               component: () => import('@/components/olapComponent/createComponent/reloadSet.vue')
+            },
+            {
+              path: 'advancedSet',
+              name: 'advancedSet',
+              meta: { title: '高级设置' },
+              component: () => import('@/components/olapComponent/createComponent/advancedSet.vue')
+            },
+            {
+              path: 'completeCreate',
+              name: 'completeCreate',
+              meta: { title: '完成创建' },
+              component: () => import('@/components/olapComponent/createComponent/completeCreate.vue')
             }
           ]
         }
       ]
     },
     {
-      path: '/queries',
+      path: '/',
       name: 'queries',
       component: ContainerWrapper,
-      redirect: '/queries/adHocQueries',
+      redirect: '/instantInquiry',
       children: [
         {
-          path: 'adHocQueries',
-          name: 'adHocQueries',
+          path: 'instantInquiry',
+          name: 'instantInquiry',
           meta: { title: '即席分析' },
-          component: () => import('@/views/olap/adHocQueries.vue')
+          component: () => import('@/views/olap/instantInquiry.vue')
         }
         // {
         //   path: 'createolap',
@@ -96,6 +108,26 @@ export default new Router({
         //   meta: { title: '新建OLAP模型' },
         //   component: () => import('@/views/olap/createolap.vue')
         // }
+      ]
+    },
+    {
+      path: '/olapAnalysis',
+      name: 'queries',
+      component: ContainerWrapper,
+      redirect: '/olapAnalysis/olapAnalysisList',
+      children: [
+        {
+          path: 'olapAnalysisList',
+          name: 'olapAnalysisList',
+          meta: { title: 'olap分析' },
+          component: () => import('@/views/olap/olapAnalysisList.vue')
+        },
+        {
+          path: 'newOlapAnalysis',
+          name: 'newOlapAnalysis',
+          meta: { title: '新建olap分析' },
+          component: () => import('@/views/olap/olapAnalysis.vue')
+        }
       ]
     }
   ]

@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author xiepc
  *
  */
-@ApiModel("文件夹表")
+@ApiModel("立方体")
 @Entity
 @Table(name = "OLAP_CUBE")
 public class OlapCube implements Persistable<Long>,Serializable {

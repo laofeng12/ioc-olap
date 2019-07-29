@@ -13,6 +13,8 @@ public class LookupsMapper {
     public String kind;
     @JSONField(name = "alias")
     public String alias;
+    @JSONField(name = "joinTable")
+    public String joinTable;
     @JSONField(name = "join")
     public JoinMapper join;
 }

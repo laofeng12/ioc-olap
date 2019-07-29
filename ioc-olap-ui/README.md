@@ -6,7 +6,7 @@
 3. ./build-govtest.sh
 
 * 访问地址
-<!-- http://19.104.40.36/platformweb/ -->
+<!-- http://19.104.40.36/olapweb/ -->
 开发中。。。。。
 
 
@@ -18,4 +18,4 @@
 5. oc create -f docker/platform-webui-test.yaml -->
 
 * 访问地址
-http://183.6.55.26:30003/platformweb/
+http://183.6.55.26:30003/olapweb/

@@ -16,4 +16,6 @@ import java.util.List;
  */
 public interface OlapFolderRepository extends DynamicJpaRepository<OlapFolder, Long>, OlapFolderRepositoryCustom{
     public List<OlapFolder> findByCreateIdOrderBySortNumDesc(Long userId);
+
+    List<OlapFolder> findByCreateIdAndTypeOrderBySortNumDesc(Long userId, String type);
 }

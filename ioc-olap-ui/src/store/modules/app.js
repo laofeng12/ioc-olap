@@ -31,15 +31,22 @@ const app = {
       subResList: [{
         resId: 'asdasdasdasdasd',
         index: '4',
-        resName: 'OLAP分析',
+        resName: 'OLAP模型',
         resURL: '/olap',
         resIcon: 'fa fa-columns',
         subResList: []
       }, {
         resId: '1',
         index: '5',
+        resName: 'OLAP分析',
+        resURL: '/olapAnalysis',
+        resIcon: 'fa fa-columns',
+        subResList: []
+      }, {
+        resId: '1',
+        index: '5',
         resName: '即系查询',
-        resURL: '/queries',
+        resURL: '/instantInquiry',
         resIcon: 'fa fa-columns',
         subResList: []
       }]

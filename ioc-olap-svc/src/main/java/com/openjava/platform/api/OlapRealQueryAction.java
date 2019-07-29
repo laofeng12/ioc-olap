@@ -1,55 +1,30 @@
 package com.openjava.platform.api;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
+import com.openjava.platform.common.Export;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
-import com.openjava.platform.query.OlapRealQueryDBParam;
 import com.openjava.platform.service.*;
-import com.openjava.platform.vo.FolderHierarchicalVo;
 import com.openjava.platform.vo.TreeNodeVo;
 import com.openjava.platform.vo.TreeVo;
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.annotations.*;
 import org.ljdp.common.bean.MyBeanUtils;
-import org.ljdp.common.file.ContentType;
-import org.ljdp.common.file.POIExcelBuilder;
-import org.ljdp.component.result.ApiResponse;
-import org.ljdp.component.result.BasicApiResponse;
-import org.ljdp.component.result.DataApiResponse;
-import org.ljdp.component.sequence.SequenceService;
-import org.ljdp.component.sequence.TimeSequence;
 import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
-import org.ljdp.ui.bootstrap.TablePage;
-import org.ljdp.ui.bootstrap.TablePageImpl;
-import org.ljdp.util.DateFormater;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponses;
-import springfox.documentation.annotations.ApiIgnore;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -71,6 +46,9 @@ public class OlapRealQueryAction extends BaseAction {
 	private OlapCubeTableColumnService olapCubeTableColumnService;
 	@Resource
 	private OlapFolderService olapFolderService;
+	@Resource
+	private CubeAction cubeAction;
+
 	
 	/**
 	 * 用主键获取数据
@@ -142,7 +120,7 @@ public class OlapRealQueryAction extends BaseAction {
 		olapRealQueryService.doRemove(ids);
 	}
 
-	@ApiOperation(value = "获取自己创建的立方体树形列表")
+	@ApiOperation(value = "获取自己创建的立方体树形结构列表")
 	@Security(session=true)
 	@RequestMapping(value="/CubeTree",method=RequestMethod.GET)
 	public ArrayList<TreeVo> CubeTree(){
@@ -152,22 +130,29 @@ public class OlapRealQueryAction extends BaseAction {
 		for (OlapCube cube : cubes){
 			TreeVo tree=new TreeVo();
 			tree.setId(cube.getCubeId().toString());
-			tree.setTitle(cube.getName());
-			tree.setRow(new ArrayList<TreeNodeVo>());
+			tree.setName(cube.getName());
+			tree.setChildren(new ArrayList<TreeNodeVo>());
 			ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
 			for (OlapCubeTable table : cubeTables){
 				TreeNodeVo nodeVo=new TreeNodeVo();
 				nodeVo.setId(table.getId().toString());
-				nodeVo.setName(table.getTableName());
-				nodeVo.setRow(new ArrayList<TreeNodeVo>());
+				nodeVo.setName(table.getDatabaseName()+"."+table.getTableName());
+				nodeVo.setChildren(new ArrayList<TreeNodeVo>());
+				nodeVo.setAttrs(table);
 				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
 				for (OlapCubeTableColumn column : cubeTableColumns){
 					TreeNodeVo leafNode=new TreeNodeVo();
-					nodeVo.setId(column.getId().toString());
-					nodeVo.setName(column.getExpressionFull());
-					nodeVo.getRow().add(leafNode);
+					leafNode.setId(column.getId().toString());
+					if(column.getExpressionType()==null || column.getExpressionType()==""){
+						leafNode.setName(column.getColumnName());
+					}
+					else{
+						leafNode.setName(column.getColumnName()+"->"+column.getExpressionType());
+					}
+					leafNode.setAttrs(column);
+					nodeVo.getChildren().add(leafNode);
 				}
-				tree.getRow().add(nodeVo);
+				tree.getChildren().add(nodeVo);
 			}
 			trees.add(tree);
 		}
@@ -176,30 +161,50 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "查询数据")
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
+	@Security(session=true)
 	public QueryResultMapper query(String sql, Integer limit) {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		return new CubeAction().query(sql,0,limit,userVO.getUserId());
+		//return cubeAction.query(sql,0,limit,userVO.getUserId());
+		if(limit==-1){
+			limit=Integer.MAX_VALUE;
+		}
+		return cubeAction.query(sql,0,limit,"learn_kylin");
 	}
 
 	@ApiOperation(value = "获取层级文件夹结构")
 	@RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-	public ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderWithQuery() {
+	@Security(session=true)
+	public List<TreeVo> folderWithQuery() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapRealQuery>>();
-		List<OlapFolder> folders=olapFolderService.getListByCreateId(Long.parseLong(userVO.getUserId()));
+		List<TreeVo> trees=new ArrayList<TreeVo>();
+		List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"RealQuery");
 		for (OlapFolder folder : folders){
-			FolderHierarchicalVo<OlapRealQuery> folderHierarchicalVo=new FolderHierarchicalVo<OlapRealQuery>();
-			MyBeanUtils.copyPropertiesNotBlank(folder, folderHierarchicalVo);
-			folderHierarchicalVo.setLeafs(olapRealQueryService.getListWithFolderId(folder.getFolderId()));
-			folderHierarchicalVos.add(folderHierarchicalVo);
+			TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
+			List<OlapRealQuery> olapRealQueries=olapRealQueryService.getListWithFolderId(folder.getFolderId());
+			for(OlapRealQuery realQuery : olapRealQueries){
+				tree.getChildren().add(new TreeNodeVo(realQuery.getName(),realQuery.getRealQueryId().toString(),null,realQuery));
+			}
+			trees.add(tree);
 		}
-		return folderHierarchicalVos;
+		return trees;
 	}
 
 	@ApiOperation(value = "获取共享的即时查询")
 	@RequestMapping(value = "/queryShare", method = RequestMethod.GET)
+	@Security(session=true)
 	public List<OlapRealQuery> queryShare() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
 	}
+
+	@ApiOperation(value = "导出即时查询", nickname="exportWithRealQuery", notes = "报文格式：content-type=application/download")
+	@RequestMapping(value="/export",method= RequestMethod.GET)
+	//@Security(session=true)
+	public void export(String sql,Integer limit, HttpServletResponse response)
+	{
+		QueryResultMapper mapper=cubeAction.query(sql,0,limit,"learn_kylin");
+		Export.dualDate(mapper,response);
+	}
+
+
 }

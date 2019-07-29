@@ -21,20 +21,49 @@
             <div class="word">东莞交通数据分析模型</div>
           </div>
         </div>
-        <div class="right">
-          <el-button type="primary" size="mini" @click="dialogFormVisible = true">保存结果</el-button>
-          <el-button type="primary" size="mini">重新查询</el-button>
-          <el-button type="primary" size="mini">导出结果</el-button>
-          <el-button type="primary" size="mini">全屏</el-button>
+        <div class="right dis-flex">
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
+            新建OLAP分析
+          </el-button>
+          <el-button class="button" type="primary" size="mini" @click="newFormVisible = true">保存结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="reset()">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
+            {{autoSearch ? '关闭' : '开启'}}自动查询
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">行列转换</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">求和</el-button>
+          <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable :theadData="theadData" :tableData="tableData"></DynamicTable>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
     </div>
+    <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
+      <el-form :model="newForm" :rules="newFormRules" ref="newForm">
+        <el-form-item label="文件夹" label-width="100px" prop="folder">
+          <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+            <el-option v-for="(item, index) in saveFolderList" :key="index" :label="item.name"
+                       :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
+          <el-input v-model="newForm.resultName" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="newFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitNewForm()">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import DynamicTable from '@/components/olapComponent/common/DynamicTable'
+import { mapGetters } from 'vuex'
+import DynamicTable from '../common/DynamicTable'
 
 export default {
   props: {
@@ -42,31 +71,110 @@ export default {
       type: Array,
       required: true
     },
-    theadData: {
-      type: Array,
-      required: true
-    },
     titleShow: {
       type: Boolean,
       default: false
+    },
+    showType: {
+      type: String,
+      default: ''
+    },
+    exportData: {
+      type: Object,
+      required: true
+    },
+    diffWidth: {
+      type: Number,
+      default: 536
+    },
+    folderData: {
+      type: Object,
+      required: true
     }
   },
   components: { DynamicTable },
   data () {
     return {
       search: '',
-      dialogFormVisible: false
+      newFormVisible: false,
+      word: '',
+      autoSearch: false,
+      isFullscreen: false,
+      newForm: {
+        folder: '',
+        resultName: ''
+      },
+      newFormRules: {
+        resultName: [
+          { required: true, message: '请输入查询结果名称', trigger: 'blur' }
+        ],
+        folder: [
+          { required: true, message: '请选择文件夹', trigger: 'change' }
+        ]
+      }
     }
   },
+  computed: {
+    ...mapGetters({ saveFolderList: 'saveFolderList' }),
+    // translateWord: function () {
+    //   return this.translate(this.word)
+    // }
+  },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
+    submitNewForm () {
+      this.$refs.newForm.validate(async (valid) => {
+        if (valid) {
+          const data = {
+            isNew: this.word === 'save',
+            folderId: this.newForm.folder,
+            name: this.newForm.resultName
+          }
+          try {
+            await this.$confirm(`确认保存数据吗？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+            this.$emit('saveFunc', data)
+            this.newFormVisible = false
+          } catch (e) {
+            this.newFormVisible = false
+            this.$message('已取消')
+          }
+        }
+      })
     },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
+    goNewOlap () {
+      this.$router.push('/olapAnalysis/newOlapAnalysis')
     },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
+    handleAutoSearch () {
+      this.autoSearch = !this.autoSearch
+      this.$message.success(`已${this.autoSearch ? '开启' : '关闭'}自动查询`)
+    },
+    fullscreenToggle () {
+      this.$fullscreen.toggle(this.$el.querySelector('.allScreen'), {
+        wrap: false,
+        callback: this.fullscreenChange
+      })
+    },
+    fullscreenChange (fullscreen) {
+      this.isFullscreen = fullscreen
+    },
+    async reset () {
+      try {
+        await this.$confirm(`确认重置吗？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        this.$emit('reset')
+        this.$message.success('重置成功!')
+      } catch (e) {
+        this.$message('已取消')
+      }
+    },
+    async exportTable () {
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
     }
   }
 }
@@ -86,7 +194,15 @@ export default {
           }
         }
         .right {
+          flex-wrap: wrap;
           margin: 20px 0;
+          .button {
+            margin-bottom: 10px;
+            margin-right: 10px;
+          }
+          .button + .button {
+            margin-left: 0;
+          }
         }
       }
     }

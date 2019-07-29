@@ -1,8 +1,10 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList"></FolderAside>
-    <div class="content">
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData"></ResultBox>
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById"
+                 vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
+    <div class="content" v-loading="loading">
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
+                 :folderData="folderData"></ResultBox>
     </div>
     <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form">
@@ -25,8 +27,10 @@
 </template>
 
 <script>
-import FolderAside from '@/components/olapComponent/common/FolderAside'
-import ResultBox from '@/components/olapComponent/common/ResultBox'
+import { mapGetters } from 'vuex'
+import FolderAside from './common/FolderAside'
+import ResultBox from './common/ResultBox'
+import { searchOlapAp, deleteOlapApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -36,30 +40,7 @@ export default {
       textarea: '',
       lineNumber: '',
       checked: false,
-      theadData: [
-        { prop: 'column1', label: '日期' },
-        { prop: 'column2', label: '姓名' },
-        { prop: 'column3', label: '地址' },
-        { prop: 'column4', label: '日期' },
-        { prop: 'column5', label: '姓名' },
-        { prop: 'column6', label: '地址' }
-      ],
-      tableData: [
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-      ],
+      tableData: [],
       dialogFormVisible: false,
       form: {
         name: '',
@@ -72,34 +53,70 @@ export default {
         desc: ''
       },
       formLabelWidth: '120px',
-      menuList: [
-        {
-          title: '交通数据模型',
-          id: '1',
-          row: [
-            { name: '路口违章车辆1', id: '1-1' },
-            { name: '路口违章车辆2', id: '1-2' },
-            { name: '路口违章车辆3', id: '1-3' },
-            { name: '路口违章车辆4', id: '1-4', row: [ { name: '闯红灯', id: '1-4-1' }, { name: '压线', id: '1-4-2' } ] }
-          ]
-        },
-        {
-          title: '交通数据模型',
-          id: '2'
+      menuList: [],
+      menuDefault: {
+        children: 'children', // 子集的属性
+        label: 'name', // 标题的属性
+        disabled: function (resData) {
+          if (resData.isShare === 0) {
+            return false
+          } else {
+            return true
+          }
         }
-      ]
+      },
+      menuListLoading: false,
+      exportData: {},
+      loading: false,
+      folderData: {}
     }
   },
-  mounted () {},
+  computed: {
+    ...mapGetters({ saveFolderList: 'saveFolderList' })
+  },
+  mounted () {
+    this.getAsideList()
+  },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
+    async getAsideList () {
+      this.menuListLoading = true
+      await this.$store.dispatch('getSaveFolderListAction')
+      this.menuListLoading = false
     },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
+    async getTableById (folderData) {
+      this.loading = true
+      this.folderData = folderData
+      try {
+        const data = {
+          sql: folderData.attrs.sql,
+          limit: folderData.attrs.limit
+        }
+        const { columnMetas, results, duration } = await searchOlapApi(data)
+        const columnMetasList = columnMetas.map(v => {
+          return (
+            { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
+          )
+        })
+        const resultsList = results.map(item => {
+          let list = []
+          item.forEach(v => {
+            const obj = { colspan: 1, rowspan: 1, value: v, type: 'td' }
+            list.push(obj)
+          })
+          return list
+        })
+        this.exportData = { sql, limit }
+        this.tableData = [...[columnMetasList], ...resultsList]
+        this.$message.success('查询完成')
+      } catch (e) {
+        this.$message.error('查询失败')
+      }
+      this.loading = false
     },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
+    async deleteFolder (id) {
+      const res = await deleteOlapApi({id})
+      this.$message.success('删除成功')
+      await this.$store.dispatch('getSaveFolderListAction')
     }
   }
 }
@@ -137,24 +154,6 @@ export default {
           }
           .lineNumber {
             width: 60px;
-          }
-        }
-      }
-      .result {
-        overflow: auto;
-        .resultBox {
-          .top {
-            .left {
-              .item {
-                margin-right: 10px;
-                .tit {
-                  margin-right: 2px;
-                }
-              }
-            }
-            .right {
-              margin: 20px 0;
-            }
           }
         }
       }

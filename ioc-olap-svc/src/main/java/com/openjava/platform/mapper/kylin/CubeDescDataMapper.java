@@ -22,7 +22,7 @@ public class CubeDescDataMapper {
     public RowkeyMapper rowkey;
     public ArrayList<AggregationGroupMapper> aggregation_groups;
     public ArrayList mandatory_dimension_set_list;
-    public Integer partition_date_start;
+    public Long partition_date_start;
     public ArrayList<String> notify_list;
     public HbaseMappingMapper hbase_mapping;
     public String volatile_range;

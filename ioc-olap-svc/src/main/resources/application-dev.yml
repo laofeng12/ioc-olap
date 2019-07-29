@@ -3,7 +3,7 @@ debug: true
 server:
   port: 8080 #tomcat运行端口
   servlet: 
-    context-path: /
+    context-path: /olapweb
 
 mybatis:
   config-location: classpath:mybatis-config.xml

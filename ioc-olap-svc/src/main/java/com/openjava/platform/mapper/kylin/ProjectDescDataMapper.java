@@ -31,7 +31,7 @@ public class ProjectDescDataMapper {
     @JSONField(name = "description")
     public String description;
     @JSONField(name = "realizations")
-    public Realizations realizations;
+    public ArrayList<Realizations> realizations;
     @JSONField(name = "models")
     public ArrayList<String> models;
     @JSONField(name = "ext_filters")

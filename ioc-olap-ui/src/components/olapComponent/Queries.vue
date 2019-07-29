@@ -1,6 +1,8 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <Aside :menuList="menuList"></Aside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
+                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
+                 :showDo="false"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
@@ -19,109 +21,134 @@
           <el-input class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
         </div>
         <div class="bottom">
-          <el-button type="primary" size="mini">查询</el-button>
+          <el-button type="primary" size="mini" @click="searchOlap" :loading="loading">查询</el-button>
           <el-checkbox class="checkbox" v-model="checked">限制查询行数</el-checkbox>
           <el-input class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini"></el-input>
         </div>
       </div>
-      <ResultBox v-if="tableData.length > 0" :theadData="theadData" :tableData="tableData" :titleShow="true"></ResultBox>
-    </div>
-    <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form">
-        <el-form-item label="选择文件夹" :label-width="formLabelWidth">
-          <el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">
-            <el-option label="文件夹1" value="shanghai"></el-option>
-            <el-option label="文件夹2" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="查询结果名称" :label-width="formLabelWidth">
-          <el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      <div v-loading="loading">
+        <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
+                   @reset="reset" :exportData="exportData"></ResultBox>
       </div>
-    </el-dialog>
+    </div>
+    <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
+      <!--<el-form :model="saveForm" :rules="saveRule" ref="saveForm">-->
+        <!--<el-form-item label="选择文件夹" :label-width="formLabelWidth" prop="folder">-->
+          <!--<el-select class="visibleInput" v-model="saveForm.folder" placeholder="请选择文件夹">-->
+            <!--<el-option v-for="(item, index) in folderList" :key="index" :label="item.dataName"-->
+                       <!--:value="item.dataId"></el-option>-->
+          <!--</el-select>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="查询结果名称" :label-width="formLabelWidth" prop="name">-->
+          <!--<el-input class="visibleInput" v-model="saveForm.name" auto-complete="off"></el-input>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="saveResult">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
 <script>
-import Aside from '@/components/olapComponent/common/Aside'
-import ResultBox from '@/components/olapComponent/common/ResultBox'
+import FolderAside from './common/FolderAside'
+import ResultBox from './common/ResultBox'
+import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
 
 export default {
-  components: { Aside, ResultBox },
+  components: { FolderAside, ResultBox },
   data () {
     return {
       search: '',
       textarea: '',
-      lineNumber: '',
-      checked: false,
-      theadData: [
-        { prop: 'column1', label: '日期' },
-        { prop: 'column2', label: '姓名' },
-        { prop: 'column3', label: '地址' },
-        { prop: 'column4', label: '日期' },
-        { prop: 'column5', label: '姓名' },
-        { prop: 'column6', label: '地址' }
-      ],
-      tableData: [
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-        { column1: '2016-05-02', column2: '王小虎', column3: '上海市普陀区金沙江路 1518 弄', column4: '2016-05-02', column5: '王小虎', column6: '上海市普陀区金沙江路 1518 弄' },
-      ],
+      lineNumber: '100',
+      checked: true,
+      tableData: [],
       dialogFormVisible: false,
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
+      // saveForm: {
+      //   name: '',
+      //   folder: ''
+      // },
+      // saveRule: {
+      //   name: [
+      //     { required: true, message: '请输入名称', trigger: 'blur' }
+      //   ],
+      //   folder: [
+      //     { required: true, message: '请选择文件夹', trigger: 'change' }
+      //   ]
+      // },
       formLabelWidth: '120px',
-      menuList: [
-        {
-          title: '交通数据模型',
-          id: '1',
-          row: [
-            { name: '路口违章车辆1', id: '1-1' },
-            { name: '路口违章车辆2', id: '1-2' },
-            { name: '路口违章车辆3', id: '1-3' },
-            { name: '路口违章车辆4', id: '1-4', row: [ { name: '闯红灯', id: '1-4-1' }, { name: '压线', id: '1-4-2' } ] }
-          ]
-        },
-        {
-          title: '交通数据模型',
-          id: '2'
+      menuList: [],
+      menuDefault: {
+        children: 'children', // 子集的属性
+        label: 'name', // 标题的属性
+        disabled: function (resData) {
+          if (resData.isShare === 0) {
+            return false
+          } else {
+            return true
+          }
         }
-      ]
+      },
+      menuListLoading: false,
+      loading: false,
+      exportData: {}
     }
   },
-  component: { Aside },
+  mounted () {
+    this.getAsideList()
+  },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
+    async getAsideList () {
+      const res = await getCubeTreeApi()
+      this.menuList = res
     },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
+    async searchOlap () {
+      this.loading = true
+      const data = {
+        limit: this.checked ? this.lineNumber : -1,
+        sql: this.textarea
+      }
+      this.exportData = data
+      try {
+        const { columnMetas, results } = await searchOlapApi(data)
+        const columnMetasList = columnMetas.map(v => {
+          return (
+            { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
+          )
+        })
+        const resultsList = results.map(item => {
+          let list = []
+          item.forEach(v => {
+            const obj = { colspan: 1, rowspan: 1, value: v, type: 'td' }
+            list.push(obj)
+          })
+          return list
+        })
+        this.tableData = [...[columnMetasList], ...resultsList]
+        this.$message.success('查询完成')
+      } catch (e) {
+        this.$message.error('查询失败')
+      }
+      this.loading = false
     },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
+    async saveOlap (callbackData) {
+      const data = {
+        limit: this.checked ? this.lineNumber : '',
+        sql: this.textarea,
+        flags: 0 // 标志 0：正常 1：共享
+      }
+      const res = await saveOlapApi(Object.assign({}, data, callbackData))
+      if (res.createId) {
+        this.$message.success('保存成功')
+      }
+    },
+    reset () {
+      this.textarea = ''
+      this.checked = true
+      this.lineNumber = '100'
+      this.tableData = []
     }
   }
 }

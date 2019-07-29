@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Setter
 public class QueryResultMapper {
     public ArrayList<ColumnMetaMapper> columnMetas;
-    public ArrayList<String> results;
+    public ArrayList<ArrayList<String>> results;
     public String cube;
     public Integer affectedRowCount;
     public boolean isException;
