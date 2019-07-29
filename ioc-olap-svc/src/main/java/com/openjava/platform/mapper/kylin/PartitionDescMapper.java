@@ -19,4 +19,9 @@ public class PartitionDescMapper {
     public String partition_type;
     @JSONField(name = "partition_condition_builder")
     public String partition_condition_builder;
+
+    @JSONField(name = "interval")
+    public Long interval;
+    @JSONField(name = "frequencytype")
+    public Long frequencytype;
 }

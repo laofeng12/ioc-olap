@@ -221,6 +221,7 @@ const common = {
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
+      // console.log('接受的数据', data)
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data) // 需要传给后端的数据结构
       // setLocalStorage('saveNewSortList', filterArr(data))

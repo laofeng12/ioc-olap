@@ -23,4 +23,8 @@ public interface OlapShareService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+
+    void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId,String userName);
+
+	List<OlapShare> getList(String sourceType, String sourceId, Long userId);
 }
