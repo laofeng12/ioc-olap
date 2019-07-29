@@ -26,6 +26,7 @@ const getters = {
   totalSaveList: state => state.olap.totalSaveList,
   selectDataidList: state => state.olap.selectDataidList,
   savedimensionDataId: state => state.olap.savedimensionDataId,
-  savehetComposeDataId: state => state.olap.savehetComposeDataId
+  savehetComposeDataId: state => state.olap.savehetComposeDataId,
+  saveFolderList: state => state.analysis.saveFolderList
 }
 export default getters
