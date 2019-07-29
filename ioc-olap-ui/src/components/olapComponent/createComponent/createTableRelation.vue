@@ -84,12 +84,7 @@ export default {
         lookups: []
       },
       linkModalFields: []
-      // jointResult: {
-      //   name: 'joint',
-      //   description: '2424',
-      //   fact_table: 'DS_DATALAKE_TABLE',
-      //   lookups: [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'fact_table': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['LAO_BAN_DIAN_HUA', 'LAO_BAN_DIAN_HUA'], 'foreign_key': ['CAN_GUAN_MING_CHENG', 'CAN_GUAN_DI_ZHI'], 'isCompatible': [true], 'pk_type': ['string', 'string'], 'fk_type': ['string', 'string'] } }]
-      // }
+      // jointResult: {"name":"joint","description":"","fact_table":"DS_DATALAKE_TABLE","lookups":[{"table":"DS_DATALAKE_TABLE","alias":"DS_DATALAKE_TABLE","joinTable":"test_juan","joinAlias":"aaa","kind":"LOOKUP","join":{"type":"左连接","primary_key":["DLT_ID"],"foreign_key":["Id"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}},{"table":"test_juan","alias":"aaa","joinTable":"Test_zlj","joinAlias":"Test_zlj","kind":"LOOKUP","join":{"type":"左连接","primary_key":["Id"],"foreign_key":["ID"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}}]}
 
     }
   },
@@ -107,18 +102,15 @@ export default {
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
-        width: 100 + '%',
+        width: '100%',
         height: 700,
         model: this.graph,
         gridSize: 1
       })
 
       list.forEach(t => {
-        let linkCell = this.addLinkCell(t)
-        result.push(linkCell)
+        this.addLinkCell(t)
       })
-
-      this.graph.addCells(result)
 
       this.bindEvent(paper)
     },
@@ -153,12 +145,14 @@ export default {
 
               this.linkModal = data
               this.linkModalModel = e.model
+              this.linkModalFields = fields
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
                 filed: sourceAttrs.text.filed || 0,
                 field: '',
-                label: sourceAttrs.text.text,
+                label: sourceAttrs.text.label,
+                alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
 
@@ -166,14 +160,16 @@ export default {
               let target = {
                 filed: targetAttrs.text.filed || 0,
                 field: '',
-                label: targetAttrs.text.text,
+                label: targetAttrs.text.label,
+                alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
 
               linkModal = {
                 'table': source.label || '',
-                'alias': source.label || '',
+                'alias': source.alias || '',
                 'joinTable': target.label || '',
+                'joinAlias': target.alias || '',
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
@@ -210,7 +206,6 @@ export default {
 
       paper.on('cell:pointermove', (e, d) => {
         // console.log(e)
-
         let attrs = e.model.get('attrs')
 
         if (attrs.text && attrs.text.filed) {
@@ -224,10 +219,7 @@ export default {
       // 存储已选择的表
       // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
-        let rect = this.addRectCell(e)
-        if (rect) {
-          this.graph.addCell(rect)
-        }
+        this.addRectCell(e)
       }
     },
     papersClick (e) {
@@ -235,14 +227,27 @@ export default {
       let model = element.model
       let position = model.get('position')
       switch (e.target.dataset.type) {
-        case 'remove':
+        case 'remove': // 删除
           this.clearElementLink(model)
           element.remove()
           break
-        case 'clone':
-          this.setAlias(model)
+        case 'clone': // 重命名
+          let attrs = model.get('attrs')
+          let label = attrs.text.label
+          this.setAlias(label).then(res => {
+            if (res && res.value) {
+              attrs.text.alias = res.value
+              attrs.text.text = `${label}(${res.value})`
+
+              model.attr(attrs)
+              model.resize(attrs.text.text.length * 9, 30)
+
+              this.updateModel(model.id, res.value)
+              console.log(JSON.stringify(this.jointResult))
+            }
+          })
           break
-        case 'link':
+        case 'link': // 连线
           let link = new joint.shapes.standard.Link({
             source: model,
             target: { x: position.x, y: position.y - 5 },
@@ -264,21 +269,62 @@ export default {
           break
       }
 
+      // 隐藏弹层
       this.hideCellLayer()
     },
-    setAlias (model) {
+
+    // 更新模块
+    updateModel (id, value) {
+      let linkIndex = -1
+      let updateList = []
+      let cells = this.graph.getCells()
+
+      cells.forEach((t, i) => {
+        if (t.isLink()) {
+          linkIndex++
+
+          if (t.get('source').id === id) {
+            updateList.push({
+              idx: linkIndex,
+              field: 'alias'
+            })
+          }
+          if (t.get('target').id === id) {
+            updateList.push({
+              idx: linkIndex,
+              field: 'joinAlias'
+            })
+          }
+        }
+      })
+
+      if (updateList.length > 0) {
+        updateList.forEach(t => {
+          this.jointResult.lookups[t.idx][t.field] = value
+        })
+      }
+    },
+
+    setAlias (val) {
       // console.log(model.attributes.attrs.text.text)
-      let val = model.get('attrs').text.text
-      this.$prompt(`（${val}）设置别名：`, {
+      return this.$prompt(`（${val}）设置别名：`, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPattern: /^.{0,20}$/,
         inputErrorMessage: '不能超过20个字符',
         type: 'warning'
-      }).then(({ value }) => {
-        console.log(value)
       })
+      // this.$prompt(`（${val}）设置别名：`, {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   inputPattern: /^.{0,20}$/,
+      //   inputErrorMessage: '不能超过20个字符',
+      //   type: 'warning'
+      // }).then(({ value }) => {
+      //   console.log(value)
+      // })
     },
+
     setFactTable (label) {
       this.jointResult.fact_table = label
     },
@@ -296,22 +342,43 @@ export default {
         let holder = this.$refs.holder.getBoundingClientRect()
         let x = this.dragRectPosition.x - holder.left + containers.left
         let y = this.dragRectPosition.y - holder.top + containers.top
-        let rect = this.addRectCell({
-          filed: this.dragRectPosition.ifiled,
+
+        // 如果不在拖动范围内，不做按钮添加
+        if (x < 0 || y < 0) {
+          this.clearDragRect()
+          return false
+        }
+
+        let item = {
+          filed: this.dragRectPosition.filed,
           id: this.dragRectPosition.id,
           label: this.dragRectPosition.label,
+          alias: this.dragRectPosition.label,
           position: { x, y }
-        })
-
-        if (rect) {
-          this.graph.addCell(rect)
-          this.isDragRect = false
-          this.dragRectPosition = {
-            label: 'test',
-            x: 0,
-            y: 0
-          }
         }
+
+        if (this.checkCellsExist(item)) {
+          this.isDragRect = false
+          this.setAlias(item.label).then(res => {
+            if (res && res.value) {
+              item.alias = res.value
+              this.addRectCell(item)
+            }
+          })
+        } else {
+          this.addRectCell(item)
+        }
+
+        this.clearDragRect()
+      }
+    },
+
+    clearDragRect () {
+      this.isDragRect = false
+      this.dragRectPosition = {
+        label: 'test',
+        x: 0,
+        y: 0
       }
     },
 
@@ -330,8 +397,8 @@ export default {
       let width = this.$refs.myHolder.offsetWidth
 
       let position = {
-        x: 200 + 30,
-        y: 0,
+        x: 200 + Math.ceil(100 * Math.random()),
+        y: Math.ceil(100 * Math.random()),
         width: rectWidth,
         height: rectHeight
       }
@@ -346,16 +413,19 @@ export default {
     checkCellsExist (item) {
       if (!this.graph) this.graph = new joint.dia.Graph()
 
-      let status = 0
+      let itemCell = null
       let cells = this.graph.getCells()
 
       if (cells.length > 0) {
         cells.forEach(t => {
-          if (t.label === item.label) {
-            status = 1
+          let attrs = t.get('attrs')
+          if (attrs && attrs.text && attrs.text.label === item.label && item.alias == attrs.text.alias) {
+            itemCell = t
           }
         })
       }
+
+      return itemCell
     },
 
     clearCells () {
@@ -366,46 +436,40 @@ export default {
       this.graph.clear()
     },
 
-    addRectCell (item, startIdx = 0) {
+    addRectCell (item) {
       if (!this.graph) this.graph = new joint.dia.Graph()
 
       let isAdd = true
       let newRect = null
-      let rectLength = 0
-      let cells = this.graph.getCells()
 
-      if (cells.length > 0) {
-        cells.forEach(t => {
-          if (!t.isLink()) rectLength++
-          if (t.id === item.id) isAdd = false
-        })
-      }
+      let cell = this.checkCellsExist(item)
+      if (cell) return cell
 
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
-        // 判断是否主表
-        if (item.label === this.jointResult.fact_table) {
-          return false
-        }
+
         // 如果是主表， 就清空所有文件
         if (item.filed) {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed === 1 && !this.jointResult.fact_table) {
+        if (item.filed == 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = item.label
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
+        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias})`
 
         newRect = new joint.shapes.basic.Rect({
           position: {
             x: (item.position && item.position.x) || randomPosition.x,
             y: (item.position && item.position.y) || randomPosition.y
           },
-          size: { width: randomPosition.width, height: randomPosition.height },
-          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: item.label, id: item.id, filed: item.filed, fill: 'white' } }
+          size: { width: text.length * 9, height: randomPosition.height },
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, fill: 'white' } }
         })
+
+        this.graph.addCell(newRect)
       }
 
       return newRect
@@ -416,12 +480,14 @@ export default {
       let source = {
         filed: item.table === item.alias ? 1 : 0,
         id: item.table,
-        label: item.table
+        label: item.table,
+        alias: item.alias
       }
       let target = {
         filed: item.joinTable === item.alias ? 1 : 0,
         id: item.joinTable,
-        label: item.joinTable
+        label: item.joinTable,
+        alias: item.joinAlias
       }
 
       if (!this.graph) {
@@ -429,14 +495,8 @@ export default {
       }
 
       let sourceItem = this.addRectCell(source)
-      if (sourceItem) {
-        result.push(sourceItem)
-      }
 
       let targetItem = this.addRectCell(target)
-      if (targetItem) {
-        result.push(targetItem)
-      }
 
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
@@ -455,9 +515,10 @@ export default {
           }
         }
       })
-      result.push(newLink)
 
-      return result
+      this.graph.addCell(newLink)
+
+      return newLink
     },
 
     getFields (data) {
@@ -523,8 +584,7 @@ export default {
 
       if (index >= 0 && primary_key && pk_type) {
         if (fk_type && pk_type && pk_type != fk_type) {
-          // alert('请选择类型一致的字段')
-          this.$message.warning('请选择类型一致的字段')
+          alert('请选择类型一致的字段')
           primary_key = ''
           pk_type = ''
         }
@@ -548,9 +608,8 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        if (fk_type && pk_type && pk_type !== fk_type) {
-          // alert('请选择类型一致的字段')
-          this.$message.warning('请选择类型一致的字段')
+        if (fk_type && pk_type && pk_type != fk_type) {
+          alert('请选择类型一致的字段')
           foreign_key = ''
           fk_type = ''
         }
@@ -580,10 +639,10 @@ export default {
       this.linkModal.join.pk_type = pk_type
       this.linkModal.join.fk_type = fk_type
 
-      if (primary_key.length > 0) {
+      if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
       }
-      // this.linkModalModel.attrs(this.linkModal)
+      this.linkModalModel.attr('data', this.linkModal)
 
       this.addJointList(this.linkModal)
       console.log(JSON.stringify(this.jointResult))
@@ -599,10 +658,16 @@ export default {
       if (list.length >= 1) {
         let isAdd = true
         list.forEach((t, i) => {
-          if (t.table === item.table && t.joinTable === item.joinTable) {
-            this.jointResult.lookups.splice(i, 1, item)
+          if (t.table === item.table && t.joinTable === item.joinTable && t.alias === item.joinAlias) {
+            isAdd = false
           }
         })
+
+        if (isAdd) {
+          this.jointResult.lookups.push(item)
+        } else {
+          this.jointResult.lookups.splice(i, 1, item)
+        }
       } else {
         this.jointResult.lookups.push(item)
       }
