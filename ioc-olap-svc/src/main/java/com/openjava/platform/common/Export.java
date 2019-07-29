@@ -2,6 +2,9 @@ package com.openjava.platform.common;
 
 import com.openjava.platform.mapper.kylin.ColumnMetaMapper;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
+import com.openjava.platform.vo.AnyDimensionCellVo;
+import com.openjava.platform.vo.AnyDimensionVo;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.util.StringUtils;
@@ -35,11 +38,11 @@ public class Export {
         List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();//数据   格式为List<Map<String, Object>>
         ArrayList<ArrayList<String>> results=queryResult.results;//获取到的results数据
 
-        for(int ii=0;ii<results.size();ii++) {//最外层 循环
-            Object date =results.get(ii);  //获取一行数据
+        for(int m=0;m<results.size();m++) {//最外层 循环
+            Object date =results.get(m);  //获取一行数据
             Map<String, Object> map = new HashMap<String, Object>();
-            for (int iii = 0; iii < ((ArrayList) date).size(); iii++) {
-                map.put(columnIt[iii], ((ArrayList) date).get(iii).toString());//获取一行数据 的具体一个数据
+            for (int n = 0; n < ((ArrayList) date).size(); n++) {
+                map.put(columnIt[n], ((ArrayList) date).get(n).toString());//获取一行数据 的具体一个数据
             }
             listMap.add(map);//数据集
         }
@@ -182,68 +185,100 @@ public class Export {
         }
     }
 
-    public static boolean dualDateExportExcel2(HttpServletResponse response) throws Exception {
-        String fileName = "测试合并"+System.currentTimeMillis();;
+    public static boolean dualAnyDimensionVoDate(AnyDimensionVo anyDimensionVo, HttpServletResponse response) throws Exception {
+        ArrayList<ArrayList<AnyDimensionCellVo>> results =anyDimensionVo.getResults();//获取到的results数据
+        String fileName = "olap分析数据"+System.currentTimeMillis();;
         getExportedFile(fileName,response);
+
+        String sheetName="olap分析数据";
+        Integer sheetSize=results.size();
+
+        // 产生工作薄对象
         XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("new sheet");
+        if (sheetSize >= 65536) {
+            sheetSize = 65536;
+        }
+        double sheetNo = Math.ceil(results.size() / sheetSize);// 计算需要几个sheet
 
-        //XSSFRow row = sheet.createRow(1);//行
-       // XSSFCell cell = row.createCell(3);//列
-        //cell.setCellValue("合并单元格");//赋值
-        //XSSFCellStyle cellStyle = workbook.createCellStyle();
-        //cellStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); //下边框
-        //cellStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN);//左边框
-        //cellStyle.setBorderTop(XSSFCellStyle.BORDER_THIN);//上边框
-        //cellStyle.setBorderRight(XSSFCellStyle.BORDER_THIN);//右边框
-        //cellStyle.setAlignment(ALIGN_CENTER); // 居中
+        for (int index = 0; index < sheetNo; index++) {
+            // 产生工作表对象
+            XSSFSheet sheet = workbook.createSheet();
+            // 设置工作表的名称.
+            workbook.setSheetName(index, sheetName + (index + 1));
+            //默认宽度
+            sheet.setDefaultColumnWidth(10);
+            //默认高度
+            //sheet.setDefaultRowHeight((short) 15);
+            // 产生一行
+            XSSFRow row = sheet.createRow(0);
+            // 产生单元格
+            XSSFCell cell;
 
-        //sheet.addMergedRegion(new CellRangeAddress(
-        //        1,//第一行 （从0开始）
-        //        2,//最后一行 （从0开始）
-        //        3,//第一列 （从0开始）
-        //        5//最后一列 （从0开始）
-        //));
-        //产生一行数据
-        XSSFRow row = sheet.createRow(0);
-        // 产生单元格
-        XSSFCell cell;
-/*        for (int j = 0; j < 100; j++) {
-            row = sheet.createRow(j);
-            for (int i = 0; i < 300; i++) {
-                //cell = row.createCell(j);
-                XSSFCell cell = row.createCell(0);
-                cell.setCellValue("我是第:" + j + " 条数据,第:" + i + " 列数据");
-            }
-        }*/
+            int startNo = index * sheetSize;
+            int endNo = Math.min(startNo + sheetSize, results.size());
 
-        for (int i = 0; i < 3000; i++) {
-            row = sheet.createRow(i);
-            for (int j = 0; j < 100; j++) {
-                cell = row.createCell(j);
-                if(i ==4&&j ==4){
-                    cell.setCellValue("测试合并");
-                }
-                else if(i ==10&&j ==10){
-                    cell.setCellValue("测试合并");
-                }
-                else {
-                    cell.setCellValue("1");
+            // 写入各条记录,每条记录对应excel表中的一行
+            for (int i = startNo; i < endNo; i++) {
+                row = sheet.createRow(i  - startNo);
+                ArrayList<AnyDimensionCellVo> anyDimensionCellVoL= results.get(i);//一行数据
+                int addCol=0;
+                int endrow=0;
+                for (int j = 0; j < anyDimensionCellVoL.size(); j++) {
+                    XSSFCellStyle cellStyle =workbook.createCellStyle();
+                    XSSFFont font=workbook.createFont();
+                    Integer startrow = i  - startNo;
+                    Integer overrow = i  - startNo;
+                    Integer startcol=j+addCol;
+                    Integer overcol = j;
+                    cell = row.createCell(j+addCol);
+                    AnyDimensionCellVo anyDimensionCellVoD = anyDimensionCellVoL.get(j);
+                    String date=anyDimensionCellVoD.getValue();
+                    if (null==date||"null".equals(date)||"".equals(date)) {
+                        cell.setCellValue("");//单元格写入数据
+                    } else
+                        cell.setCellValue(date);//单元格写入数据
+                    if(anyDimensionCellVoD.getType()==1||anyDimensionCellVoD.getType()==2||anyDimensionCellVoD.getType()==3) {
+                        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+                        font.setFontName("黑体");
+                        //font.setBold(true);//粗体显示
+                        cellStyle.setFont(font);
+                        cell.setCellStyle(cellStyle);
+                    }
+
+                    int rowspan=anyDimensionCellVoD.getRowspan();
+                    int colspan=anyDimensionCellVoD.getColspan();
+                    if(anyDimensionCellVoD.getType()==1||colspan>1){//行维   ||anyDimensionCellVoD.getRowspan()>1
+                        for(int jj=1;jj<colspan;jj++){
+                            addCol++;
+                            cell = row.createCell(j+addCol);
+                            cell.setCellValue("");//单元格写入数据
+                            overcol=j+addCol;
+                        }
+                        sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
+                    }
+                   if(anyDimensionCellVoD.getType()==2||rowspan>1){//列维   anyDimensionCellVoD 一行数据     ||anyDimensionCellVoD.getColspan()>1
+                       AnyDimensionCellVo anyDimensionCellVoLast=new AnyDimensionCellVo();//上一行数据 列维相同的数据
+                       AnyDimensionCellVo anyDimensionCellVoNext=new AnyDimensionCellVo();//下一行数据 列维相同的数据
+                       if(i-1>=0) {
+                           ArrayList<AnyDimensionCellVo> anyDimensionCellVoLLast = results.get(i - 1);//上一行数据
+                           anyDimensionCellVoLast = anyDimensionCellVoLLast.get(j);//列维相同的数据
+                       }
+                       if(i+1<results.size()) {
+                           ArrayList<AnyDimensionCellVo> anyDimensionCellVoLNext = results.get(i + 1);//下一行数据
+                           anyDimensionCellVoNext = anyDimensionCellVoLNext.get(j);//列维相同的数据
+                       }
+                       String lastDate=anyDimensionCellVoLast.getValue();
+                       if((lastDate.equals(date)&&(!anyDimensionCellVoD.getValue().equals(anyDimensionCellVoNext.getValue())))||(lastDate.equals(date)&&((i+1)==results.size())))
+                        {
+                            int endRow=(int)overrow;
+                            Integer firstRow=endRow-rowspan+1;
+                            sheet.addMergedRegion(new CellRangeAddress(firstRow, overrow, startcol, overcol));
+                       }
+                   }
                 }
             }
         }
-        sheet.addMergedRegion(new CellRangeAddress(//保存左上角的值
-                4,//第一行 （从0开始）
-                8,//最后一行 （从0开始）
-                4,//第一列 （从0开始）
-                8//最后一列 （从0开始）
-        ));
-        sheet.addMergedRegion(new CellRangeAddress(//保存左上角的值
-                10,//第一行 （从0开始）
-                13,//最后一行 （从0开始）
-                10,//第一列 （从0开始）
-                13//最后一列 （从0开始）
-        ));
+
         try {
             workbook.write(response.getOutputStream());
             response.getOutputStream().flush();
@@ -253,5 +288,7 @@ public class Export {
             e.printStackTrace();
             return false;
         }
+
     }
+
 }
