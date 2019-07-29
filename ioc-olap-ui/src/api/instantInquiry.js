@@ -46,6 +46,7 @@ export function deleteOlapApi (data) {
   return fetch({
     url: '/olap/apis/olapRealQuery/delete',
     method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
     data
   })
 }

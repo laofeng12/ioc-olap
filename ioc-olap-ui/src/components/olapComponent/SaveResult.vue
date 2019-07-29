@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @clickItem="getTableById"
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
@@ -27,9 +27,10 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { getFolderWithQueryApi, getTableByIdApi, searchOlapApi } from '../../api/instantInquiry'
+import { searchOlapAp, deleteOlapApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -70,20 +71,16 @@ export default {
       folderData: {}
     }
   },
+  computed: {
+    ...mapGetters({ saveFolderList: 'saveFolderList' })
+  },
   mounted () {
     this.getAsideList()
   },
   methods: {
     async getAsideList () {
       this.menuListLoading = true
-      const menuList = await getFolderWithQueryApi()
-      // const menuList = res.map(v => {
-      //   return (
-      //     { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum }
-      //   )
-      // })
-      console.info('menuList', menuList)
-      this.menuList = menuList
+      await this.$store.dispatch('getSaveFolderListAction')
       this.menuListLoading = false
     },
     async getTableById (folderData) {
@@ -115,10 +112,12 @@ export default {
         this.$message.error('查询失败')
       }
       this.loading = false
+    },
+    async deleteFolder (id) {
+      const res = await deleteOlapApi({id})
+      this.$message.success('删除成功')
+      await this.$store.dispatch('getSaveFolderListAction')
     }
-    // async deleteFolder () {
-    //   const res = await
-    // }
   }
 }
 </script>
