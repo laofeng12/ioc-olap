@@ -19,7 +19,6 @@ service.interceptors.request.use(
       // config.headers['Authorization'] = `Bearer ${token}` // 让每个请求携带自定义token 请根据实际情况自行修改
       config.headers['namespace'] = 'ioc-paas-platform'
     }
-
     if (!config.contentType) {
       config.headers['Content-type'] = 'application/json'
     } else {

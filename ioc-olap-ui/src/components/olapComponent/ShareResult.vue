@@ -1,26 +1,27 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault"></FolderAside>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="queries"
+                 :menuListLoading="menuListLoading"></FolderAside>
     <div class="content">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
     </div>
-    <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form">
-        <el-form-item label="选择文件夹" label-width="120px">
-          <el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">
-            <el-option label="文件夹1" value="shanghai"></el-option>
-            <el-option label="文件夹2" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="查询结果名称" label-width="120px">
-          <el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-      </div>
-    </el-dialog>
+    <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
+      <!--<el-form :model="form">-->
+        <!--<el-form-item label="选择文件夹" label-width="120px">-->
+          <!--<el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">-->
+            <!--<el-option label="文件夹1" value="shanghai"></el-option>-->
+            <!--<el-option label="文件夹2" value="beijing"></el-option>-->
+          <!--</el-select>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="查询结果名称" label-width="120px">-->
+          <!--<el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -123,44 +124,51 @@ export default {
       },
       menuList: [
         {
-          catalogList: [],
-          dataId: 779035117190185,
-          dataName: '测试嵌套报表'
+          children: [],
+          id: 779035117190185,
+          name: '测试嵌套报表',
+          sort: 1
         },
         {
-          catalogList: [ {
-            dataId: 795406468250198,
-            dataName: '东莞中小学成绩报告',
+          children: [ {
+            id: 795406468250198,
+            name: '东莞中小学成绩报告',
             dataType: 3,
-            isShare: 1
+            isShare: 1,
+            sort: 2
           } ],
-          dataId: 796247848830160,
-          dataName: '东莞'
+          id: 796247848830160,
+          name: '东莞',
+          sort: 2
         },
         {
-          catalogList: [ {
-            dataId: 795247414460141,
-            dataName: '测试汇总88',
+          children: [ {
+            id: 795247414460141,
+            name: '测试汇总88',
             dataType: 1,
-            isShare: 1
+            isShare: 1,
+            sort: 3
           } ],
-          dataId: 776468771050089,
-          dataName: '测试通用报表'
+          id: 776468771050089,
+          name: '测试通用报表',
+          sort: 3
         },
         {
-          catalogList: [ {
-            dataId: 795385794900198,
-            dataName: '测试11',
+          children: [ {
+            id: 795385794900198,
+            name: '测试11',
             dataType: 2,
-            isShare: 1
+            isShare: 1,
+            sort: 4
           } ],
-          dataId: 777364408760098,
-          dataName: '测试主从报表'
+          id: 777364408760098,
+          name: '测试主从报表',
+          sort: 4
         }
       ],
       menuDefault: {
-        children: 'catalogList', // 子集的属性
-        label: 'dataName', // 标题的属性
+        children: 'children', // 子集的属性
+        label: 'name', // 标题的属性
         disabled: function (resData) {
           if (resData.isShare === 0) {
             return false
@@ -168,25 +176,19 @@ export default {
             return true
           }
         }
-      }
+      },
+      menuListLoading: false
     }
   },
   mounted () {
     this.getAsideList()
   },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log('open', key, keyPath)
-    },
-    handleClose (key, keyPath) {
-      console.log('close', key, keyPath)
-    },
-    handleSelect (key, keyPath) {
-      console.log('select', key, keyPath)
-    },
     async getAsideList () {
+      this.menuListLoading = true
       const res = await getQueryShareApi()
       console.info('res', res)
+      this.menuListLoading = false
     }
   }
 }

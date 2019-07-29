@@ -5,9 +5,9 @@
         <el-col :span="12" class="cus-drag-setting">
           <div class="grid-content">
             <!--报表名称-->
-            <shirink-pannel name="报表名称">
+            <shirink-pannel name="OLAP模型">
               <div slot="content">
-                <el-form-item label="" prop="fileName">
+                <el-form-item class="m-b-0" label="" prop="fileName">
                   <el-select v-model="dashBoardForm.fileName" placeholder="请选择olap模型"
                              @change="getFileName(dashBoardForm.fileName)" size="small">
                     <el-option label="新建" value="1"></el-option>
@@ -19,23 +19,23 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="" prop="statementName">
-                  <el-input v-model="dashBoardForm.statementName" placeholder="请输入报表名称（1～20字）" size="small"></el-input>
-                </el-form-item>
+                <!--<el-form-item label="" prop="statementName">-->
+                  <!--<el-input v-model="dashBoardForm.statementName" placeholder="请输入报表名称（1～20字）" size="small"></el-input>-->
+                <!--</el-form-item>-->
               </div>
             </shirink-pannel>
 
             <!--数据集/自助报表-->
-            <shirink-pannel name="数据集/自助报表" :isHasAdd="true" @addClick="addDataSet()">
-              <div slot="content">
-                <div class="no-dataset" v-if="dataSetData.length === 0">请选择数据集/自助报表</div>
-                <ul class="has-dataset" v-else>
-                  <li class="data-list" v-for=" (item, index) in dataSetData" :key="index"><span><i
-                    class="el-icon-tickets"></i>{{item.name}}</span><i class="close el-icon-close"
-                                                                       @click="delDataSet()"></i></li>
-                </ul>
-              </div>
-            </shirink-pannel>
+            <!--<shirink-pannel name="数据集/自助报表" :isHasAdd="true" @addClick="addDataSet()">-->
+              <!--<div slot="content">-->
+                <!--<div class="no-dataset" v-if="dataSetData.length === 0">请选择数据集/自助报表</div>-->
+                <!--<ul class="has-dataset" v-else>-->
+                  <!--<li class="data-list" v-for=" (item, index) in dataSetData" :key="index"><span><i-->
+                    <!--class="el-icon-tickets"></i>{{item.name}}</span><i class="close el-icon-close"-->
+                                                                       <!--@click="delDataSet()"></i></li>-->
+                <!--</ul>-->
+              <!--</div>-->
+            <!--</shirink-pannel>-->
 
             <!--维度-->
             <shirink-pannel name="维度">
@@ -213,7 +213,7 @@ export default {
       dashBoardForm: {
         searchKey: '',
         measureSearch: '',
-        statementName: '',
+        // statementName: '',
         fileName: '',
         name: ''
       },
@@ -251,10 +251,10 @@ export default {
         fileName: [
           { required: true, message: '请选择报表存放文件夹', trigger: 'change' }
         ],
-        statementName: [
-          { required: true, message: '请输入自助报表名称', trigger: 'blur' },
-          { min: 1, max: 20, message: '自助报表名称为1～20个字，请重新输入', trigger: 'blur' }
-        ]
+        // statementName: [
+        //   { required: true, message: '请输入自助报表名称', trigger: 'blur' },
+        //   { min: 1, max: 20, message: '自助报表名称为1～20个字，请重新输入', trigger: 'blur' }
+        // ]
       }
     }
   },
@@ -288,27 +288,27 @@ export default {
       })
     },
     // 添加数据集/自助报表
-    addDataSet () {
-      this.dialogDataSet = true
-    },
+    // addDataSet () {
+    //   this.dialogDataSet = true
+    // },
     // 删除数据集
-    delDataSet () {
-      this.$confirm('确定删除“引用数据集名称”吗？其相关字段维度将一起删除！', '删除数据集', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-    },
+    // delDataSet () {
+    //   this.$confirm('确定删除“引用数据集名称”吗？其相关字段维度将一起删除！', '删除数据集', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning'
+    //   }).then(() => {
+    //     this.$message({
+    //       type: 'success',
+    //       message: '删除成功!'
+    //     })
+    //   }).catch(() => {
+    //     this.$message({
+    //       type: 'info',
+    //       message: '已取消删除'
+    //     })
+    //   })
+    // },
     // 数据集选择当前行列
     chooseRow (row) {
       console.log(row)
@@ -422,7 +422,7 @@ export default {
           sort: false,
           animation: 150,
           onEnd: evt => {
-            console.log(evt.to.classList, evt.from.id)
+            console.log('onEnd------', evt.to.classList, evt.from.id)
             let index = evt.oldIndex
             let name = this[evt.from.id + 'Data'][index].name
             // let itemEl = evt.item

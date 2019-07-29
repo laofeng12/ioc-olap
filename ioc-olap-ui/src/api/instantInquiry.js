@@ -29,6 +29,7 @@ export function searchOlapApi (data) {
   return fetch({
     url: '/olapweb/olap/apis/olapRealQuery/query',
     method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
     data
   })
 }
@@ -53,6 +54,39 @@ export function newOlapFolderApi (data) {
   return fetch({
     url: '/olapweb/olap/apis/olapFolder',
     method: 'post',
+    data
+  })
+}
+
+export function getTableByIdApi (id) {
+  return fetch({
+    url: `/olapweb/olap/apis/olapRealQuery/${id}`,
+    method: 'get'
+  })
+}
+
+export function deleteOlapFolderApi (data) {
+  return fetch({
+    url: '/olapweb/olap/apis/olapFolder/delete',
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}
+
+export function getShareUserApi (params) {
+  return fetch({
+    url: '/olapweb/olap/apis/olapShare/get',
+    method: 'get',
+    params
+  })
+}
+
+export function saveShareApi (url, data) {
+  return fetch({
+    url,
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
     data
   })
 }
