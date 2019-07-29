@@ -1,32 +1,32 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="新增度量" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="formData" ref="formData">
+      <el-form :model="formData">
         <el-form-item label="度量名称" :label-width="formLabelWidth">
-          <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
+          <el-input v-model="formData.measureName" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
         </el-form-item>
         <el-form-item label="计算方式" :label-width="formLabelWidth">
-          <el-select v-model="formData.function.expression" placeholder="请选择" @change="selectChange">
+          <el-select v-model="formData.computeMode" placeholder="请选择" @change="selectChange">
             <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth">
-          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
+          <el-select v-model="formData.computeType" placeholder="请选择" :disabled="isDisabledtype">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
+          <el-select v-model="formData.fieldtext" placeholder="请选择" :disabled="isDisabledtext">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item style="margin-top:-20px;" :label-width="formLabelWidth">
           <el-checkbox label="显示所有字段"></el-checkbox>
         </el-form-item>
-        <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
+        <el-form-item label="扩展列长度" v-if="formData.computeMode === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
         </el-form-item>
-        <div v-if="formData.function.expression === 'COUNT_DISTINCT'" class="coutDistinct">
+        <div v-if="formData.computeMode === 'COUNT_DISTINCT'" class="coutDistinct">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
             <el-select v-model="formData.type" placeholder="请选择" :disabled="isDisabledtype">
               <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -141,18 +141,8 @@ export default {
   data () {
     return {
       formData: {
-        function: {
-          expression: '',
-          returntype: '',
-          parameter: {
-            type: '',
-            value: ''
-          },
-          showDim: false
-        },
         answers: []
       },
-      isNew: 1,
       formLabelWidth: '100px',
       dialogFormVisible: false,
       isDisabledtype: false,
@@ -215,29 +205,7 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
-    })
-  },
-  mounted () {
-    console.log(this.formData)
-  },
   methods: {
-    resetData () {
-      this.formData = {
-        function: {
-          expression: '',
-          returntype: '',
-          parameter: {
-            type: '',
-            value: ''
-          },
-          showDim: false
-        },
-        answers: []
-      }
-    },
     closeBtn () {
       this.dialogFormVisible = false
     },
@@ -245,35 +213,28 @@ export default {
       this.dialogFormVisible = false
       let id = Math.random().toString(36).substr(3)
       this.formData['id'] = id
-      this.formData['isNew'] = this.isNew
       this.$store.dispatch('MeasureTableList', this.formData).then(res => {
         if (res) {
           this.$message.success('保存成功~')
-          this.resetData()
+          this.formData = {}
         }
       })
       this.$parent.init()
     },
     dialog (data) {
       this.dialogFormVisible = true
-      if (data) {
-        this.formData = data
-        this.isNew = 1
-      } else {
-        this.resetData()
-        this.isNew = 0
-      }
+      if (data) this.formData = data
     },
     selectChange (val) {
       switch (val) {
         case 'COUNT':
-          this.formData.function.parameter.type = 'constant'
+          this.formData.computeType = 'constant'
           this.formData.fieldtext = 1
           this.isDisabledtype = true
           this.isDisabledtext = true
           break
         case 'PERCENTILE':
-          this.formData.function.parameter.type = 'column'
+          this.formData.computeType = 'column'
           this.isDisabledtype = true
           break
         default:
@@ -289,6 +250,11 @@ export default {
     addtext () {
       this.formData.answers.push({ index: 1, answertext: '' })
     }
+  },
+  computed: {
+    ...mapGetters({
+      selectTableTotal: 'selectTableTotal'
+    })
   }
 }
 </script>

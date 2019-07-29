@@ -7,16 +7,16 @@
           tooltip-effect="dark"
           @selection-change="handleSelectionChange"
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
-          <el-table-column prop="name" label="度量名称" align="center"> </el-table-column>
-          <el-table-column prop="function.expression" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="function.parameter.value" label="计算值" align="center">
+          <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
+          <el-table-column prop="measureName" label="度量名称" align="center"> </el-table-column>
+          <el-table-column prop="computeMode" label="计算方式" align="center"> </el-table-column>
+          <el-table-column prop="computeValue" label="计算值" align="center">
             <template slot-scope="scope">
               <span style="margin-right:15px;">值：{{'LEAF_CATEG_ID'}}</span>
-              <span>类型：{{scope.row.function.parameter.value}}</span>
+              <span>类型：{{scope.row.computeType}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="function.parameter.type" label="计算类型" align="center"> </el-table-column>
+          <el-table-column prop="computeType" label="计算类型" align="center"> </el-table-column>
           <el-table-column
             label="操作"
             width="100"

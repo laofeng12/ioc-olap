@@ -19,10 +19,10 @@
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
               <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
-              <el-table-column prop="name" label="显示名称" align="center">
+              <el-table-column prop="apiPaths" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <el-form-item :prop="'tableData.' + scope.$index + '.name'">
-                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.apiPaths'">
+                    <el-input type="text" v-model="scope.row.apiPaths" @blur="iptChange(scope.row, scope.$index)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -31,7 +31,7 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.row)">
+                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.$index)">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
@@ -89,9 +89,7 @@ export default {
   },
   methods: {
     init () {
-      // console.log(this.saveSelectFiled)
-      this.tableData = this.saveList
-      // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+      this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
         if (code === 200) {
@@ -102,9 +100,13 @@ export default {
             this.tableData.forEach((item, i) => {
               this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                 if (val.id === item.id) {
-                  this.tableData[i].name = val.name
-                  this.tableData[i].mode = val.mode
                   arr.push(item)
+                }
+              })
+              this.saveList && this.saveList.forEach((val, index) => {
+                if (val.id === item.id) {
+                  this.tableData[i].apiPaths = val.apiPaths
+                  this.tableData[i].mode = val.mode
                 }
               })
             })
@@ -123,7 +125,7 @@ export default {
       }
     },
     nextModel (val) {
-      // if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         flag = item.filed !== 1 ? 1 : 0
@@ -145,7 +147,7 @@ export default {
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-      this.$store.dispatch('SaveFiledData')
+      this.replaceData()
       // 若点击 左侧对应父级菜单高亮
       this.$root.eventBus.$emit('tableNameActive')
     },
@@ -157,29 +159,42 @@ export default {
       }
       rows.length > 0 ? this.$store.dispatch('SaveSelectFiled', rows) : this.$store.dispatch('RemoveSelectFiled', list)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-      this.$store.dispatch('SaveFiledData')
+      this.replaceData()
+    },
+    // 替换后端需要的数据
+    replaceData () {
+      // 对接数据格式
+      this.dimensions = []
+      this.saveSelectFiled && this.saveSelectFiled.map((item, i) => {
+        this.dimensions.push({
+          table: item.tableName,
+          column: item.columnName,
+          derived: item.mode === 1 ? null : item.columnName.split(','),
+          name: '别名'
+        })
+      })
+      console.log('新的', this.dimensions, '数据2====', this.saveNewSortListstructure)
     },
     selectFiled () {
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
       this.$refs.dialog.dialog()
     },
     // 输入框监听
-    iptChange (val) {
-      this.$store.dispatch('changePushSelectFiled', val)
-      this.$store.dispatch('SaveFiledData')
+    iptChange (val, index) {
+      this.$store.dispatch('changePushSelectFiled', index)
     },
     // 单选框触发
-    radioChange (val) {
-      this.$store.dispatch('changePushSelectFiled', val)
-      this.$store.dispatch('SaveFiledData')
+    radioChange (index) {
+      this.$store.dispatch('changePushSelectFiled', index)
     }
   },
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
-      saveList: 'saveList',
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortListstructure: 'saveNewSortListstructure',
+      saveNewSortList: 'saveNewSortList',
+      saveList: 'saveList'
     })
   },
   beforeDestroy () {

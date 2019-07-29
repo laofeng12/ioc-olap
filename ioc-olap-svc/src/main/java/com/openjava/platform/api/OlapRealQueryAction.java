@@ -1,12 +1,15 @@
 package com.openjava.platform.api;
 
+import java.util.*;
+
+import javax.annotation.Resource;
+
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.common.Export;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.service.*;
-import com.openjava.platform.vo.FolderHierarchicalVo;
 import com.openjava.platform.vo.TreeNodeVo;
 import com.openjava.platform.vo.TreeVo;
 import io.swagger.annotations.*;
@@ -127,24 +130,29 @@ public class OlapRealQueryAction extends BaseAction {
 		for (OlapCube cube : cubes){
 			TreeVo tree=new TreeVo();
 			tree.setId(cube.getCubeId().toString());
-			tree.setTitle(cube.getName());
-			tree.setRow(new ArrayList<TreeNodeVo>());
+			tree.setName(cube.getName());
+			tree.setChildren(new ArrayList<TreeNodeVo>());
 			ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
 			for (OlapCubeTable table : cubeTables){
 				TreeNodeVo nodeVo=new TreeNodeVo();
 				nodeVo.setId(table.getId().toString());
-				nodeVo.setName(table.getTableName());
-				nodeVo.setRow(new ArrayList<TreeNodeVo>());
+				nodeVo.setName(table.getDatabaseName()+"."+table.getTableName());
+				nodeVo.setChildren(new ArrayList<TreeNodeVo>());
 				nodeVo.setAttrs(table);
 				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
 				for (OlapCubeTableColumn column : cubeTableColumns){
 					TreeNodeVo leafNode=new TreeNodeVo();
-					nodeVo.setId(column.getId().toString());
-					nodeVo.setName(column.getExpressionFull());
-                    nodeVo.setAttrs(column);
-					nodeVo.getRow().add(leafNode);
+					leafNode.setId(column.getId().toString());
+					if(column.getExpressionType()==null || column.getExpressionType()==""){
+						leafNode.setName(column.getColumnName());
+					}
+					else{
+						leafNode.setName(column.getColumnName()+"->"+column.getExpressionType());
+					}
+					leafNode.setAttrs(column);
+					nodeVo.getChildren().add(leafNode);
 				}
-				tree.getRow().add(nodeVo);
+				tree.getChildren().add(nodeVo);
 			}
 			trees.add(tree);
 		}
@@ -166,17 +174,19 @@ public class OlapRealQueryAction extends BaseAction {
 	@ApiOperation(value = "获取层级文件夹结构")
 	@RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
 	@Security(session=true)
-	public ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderWithQuery() {
+	public List<TreeVo> folderWithQuery() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		ArrayList<FolderHierarchicalVo<OlapRealQuery>> folderHierarchicalVos =new ArrayList<FolderHierarchicalVo<OlapRealQuery>>();
+		List<TreeVo> trees=new ArrayList<TreeVo>();
 		List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"RealQuery");
 		for (OlapFolder folder : folders){
-			FolderHierarchicalVo<OlapRealQuery> folderHierarchicalVo=new FolderHierarchicalVo<OlapRealQuery>();
-			MyBeanUtils.copyPropertiesNotBlank(folderHierarchicalVo, folder);
-			folderHierarchicalVo.setLeafs(olapRealQueryService.getListWithFolderId(folder.getFolderId()));
-			folderHierarchicalVos.add(folderHierarchicalVo);
+			TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
+			List<OlapRealQuery> olapRealQueries=olapRealQueryService.getListWithFolderId(folder.getFolderId());
+			for(OlapRealQuery realQuery : olapRealQueries){
+				tree.getChildren().add(new TreeNodeVo(realQuery.getName(),realQuery.getRealQueryId().toString(),null,realQuery));
+			}
+			trees.add(tree);
 		}
-		return folderHierarchicalVos;
+		return trees;
 	}
 
 	@ApiOperation(value = "获取共享的即时查询")
@@ -192,9 +202,6 @@ public class OlapRealQueryAction extends BaseAction {
 	//@Security(session=true)
 	public void export(String sql,Integer limit, HttpServletResponse response)
 	{
-		//OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		//OlapRealQuery realQuery=olapRealQueryService.get(id);
-		//QueryResultMapper mapper=cubeAction.query(realQuery.getSql(),0,realQuery.getLimit(),userVO.getUserId());
 		QueryResultMapper mapper=cubeAction.query(sql,0,limit,"learn_kylin");
 		Export.dualDate(mapper,response);
 	}

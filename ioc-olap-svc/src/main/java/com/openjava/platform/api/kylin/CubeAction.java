@@ -144,4 +144,11 @@ public class CubeAction extends KylinAction {
         return result;
     }
 
+    @ApiOperation(value = "删除CUBE")
+    @RequestMapping(value = "delete", method = RequestMethod.DELETE)
+    public void delete(String cubeName) {
+        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
+        HttpClient.put(url, "", config.authorization, void.class);
+    }
+
 }

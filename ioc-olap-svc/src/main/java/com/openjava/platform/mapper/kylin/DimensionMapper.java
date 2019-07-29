@@ -8,6 +8,7 @@ import lombok.Setter;
 public class DimensionMapper {
     public String name;
     public String realName;
+    public String[] derived;
     public String table;
     public String column;
 }
