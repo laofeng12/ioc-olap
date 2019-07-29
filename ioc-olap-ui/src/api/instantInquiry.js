@@ -6,28 +6,28 @@ import fetch from '@/utils/fetch'
 
 export function getCubeTreeApi () {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery/CubeTree',
+    url: '/olap/apis/olapRealQuery/CubeTree',
     method: 'get'
   })
 }
 
 export function getFolderWithQueryApi () {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery/folderWithQuery',
+    url: '/olap/apis/olapRealQuery/folderWithQuery',
     method: 'get'
   })
 }
 
 export function getQueryShareApi () {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery/queryShare',
+    url: '/olap/apis/olapRealQuery/queryShare',
     method: 'get'
   })
 }
 
 export function searchOlapApi (data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery/query',
+    url: '/olap/apis/olapRealQuery/query',
     method: 'post',
     contentType: 'application/x-www-form-urlencoded',
     data
@@ -36,7 +36,7 @@ export function searchOlapApi (data) {
 
 export function saveOlapApi (data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery',
+    url: '/olap/apis/olapRealQuery',
     method: 'post',
     data
   })
@@ -44,7 +44,7 @@ export function saveOlapApi (data) {
 
 export function deleteOlapApi (data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapRealQuery/delete',
+    url: '/olap/apis/olapRealQuery/delete',
     method: 'post',
     data
   })
@@ -52,7 +52,7 @@ export function deleteOlapApi (data) {
 
 export function newOlapFolderApi (data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapFolder',
+    url: '/olap/apis/olapFolder',
     method: 'post',
     data
   })
@@ -60,14 +60,14 @@ export function newOlapFolderApi (data) {
 
 export function getTableByIdApi (id) {
   return fetch({
-    url: `/olapweb/olap/apis/olapRealQuery/${id}`,
+    url: `/olap/apis/olapRealQuery/${id}`,
     method: 'get'
   })
 }
 
 export function deleteOlapFolderApi (data) {
   return fetch({
-    url: '/olapweb/olap/apis/olapFolder/delete',
+    url: '/olap/apis/olapFolder/delete',
     method: 'post',
     contentType: 'application/x-www-form-urlencoded',
     data
@@ -76,7 +76,7 @@ export function deleteOlapFolderApi (data) {
 
 export function getShareUserApi (params) {
   return fetch({
-    url: '/olapweb/olap/apis/olapShare/get',
+    url: '/olap/apis/olapShare/get',
     method: 'get',
     params
   })
