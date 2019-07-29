@@ -89,8 +89,7 @@ export default {
   },
   methods: {
     init () {
-      // console.log(this.saveSelectFiled)
-      this.tableData = this.saveList
+      // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true

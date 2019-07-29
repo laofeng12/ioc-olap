@@ -1,16 +1,16 @@
-import { filterArr, filterArrData, reduceObj } from '@/utils/index'
-
+import { filterArr, filterArrData, reduceObj, reduceJson } from '@/utils/index'
+import Vue from 'vue'
 const setFiled = {
   state: {
     /* 维度 */
     saveLeftFiled: {
       'name': 'bb',
       'description': '',
-      'fact_table': 'DS_U_GN9N1SADS',
+      'fact_table': 'DS_U_EDJUSUVJY',
       lookups: [{
-        'table': 'DS_U_GN9N1SADS',
-        'alias': 'DS_U_GN9N1SADS',
-        'joinTable': 'DS_U_I66UXON7J',
+        'table': 'DS_U_EDJUSUVJY',
+        'alias': 'DS_U_EDJUSUVJY',
+        'joinTable': 'DS_U_KGUXTEDWD',
         'kind': 'LOOKUP',
         'join': {
           'type': 'inner',
@@ -32,9 +32,9 @@ const setFiled = {
         }
       },
       {
-        'table': 'DS_U_I66UXON7J',
-        'alias': 'DS_U_I66UXON7J',
-        'joinTable': 'DS_U_I66UXON7J',
+        'table': 'DS_U_KGUXTEDWD',
+        'alias': 'DS_U_KGUXTEDWD',
+        'joinTable': 'DS_U_R3T5TA2TA',
         'kind': 'LOOKUP',
         'join': {
           'type': 'inner',
@@ -107,14 +107,53 @@ const setFiled = {
         }
       })
     },
+    normalFn ({ state }, list) {
+      // 普通模式
+      state.saveFiledNormalList = state.saveFiledNormalList.concat({
+        id: list.item.id,
+        dataType: list.item.dataType,
+        columnName: list.item.columnName,
+        tableName: list.item.tableName
+      })
+      let data = reduceJson(state.saveFiledNormalList, 'id')
+      state.saveFiledNormalList = data
+      // 删除选择的衍生模式
+      state.saveFiledDerivativelList && state.saveFiledDerivativelList.forEach((item, index) => {
+        if (item.id === list.val.id) {
+          state.saveFiledDerivativelList.splice(index, 1)
+        }
+      })
+    },
+    derivativeFn ({ state }, list) {
+      // 衍生模式
+      state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
+        id: list.item.id,
+        dataType: list.item.dataType,
+        columnName: list.item.columnName,
+        tableName: list.item.tableName
+      })
+      let data = reduceJson(state.saveFiledDerivativelList, 'id')
+      state.saveFiledDerivativelList = data
+      // 删除选择的普通模式
+      state.saveFiledNormalList && state.saveFiledNormalList.forEach((item, index) => {
+        if (item.id === list.val.id) {
+          state.saveFiledNormalList.splice(index, 1)
+        }
+      })
+    },
     // 存储加了显示名称的数据
     changePushSelectFiled ({ state, dispatch }, val) {
-      state.saveSelectFiled.forEach((item, index) => {
+      state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
               state.saveSelectFiled[index].name = res.name
+            }
+            if (String(res.mode) === '1') {
+              dispatch('normalFn', { item: item, val: res })
+            } else if (String(res.mode) === '2') {
+              dispatch('derivativeFn', { item: item, val: res })
             }
           })
         } else {
@@ -122,36 +161,18 @@ const setFiled = {
             state.saveSelectFiled[index].mode = val.mode
             state.saveSelectFiled[index].name = val.name
           }
-        }
-        if (item.mode === '1') {
-          // 普通模式
-          state.saveFiledNormalList = state.saveFiledNormalList.concat(item)
-          state.saveFiledNormalList = reduceObj(state.saveFiledNormalList, 'id')
-          // 删除选择的衍生模式
-          state.saveFiledDerivativelList && state.saveFiledDerivativelList.forEach((item, index) => {
-            if (item.id === val.id) {
-              state.saveFiledDerivativelList.splice(index, 1)
-            }
-          })
-        } else if (item.mode === '2') {
-          // 衍生模式
-          state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat(item)
-          state.saveFiledDerivativelList = reduceObj(state.saveFiledDerivativelList, 'id')
-          // 删除选择的普通模式
-          state.saveFiledNormalList && state.saveFiledNormalList.forEach((item, index) => {
-            if (item.id === val.id) {
-              state.saveFiledNormalList.splice(index, 1)
-            }
-          })
+          if (String(val.mode) === '1' && String(item.mode) === '1') {
+            dispatch('normalFn', { item: item, val: val })
+          } else if (String(val.mode) === '2' && String(item.mode) === '2') {
+            dispatch('derivativeFn', { item: item, val: val })
+          }
         }
       })
       dispatch('filterFiledTable')
-      // console.log(state.saveFiledDerivativelList, '衍生模式')
-      // console.log(state.saveFiledNormalList, '普通模式')
     },
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state }) {
-      let resultVal = reduceObj(state.saveFiledDerivativelList, 'tableName')
+      let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
       state.saveLeftFiled.lookups.map((item, index) => {
@@ -175,7 +196,7 @@ const setFiled = {
         })
       })
       state.reloadNeedData = [...nomrlData, ...datas]
-      // console.log('啦啦啦啦', state.reloadNeedData)
+      console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {

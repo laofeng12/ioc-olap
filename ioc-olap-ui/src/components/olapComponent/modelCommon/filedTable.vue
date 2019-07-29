@@ -85,7 +85,7 @@ export default {
         // 存储选择对应的表
         this.$root.eventBus.$emit('filedTable', res.data, res.code)
         // 存储已选择的表
-        this.$store.dispatch('SaveList', res.data)
+        // this.$store.dispatch('SaveList', res.data)
       })
     }
   },

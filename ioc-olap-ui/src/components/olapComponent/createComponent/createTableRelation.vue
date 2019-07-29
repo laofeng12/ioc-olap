@@ -88,8 +88,8 @@ export default {
       //   name: 'joint',
       //   description: '2424',
       //   fact_table: 'DS_DATALAKE_TABLE',
-      //   lookups: [{"table":"DS_DATALAKE_TABLE","alias":"DS_DATALAKE_TABLE","fact_table": "DS_DATALAKE_TABLE","joinTable":"test_juan","kind":"LOOKUP","join":{"type":"左连接","primary_key":["LAO_BAN_DIAN_HUA","LAO_BAN_DIAN_HUA"],"foreign_key":["CAN_GUAN_MING_CHENG","CAN_GUAN_DI_ZHI"],"isCompatible":[true],"pk_type":["string","string"],"fk_type":["string","string"]}}],
-      // },
+      //   lookups: [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'fact_table': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['LAO_BAN_DIAN_HUA', 'LAO_BAN_DIAN_HUA'], 'foreign_key': ['CAN_GUAN_MING_CHENG', 'CAN_GUAN_DI_ZHI'], 'isCompatible': [true], 'pk_type': ['string', 'string'], 'fk_type': ['string', 'string'] } }]
+      // }
 
     }
   },
@@ -392,7 +392,7 @@ export default {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed == 1 && !this.jointResult.fact_table) {
+        if (item.filed === 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = item.label
         }
 
@@ -523,7 +523,8 @@ export default {
 
       if (index >= 0 && primary_key && pk_type) {
         if (fk_type && pk_type && pk_type != fk_type) {
-          alert('请选择类型一致的字段')
+          // alert('请选择类型一致的字段')
+          this.$message.warning('请选择类型一致的字段')
           primary_key = ''
           pk_type = ''
         }
@@ -547,8 +548,9 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        if (fk_type && pk_type && pk_type != fk_type) {
-          alert('请选择类型一致的字段')
+        if (fk_type && pk_type && pk_type !== fk_type) {
+          // alert('请选择类型一致的字段')
+          this.$message.warning('请选择类型一致的字段')
           foreign_key = ''
           fk_type = ''
         }
