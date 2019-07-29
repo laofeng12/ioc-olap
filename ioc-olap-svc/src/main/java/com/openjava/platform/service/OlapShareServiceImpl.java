@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import com.openjava.platform.domain.OlapShare;
+import com.openjava.platform.dto.ShareUserDto;
 import com.openjava.platform.query.OlapShareDBParam;
 import com.openjava.platform.repository.OlapShareRepository;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -77,7 +78,7 @@ public class OlapShareServiceImpl implements OlapShareService {
 	}
 
 	@Override
-	public List<OlapShare> getList(String sourceType, String sourceId, Long userId) {
+	public List<ShareUserDto> getList(String sourceType, String sourceId, Long userId) {
 		return olapShareRepository.getList(sourceType,sourceId,userId);
 	}
 }

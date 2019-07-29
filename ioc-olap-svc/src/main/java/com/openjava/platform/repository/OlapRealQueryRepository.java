@@ -17,6 +17,6 @@ public interface OlapRealQueryRepository extends DynamicJpaRepository<OlapRealQu
 
     List<OlapRealQuery> findByFolderId(Long folderId);
 
-    @Query(value = "select a.* from OLAP_REAL_QUERY a inner join OLAP_SHARE b on a.ID=b.FK_ID and b.FK_TYPE='RealQuery' where b.SHARE_USER_ID=:userId",nativeQuery = true)
+    @Query(value = "select a.*,c.FULLNAME as shareUserName from OLAP_REAL_QUERY a inner join OLAP_SHARE b on a.ID=b.FK_ID and b.FK_TYPE='RealQuery' inner join SYS_USER c on b.SHARE_USER_ID=c.USERID where b.SHARE_USER_ID=:userId",nativeQuery = true)
     List<OlapRealQuery> getAllShares(@Param("userId") Long userId);
 }
