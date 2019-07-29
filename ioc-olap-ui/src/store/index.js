@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import app from './modules/app'
 import user from './modules/user'
 import olap from './modules/olap'
+import analysis from './modules/analysis'
 // import selectStep from './olap/selectStep'
 import getters from './getters'
 import { TaskNode, TaskNodeStore } from 'vue-task-node'
@@ -15,6 +16,7 @@ const store = new Vuex.Store({
     app,
     user,
     olap,
+    analysis,
     // selectStep,
     TaskNodeStore
   },

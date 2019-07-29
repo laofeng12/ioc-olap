@@ -1,20 +1,25 @@
 import { getFolderWithQueryApi } from '../../api/instantInquiry'
 
-const analysis = {
+export const analysis = {
   state: {
     saveFolderList: []
   },
 
   mutations: {
-    GET_SAVEFOLDERLIST: (state, saveFolderList) => {
+    GET_SAVE_FOLDER_LIST: (state, saveFolderList) => {
       state.saveFolderList = saveFolderList
     }
   },
 
   actions: {
-    getSaveFolderList ({ commit }, userInfo) {
-      commit('GET_SAVEFOLDERLIST', userInfo)
-      // setUserInfo(userInfo)
+    async getSaveFolderListAction ({ commit }) {
+      const res = await getFolderWithQueryApi()
+      const list = res.map(v => {
+        return (
+          { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum }
+        )
+      })
+      commit('GET_SAVE_FOLDER_LIST', list)
     }
   }
 }

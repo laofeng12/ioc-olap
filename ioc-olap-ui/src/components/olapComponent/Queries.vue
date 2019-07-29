@@ -1,7 +1,8 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
-                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"></FolderAside>
+                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
+                 :showDo="false"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
@@ -27,7 +28,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :folderList="folderList" :exportData="exportData"></ResultBox>
+                   @reset="reset" :exportData="exportData"></ResultBox>
       </div>
     </div>
     <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
@@ -53,16 +54,10 @@
 <script>
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { getCubeTreeApi, saveOlapApi, deleteOlapApi, searchOlapApi, getFolderWithQueryApi } from '../../api/instantInquiry'
+import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
-  props: {
-    folderList: {
-      type: Array,
-      default: []
-    }
-  },
   data () {
     return {
       search: '',
@@ -103,26 +98,11 @@ export default {
   },
   mounted () {
     this.getAsideList()
-    this.getFolderList()
   },
   methods: {
-    async getFolderList () {
-      this.menuListLoading = true
-      const res = await getFolderWithQueryApi()
-      const folderList = res.map(v => {
-        return (
-          { children: v.children, id: v.id, name: v.name }
-        )
-      })
-      this.folderList = folderList
-      this.menuListLoading = false
-    },
     async getAsideList () {
       const res = await getCubeTreeApi()
       this.menuList = res
-    },
-    async deleteOlap (id) {
-      const res = await deleteOlapApi({id})
     },
     async searchOlap () {
       this.loading = true
@@ -159,21 +139,15 @@ export default {
         sql: this.textarea,
         flags: 0 // 标志 0：正常 1：共享
       }
-      try {
-        const res = await saveOlapApi(Object.assign({}, data, callbackData))
-        if (res.createId) {
-          this.$message.success('保存成功')
-        } else {
-          this.$message.error('保存失败')
-        }
-      } catch (e) {
-        this.$message.error('保存失败')
+      const res = await saveOlapApi(Object.assign({}, data, callbackData))
+      if (res.createId) {
+        this.$message.success('保存成功')
       }
     },
     reset () {
       this.textarea = ''
-      this.checked = false
-      this.lineNumber = ''
+      this.checked = true
+      this.lineNumber = '100'
       this.tableData = []
     }
   }
