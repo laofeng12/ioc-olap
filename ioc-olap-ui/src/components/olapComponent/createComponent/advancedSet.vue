@@ -4,11 +4,10 @@
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
-
             <span>维度分组聚合</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
-          <el-card class="box-card" v-for="(item, index) in totalSaveList" :key="index">
+          <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
               <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
@@ -16,20 +15,20 @@
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
-                <el-tag type="" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>{{n}}</el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r" @click="getTotalModal(index, 2)">
-                <el-tag type="" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable>{{n}}</el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
-              <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
+              <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div @click="getTotalModal(index, 3, i)">
-                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable>{{n}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
@@ -39,9 +38,9 @@
             </div>
             <div class="item_box noflex">
               <span>联合维度</span>
-              <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
+              <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, i)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -90,9 +89,9 @@
         <div class="listSet">
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
-            <div class="adds" v-for="(n, i) in savedimensionData" :key="i">
+            <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag @close.stop="lastrmTag(5, x, i)" v-for="(x, y) in n" :key="y" closable>{{x}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removedimensionData(i)"></i>
@@ -112,10 +111,10 @@
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>
-          <div class="listSet__box hetCompose__box" v-if="savehetComposeData && savehetComposeData.length">
-            <div class="adds" v-for="(n, i) in savehetComposeData" :key="i">
+          <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
+            <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable>{{x}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
@@ -139,7 +138,6 @@
 import steps from '@/components/olapComponent/modelCommon/steps'
 import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
-import { getLocalStorage } from '@/utils/index'
 export default {
   components: {
     steps, selectAggregation
@@ -247,39 +245,39 @@ export default {
       this.$store.dispatch('addAggregationList')
     },
     handleRms (index) {
-      if (this.totalSaveList.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList.splice(index, 1)
+      if (this.aggregation_groups.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups.splice(index, 1)
     },
     // 添加层级维度
     addlevelData (index) {
-      this.totalSaveList[index].levelData.push({})
+      this.$store.dispatch('AddlevelData', index)
     },
     // 添加联合维度
     addjointData (index) {
-      this.totalSaveList[index].jointData.push({})
+      this.$store.dispatch('AddjointData', index)
     },
     removelevelData (index, i) {
-      if (this.totalSaveList[index].levelData.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList[index].levelData.splice(i, 1)
+      if (this.aggregation_groups[index].select_rule.hierarchy_dims.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups[index].select_rule.hierarchy_dims.splice(i, 1)
     },
     removejointData (index, i) {
-      if (this.totalSaveList[index].jointData.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList[index].jointData.splice(i, 1)
+      if (this.aggregation_groups[index].select_rule.joint_dims.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups[index].select_rule.joint_dims.splice(i, 1)
     },
     // 添加维度黑白名单
     addimensionData () {
       this.$store.dispatch('AddimensionData')
     },
     removedimensionData (index) {
-      if (this.savedimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.savedimensionData.splice(index, 1)
+      if (this.mandatory_dimension_set_list.length === 1) return this.$message.error('必须保留一个~')
+      this.mandatory_dimension_set_list.splice(index, 1)
     },
     // 添加高级列组合
     addhetComposeData () {
       this.$store.dispatch('AddhetComposeData')
     },
     removehetComposeData (index) {
-      this.savehetComposeData.splice(index, 1)
+      this.hbase_mapping.column_family.splice(index, 1)
     },
     // 选择维度
     getTotalModal (index, type, findIndex) {
