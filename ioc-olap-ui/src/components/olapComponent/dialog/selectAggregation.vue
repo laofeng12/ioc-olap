@@ -2,14 +2,17 @@
   <div class="slectFiled">
     <el-dialog title="选择维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
-        <div class="item" v-for="(n, index) in options" :key="index">
+        <!-- <div class="item" v-for="(n, index) in options" :key="index">
           <p>{{n.tableName}}</p>
           <div class="itemFind">
             <el-checkbox-group ref="group" v-model="selctCheckData">
-              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item.id" :key="item.columnName">{{item.columnName}}</el-checkbox-button>
+              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item">{{item}}</el-checkbox-button>
             </el-checkbox-group>
           </div>
-        </div>
+        </div> -->
+        <el-checkbox-group ref="group" v-model="selctCheckData">
+          <el-checkbox-button v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="closeBtn()">取消</el-button>
@@ -21,7 +24,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getLocalStorage } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -34,10 +36,10 @@ export default {
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
-        { comment: '啦啦啦啦1', columnName: 'lalalalal1', tableName: 'a1', list: [ { comment: '啦啦啦啦', columnName: 'lalalalal' }, { comment: '啦啦啦啦', columnName: 'lalalalal1' } ] },
-        { comment: '啦啦啦啦2', columnName: 'lalalalal2', tableName: 'a2', list: [ { comment: '啦啦啦啦', columnName: 'lalalala2' }, { comment: '啦啦啦啦', columnName: 'lalalala22' } ] },
-        { comment: '啦啦啦啦3', columnName: 'lalalalal3', tableName: 'a3', list: [ { comment: '啦啦啦啦', columnName: 'lalalala3' }, { comment: '啦啦啦啦', columnName: 'lalalala33' } ] },
-        { comment: '啦啦啦啦4', columnName: 'lalalalal4', tableName: 'a4', list: [ { comment: '啦啦啦啦', columnName: 'lalalala4' }, { comment: '啦啦啦啦', columnName: 'lalalala44' } ] }
+        { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
+        { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
+        { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
+        { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
       ],
       index: '',
       type: '',
@@ -63,14 +65,14 @@ export default {
     },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
-      this.options = this.saveNewSortList
-      // this.options = JSON.parse(getLocalStorage('saveNewSortList'))
+      // this.options = this.saveNewSortList
+      this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
       this.index = index
       this.type = type
       this.findIndex = findIndex
       switch (type) {
         case 1:
-          this.selctCheckData = this.selectDataidList[this.index].containDataId
+          this.selctCheckData = this.selectDataidList[this.index].includesId
           break
         case 2:
           this.selctCheckData = this.selectDataidList[this.index].necessaryDataId
@@ -100,7 +102,9 @@ export default {
       saveNewSortList: 'saveNewSortList',
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
-      savehetComposeDataId: 'savehetComposeDataId'
+      savehetComposeDataId: 'savehetComposeDataId',
+      measureTableList: 'measureTableList', // 度量数据
+      reloadNeedData: 'reloadNeedData' // 包含维度
     })
   }
 }

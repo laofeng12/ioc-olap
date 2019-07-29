@@ -172,7 +172,7 @@ export default {
         tableName: item
       }
       this.$store.dispatch('GetColumnList', parmas).then(res => {
-        res.data.map((n, i) => {
+        res.data && res.data.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
           n.apiPaths = n.columnName
           n.tableName = item
@@ -180,8 +180,10 @@ export default {
           n.id = `${item}${i}`
         })
         // 存储选择对应的表
-        this.$store.dispatch('SaveRightTableList', res.data)
+        // this.$store.dispatch('SaveRightTableList', res.data)
         this.$root.eventBus.$emit('filedTable', res.data, res.code)
+        // 存储已选择的表
+        // this.$store.dispatch('SaveList', res.data)
       })
     }
   },

@@ -1,6 +1,4 @@
 import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
-import { filterArr, reduceObj, setLocalStorage, getLocalStorage } from '@/utils/index'
-import Vue from 'vue'
 
 const selectStep = {
   state: {

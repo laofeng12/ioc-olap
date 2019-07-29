@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 export default {
   components: {
     steps

@@ -4,11 +4,10 @@
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
-
             <span>维度分组聚合</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
-          <el-card class="box-card" v-for="(item, index) in totalSaveList" :key="index">
+          <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
               <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
@@ -16,20 +15,20 @@
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
-                <el-tag type="" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>{{n}}</el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r" @click="getTotalModal(index, 2)">
-                <el-tag type="" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable>{{n}}</el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
-              <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
+              <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div @click="getTotalModal(index, 3, i)">
-                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable>{{n}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
@@ -39,9 +38,9 @@
             </div>
             <div class="item_box noflex">
               <span>联合维度</span>
-              <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
+              <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, i)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -54,16 +53,16 @@
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
-            :data="tableData"
+            :data="rowkey.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
-            <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
+            <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.dataType" placeholder="请选择" @visible-change="codingType(scope.row.dataType)">
+                  <el-select v-model="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -72,7 +71,7 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text" v-model="scope.row.mode"></el-input>
+                  <el-input type="text" v-model="scope.row.encoding" @change="encodingIpt"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -90,9 +89,9 @@
         <div class="listSet">
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
-            <div class="adds" v-for="(n, i) in savedimensionData" :key="i">
+            <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag @close.stop="lastrmTag(5, x, i)" v-for="(x, y) in n" :key="y" closable>{{x}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removedimensionData(i)"></i>
@@ -112,10 +111,10 @@
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>
-          <div class="listSet__box hetCompose__box" v-if="savehetComposeData && savehetComposeData.length">
-            <div class="adds" v-for="(n, i) in savehetComposeData" :key="i">
+          <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
+            <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable>{{x}}</el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
@@ -136,10 +135,9 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
-import { getLocalStorage } from '@/utils/index'
 export default {
   components: {
     steps, selectAggregation
@@ -155,13 +153,13 @@ export default {
       hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
-        engine_type: '1' // 构建引擎
+        engine_type: '2' // 构建引擎
       },
       tableData: [],
       dimensionData: [{}], // 维度黑白名单
       engineOptions: [ // 模型构建引擎
-        { engine: '1', label: 'MapReduce ' },
-        { engine: '2', label: 'Spark ' }
+        { engine: '2', label: 'MapReduce ' },
+        { engine: '4', label: 'Spark ' }
       ],
       hetComposeData: [], // 高级组合
       encodingOption: [],
@@ -187,7 +185,16 @@ export default {
         'bigint': ['boolean', 'date', 'time', 'dict', 'integer'],
         'timestamp': ['date', 'time', 'dict']
       },
-      dataCity: []
+      rowkey: {
+        'rowkey_columns': [
+          // {
+          //   'column': 'KYLIN_SALES.PART_DT',
+          //   'encoding': 'dict',
+          //   'isShardBy': 'false',
+          //   'encoding_version': 1
+          // }
+        ]
+      }
     }
   },
   mounted () {
@@ -195,18 +202,28 @@ export default {
   },
   methods: {
     init () {
-      let datas = [...this.saveSelectFiled]
-      datas.map(item => {
-        item.column = item.columnName
-        item.encoding = item.encoding ? item.encoding : ''
-        item.isShardBy = item.isShardBy ? item.isShardBy : ''
-        item.length = item.length ? item.length : ''
+      let datas = [...this.reloadNeedData]
+      datas.forEach(item => {
+        this.rowkey.rowkey_columns.push({
+          column: item.value,
+          encoding: item.encoding ? item.encoding : '',
+          engine_type: item.type ? item.type : '',
+          isShardBy: item.isShardBy ? item.isShardBy : ''
+        })
       })
-      this.tableData = datas
     },
     nextModel (val) {
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/completeCreate')
+      // 整理接口数据-----
+      this.totalSaveData.models.modelDescData.dimensions = this.dimensions
+      this.totalSaveData.models.modelDescData.partition_desc = this.reloadData
+      this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
+      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
+      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
+      this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
+      console.log(this.totalSaveData, '高级', this.hbase_mapping)
+      // this.$parent.getStepCountAdd(val)
+      // this.$router.push('/olap/createolap/completeCreate')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -228,39 +245,39 @@ export default {
       this.$store.dispatch('addAggregationList')
     },
     handleRms (index) {
-      if (this.totalSaveList.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList.splice(index, 1)
+      if (this.aggregation_groups.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups.splice(index, 1)
     },
     // 添加层级维度
     addlevelData (index) {
-      this.totalSaveList[index].levelData.push({})
+      this.$store.dispatch('AddlevelData', index)
     },
     // 添加联合维度
     addjointData (index) {
-      this.totalSaveList[index].jointData.push({})
+      this.$store.dispatch('AddjointData', index)
     },
     removelevelData (index, i) {
-      if (this.totalSaveList[index].levelData.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList[index].levelData.splice(i, 1)
+      if (this.aggregation_groups[index].select_rule.hierarchy_dims.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups[index].select_rule.hierarchy_dims.splice(i, 1)
     },
     removejointData (index, i) {
-      if (this.totalSaveList[index].jointData.length === 1) return this.$message.error('必须保留一个~')
-      this.totalSaveList[index].jointData.splice(i, 1)
+      if (this.aggregation_groups[index].select_rule.joint_dims.length === 1) return this.$message.error('必须保留一个~')
+      this.aggregation_groups[index].select_rule.joint_dims.splice(i, 1)
     },
     // 添加维度黑白名单
     addimensionData () {
       this.$store.dispatch('AddimensionData')
     },
     removedimensionData (index) {
-      if (this.savedimensionData.length === 1) return this.$message.error('必须保留一个~')
-      this.savedimensionData.splice(index, 1)
+      if (this.mandatory_dimension_set_list.length === 1) return this.$message.error('必须保留一个~')
+      this.mandatory_dimension_set_list.splice(index, 1)
     },
     // 添加高级列组合
     addhetComposeData () {
       this.$store.dispatch('AddhetComposeData')
     },
     removehetComposeData (index) {
-      this.savehetComposeData.splice(index, 1)
+      this.hbase_mapping.column_family.splice(index, 1)
     },
     // 选择维度
     getTotalModal (index, type, findIndex) {
@@ -269,14 +286,45 @@ export default {
     },
     lastGetModal (index, type) {
       this.$refs.selectFiled.dialog(type, index)
+    },
+    rmTag (index, type, id, findIndex) {
+      const list = {
+        index: index,
+        type: type,
+        id: id,
+        findIndex: findIndex
+      }
+      this.$store.dispatch('RmtagList', list)
+    },
+    lastrmTag (type, id, findIndex) {
+      const list = {
+        id: id,
+        type: type,
+        findIndex: findIndex
+      }
+      this.$store.dispatch('RmtagList', list)
+    },
+    // 改变对应的长度格式
+    encodingIpt () {
+      this.rowkey.rowkey_columns.map(item => {
+        // item.encoding = 'integer' + item.encoding
+      })
+      console.log(this.rowkey.rowkey_columns)
     }
   },
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      savedimensionData: 'savedimensionData',
-      savehetComposeData: 'savehetComposeData',
-      totalSaveList: 'totalSaveList'
+      mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
+      selectDataidList: 'selectDataidList',
+      reloadNeedData: 'reloadNeedData',
+      hbase_mapping: 'hbase_mapping', // 高级组合
+      aggregation_groups: 'aggregation_groups', // 聚合
+      dimensions: 'dimensions', // 设置维度表
+      saveNewSortListstructure: 'saveNewSortListstructure', // 设置维度表(已选维度)
+      measureTableList: 'measureTableList', // 设置度量
+      reloadData: 'reloadData', // 刷新页面
+      totalSaveData: 'totalSaveData'
     })
   }
 }

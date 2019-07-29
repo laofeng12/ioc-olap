@@ -22,7 +22,7 @@
 import dataLake from '@/components/olapComponent/createComponent/selectStepComponent/datalake'
 import localUpload from '@/components/olapComponent/createComponent/selectStepComponent/localUpload'
 import selectModal from '@/components/olapComponent/createComponent/selectStepComponent/selectModal'
-import steps from '@/components/olapComponent/common/steps'
+import steps from '@/components/olapComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 export default {
   components: {
