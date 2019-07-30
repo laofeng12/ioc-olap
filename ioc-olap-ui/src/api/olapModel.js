@@ -31,34 +31,36 @@ export function getTreeoneList (params) {
   })
 }
 // 获取数据湖资源目录树
-export function getTreetwoList (orgId, databaseType) {
+export function getTreetwoList (obj) {
   return fetch({
-    url: `/pds/datalake/dataLake/dataLakeResourceTree/${orgId}-${databaseType}`,
+    url: `/pds/datalake/dataLake/dataLakeResourceTree/${obj.orgId}-${obj.databaseType}`,
     method: 'get'
   })
 }
-// 查询资源列表（数据湖+数据集
-export function getTreethreeList (orgId, type, databaseType) {
+// 查询资源列表（数据湖+数据集）
+export function getTreethreeList (obj) {
   return fetch({
-    url: `/pds/datalake/dataLake/resourceList/${orgId}-${type}-${databaseType}`,
+    url: `/pds/datalake/dataLake/resourceList/${obj.orgId}-${obj.type}-${obj.databaseType}`,
     method: 'get'
   })
 }
 // 获取资源信息
-export function getResourceInfo (resourceId, type) {
+export function getResourceInfo (obj) {
   return fetch({
-    url: `/pds/datalake/dataLake/resourceList/${resourceId}-${type}`,
+    url: `/pds/datalake/dataLake/resourceInfo/${obj.resourceId}-${obj.type}`,
     method: 'get'
   })
 }
 // 资源数据查询
-export function getResourceData (data, resourceId, type) {
+export function getResourceData (data, obj) {
   return fetch({
-    url: `/pds/datalake/dataLake/resourceList/${resourceId}-${type}`,
+    url: `/pds/datalake/dataLake/resourceData/${obj.resourceId}-${obj.type}`,
     method: 'post',
     data
   })
 }
+
+// --------------------------------------------------
 
 export function getResourcedirectoryCategory (params) {
   return fetch({

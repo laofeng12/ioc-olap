@@ -10,7 +10,7 @@
               <!-- <li v-if="managementHead && managementHead.length">序号</li> -->
               <span v-for="(item, index) in managementHead" :key="index">{{item.label}}</span>
             </div>
-            <div class="tableBox_item" v-for="(n, index) in managementData" :key="index">
+            <div class="tableBox_item contents" v-for="(n, index) in managementData" :key="index">
               <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
@@ -19,6 +19,8 @@
         <el-tab-pane label="字段说明" name="2">
           <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
+          <!-- <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
+          <div v-else style="text-align:center;margin-top:100px">暂无数据</div> -->
         </el-tab-pane>
       </el-tabs>
   </div>
@@ -41,33 +43,51 @@ export default {
       managementHead: [],
       descriptionData: [],
       descriptionHead: [
-        { prop: 'comment', label: '字段名称' },
-        { prop: 'dataType', label: '字段类型' },
-        { prop: 'columnName', label: '字段描述' }
+        { prop: 'columnAlias', label: '字段名称' },
+        { prop: 'type', label: '字段类型' },
+        { prop: 'comment', label: '字段描述' }
       ]
     }
   },
   mounted () {
-    // 获取表格头部数据
-    this.$root.eventBus.$on('getTableHeadList', res => {
-      this.managementHead = []
-      this.loadingPlan = true
-      if (res.code === 200) {
-        this.loadingPlan = false
-        this.descriptionData = res.data
-        res.data.map((res, index) => {
-          this.managementHead.push({ label: res.comment })
-        })
-      }
-    })
-    // 获取表格数据
-    this.$root.eventBus.$on('getTableContentList', res => {
-      this.loadingPlan = true
-      if (res.code === 200) {
-        this.loadingPlan = false
-        this.managementData = res.data.data
-      }
-    })
+    this.init()
+  },
+  methods: {
+    init () {
+    // 数据湖获取表的数据
+      this.$root.eventBus.$on('getTabdataList', (res, columnData) => {
+        console.log(columnData)
+        this.managementHead = []
+        this.managementData = []
+        if (res.code === 200) {
+          res.data.columnList.map(n => {
+            this.managementHead.push({ label: n.name })
+          })
+          this.managementData = res.data.data.splice(0, 14)
+          this.descriptionData = columnData
+        }
+      })
+      // 获取表格头部数据
+      this.$root.eventBus.$on('getTableHeadList', res => {
+        this.managementHead = []
+        this.loadingPlan = true
+        if (res.code === 200) {
+          this.loadingPlan = false
+          this.descriptionData = res.data
+          res.data.map((res, index) => {
+            this.managementHead.push({ label: res.comment })
+          })
+        }
+      })
+      // 获取表格数据
+      this.$root.eventBus.$on('getTableContentList', res => {
+        this.loadingPlan = true
+        if (res.code === 200) {
+          this.loadingPlan = false
+          this.managementData = res.data.data
+        }
+      })
+    }
   }
 }
 </script>
@@ -76,13 +96,11 @@ export default {
 .datalake {
   position absolute
   height 95%
-  width 100%
+  // width 100%
   display flex
-  .trees{
-
-  }
   .step_tab{
     flex 1
+    min-width 500px
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
@@ -101,10 +119,16 @@ export default {
       display flex
       background #F2F2F2
       span{
-        width 120px
+        width 140px
+        padding 0 20px
         float left
+        font-size 12px
         height 40px
         line-height 40px
+        text-align center
+        overflow hidden
+      }
+      .contents{
         text-align center
       }
     }

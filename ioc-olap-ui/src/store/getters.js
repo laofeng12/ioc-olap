@@ -5,6 +5,7 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   savemousedownData: state => state.olap.savemousedownData,
+  lateData: state => state.olap.lateData,
   totalSaveData: state => state.olap.totalSaveData,
   treeList: state => state.selectStep.treeList,
   serchTableList: state => state.selectStep.serchTableList,

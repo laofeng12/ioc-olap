@@ -41,10 +41,14 @@ export default {
     init () {
       // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', res => {
+        console.log('接受的', res)
         this.dataList[0].children = []
         this.loading = true
-        if (res.code === 200) {
-          res.data.map(res => { this.dataList[0].children.push({ id: res.RD_ID, label: res.DS__DLT_CODE }) })
+        if (res.code && res.code === 200) {
+          res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+          setTimeout(() => { this.loading = false }, 300)
+        } else {
+          this.saveSelectTable.map(res => { this.dataList[0].children.push({ id: res.id, resourceId: res.resourceId, label: res.label }) })
           setTimeout(() => { this.loading = false }, 300)
         }
       })
@@ -86,49 +90,53 @@ export default {
     },
     handleNodeClick (value) {
       let searchType = this.$store.state.selectStep.searchType
-      let dsDataSourceId = searchType === 1 ? 10 : 2
-      let dbType = searchType === 1 ? 3 : 3
-      let tableName = value.label
-      const parmas = {
-        dsDataSourceId,
-        tableName
-      }
-      const valparams = {
-        dbType,
-        dsDataSourceId,
-        tableName
-      }
-      this.$store.dispatch('GetColumnList', parmas).then(data => {
-        if (data.code === 200) {
-          switch (searchType) {
-            case 1:
-              this.$root.eventBus.$emit('getTableHeadList', data)
-              break
-            case 2:
-              this.$root.eventBus.$emit('getLocalTableHeadList', data)
-              break
-            default:
-              break
+      if (searchType === 1) {
+        this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
+          let datas = []
+          let columnData = res.data.column // 子断说明
+          res.data.column.forEach(item => {
+            datas.push(item.columnAlias)
+          })
+          let obj = {
+            params: {
+              'columnList': datas,
+              'page': 0,
+              'size': 0
+            },
+            data: {
+              resourceId: value.resourceId,
+              type: searchType
+            }
           }
+          this.$store.dispatch('getResourceData', obj).then(res => {
+            this.$root.eventBus.$emit('getTabdataList', res, columnData)
+          })
+        })
+      } else {
+        const parmas = {
+          dsDataSourceId: 2,
+          tableName: value.label
         }
-      })
-      this.$store.dispatch('GetTableData', valparams).then(res => {
-        if (res.code === 200) {
-          switch (searchType) {
-            case 1:
-              this.$root.eventBus.$emit('getTableContentList', res)
-              break
-            case 2:
-              this.$root.eventBus.$emit('getLocalTableContentList', res)
-              break
-            default:
-              break
+        const valparams = {
+          dbType: 3,
+          dsDataSourceId: 2,
+          tableName: value.label
+        }
+        this.$store.dispatch('GetColumnList', parmas).then(data => {
+          if (data.code === 200) {
+            this.$root.eventBus.$emit('getLocalTableHeadList', data)
           }
-        }
-      })
+        })
+        this.$store.dispatch('GetTableData', valparams).then(res => {
+          if (res.code === 200) {
+            this.$root.eventBus.$emit('getLocalTableContentList', res)
+          }
+        })
+      }
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
+      console.log(this.$refs.trees.getCheckedNodes(), '数量')
       this.$store.state.selectStep.searchType === 1
         ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
         : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
@@ -142,13 +150,15 @@ export default {
       saveSelectTable: 'saveSelectTable',
       saveSelctchckoutone: 'saveSelctchckoutone',
       saveSelctchckouttwo: 'saveSelctchckouttwo',
-      serchTableList: 'serchTableList'
+      serchTableList: 'serchTableList',
+      saveLocalSelectTable: 'saveLocalSelectTable'
 
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('getTableHeadList')
+    this.$root.eventBus.$off('getTabdataList')
     this.$root.eventBus.$off('getLocalTableHeadList')
     this.$root.eventBus.$off('getTableContentList')
     this.$root.eventBus.$off('getLocalTableContentList')

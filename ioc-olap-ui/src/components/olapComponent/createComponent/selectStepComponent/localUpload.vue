@@ -46,26 +46,32 @@ export default {
     }
   },
   mounted () {
-    this.$root.eventBus.$on('getLocalTableHeadList', res => {
-      this.managementHead = []
-      this.loadingPlan = true
-      if (res.code === 200) {
-        this.loadingPlan = false
-        this.descriptionData = res.data
-        res.data.map((res, index) => {
-          this.managementHead.push({ label: res.comment })
-        })
-      }
-    })
-    // 获取表格数据
-    this.$root.eventBus.$on('getLocalTableContentList', res => {
-      this.managementData = []
-      this.loadingPlan = true
-      if (res.code === 200) {
-        this.loadingPlan = false
-        this.managementData = res.data.data
-      }
-    })
+    this.init()
+  },
+  methods: {
+    init () {
+      this.$root.eventBus.$on('getLocalTableHeadList', res => {
+        console.log(res, '本地数据')
+        this.managementHead = []
+        this.loadingPlan = true
+        if (res.code === 200) {
+          this.loadingPlan = false
+          this.descriptionData = res.data
+          res.data.map((res, index) => {
+            this.managementHead.push({ label: res.comment })
+          })
+        }
+      })
+      // 获取表格数据
+      this.$root.eventBus.$on('getLocalTableContentList', res => {
+        this.managementData = []
+        this.loadingPlan = true
+        if (res.code === 200) {
+          this.loadingPlan = false
+          this.managementData = res.data.data
+        }
+      })
+    }
   }
 }
 </script>
