@@ -3,22 +3,23 @@
     <el-dialog title="过滤设置" :visible.sync="dialogFormVisible" @close="closeBtn">
       <el-form :model="formData" :rules="rules">
         <el-form-item label="选择字段表" :label-width="formLabelWidth">
-          <el-select v-model="formData.reloadName" placeholder="请选择字段表" @change="selectTable">
+          <el-select v-model="formData.TABLENAME" placeholder="请选择字段表" @change="selectTable">
             <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="formData.reloadText" placeholder="请选择字段">
+          <el-select v-model="formData.FIELD" placeholder="请选择字段">
             <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择过滤条件" :label-width="formLabelWidth">
-          <el-select v-model="formData.filterType" placeholder="请选择过滤条件">
-            <el-option v-for="item in filterOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-select v-model="formData.PATTERN" placeholder="请选择过滤条件">
+            <el-option v-for="item in filterOptions" :key="item.value" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="设置度量值" :label-width="formLabelWidth">
-          <el-input v-model="formData.filterValue" autocomplete="off" placeholder="请输入度量值"></el-input>
+        <el-form-item label="设置过滤值" :label-width="formLabelWidth">
+          <el-input v-model="formData.PARAMETER" autocomplete="off" placeholder="请输入过滤值"></el-input>
+          <el-input v-if="formData.PATTERN === 'BETWEED'" v-model="formData.PARAMETERBE" autocomplete="off" placeholder="请输入过滤值"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -40,15 +41,24 @@ export default {
   },
   data () {
     return {
-      formData: {
-        answers: []
-      },
+      formData: {},
+      isNew: 1,
       formLabelWidth: '100px',
       dialogFormVisible: false,
       tableData: [],
       typeOptions: [],
-      tableOptions: [],
-      textOptions: [],
+      tableOptions: [
+        { label: 'a' },
+        { label: 'b' },
+        { label: 'c' }
+      ],
+      textOptions: [
+        { comment: 'aaa', columnName: 'aaa' },
+        { comment: 'bbb', columnName: 'bbb' },
+        { comment: 'vccc', columnName: 'vccc' },
+        { comment: 'vvvv', columnName: 'vvvv' },
+        { comment: 'bbbbb', columnName: 'bbbbb' }
+      ],
       filterOptions: [
         { value: '0', label: '=' },
         { value: '1', label: '<>' },
@@ -70,7 +80,7 @@ export default {
   },
   methods: {
     init () {
-      this.tableOptions = this.selectTableTotal
+      // this.tableOptions = this.selectTableTotal
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -81,13 +91,14 @@ export default {
         tableName: val
       }
       this.$store.dispatch('GetColumnList', params).then(res => {
-        this.textOptions = res.data
+        // this.textOptions = res.data
       })
     },
     submitBtn (index) {
       this.dialogFormVisible = false
       let id = Math.random().toString(36).substr(3)
       this.formData['id'] = id
+      this.formData['isNew'] = this.isNew
       this.$store.dispatch('ReloadFilterTableList', this.formData).then(res => {
         if (res) {
           this.$message.success('保存成功~')
@@ -98,7 +109,13 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      if (data) this.formData = data
+      if (data) {
+        this.formData = data
+        this.isNew = 1
+      } else {
+        this.formData = {}
+        this.isNew = 0
+      }
     }
   },
   computed: {
@@ -118,6 +135,11 @@ export default {
     .el-tag{
       margin-right 20px
       margin-bottom 10px
+    }
+  }
+  >>>.is-focus{
+    .el-input__suffix{
+      top 0px
     }
   }
   .coutDistinct, .coutTopn{

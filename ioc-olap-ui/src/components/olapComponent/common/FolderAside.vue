@@ -1,18 +1,18 @@
 <template>
-  <div class="folderAside">
+  <div class="folderAside" v-loading="menuListLoading">
     <el-row class="left-search">
       <el-input
         size="small"
         suffix-icon="el-icon-search"
         placeholder="请输入关键词"
-        v-model="searchKeyword_">
+        v-model="searchKey">
       </el-input>
     </el-row>
     <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
-      default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
+             default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
-          <span class="cus-node-content">
+          <span class="cus-node-content" v-if="showDo" @click.stop>
             <el-dropdown size="mini" @command="handleCommand($event, node, data)">
               <el-button type="primary" size="mini">
                 操作<i class="el-icon-arrow-down el-icon--right"></i>
@@ -70,6 +70,10 @@ export default {
       type: Boolean,
       default: false
     },
+    showDo: {
+      type: Boolean,
+      default: true
+    },
     menuDefault: {
       // type: Array,
       required: true
@@ -85,7 +89,7 @@ export default {
   },
   data () {
     return {
-      searchKeyword_: '', // 分享搜索
+      searchKey: '', // 分享搜索
       shareVisible: false,
       newVisible: false,
       folderForm: {
@@ -113,7 +117,7 @@ export default {
     }
   },
   watch: {
-    searchKeyword (val) {
+    searchKey (val) {
       this.$refs.alltree.filter(val)
     }
   },
@@ -142,7 +146,6 @@ export default {
         type: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
       }
       Object.assign(data, this.folderForm)
-      console.info('data', data)
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
           try {
@@ -150,6 +153,7 @@ export default {
             if (createId) {
               this.$message.success('新建成功')
               this.newVisible = false
+              await this.$store.dispatch('getSaveFolderListAction')
             } else {
               this.$message.error('新建失败')
             }
@@ -160,16 +164,13 @@ export default {
       })
     },
     handleCommand (dropIndex, node, data) {
-      console.info('dropIndex', dropIndex)
-      console.info('node', node)
-      console.info('data', data)
       switch (dropIndex) {
         case '0': // 编辑
           return this.edit(node, data)
         case '1': // 分享
           return this.getShareUserList(node, data)
         case '3': // 删除
-          this.delete(data, node.isLeaf)
+          return this.delete(data, node.isLeaf)
       }
     },
     newFolder () {
@@ -188,8 +189,8 @@ export default {
     },
     delete (data, isLeaf) {
       if (isLeaf) {
-        if (data.realQueryId) {
-          this.$emit('deleteFunc', data.realQueryId)
+        if (data.attrs.realQueryId) {
+          this.$emit('deleteFunc', data.attrs.realQueryId)
         } else {
           this.deleteFolder(data.id)
         }
@@ -200,16 +201,15 @@ export default {
     async deleteFolder (id) {
       await deleteOlapFolderApi({ id })
       this.$message.success('删除成功')
+      await this.$store.dispatch('getSaveFolderListAction')
     },
     async getShareUserList (node, data) {
       this.shareLoading = true
-      console.info('data', data.attrs.realQueryId)
       if (data.attrs.realQueryId) {
         this.shareId = data.attrs.realQueryId
         this.shareVisible = true
         const { rows } = await getUserListApi()
         const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
-        console.info('res', res)
         let shareValue = []
         res.forEach(v => shareValue.push(v.shareUserId))
         this.shareValue = shareValue

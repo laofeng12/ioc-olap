@@ -48,7 +48,6 @@ export default {
     init () {
       this.$root.eventBus.$on('openDefaultTree', res => {
         setTimeout(() => {
-          console.log(this.serchTableList)
           this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
           this.$store.dispatch('changeSerachtype', 1)
           this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
