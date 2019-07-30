@@ -101,7 +101,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         if (relation == null) {
             throw new APIException("结构错误！");
         }
-        if (relation.getTableId() != dict.getCubeTableId()) {
+        if (!relation.getTableId().equals(dict.getCubeTableId())) {
             writeJoinTable(dict, relations, joinTables, cubeTables, relation.getTableId());
         }
         if (joinTables.stream().filter((p) -> p.getJoinTableId().equals(tableId)).count() == 0) {
