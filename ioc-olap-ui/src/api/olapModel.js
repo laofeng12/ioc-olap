@@ -18,13 +18,52 @@ export function getMechanismTree (params) {
 }
 
 /**
- * 资源目录分类查询
+ * 资源目录分类查询(树)
  * @param {object} params
  *
  */
+// 获取资源目录树（数据湖+数据集）
+export function getTreeoneList (params) {
+  return fetch({
+    url: '/pds/datalake/dataLake/allResourceTree',
+    method: 'get',
+    params
+  })
+}
+// 获取数据湖资源目录树
+export function getTreetwoList (orgId, databaseType) {
+  return fetch({
+    url: `/pds/datalake/dataLake/dataLakeResourceTree/${orgId}-${databaseType}`,
+    method: 'get'
+  })
+}
+// 查询资源列表（数据湖+数据集
+export function getTreethreeList (orgId, type, databaseType) {
+  return fetch({
+    url: `/pds/datalake/dataLake/resourceList/${orgId}-${type}-${databaseType}`,
+    method: 'get'
+  })
+}
+// 获取资源信息
+export function getResourceInfo (resourceId, type) {
+  return fetch({
+    url: `/pds/datalake/dataLake/resourceList/${resourceId}-${type}`,
+    method: 'get'
+  })
+}
+// 资源数据查询
+export function getResourceData (data, resourceId, type) {
+  return fetch({
+    url: `/pds/datalake/dataLake/resourceList/${resourceId}-${type}`,
+    method: 'post',
+    data
+  })
+}
+
 export function getResourcedirectoryCategory (params) {
   return fetch({
-    url: '/pds/datasource/dsResourcedirectoryCategory/search',
+    url: '/pds/datalake/dataLake/allResourceTree',
+    // url: '/pds/datasource/dsResourcedirectoryCategory/search',
     method: 'get',
     params
   })

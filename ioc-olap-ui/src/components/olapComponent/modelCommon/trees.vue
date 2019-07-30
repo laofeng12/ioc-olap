@@ -28,7 +28,16 @@ export default {
       treeLoading: false,
       showTree: true,
       value: '',
-      treeList: [],
+      treeList: [
+        {
+          label: '数据湖',
+          children: []
+        },
+        {
+          label: '自建目录',
+          children: []
+        }
+      ],
       defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
         children: 'children',
@@ -60,7 +69,7 @@ export default {
       this.$store.dispatch('GetTreeList').then(res => {
         if (res && res.code === 200) {
           this.treeLoading = false
-          this.setTree(res.list)
+          this.setTree(res.data.dataLakeDirectoryTree)
           const ids = val || this.treeList[0].id
           ids && setTimeout(() => {
             this.$refs.tree.store.nodesMap[ids].expanded = true
@@ -79,14 +88,17 @@ export default {
       let item = []
       val.map((list, i) => {
         let newData = {}
-        newData.label = list.rdcAme
-        newData.id = list.rdcId
-        newData.pId = list.prdcid
-        newData.is_show_add = true
-        newData.children = list.children ? this.setTree(list.children) : []
+        newData.label = list.orgName
+        newData.databaseType = list.databaseType
+        newData.id = list.id
+        newData.pId = list.parentId
+        // newData.children = list.children ? this.setTree(list.children) : []
+        newData.children = list.isLeaf === true ? [{}] : []
         item.push(newData)
       })
-      this.treeList = item
+      this.treeList[0].children = item
+      this.treeList[1].children = item
+      console.log(this.treeList)
       return item
     },
     filterNode (value, data) {

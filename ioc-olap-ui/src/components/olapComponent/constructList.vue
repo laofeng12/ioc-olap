@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { getApiList } from '@/api/common'
+import { getApiList } from '@/api/olapModel'
 export default {
   data () {
     return {
