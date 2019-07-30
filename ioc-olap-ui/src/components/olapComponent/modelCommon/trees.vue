@@ -8,6 +8,7 @@
         v-loading="treeLoading"
         :expand-on-click-node="false"
         node-key="id"
+        @node-expand="nodeExpand"
         :highlight-current="showTree"
         @node-click="getCurrents"
         :default-expanded-keys="defaultOpenKeys"
@@ -28,7 +29,16 @@ export default {
       treeLoading: false,
       showTree: true,
       value: '',
-      treeList: [],
+      treeList: [
+        {
+          label: '数据湖',
+          children: []
+        },
+        {
+          label: '自建目录',
+          children: []
+        }
+      ],
       defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
         children: 'children',
@@ -60,7 +70,8 @@ export default {
       this.$store.dispatch('GetTreeList').then(res => {
         if (res && res.code === 200) {
           this.treeLoading = false
-          this.setTree(res.list)
+          this.setTree(res.data.dataLakeDirectoryTree, 1)
+          this.setTree(res.data.dataSetDirectoryTree, 2)
           const ids = val || this.treeList[0].id
           ids && setTimeout(() => {
             this.$refs.tree.store.nodesMap[ids].expanded = true
@@ -75,18 +86,26 @@ export default {
     defaultFrist (val) {
       // console.log(val)
     },
-    setTree (val) {
+    setTree (val, type) {
       let item = []
       val.map((list, i) => {
         let newData = {}
-        newData.label = list.rdcAme
-        newData.id = list.rdcId
-        newData.pId = list.prdcid
+        newData.label = list.orgName
+        newData.databaseType = list.databaseType
+        newData.orgId = list.orgId
+        newData.resNum = list.resNum
+        newData.id = list.id
+        newData.parentId = list.parentId
         newData.is_show_add = true
-        newData.children = list.children ? this.setTree(list.children) : []
+        newData.isLeaf = list.isLeaf
+        newData.type = list.type
+        newData.orgtype = list.orgtype
+        newData.isTable = list.isTable
+        // newData.children = list.children ? this.setTree(list.children) : []
+        newData.children = list.isLeaf === true ? [] : [{}]
         item.push(newData)
       })
-      this.treeList = item
+      type === 1 ? this.treeList[0].children = item : this.treeList[1].children = item
       return item
     },
     filterNode (value, data) {
@@ -101,26 +120,86 @@ export default {
         }, node.label)
       ])
     },
-    // 选中当前修改
-    getCurrents (data, node, me) {
-      if (data.pId === 0) return
-      this.fetchTree(data.id, node.data.pId)
+    // 展开列表
+    nodeExpand (data, node, me) {
+      if (!data.id) return
+      this.fetchTree(data, node)
     },
-    fetchTree (id, nodeId) {
-      this.$store.dispatch('GetSerchTable', id).then(res => {
+    // 选中对应的表
+    getCurrents (data, node, me) {
+      if (data.isLeaf === true) {
+        console.log('取表')
+        this.fetchResourceList(data)
+      }
+      // 为资源列表的时候
+      if (data.isTable === true) {
+        // this.fetchResourceInfo(data)
+      }
+    },
+    fetchTree (data) {
+      this.treeLoading = true
+      this.$store.dispatch('GetTreeTwoList', { orgId: data.orgId, databaseType: data.databaseType }).then(res => {
+        if (res.code === 200) {
+          this.treeLoading = false
+          res.data.map(res => {
+            res.label = res.orgName
+            res.children = res.isLeaf === true || res.isTable === true ? [] : [{}]
+          })
+          if (res.data.length) data.children = res.data
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    fetchResourceList (data) {
+      // this.treeLoading = true
+      this.$store.dispatch('GetThreeList', { orgId: data.orgId, type: data.type, databaseType: data.databaseType }).then(res => {
+        if (res.code === 200) {
+          // res.data.map(res => {
+          //   res.label = res.resourceName
+          // })
+          // data.children = res.data
+          // this.treeLoading = false
+          this.$root.eventBus.$emit('getserchTableList', res)
+          // 点击时清除其他选择框
+          this.$root.eventBus.$emit('clearSelect')
+          // 存储当前点击的父节点的id
+          // this.$store.dispatch('setLastClickTab', nodeId)
+          // 保存选择的数据源数据
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    fetchResourceInfo (data) {
+      this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框
           this.$root.eventBus.$emit('clearSelect')
-          // 存储当前选择数据源
-          this.$store.dispatch('setSerchTable', res)
           // 存储当前点击的父节点的id
-          this.$store.dispatch('setLastClickTab', nodeId)
+          // this.$store.dispatch('setLastClickTab', nodeId)
           // 保存选择的数据源数据
           this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
       })
     }
+    // fetchTree (id, nodeId) {
+    //   this.$store.dispatch('GetSerchTable', id).then(res => {
+    //     if (res.code === 200) {
+    //       this.$root.eventBus.$emit('getserchTableList', res)
+    //       // 点击时清除其他选择框
+    //       this.$root.eventBus.$emit('clearSelect')
+    //       // 存储当前选择数据源
+    //       this.$store.dispatch('setSerchTable', res)
+    //       // 存储当前点击的父节点的id
+    //       this.$store.dispatch('setLastClickTab', nodeId)
+    //       // 保存选择的数据源数据
+    //       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+    //     }
+    //   })
+    // }
   },
   computed: {
     ...mapGetters({
@@ -145,16 +224,18 @@ export default {
   .mechanism{
     height 98%
     width 200px
-    height calc(100vh - 150px)
+    // height calc(100vh - 150px)
+    overflow auto
     border-right 1px solid #f0f0f0
     .trees{
       width 198px
-      height 100%
-      overflow-y auto
+      // height 100%
+      // overflow-y auto
     }
     >>>.el-tree{
       // min-width 500px
       overflow: initial
+      width 600px
     }
     >>>.el-input__suffix{
       margin-top -10px
@@ -171,6 +252,14 @@ export default {
       font-size: 12px;
       color: rgba(0,0,0,0.65)!important;
       }
+    }
+  }
+  >>>.el-loading-spinner{
+    width 30%
+    top 30%
+    .circular{
+      width 30px
+      height 30px
     }
   }
     >>>.el-input{

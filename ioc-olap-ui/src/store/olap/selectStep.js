@@ -1,4 +1,4 @@
-import { getResourcedirectoryCategory, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/common'
+import { getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
 
 const selectStep = {
   state: {
@@ -9,6 +9,7 @@ const selectStep = {
     saveLocalSelectTable: [], // 本地选择的表
     selectTableTotal: [], // 已选择的总表
     lastClickTab: '', // 存储最后一次点击的tabID
+    lateData: [],
     saveSelctchckoutone: [],
     saveSelctchckouttwo: []
   },
@@ -42,12 +43,45 @@ const selectStep = {
     // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
-        getResourcedirectoryCategory().then(res => {
-          commit('GET_TREELIST', res)
+        getTreeoneList().then(res => {
+          // commit('GET_TREELIST', res)
           resolve(res)
         })
       })
     },
+    // 获取下一级列表
+    GetTreeTwoList ({ commit }, obj) {
+      return new Promise((resolve, reject) => {
+        getTreetwoList(obj).then(res => {
+          resolve(res)
+        })
+      })
+    },
+    // 获取第三级列表
+    GetThreeList ({ commit }, obj) {
+      return new Promise((resolve, reject) => {
+        getTreethreeList(obj).then(res => {
+          resolve(res)
+        })
+      })
+    },
+    // 获取列表获取资源信息
+    GetResourceInfo ({ commit }, obj) {
+      return new Promise((resolve, reject) => {
+        getResourceInfo(obj).then(res => {
+          resolve(res)
+        })
+      })
+    },
+    // 根据资源信息获取对应详情
+    getResourceData ({ commit }, obj) {
+      return new Promise((resolve, reject) => {
+        getResourceData(obj.params, obj.data).then(res => {
+          resolve(res)
+        })
+      })
+    },
+    // ----------------------------------------
     // 根据树的id获取对应的表
     GetSerchTable ({ commit }, id) {
       return new Promise((resolve, reject) => {
@@ -103,12 +137,14 @@ const selectStep = {
     },
     // 存储数据湖的数据
     getSelectTableList ({ state }, data) {
+      console.log(data, '啦啊啊啊啊啊啊啊啊啊啊')
       state.saveSelectTable = []
       data.map(item => {
         if (!item.children) {
           state.saveSelectTable.push({
             id: item.id,
-            label: item.label
+            label: item.label,
+            resourceId: item.resourceId
           })
         }
       })
@@ -129,6 +165,10 @@ const selectStep = {
     setSelectTableTotal ({ commit, state }) {
       let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
+    },
+    // 存储数据湖点击的表
+    SavedataData ({ commit, state }, data) {
+      state.lateData = data
     }
   }
 }

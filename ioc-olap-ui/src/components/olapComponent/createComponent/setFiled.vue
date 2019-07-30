@@ -22,7 +22,7 @@
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
-                    <el-input type="text" v-model="scope.row.name" @blur="iptChange(scope.row)"></el-input>
+                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -98,7 +98,7 @@ export default {
           setTimeout(() => {
             this.loading = false
             let arr = []
-            this.tableData.forEach((item, i) => {
+            this.tableData && this.tableData.forEach((item, i) => {
               this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                 if (val.id === item.id) {
                   this.tableData[i].name = val.name
