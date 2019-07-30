@@ -52,6 +52,20 @@ export function reduceObj (arr, name) {
   return arrs
 }
 
+export function reduceJson (arr, name) {
+  let obj = {}
+  let arrs = arr.reduce((item, next) => {
+    obj[next[name]] ? '' : obj[next[name]] = true && item.push({
+      id: next[name],
+      dataType: next.dataType,
+      columnName: next.columnName,
+      tableName: next.tableName
+    })
+    return item
+  }, [])
+  return arrs
+}
+
 // 过滤分类组合---- 选择的维度数据结构
 export function filterArrData (data) {
   var map = {}

@@ -34,7 +34,7 @@ module.exports = {
         target: 'http://19.104.40.36', // 麒麟测试环境
         changeOrigin: true
       }
-      // '/olapweb/': {
+      // '/olapweb/olap': {
       //   target: 'http://172.16.60.25:9090', // 沛辰本机
       //   changeOrigin: true
       // }

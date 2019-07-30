@@ -37,6 +37,7 @@ export default {
   methods: {
     init () {
       this.options = this.selectTableTotal
+      console.log(this.options, '===============')
     },
     selectMe (val) {
       let data = this.options.filter(item => {

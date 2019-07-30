@@ -25,8 +25,8 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" @click="showNewFormVisible()">保存结果</el-button>
-          <el-button class="button" type="primary" size="mini" @click="showTipVisible('reset')">重置</el-button>
+          <el-button class="button" type="primary" size="mini" @click="newFormVisible = true">保存结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="reset()">重置</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
             {{autoSearch ? '关闭' : '开启'}}自动查询
@@ -45,7 +45,7 @@
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
         <el-form-item label="文件夹" label-width="100px" prop="folder">
           <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
-            <el-option v-for="(item, index) in folderList" :key="index" :label="item.name"
+            <el-option v-for="(item, index) in saveFolderList" :key="index" :label="item.name"
                        :value="item.id"></el-option>
           </el-select>
         </el-form-item>
@@ -58,18 +58,11 @@
         <el-button type="primary" @click="submitNewForm()">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="提示" :visible.sync="tipVisible" width="30%">
-      <span>确认{{translateWord}}数据吗？</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="tipVisible = false">取 消</el-button>
-        <el-button v-if="word === 'save'" type="primary" @click="save">确 定</el-button>
-        <el-button v-else type="primary" @click="reset">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import DynamicTable from '../common/DynamicTable'
 
 export default {
@@ -85,10 +78,6 @@ export default {
     showType: {
       type: String,
       default: ''
-    },
-    folderList: {
-      type: Array,
-      default: []
     },
     exportData: {
       type: Object,
@@ -107,7 +96,6 @@ export default {
   data () {
     return {
       search: '',
-      tipVisible: false,
       newFormVisible: false,
       word: '',
       autoSearch: false,
@@ -127,30 +115,32 @@ export default {
     }
   },
   computed: {
-    translateWord: function () {
-      return this.translate(this.word)
-    }
+    ...mapGetters({ saveFolderList: 'saveFolderList' }),
+    // translateWord: function () {
+    //   return this.translate(this.word)
+    // }
   },
   methods: {
-    translate (word) {
-      switch (word) {
-        case 'save':
-          return '保存'
-        case 'reset':
-          return '重置'
-      }
-    },
-    showTipVisible (word) {
-      this.word = word
-      this.tipVisible = true
-    },
-    showNewFormVisible () {
-      this.newFormVisible = true
-    },
     submitNewForm () {
-      this.$refs.newForm.validate((valid) => {
+      this.$refs.newForm.validate(async (valid) => {
         if (valid) {
-          this.showTipVisible('save')
+          const data = {
+            isNew: this.word === 'save',
+            folderId: this.newForm.folder,
+            name: this.newForm.resultName
+          }
+          try {
+            await this.$confirm(`确认保存数据吗？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+            this.$emit('saveFunc', data)
+            this.newFormVisible = false
+          } catch (e) {
+            this.newFormVisible = false
+            this.$message('已取消')
+          }
         }
       })
     },
@@ -170,19 +160,18 @@ export default {
     fullscreenChange (fullscreen) {
       this.isFullscreen = fullscreen
     },
-    save () {
-      const data = {
-        isNew: this.word === 'save',
-        folderId: this.newForm.folder,
-        name: this.newForm.resultName
+    async reset () {
+      try {
+        await this.$confirm(`确认重置吗？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        this.$emit('reset')
+        this.$message.success('重置成功!')
+      } catch (e) {
+        this.$message('已取消')
       }
-      this.$emit('saveFunc', data)
-      this.newFormVisible = false
-      this.tipVisible = false
-    },
-    reset () {
-      this.$emit('reset')
-      this.tipVisible = false
     },
     async exportTable () {
       window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)

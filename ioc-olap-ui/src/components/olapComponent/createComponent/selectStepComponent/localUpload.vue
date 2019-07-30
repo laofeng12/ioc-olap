@@ -9,8 +9,8 @@
               <!-- <li v-if="managementHead && managementHead.length">序号</li> -->
               <span v-for="(item, index) in managementHead" :key="index">{{item.label}}</span>
             </div>
-            <div class="tableBox_item">
-              <span v-for="(n, index) in managementData[0]" :key="index">{{n}}</span>
+            <div class="tableBox_item" v-for="(n, index) in managementData" :key="index">
+              <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import serchTable from '@/components/olapComponent/common/serchTable'
+import serchTable from '@/components/olapComponent/modelCommon/serchTable'
 import elementTable from '@/components/ElementTable/index'
 export default {
   components: {
@@ -59,6 +59,7 @@ export default {
     })
     // 获取表格数据
     this.$root.eventBus.$on('getLocalTableContentList', res => {
+      this.managementData = []
       this.loadingPlan = true
       if (res.code === 200) {
         this.loadingPlan = false
