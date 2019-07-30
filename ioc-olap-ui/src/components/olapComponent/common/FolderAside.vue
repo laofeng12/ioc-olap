@@ -45,8 +45,43 @@
       </div>
     </el-dialog>
     <el-dialog title="选择共享" :visible.sync="shareVisible">
-      <div class="">
-        <el-transfer class="share" v-loading="shareLoading" v-model="shareValue" :data="shareData"></el-transfer>
+      <div class="shareBox dis-flex" v-loading="shareLoading">
+        <div class="box">
+          <div class="title">未选择用户</div>
+          <div class="dis-flex">
+            <el-input placeholder="请输入内容" size="mini" v-model="searchUser"></el-input>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchUserFunc('search')"></el-button>
+          </div>
+          <el-checkbox-group v-model="userCheckList" class="list">
+            <div v-for="(item, index) in userList" class="line" :key="index" v-if="!item.disabled">
+              <el-checkbox :label="item">{{item.label}}</el-checkbox>
+            </div>
+          </el-checkbox-group>
+          <div class="bottom dis-flex">
+            <el-button size="mini" @click="lastPage" :disabled="userPage <= 0">上一页</el-button>
+            <el-button size="mini" @click="nextPage" :disabled="userPage >= totalPage">下一页</el-button>
+          </div>
+        </div>
+        <div class="centerButton">
+          <el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>
+          <el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>
+        </div>
+        <div class="box">
+          <div class="title">已选择用户</div>
+          <div class="dis-flex">
+            <el-input placeholder="请输入内容" size="mini" v-model="searchShare"></el-input>
+            <el-button size="mini" type="primary" icon="el-icon-search"></el-button>
+          </div>
+          <el-checkbox-group v-model="shareCheckList" class="list no-bottom">
+            <div v-for="(item, index) in shareList" class="line" :key="index">
+              <el-checkbox :label="item">{{item.label}}</el-checkbox>
+            </div>
+          </el-checkbox-group>
+          <!--<div class="bottom dis-flex">-->
+            <!--<el-button size="mini">上一页</el-button>-->
+            <!--<el-button size="mini">下一页</el-button>-->
+          <!--</div>-->
+        </div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="shareVisible = false">取 消</el-button>
@@ -110,16 +145,30 @@ export default {
           { required: true, message: '请输入序号', trigger: 'blur' }
         ]
       },
-      shareData: [],
-      shareValue: [],
+      // userList: [],
+      // shareList: [],
       shareId: null,
-      shareLoading: false
+      shareLoading: false,
+      userRows: [],
+      userList: [],
+      shareList: [],
+      userCheckList: [],
+      shareCheckList: [],
+      shareData: {},
+      searchUser: '',
+      searchShare: '',
+      userPage: 0,
+      totalPage: 0
     }
   },
   watch: {
     searchKey (val) {
       this.$refs.alltree.filter(val)
     }
+  },
+  beforeUpdate () {
+    console.info('shareCheckList', this.shareCheckList)
+    console.info('userCheckList', this.userCheckList)
   },
   methods: {
     clickTreeItem (data, node, self) {
@@ -131,7 +180,7 @@ export default {
         that.sheetShare = data.isShare
         // 渲染表格数据
         if (this.vueType === 'saveResult') {
-          this.$emit('clickItem', data)
+          this.$emit('clickItem', data, 'search')
         }
       }
     },
@@ -205,16 +254,27 @@ export default {
     },
     async getShareUserList (node, data) {
       this.shareLoading = true
+      this.shareData = data
       if (data.attrs.realQueryId) {
         this.shareId = data.attrs.realQueryId
         this.shareVisible = true
-        const { rows } = await getUserListApi()
+        const { rows, totalPage } = await getUserListApi()
+        this.totalPage = totalPage
+        this.userRows = rows
         const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
-        let shareValue = []
-        res.forEach(v => shareValue.push(v.shareUserId))
-        this.shareValue = shareValue
-        const shareData = rows.map(v => Object.assign(v, { key: v.userid, label: v.fullname, disabled: false }))
-        this.shareData = shareData
+        let shareList = []
+        res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
+        this.shareList = shareList
+        const userList = rows.map(item => {
+          let disabled = false
+          res.forEach(v => {
+            if (v.shareUserId === item.userid) {
+              disabled = true
+            }
+          })
+          return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+        })
+        this.userList = userList
         this.shareLoading = false
       } else {
         this.$message.error('分享失败')
@@ -226,17 +286,90 @@ export default {
         sourceId: this.shareId,
         sourceType: 'RealQuery'
       }
-      let url = '/olapweb/olap/apis/olapShare/save?'
-      this.shareValue.forEach((v, i) => {
+      let url = '/olap/apis/olapShare/save?'
+      this.shareList.forEach((v, i) => {
         if (i === 0) {
-          url += `userIds=${v}`
+          url += `userIds=${v.key}`
         } else {
-          url += `&userIds=${v}`
+          url += `&userIds=${v.key}`
         }
       })
       await saveShareApi(url, data)
       this.$message.success('分享成功')
       this.shareVisible = false
+      this.$emit('clickItem', this.shareData, 'share')
+    },
+    addShare () {
+      this.shareList = [...this.shareList, ...this.userCheckList]
+      this.userCheckList = []
+      this.cleanShare()
+    },
+    reduceShare () {
+      let list = []
+      this.shareList.forEach((item, index) => {
+        this.shareCheckList.forEach(v => {
+          if (item.key === v.key) {
+            list.push(index)
+          }
+        })
+      })
+      list.reverse()
+      list.forEach(v => this.shareList.splice(v, 1))
+      this.cleanShare()
+    },
+    cleanShare () {
+      const userList = this.userRows.map(item => {
+        let disabled = false
+        this.shareList.forEach(v => {
+          if (v.key === item.userid) {
+            disabled = true
+          }
+        })
+        return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+      })
+      this.userList = userList
+    },
+    async searchUserFunc (type) {
+      this.shareLoading = true
+      if (type === 'search') {
+        this.userPage = 0
+      }
+      const data = this.shareData
+      if (data.attrs.realQueryId) {
+        this.shareId = data.attrs.realQueryId
+        this.shareVisible = true
+        const params = { page: this.userPage, like_account: this.searchUser }
+        const { rows, totalPage } = await getUserListApi(params)
+        this.userRows = rows
+        // const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
+        // let shareList = []
+        // res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
+        // this.shareList = shareList
+        const userList = rows.map(item => {
+          let disabled = false
+          this.shareList.forEach(v => {
+            if (v.shareUserId === item.userid) {
+              disabled = true
+            }
+          })
+          return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+        })
+        this.userList = userList
+        this.shareLoading = false
+      } else {
+        this.$message.error('分享失败')
+        this.shareLoading = false
+      }
+    },
+    lastPage () {
+      if (this.userPage <= 0) return false
+      this.userPage = this.userPage - 1
+      this.searchUserFunc()
+    },
+    nextPage () {
+      if (this.userPage >= this.totalPage) return false
+      this.userPage = this.userPage + 1
+      this.searchUserFunc()
     }
   }
 }
@@ -305,5 +438,36 @@ export default {
     padding: 0;
     margin-top: 10px;
     background: #ffffff;
+  }
+  .shareBox {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    .box {
+      width: 35%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px #ddd solid;
+      border-radius: 5px;
+      .title {
+        margin-bottom: 10px;
+      }
+      .list {
+        height: 200px;
+        margin: 10px 0;
+        overflow: auto;
+        .line {
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+      .no-bottom {
+        height: 230px;
+      }
+      .bottom {
+        justify-content: space-between;
+        height: 30px;
+      }
+    }
   }
 </style>

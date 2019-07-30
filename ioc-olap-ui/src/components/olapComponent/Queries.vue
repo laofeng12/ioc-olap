@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" @deleteFunc="deleteOlap"
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault"
                  :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
                  :showDo="false"></FolderAside>
     <div class="content">
@@ -28,26 +28,9 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData"></ResultBox>
+                   @reset="reset" :exportData="exportData" :duration="duration"></ResultBox>
       </div>
     </div>
-    <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
-      <!--<el-form :model="saveForm" :rules="saveRule" ref="saveForm">-->
-        <!--<el-form-item label="选择文件夹" :label-width="formLabelWidth" prop="folder">-->
-          <!--<el-select class="visibleInput" v-model="saveForm.folder" placeholder="请选择文件夹">-->
-            <!--<el-option v-for="(item, index) in folderList" :key="index" :label="item.dataName"-->
-                       <!--:value="item.dataId"></el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="查询结果名称" :label-width="formLabelWidth" prop="name">-->
-          <!--<el-input class="visibleInput" v-model="saveForm.name" auto-complete="off"></el-input>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
-        <!--<el-button type="primary" @click="saveResult">确 定</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -66,18 +49,6 @@ export default {
       checked: true,
       tableData: [],
       dialogFormVisible: false,
-      // saveForm: {
-      //   name: '',
-      //   folder: ''
-      // },
-      // saveRule: {
-      //   name: [
-      //     { required: true, message: '请输入名称', trigger: 'blur' }
-      //   ],
-      //   folder: [
-      //     { required: true, message: '请选择文件夹', trigger: 'change' }
-      //   ]
-      // },
       formLabelWidth: '120px',
       menuList: [],
       menuDefault: {
@@ -93,7 +64,8 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      exportData: {}
+      exportData: {},
+      duration: 1000
     }
   },
   mounted () {
@@ -101,8 +73,10 @@ export default {
   },
   methods: {
     async getAsideList () {
+      this.menuListLoading = true
       const res = await getCubeTreeApi()
       this.menuList = res
+      this.menuListLoading = false
     },
     async searchOlap () {
       this.loading = true
@@ -112,7 +86,7 @@ export default {
       }
       this.exportData = data
       try {
-        const { columnMetas, results } = await searchOlapApi(data)
+        const { columnMetas, results, duration } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -127,9 +101,10 @@ export default {
           return list
         })
         this.tableData = [...[columnMetasList], ...resultsList]
+        this.duration = duration
         this.$message.success('查询完成')
       } catch (e) {
-        this.$message.error('查询失败')
+        console.error(e)
       }
       this.loading = false
     },
