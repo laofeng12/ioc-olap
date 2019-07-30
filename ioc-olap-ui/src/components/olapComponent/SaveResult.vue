@@ -4,25 +4,8 @@
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
-                 :folderData="folderData"></ResultBox>
+                 :folderData="folderData" :duration="duration" :shareList="shareList"></ResultBox>
     </div>
-    <el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form">
-        <el-form-item label="选择文件夹" :label-width="formLabelWidth">
-          <el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">
-            <el-option label="文件夹1" value="shanghai"></el-option>
-            <el-option label="文件夹2" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="查询结果名称" :label-width="formLabelWidth">
-          <el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -30,7 +13,7 @@
 import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { searchOlapAp, deleteOlapApi } from '../../api/instantInquiry'
+import { deleteOlapApi, searchOlapByIdApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -68,7 +51,9 @@ export default {
       menuListLoading: false,
       exportData: {},
       loading: false,
-      folderData: {}
+      folderData: {},
+      duration: '',
+      shareList: []
     }
   },
   computed: {
@@ -83,15 +68,11 @@ export default {
       await this.$store.dispatch('getSaveFolderListAction')
       this.menuListLoading = false
     },
-    async getTableById (folderData) {
+    async getTableById (folderData, type) {
       this.loading = true
       this.folderData = folderData
       try {
-        const data = {
-          sql: folderData.attrs.sql,
-          limit: folderData.attrs.limit
-        }
-        const { columnMetas, results, duration } = await searchOlapApi(data)
+        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -105,9 +86,13 @@ export default {
           })
           return list
         })
-        this.exportData = { sql, limit }
+        this.duration = duration
+        this.shareList = shareList
+        this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
-        this.$message.success('查询完成')
+        if (type !== 'share') {
+          this.$message.success('查询完成')
+        }
       } catch (e) {
         this.$message.error('查询失败')
       }

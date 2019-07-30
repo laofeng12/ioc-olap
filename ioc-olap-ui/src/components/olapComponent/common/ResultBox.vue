@@ -10,15 +10,15 @@
           </div>
           <div class="item dis-flex">
             <div class="tit">查询时间：</div>
-            <div class="word">2019-07-03</div>
+            <div class="word">{{nowDate}}</div>
           </div>
           <div class="item dis-flex">
             <div class="tit">耗时：</div>
-            <div class="word">12.12min</div>
+            <div class="word">{{duration / 1000}}s</div>
           </div>
-          <div class="item dis-flex">
+          <div class="item dis-flex" v-if="folderData.name">
             <div class="tit">查询类型：</div>
-            <div class="word">东莞交通数据分析模型</div>
+            <div class="word">{{folderData.name}}</div>
           </div>
         </div>
         <div class="right dis-flex">
@@ -27,6 +27,9 @@
           </el-button>
           <el-button class="button" type="primary" size="mini" @click="newFormVisible = true">保存结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="reset()">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="shareList" @click="showShareListVisible = true">
+            查看分享人
+          </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
             {{autoSearch ? '关闭' : '开启'}}自动查询
@@ -58,6 +61,12 @@
         <el-button type="primary" @click="submitNewForm()">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
+      <el-table :data="shareList" max-height="250" border style="width: 100%">
+        <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="分享时间" align="center"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -81,21 +90,31 @@ export default {
     },
     exportData: {
       type: Object,
-      required: true
+      default: {}
     },
     diffWidth: {
       type: Number,
       default: 536
     },
+    duration: {
+      type: Number,
+      default: 1000,
+      required: true
+    },
+    shareList: {
+      type: Array,
+      default: []
+    },
     folderData: {
       type: Object,
-      required: true
+      default: {}
     }
   },
   components: { DynamicTable },
   data () {
     return {
       search: '',
+      nowDate: '',
       newFormVisible: false,
       word: '',
       autoSearch: false,
@@ -111,14 +130,26 @@ export default {
         folder: [
           { required: true, message: '请选择文件夹', trigger: 'change' }
         ]
-      }
+      },
+      showShareListVisible: false
     }
   },
   computed: {
-    ...mapGetters({ saveFolderList: 'saveFolderList' }),
-    // translateWord: function () {
-    //   return this.translate(this.word)
-    // }
+    ...mapGetters({ saveFolderList: 'saveFolderList' })
+  },
+  mounted () {
+    const date = new Date()
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let strDate = date.getDate()
+    if (month >= 1 && month <= 9) {
+      month = '0' + month
+    }
+    if (strDate >= 0 && strDate <= 9) {
+      strDate = '0' + strDate
+    }
+    const nowDate = `${year}-${month}-${strDate}`
+    this.nowDate = nowDate
   },
   methods: {
     submitNewForm () {
