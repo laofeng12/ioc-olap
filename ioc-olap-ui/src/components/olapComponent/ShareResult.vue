@@ -1,27 +1,11 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="queries"
-                 :menuListLoading="menuListLoading"></FolderAside>
-    <div class="content">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData"></ResultBox>
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="shareResult" @clickItem="getTableById"
+                 :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
+    <div class="content" v-loading="loading">
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :duration="duration" :shareList="shareList"
+                 :exportData="exportData"></ResultBox>
     </div>
-    <!--<el-dialog class="visible" title="保存查询结果" :visible.sync="dialogFormVisible" width="40%">-->
-      <!--<el-form :model="form">-->
-        <!--<el-form-item label="选择文件夹" label-width="120px">-->
-          <!--<el-select class="visibleInput" v-model="form.region" placeholder="请选择文件夹">-->
-            <!--<el-option label="文件夹1" value="shanghai"></el-option>-->
-            <!--<el-option label="文件夹2" value="beijing"></el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="查询结果名称" label-width="120px">-->
-          <!--<el-input class="visibleInput" v-model="form.name" auto-complete="off"></el-input>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
-        <!--<el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -29,7 +13,7 @@
 
 import ResultBox from '@/components/olapComponent/common/ResultBox'
 import FolderAside from '@/components/olapComponent/common/FolderAside'
-import { getQueryShareApi } from '../../api/instantInquiry'
+import { getQueryShareApi, searchOlapByIdApi } from '../../api/instantInquiry'
 
 export default {
   components: { ResultBox, FolderAside },
@@ -39,78 +23,7 @@ export default {
       textarea: '',
       lineNumber: '',
       checked: false,
-      tableData: [
-        [
-          { colspan: 1, rowspan: 1, value: '标题1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ]
-      ],
+      tableData: [],
       dialogFormVisible: false,
       form: {
         name: '',
@@ -122,50 +35,7 @@ export default {
         resource: '',
         desc: ''
       },
-      menuList: [
-        {
-          children: [],
-          id: 779035117190185,
-          name: '测试嵌套报表',
-          sort: 1
-        },
-        {
-          children: [ {
-            id: 795406468250198,
-            name: '东莞中小学成绩报告',
-            dataType: 3,
-            isShare: 1,
-            sort: 2
-          } ],
-          id: 796247848830160,
-          name: '东莞',
-          sort: 2
-        },
-        {
-          children: [ {
-            id: 795247414460141,
-            name: '测试汇总88',
-            dataType: 1,
-            isShare: 1,
-            sort: 3
-          } ],
-          id: 776468771050089,
-          name: '测试通用报表',
-          sort: 3
-        },
-        {
-          children: [ {
-            id: 795385794900198,
-            name: '测试11',
-            dataType: 2,
-            isShare: 1,
-            sort: 4
-          } ],
-          id: 777364408760098,
-          name: '测试主从报表',
-          sort: 4
-        }
-      ],
+      menuList: [],
       menuDefault: {
         children: 'children', // 子集的属性
         label: 'name', // 标题的属性
@@ -177,7 +47,11 @@ export default {
           }
         }
       },
-      menuListLoading: false
+      menuListLoading: false,
+      loading: false,
+      duration: '',
+      shareList: [],
+      exportData: {}
     }
   },
   mounted () {
@@ -187,8 +61,42 @@ export default {
     async getAsideList () {
       this.menuListLoading = true
       const res = await getQueryShareApi()
-      console.info('res', res)
+      const menuList = res.map(item => {
+        return (
+          { name: item.name, id: item.realQueryId, attrs: item, children: [] }
+        )
+      })
+      this.menuList = menuList
       this.menuListLoading = false
+    },
+    async getTableById (folderData, type) {
+      this.loading = true
+      try {
+        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
+        const columnMetasList = columnMetas.map(v => {
+          return (
+            { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
+          )
+        })
+        const resultsList = results.map(item => {
+          let list = []
+          item.forEach(v => {
+            const obj = { colspan: 1, rowspan: 1, value: v, type: 'td' }
+            list.push(obj)
+          })
+          return list
+        })
+        this.duration = duration
+        this.shareList = shareList
+        this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
+        this.tableData = [...[columnMetasList], ...resultsList]
+        if (type !== 'share') {
+          this.$message.success('查询完成')
+        }
+      } catch (e) {
+        this.$message.error('查询失败')
+      }
+      this.loading = false
     }
   }
 }
