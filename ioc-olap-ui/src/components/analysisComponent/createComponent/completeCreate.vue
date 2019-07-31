@@ -83,7 +83,7 @@ export default {
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/advancedSet')
+      this.$router.push('/analysisModel/createolap/advancedSet')
     }
   },
   computed: {

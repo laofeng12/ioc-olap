@@ -741,11 +741,11 @@ export default {
     },
 
     nextModel (val) {
-      this.$router.push('/olap/createolap/setFiled')
+      this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
-      this.$router.push('/olap/createolap/selectStep')
+      this.$router.push('/analysisModel/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
       this.$root.eventBus.$emit('openDefaultTree')
     },

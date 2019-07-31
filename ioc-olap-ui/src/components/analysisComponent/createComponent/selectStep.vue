@@ -40,7 +40,7 @@ export default {
     nextModel (val) {
       if (this.selectTableTotal.length === 0) return this.$message.warning('请选择创建模型的数据源')
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/createTableRelation')
+      this.$router.push('/analysisModel/createolap/createTableRelation')
     },
     tabClick (val) {
       console.log('============', this.saveSelectTable)

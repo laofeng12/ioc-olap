@@ -184,11 +184,11 @@ export default {
     nextModel (val) {
       console.log(this.formData, '=========', this.relaodFilterList)
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/advancedSet')
+      this.$router.push('/analysisModel/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/setMeasure')
+      this.$router.push('/analysisModel/createolap/setMeasure')
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()

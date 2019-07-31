@@ -217,11 +217,11 @@ export default {
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/completeCreate')
+      this.$router.push('/analysisModel/createolap/completeCreate')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/reloadSet')
+      this.$router.push('/analysisModel/createolap/reloadSet')
     },
     handleSelectionChange (val) {
 

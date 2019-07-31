@@ -130,14 +130,14 @@ export default {
       if (flag === '1') {
         this.$message.warning('请选择事实表维度字段')
       } else {
-        this.$router.push('/olap/createolap/setMeasure')
+        this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
       }
       // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
       // this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
-      this.$router.push('/olap/createolap/createTableRelation')
+      this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
     selectcheck (rows, row) {

@@ -58,11 +58,11 @@ export default {
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/reloadSet')
+      this.$router.push('/analysisModel/createolap/reloadSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/setFiled')
+      this.$router.push('/analysisModel/createolap/setFiled')
     },
     handleSelectionChange (val) {
 
