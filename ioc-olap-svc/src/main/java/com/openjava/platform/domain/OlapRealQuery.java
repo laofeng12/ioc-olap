@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Table(name = "OLAP_REAL_QUERY")
 public class OlapRealQuery implements Persistable<Long>,Serializable {
 	@ApiModelProperty("主键")
-	private Long id;
+	private Long realQueryId;
 	@ApiModelProperty("文件夹ID")
 	private Long folderId;
 	@ApiModelProperty("查询结果名称")
@@ -55,7 +55,7 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.realQueryId;
 	}
     
     @JsonIgnore
@@ -65,7 +65,7 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.realQueryId != null) {
     		return false;
     	}
     	return true;
@@ -82,10 +82,10 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getRealQueryId() {
-		return id;
+		return realQueryId;
 	}
 	public void setRealQueryId(Long id) {
-		this.id = id;
+		this.realQueryId = id;
 	}
 	
 

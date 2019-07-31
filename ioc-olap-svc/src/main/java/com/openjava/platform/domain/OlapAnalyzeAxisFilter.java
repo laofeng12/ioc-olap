@@ -1,14 +1,11 @@
 package com.openjava.platform.domain;
 
-import java.util.Date;
 import java.io.Serializable;
 
 import javax.persistence.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Persistable;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModel;
@@ -25,13 +22,15 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键id")
-	private Long id;
+	private Long analyzeAxisFilterId;
 	@ApiModelProperty("轴id")
 	private Long axisId;
 	@ApiModelProperty("是否包含 1 包含 0 不包含")
-	private Long isInclude;
+	private Integer isInclude;
 	@ApiModelProperty("选中的值列表 逗号分隔")
 	private String selectValues;
+	@ApiModelProperty("分析id")
+	private Long analyzeId;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -40,7 +39,7 @@ public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.analyzeAxisFilterId;
 	}
     
     @JsonIgnore
@@ -50,7 +49,7 @@ public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.analyzeAxisFilterId != null) {
     		return false;
     	}
     	return true;
@@ -67,10 +66,10 @@ public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getAnalyzeAxisFilterId() {
-		return id;
+		return analyzeAxisFilterId;
 	}
 	public void setAnalyzeAxisFilterId(Long id) {
-		this.id = id;
+		this.analyzeAxisFilterId = id;
 	}
 	
 
@@ -84,10 +83,10 @@ public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
 	
 
 	@Column(name = "IS_INCLUDE")
-	public Long getIsInclude() {
+	public Integer getIsInclude() {
 		return isInclude;
 	}
-	public void setIsInclude(Long isInclude) {
+	public void setIsInclude(Integer isInclude) {
 		this.isInclude = isInclude;
 	}
 	
@@ -99,5 +98,12 @@ public class OlapAnalyzeAxisFilter implements Persistable<Long>,Serializable {
 	public void setSelectValues(String selectValues) {
 		this.selectValues = selectValues;
 	}
-	
+
+	@Column(name = "ANALYZE_ID")
+	public Long getAnalyzeId() {
+		return analyzeId;
+	}
+	public void setAnalyzeId(Long analyzeId) {
+		this.analyzeId = analyzeId;
+	}
 }

@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapShare implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键ID")
-	private Long id;
+	private Long shareId;
 	@ApiModelProperty("关联表ID")
 	private Long fkId;
 	@ApiModelProperty("关联表类型 ")
@@ -46,7 +46,7 @@ public class OlapShare implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.shareId;
 	}
     
     @JsonIgnore
@@ -56,7 +56,7 @@ public class OlapShare implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.shareId != null) {
     		return false;
     	}
     	return true;
@@ -73,10 +73,10 @@ public class OlapShare implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getShareId() {
-		return id;
+		return shareId;
 	}
 	public void setShareId(Long id) {
-		this.id = id;
+		this.shareId = id;
 	}
 	
 

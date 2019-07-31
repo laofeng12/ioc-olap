@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapAnalyze implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("ID")
-	private Long id;
+	private Long analyzeId;
 	@ApiModelProperty("NAME")
 	private String name;
 	@ApiModelProperty("FOLDER_ID")
@@ -56,7 +56,7 @@ public class OlapAnalyze implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.analyzeId;
 	}
     
     @JsonIgnore
@@ -66,7 +66,7 @@ public class OlapAnalyze implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.analyzeId != null) {
     		return false;
     	}
     	return true;
@@ -83,10 +83,10 @@ public class OlapAnalyze implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getAnalyzeId() {
-		return id;
+		return analyzeId;
 	}
 	public void setAnalyzeId(Long id) {
-		this.id = id;
+		this.analyzeId = id;
 	}
 	
 
