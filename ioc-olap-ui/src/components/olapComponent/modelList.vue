@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { getApiList } from '@/api/common'
+import { getApiList } from '@/api/olapModel'
 import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/olapComponent/modelListComponent'
 export default {
   components: {
