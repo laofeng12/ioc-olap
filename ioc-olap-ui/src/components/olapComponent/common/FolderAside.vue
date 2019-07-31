@@ -20,7 +20,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="0">编辑</el-dropdown-item>
                 <el-dropdown-item command="1">分享</el-dropdown-item>
-                <el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>
+                <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
                 <el-dropdown-item command="3">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -70,10 +70,10 @@
           <div class="title">已选择用户</div>
           <div class="dis-flex">
             <el-input placeholder="请输入内容" size="mini" v-model="searchShare"></el-input>
-            <el-button size="mini" type="primary" icon="el-icon-search"></el-button>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchShareFunc"></el-button>
           </div>
           <el-checkbox-group v-model="shareCheckList" class="list no-bottom">
-            <div v-for="(item, index) in shareList" class="line" :key="index">
+            <div v-for="(item, index) in showShareList" class="line" :key="index">
               <el-checkbox :label="item">{{item.label}}</el-checkbox>
             </div>
           </el-checkbox-group>
@@ -152,6 +152,7 @@ export default {
       userRows: [],
       userList: [],
       shareList: [],
+      showShareList: [],
       userCheckList: [],
       shareCheckList: [],
       shareData: {},
@@ -166,20 +167,16 @@ export default {
       this.$refs.alltree.filter(val)
     }
   },
-  beforeUpdate () {
-    console.info('shareCheckList', this.shareCheckList)
-    console.info('userCheckList', this.userCheckList)
-  },
   methods: {
     clickTreeItem (data, node, self) {
       let that = this
-      if (node.parent.parent) {
+      if (node.parent.parent || this.vueType === 'shareResult') {
         // 子节点才进入
         that.sheetTitle = data.name
         that.sheetDataId = data.id
         that.sheetShare = data.isShare
         // 渲染表格数据
-        if (this.vueType === 'saveResult') {
+        if (this.vueType === 'saveResult' || this.vueType === 'shareResult') {
           this.$emit('clickItem', data, 'search')
         }
       }
@@ -265,6 +262,7 @@ export default {
         let shareList = []
         res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
         this.shareList = shareList
+        this.showShareList = shareList
         const userList = rows.map(item => {
           let disabled = false
           res.forEach(v => {
@@ -300,11 +298,14 @@ export default {
       this.$emit('clickItem', this.shareData, 'share')
     },
     addShare () {
+      this.searchShare = ''
       this.shareList = [...this.shareList, ...this.userCheckList]
+      this.showShareList = this.shareList
       this.userCheckList = []
       this.cleanShare()
     },
     reduceShare () {
+      this.searchShare = ''
       let list = []
       this.shareList.forEach((item, index) => {
         this.shareCheckList.forEach(v => {
@@ -315,6 +316,7 @@ export default {
       })
       list.reverse()
       list.forEach(v => this.shareList.splice(v, 1))
+      this.showShareList = this.shareList
       this.cleanShare()
     },
     cleanShare () {
@@ -328,6 +330,10 @@ export default {
         return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
       })
       this.userList = userList
+    },
+    searchShareFunc () {
+      const showShareList = this.shareList.filter(v => v.label.includes(this.searchShare))
+      this.showShareList = showShareList
     },
     async searchUserFunc (type) {
       this.shareLoading = true

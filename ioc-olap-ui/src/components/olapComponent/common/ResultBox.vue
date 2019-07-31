@@ -27,7 +27,7 @@
           </el-button>
           <el-button class="button" type="primary" size="mini" @click="newFormVisible = true">保存结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="reset()">重置</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="shareList" @click="showShareListVisible = true">
+          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0" @click="showShareListVisible = true">
             查看分享人
           </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
