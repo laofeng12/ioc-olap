@@ -21,7 +21,7 @@
           </el-select>
         </el-form-item>
         <el-form-item style="margin-top:-20px;" :label-width="formLabelWidth">
-          <el-checkbox label="显示所有字段"></el-checkbox>
+          <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
@@ -158,11 +158,7 @@ export default {
       isDisabledtype: false,
       isDisabledtext: false,
       tableData: [],
-      fieldtextOption: [
-        { id: 1, value: 'aaaa' },
-        { id: 2, value: 'bbb' },
-        { id: 3, value: 'cccc' }
-      ],
+      fieldtextOption: [],
       computeOptions: [{
         value: 'SUM',
         label: 'SUM'
@@ -217,11 +213,12 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectFiled: 'saveSelectFiled'
     })
   },
   mounted () {
-    console.log(this.formData)
+    console.log(this.selectTableTotal)
   },
   methods: {
     resetData () {
@@ -256,6 +253,11 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
+      this.selectTableTotal.map(item => {
+        if (item.filed === 1) {
+          this.fieldtextOption.push({ id: item.label, label: item.label })
+        }
+      })
       if (data) {
         this.formData = data
         this.isNew = 1
@@ -263,6 +265,20 @@ export default {
         this.resetData()
         this.isNew = 0
       }
+    },
+    changeAll (n) {
+      this.fieldtextOption = []
+      this.formData.function.parameter.value = ''
+      n === true
+        ? this.saveSelectFiled.map(res => {
+          this.fieldtextOption.push({ id: res.id, label: res.tableName })
+        })
+        : this.selectTableTotal.map(item => {
+          if (item.filed === 1) {
+            this.fieldtextOption.push({ id: item.label, label: item.label })
+          }
+        })
+      console.log(this.fieldtextOption, '9999999999')
     },
     selectChange (val) {
       switch (val) {

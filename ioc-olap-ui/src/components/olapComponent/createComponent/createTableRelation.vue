@@ -77,12 +77,12 @@ export default {
       linkModalModel: null,
       cellLayerStyle: '',
       cellLayerData: null,
-      jointResult: {
-        name: 'joint',
-        description: '',
-        fact_table: '',
-        lookups: []
-      },
+      // jointResult: {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // },
       linkModalFields: []
       // jointResult: {"name":"joint","description":"","fact_table":"DS_DATALAKE_TABLE","lookups":[{"table":"DS_DATALAKE_TABLE","alias":"DS_DATALAKE_TABLE","joinTable":"test_juan","joinAlias":"aaa","kind":"LOOKUP","join":{"type":"左连接","primary_key":["DLT_ID"],"foreign_key":["Id"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}},{"table":"test_juan","alias":"aaa","joinTable":"Test_zlj","joinAlias":"Test_zlj","kind":"LOOKUP","join":{"type":"左连接","primary_key":["Id"],"foreign_key":["ID"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}}]}
 
@@ -96,10 +96,11 @@ export default {
   },
   methods: {
     init () {
-      let result = []
+      console.log('保存的数据', this.jointResult)
       let list = this.jointResult.lookups || []
 
       this.graph = new joint.dia.Graph()
+
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
         width: '100%',
@@ -108,9 +109,8 @@ export default {
         gridSize: 1
       })
 
-      list.forEach(t => {
-        this.addLinkCell(t)
-      })
+      // this.clearCells()
+      list.forEach(t => this.addLinkCell)
 
       this.bindEvent(paper)
     },
@@ -244,6 +244,7 @@ export default {
 
               this.updateModel(model.id, res.value)
               console.log(JSON.stringify(this.jointResult))
+              this.$store.dispatch('SaveJointResult', this.jointResult)
             }
           })
           break
@@ -302,6 +303,7 @@ export default {
         updateList.forEach(t => {
           this.jointResult.lookups[t.idx][t.field] = value
         })
+        this.$store.dispatch('SaveJointResult', this.jointResult)
       }
     },
 
@@ -323,10 +325,6 @@ export default {
       // }).then(({ value }) => {
       //   console.log(value)
       // })
-    },
-
-    setFactTable (label) {
-      this.jointResult.fact_table = label
     },
 
     dragTable (e) {
@@ -453,7 +451,7 @@ export default {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed == 1 && !this.jointResult.fact_table) {
+        if (item.filed === 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = item.label
         }
 
@@ -466,7 +464,7 @@ export default {
             y: (item.position && item.position.y) || randomPosition.y
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, fill: 'white' } }
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, fill: 'white', 'font-size': 12 } }
         })
 
         this.graph.addCell(newRect)
@@ -646,13 +644,14 @@ export default {
 
       this.addJointList(this.linkModal)
       console.log(JSON.stringify(this.jointResult))
+      this.$store.dispatch('SaveJointResult', this.jointResult)
     },
 
     getModalRelationSelected (e) {
 
     },
 
-    addJointList: function (item) {
+    addJointList: function (item, i) {
       let list = this.jointResult.lookups || []
 
       if (list.length >= 1) {
@@ -758,8 +757,9 @@ export default {
         console.log('已经请求过了~')
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-          this.couponList = res.data
-          // this.couponList = [{"comment":"所属老板","isSupport":"true","columnName":"SUO_SHU_LAO_BAN","dataType":"string"},{"comment":"老板电话","isSupport":"true","columnName":"LAO_BAN_DIAN_HUA","dataType":"string"},{"comment":"餐馆名称","isSupport":"true","columnName":"CAN_GUAN_MING_CHENG","dataType":"string"},{"comment":"餐馆地址","isSupport":"true","columnName":"CAN_GUAN_DI_ZHI","dataType":"string"},{"comment":null,"isSupport":"true","columnName":"DS_U_X5OSRKK1C_ID","dataType":"number"}]
+          this.couponList = [...res.data]
+          console.log(res)
+          // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
         })
       }
       this.prevId = id
@@ -767,7 +767,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      jointResult: 'jointResult'
     })
   },
   beforeDestroy () {

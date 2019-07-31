@@ -1,6 +1,6 @@
 <template>
   <div class="mechanism">
-    <el-input type="text" placeholder="输入机构名称筛选" v-model="value" clearable></el-input>
+    <el-input type="text" placeholder="输入机构名称筛选" v-model="serachvalue" clearable></el-input>
     <div class="trees">
       <el-tree
         :data="treeList"
@@ -28,14 +28,16 @@ export default {
     return {
       treeLoading: false,
       showTree: true,
-      value: '',
+      serachvalue: '',
       treeList: [
         {
           label: '数据湖',
+          id: '1337',
           children: []
         },
         {
           label: '自建目录',
+          id: '1338',
           children: []
         }
       ],
@@ -47,7 +49,7 @@ export default {
     }
   },
   watch: {
-    value (val) {
+    serachvalue (val) {
       this.$refs.tree.filter(val)
     }
   },
@@ -73,6 +75,7 @@ export default {
           this.setTree(res.data.dataLakeDirectoryTree, 1)
           this.setTree(res.data.dataSetDirectoryTree, 2)
           const ids = val || this.treeList[0].id
+          console.log(this.$refs.tree.store.nodesMap, '=======', ids)
           ids && setTimeout(() => {
             this.$refs.tree.store.nodesMap[ids].expanded = true
           }, 500)
@@ -122,14 +125,14 @@ export default {
     },
     // 展开列表
     nodeExpand (data, node, me) {
-      if (!data.id) return
+      if (!data.orgId) return
       this.fetchTree(data, node)
     },
     // 选中对应的表
     getCurrents (data, node, me) {
       if (data.isLeaf === true) {
-        console.log('取表')
-        this.fetchResourceList(data)
+        console.log(node)
+        this.fetchResourceList(data, node.id)
       }
       // 为资源列表的时候
       if (data.isTable === true) {
@@ -151,20 +154,15 @@ export default {
         this.treeLoading = false
       })
     },
-    fetchResourceList (data) {
+    fetchResourceList (data, nodeId) {
       // this.treeLoading = true
       this.$store.dispatch('GetThreeList', { orgId: data.orgId, type: data.type, databaseType: data.databaseType }).then(res => {
         if (res.code === 200) {
-          // res.data.map(res => {
-          //   res.label = res.resourceName
-          // })
-          // data.children = res.data
-          // this.treeLoading = false
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框
           this.$root.eventBus.$emit('clearSelect')
           // 存储当前点击的父节点的id
-          // this.$store.dispatch('setLastClickTab', nodeId)
+          this.$store.dispatch('setLastClickTab', nodeId)
           // 保存选择的数据源数据
           this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
@@ -172,14 +170,14 @@ export default {
         this.treeLoading = false
       })
     },
-    fetchResourceInfo (data) {
+    fetchResourceInfo (data, nodeId) {
       this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框
           this.$root.eventBus.$emit('clearSelect')
           // 存储当前点击的父节点的id
-          // this.$store.dispatch('setLastClickTab', nodeId)
+          this.$store.dispatch('setLastClickTab', nodeId)
           // 保存选择的数据源数据
           this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
@@ -236,6 +234,10 @@ export default {
       // min-width 500px
       overflow: initial
       width 600px
+    }
+    >>>.el-input{
+      width 80%
+      margin-left 10%
     }
     >>>.el-input__suffix{
       margin-top -10px

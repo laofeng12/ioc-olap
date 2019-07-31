@@ -16,6 +16,8 @@ const getters = {
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
   /* */
+  jointResult: state => state.createTableRelation.jointResult,
+  /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,
   saveNewSortList: state => state.setFiled.saveNewSortList,

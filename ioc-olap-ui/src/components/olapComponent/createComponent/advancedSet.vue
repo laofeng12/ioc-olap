@@ -213,7 +213,10 @@ export default {
       })
     },
     nextModel (val) {
+      console.log(this.jointResult, '表的关系')
       // 整理接口数据-----
+      this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table
+      this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups
       this.totalSaveData.models.modelDescData.dimensions = this.dimensions
       this.totalSaveData.models.modelDescData.partition_desc = this.reloadData
       this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
@@ -324,6 +327,7 @@ export default {
       saveNewSortListstructure: 'saveNewSortListstructure', // 设置维度表(已选维度)
       measureTableList: 'measureTableList', // 设置度量
       reloadData: 'reloadData', // 刷新页面
+      jointResult: 'jointResult', // 表关系数据
       totalSaveData: 'totalSaveData'
     })
   }

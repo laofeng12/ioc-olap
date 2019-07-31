@@ -198,7 +198,8 @@ export default {
     }
     >>>.el-table__body-wrapper{
       height calc(100vh - 150px)
-      padding-bottom 50px
+      padding-bottom 100px
+      overflow auto
     }
     >>>.el-table__body td{
       border none!important

@@ -97,7 +97,6 @@ export default {
     dragLi (item) {
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
-          debugger
           this.$parent.dragTable(item)
         }
       } else {
