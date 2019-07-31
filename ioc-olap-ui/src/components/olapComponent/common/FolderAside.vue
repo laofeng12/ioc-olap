@@ -176,7 +176,7 @@ export default {
         that.sheetDataId = data.id
         that.sheetShare = data.isShare
         // 渲染表格数据
-        if (this.vueType === 'saveResult' || this.vueType === 'shareResult') {
+        if (this.vueType !== 'queries') {
           this.$emit('clickItem', data, 'search')
         }
       }
