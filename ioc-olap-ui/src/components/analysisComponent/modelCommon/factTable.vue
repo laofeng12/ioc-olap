@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import setfactTable from '@/components/olapComponent/dialog/setfactTable'
+import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
 export default {
   components: {

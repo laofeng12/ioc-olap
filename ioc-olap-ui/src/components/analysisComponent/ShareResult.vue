@@ -27,8 +27,8 @@
 
 <script>
 
-import ResultBox from '@/components/olapComponent/common/ResultBox'
-import FolderAside from '@/components/olapComponent/common/FolderAside'
+import ResultBox from '@/components/analysisComponent/common/ResultBox'
+import FolderAside from '@/components/analysisComponent/common/FolderAside'
 import { getQueryShareApi } from '../../api/instantInquiry'
 
 export default {

@@ -44,8 +44,8 @@
 </template>
 
 <script>
-import FolderAside from '../../components/olapComponent/common/FolderAside'
-import ResultBox from '../../components/olapComponent/common/ResultBox'
+import FolderAside from '../../components/analysisComponent/common/FolderAside'
+import ResultBox from '../../components/analysisComponent/common/ResultBox'
 import ShareDialog from '../../components/ShareDialog'
 import MoveDialog from '../../components/MoveDialog'
 // import StatementTable from '@/components/BITemp/StatementTable'

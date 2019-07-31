@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate } from '@/components/olapComponent/modelListComponent/moreDetail'
+import { selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate } from '@/components/analysisComponent/modelListComponent/moreDetail'
 export default {
   components: {
     selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate

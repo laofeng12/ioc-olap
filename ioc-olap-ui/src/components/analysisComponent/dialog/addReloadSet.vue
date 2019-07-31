@@ -4,12 +4,12 @@
       <el-form :model="formData" :rules="rules">
         <el-form-item label="选择字段表" :label-width="formLabelWidth">
           <el-select v-model="formData.TABLENAME" placeholder="请选择字段表" @change="selectTable">
-            <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
+            <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
           <el-select v-model="formData.FIELD" placeholder="请选择字段">
-            <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择过滤条件" :label-width="formLabelWidth">
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     init () {
-      // this.tableOptions = this.selectTableTotal
+      this.tableOptions = this.selectTableTotal
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -91,7 +91,7 @@ export default {
         tableName: val
       }
       this.$store.dispatch('GetColumnList', params).then(res => {
-        // this.textOptions = res.data
+        this.textOptions = res.data
       })
     },
     submitBtn (index) {

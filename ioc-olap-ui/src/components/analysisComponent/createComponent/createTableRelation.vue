@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import factTable from '@/components/olapComponent/modelCommon/factTable'
-import steps from '@/components/olapComponent/modelCommon/steps'
-import createTableModal from '@/components/olapComponent/dialog/createTableModal'
+import factTable from '@/components/analysisComponent/modelCommon/factTable'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
 import { constants } from 'crypto'

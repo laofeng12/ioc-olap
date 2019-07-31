@@ -117,3 +117,16 @@ export function getdsUploadTable (params) {
     params
   })
 }
+
+/**
+ * 保存步骤
+ * @param { Object } param
+ */
+export function saveolapModeldata (data) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/createModeling',
+    method: 'post',
+    contentType: 'application/json;charset=UTF-8',
+    data
+  })
+}

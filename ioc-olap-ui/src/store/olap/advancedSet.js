@@ -36,7 +36,11 @@ const advancedSet = {
       }
     ],
     savedimensionDataId: [[]],
-    savehetComposeDataId: [[]]
+    savehetComposeDataId: [[]],
+    engine_types: '2', // 构建引擎
+    rowkeyData: {
+      rowkey_columns: []
+    } // rowkeys设置
   },
   actions: {
     // 存储聚合小组选择的维度
@@ -186,7 +190,15 @@ const advancedSet = {
         default:
           break
       }
+    },
+    // 设置模型引擎
+    SetEngine ({ state }, data) {
+      state.engine_types = data
     }
+    // 存储rowkeys设置
+    // SaveRowkeyList ({ state }, data) {
+    //   state.rowkeyData.rowkey_columns = data
+    // }
   }
 }
 

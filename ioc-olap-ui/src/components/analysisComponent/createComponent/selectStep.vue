@@ -19,10 +19,10 @@
 </template>
 
 <script>
-import dataLake from '@/components/olapComponent/createComponent/selectStepComponent/datalake'
-import localUpload from '@/components/olapComponent/createComponent/selectStepComponent/localUpload'
-import selectModal from '@/components/olapComponent/createComponent/selectStepComponent/selectModal'
-import steps from '@/components/olapComponent/modelCommon/steps'
+import dataLake from '@/components/analysisComponent/createComponent/selectStepComponent/datalake'
+import localUpload from '@/components/analysisComponent/createComponent/selectStepComponent/localUpload'
+import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
+import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 export default {
   components: {

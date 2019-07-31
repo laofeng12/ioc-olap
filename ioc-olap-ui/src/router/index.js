@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/home/index'
 import ContainerWrapper from '@/views/ContainerWrapper'
-import stepContainer from '@/views/olap/createolap'
+import stepContainer from '@/views/analysisModel/createolap'
 import Login from '@/views/login/index'
 Vue.use(Router)
 export default new Router({
@@ -26,16 +26,16 @@ export default new Router({
       ]
     },
     {
-      path: '/olap',
-      name: 'olap',
+      path: '/analysisModel',
+      name: 'analysisModel',
       component: ContainerWrapper,
-      redirect: '/olap/olapList',
+      redirect: '/analysisModel/Configuration',
       children: [
         {
-          path: 'olapList',
-          name: 'olapList',
+          path: 'Configuration',
+          name: 'Configuration',
           meta: { title: 'OLAP模型' },
-          component: () => import('@/views/olap/olapList.vue')
+          component: () => import('@/views/analysisModel/Configuration.vue')
         },
         {
           path: 'createolap',
@@ -48,43 +48,43 @@ export default new Router({
               path: 'selectStep',
               name: 'selectStep',
               meta: { title: '选择数据源' },
-              component: () => import(`@/components/olapComponent/createComponent/selectStep.vue`)
+              component: () => import(`@/components/analysisComponent/createComponent/selectStep.vue`)
             },
             {
               path: 'createTableRelation',
               name: 'createTableRelation',
               meta: { title: '建立表关系' },
-              component: () => import('@/components/olapComponent/createComponent/createTableRelation.vue')
+              component: () => import('@/components/analysisComponent/createComponent/createTableRelation.vue')
             },
             {
               path: 'setFiled',
               name: 'setFiled',
               meta: { title: '设置维度字段' },
-              component: () => import('@/components/olapComponent/createComponent/setFiled.vue')
+              component: () => import('@/components/analysisComponent/createComponent/setFiled.vue')
             },
             {
               path: 'setMeasure',
               name: 'setMeasure',
               meta: { title: '设置度量字段' },
-              component: () => import('@/components/olapComponent/createComponent/setMeasure.vue')
+              component: () => import('@/components/analysisComponent/createComponent/setMeasure.vue')
             },
             {
               path: 'reloadSet',
               name: 'reloadSet',
               meta: { title: '刷新及过滤设置' },
-              component: () => import('@/components/olapComponent/createComponent/reloadSet.vue')
+              component: () => import('@/components/analysisComponent/createComponent/reloadSet.vue')
             },
             {
               path: 'advancedSet',
               name: 'advancedSet',
               meta: { title: '高级设置' },
-              component: () => import('@/components/olapComponent/createComponent/advancedSet.vue')
+              component: () => import('@/components/analysisComponent/createComponent/advancedSet.vue')
             },
             {
               path: 'completeCreate',
               name: 'completeCreate',
               meta: { title: '完成创建' },
-              component: () => import('@/components/olapComponent/createComponent/completeCreate.vue')
+              component: () => import('@/components/analysisComponent/createComponent/completeCreate.vue')
             }
           ]
         }
@@ -100,13 +100,13 @@ export default new Router({
           path: 'instantInquiry',
           name: 'instantInquiry',
           meta: { title: '即席分析' },
-          component: () => import('@/views/olap/instantInquiry.vue')
+          component: () => import('@/views/analysisModel/instantInquiry.vue')
         }
         // {
         //   path: 'createolap',
         //   name: 'createolap',
         //   meta: { title: '新建OLAP模型' },
-        //   component: () => import('@/views/olap/createolap.vue')
+        //   component: () => import('@/views/analysisModel/createolap.vue')
         // }
       ]
     },
@@ -120,13 +120,13 @@ export default new Router({
           path: 'olapAnalysisList',
           name: 'olapAnalysisList',
           meta: { title: 'olap分析' },
-          component: () => import('@/views/olap/olapAnalysisList.vue')
+          component: () => import('@/views/analysisModel/olapAnalysisList.vue')
         },
         {
           path: 'newOlapAnalysis',
           name: 'newOlapAnalysis',
           meta: { title: '新建olap分析' },
-          component: () => import('@/views/olap/olapAnalysis.vue')
+          component: () => import('@/views/analysisModel/olapAnalysis.vue')
         }
       ]
     }

@@ -253,6 +253,7 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
+      this.fieldtextOption = []
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
           this.fieldtextOption.push({ id: item.label, label: item.label })
@@ -278,7 +279,6 @@ export default {
             this.fieldtextOption.push({ id: item.label, label: item.label })
           }
         })
-      console.log(this.fieldtextOption, '9999999999')
     },
     selectChange (val) {
       switch (val) {

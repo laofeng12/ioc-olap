@@ -35,6 +35,8 @@ const getters = {
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,
   savedimensionDataId: state => state.advancedSet.savedimensionDataId,
+  rowkeyData: state => state.advancedSet.rowkeyData,
+  engine_types: state => state.advancedSet.engine_types,
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId
 }
 export default getters

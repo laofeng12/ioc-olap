@@ -16,9 +16,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Queries from '../../components/olapComponent/Queries'
-import SaveResult from '../../components/olapComponent/SaveResult'
-import ShareResult from '../../components/olapComponent/ShareResult'
+import Queries from '../../components/analysisComponent/Queries'
+import SaveResult from '../../components/analysisComponent/SaveResult'
+import ShareResult from '../../components/analysisComponent/ShareResult'
 
 export default {
   components: { Queries, SaveResult, ShareResult },

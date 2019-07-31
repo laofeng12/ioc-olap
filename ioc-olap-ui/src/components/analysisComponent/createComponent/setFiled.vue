@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import filedTable from '@/components/olapComponent/modelCommon/filedTable'
-import steps from '@/components/olapComponent/modelCommon/steps'
-import selectFiled from '@/components/olapComponent/dialog/selectFiled'
+import filedTable from '@/components/analysisComponent/modelCommon/filedTable'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import selectFiled from '@/components/analysisComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
 export default {
