@@ -30,14 +30,17 @@ module.exports = {
         pathRewrite: { '^/olapweb/pds/': '/pds/' },
         changeOrigin: true
       },
+      // '/olapweb/olap/': {
+      //   // target: 'http://19.104.40.36', // 麒麟测试环境
+      //   target: 'http://172.16.60.85:8081', // 左烨本地
+      //   // pathRewrite: { '^/olapweb/olap/': '/olap/' },
+      //   changeOrigin: true
+      // },
       '/olapweb/olap': {
-        target: 'http://19.104.40.36', // 麒麟测试环境
+        target: 'http://172.16.60.32:9090', // 沛辰本机
+        // pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }
-      // '/olapweb/olap': {
-      //   target: 'http://172.16.60.32:9090', // 沛辰本机
-      //   changeOrigin: true
-      // }
       // '/olapweb/': {
       //   target: 'http://172.16.60.5:8080', // 宝珠本机
       //   changeOrigin: true

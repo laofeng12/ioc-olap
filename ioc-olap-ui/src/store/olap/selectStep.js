@@ -137,7 +137,6 @@ const selectStep = {
     },
     // 存储数据湖的数据
     getSelectTableList ({ state }, data) {
-      console.log(data, '啦啊啊啊啊啊啊啊啊啊啊')
       state.saveSelectTable = []
       data.map(item => {
         if (!item.children) {

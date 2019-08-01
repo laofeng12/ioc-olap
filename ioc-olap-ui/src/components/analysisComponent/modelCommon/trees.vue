@@ -1,0 +1,297 @@
+<template>
+  <div class="mechanism">
+    <el-input type="text" placeholder="输入机构名称筛选" v-model="serachvalue" clearable></el-input>
+    <div class="trees">
+      <el-tree
+        :data="treeList"
+        ref="tree"
+        v-loading="treeLoading"
+        :expand-on-click-node="false"
+        node-key="id"
+        @node-expand="nodeExpand"
+        :highlight-current="showTree"
+        @node-click="getCurrents"
+        :default-expanded-keys="defaultOpenKeys"
+        :render-content="renderContent"
+        :filter-node-method="filterNode"
+        :props="defaultProps">
+      </el-tree>
+    </div>
+  </div>
+</template>
+
+<script>
+import { setTimeout } from 'timers'
+import { mapGetters } from 'vuex'
+export default {
+  data () {
+    return {
+      treeLoading: false,
+      showTree: true,
+      serachvalue: '',
+      treeList: [
+        {
+          label: '数据湖',
+          id: '1337',
+          children: []
+        },
+        {
+          label: '自建目录',
+          id: '1338',
+          children: []
+        }
+      ],
+      defaultOpenKeys: [], // 默认展开的key
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      }
+    }
+  },
+  watch: {
+    serachvalue (val) {
+      this.$refs.tree.filter(val)
+    }
+  },
+  mounted () {
+    this.init()
+  },
+  methods: {
+    init () {
+      this.$root.eventBus.$on('openDefaultTree', res => {
+        setTimeout(() => {
+          this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
+          this.$store.dispatch('changeSerachtype', 1)
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+          this.$root.eventBus.$emit('saveSelectTables')
+        }, 1000)
+      })
+    },
+    fetchTreeList (val) {
+      this.treeLoading = true
+      this.$store.dispatch('GetTreeList').then(res => {
+        if (res && res.code === 200) {
+          this.treeLoading = false
+          this.setTree(res.data.dataLakeDirectoryTree, 1)
+          this.setTree(res.data.dataSetDirectoryTree, 2)
+          const ids = val || this.treeList[0].id
+          console.log(this.$refs.tree.store.nodesMap, '=======', ids)
+          ids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[ids].expanded = true
+          }, 500)
+          this.defaultFrist(this.treeList)
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    // 默认点击第一项的递归计算
+    defaultFrist (val) {
+      // console.log(val)
+    },
+    setTree (val, type) {
+      let item = []
+      val.map((list, i) => {
+        let newData = {}
+        newData.label = list.orgName
+        newData.databaseType = list.databaseType
+        newData.orgId = list.orgId
+        newData.resNum = list.resNum
+        newData.id = list.id
+        newData.parentId = list.parentId
+        newData.is_show_add = true
+        newData.isLeaf = list.isLeaf
+        newData.type = list.type
+        newData.orgtype = list.orgtype
+        newData.isTable = list.isTable
+        // newData.children = list.children ? this.setTree(list.children) : []
+        newData.children = list.isLeaf === true ? [] : [{}]
+        item.push(newData)
+      })
+      type === 1 ? this.treeList[0].children = item : this.treeList[1].children = item
+      return item
+    },
+    filterNode (value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    renderContent (h, { node, data, store }) {
+      return h('span', {
+        class: `tree${node.id}`
+      }, [
+        h('span', {
+        }, node.label)
+      ])
+    },
+    // 展开列表
+    nodeExpand (data, node, me) {
+      if (!data.orgId) return
+      this.fetchTree(data, node)
+    },
+    // 选中对应的表
+    getCurrents (data, node, me) {
+      if (data.isLeaf === true) {
+        console.log(node)
+        this.fetchResourceList(data, node.id)
+      }
+      // 为资源列表的时候
+      if (data.isTable === true) {
+        // this.fetchResourceInfo(data)
+      }
+    },
+    fetchTree (data) {
+      this.treeLoading = true
+      this.$store.dispatch('GetTreeTwoList', { orgId: data.orgId, databaseType: data.databaseType }).then(res => {
+        if (res.code === 200) {
+          this.treeLoading = false
+          res.data.map(res => {
+            res.label = res.orgName
+            res.children = res.isLeaf === true || res.isTable === true ? [] : [{}]
+          })
+          if (res.data.length) data.children = res.data
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    fetchResourceList (data, nodeId) {
+      // this.treeLoading = true
+      this.$store.dispatch('GetThreeList', { orgId: data.orgId, type: data.type, databaseType: data.databaseType }).then(res => {
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res)
+          // 点击时清除其他选择框
+          this.$root.eventBus.$emit('clearSelect')
+          // 存储当前点击的父节点的id
+          this.$store.dispatch('setLastClickTab', nodeId)
+          // 保存选择的数据源数据
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    fetchResourceInfo (data, nodeId) {
+      this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
+        if (res.code === 200) {
+          this.$root.eventBus.$emit('getserchTableList', res)
+          // 点击时清除其他选择框
+          this.$root.eventBus.$emit('clearSelect')
+          // 存储当前点击的父节点的id
+          this.$store.dispatch('setLastClickTab', nodeId)
+          // 保存选择的数据源数据
+          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+        }
+      })
+    }
+    // fetchTree (id, nodeId) {
+    //   this.$store.dispatch('GetSerchTable', id).then(res => {
+    //     if (res.code === 200) {
+    //       this.$root.eventBus.$emit('getserchTableList', res)
+    //       // 点击时清除其他选择框
+    //       this.$root.eventBus.$emit('clearSelect')
+    //       // 存储当前选择数据源
+    //       this.$store.dispatch('setSerchTable', res)
+    //       // 存储当前点击的父节点的id
+    //       this.$store.dispatch('setLastClickTab', nodeId)
+    //       // 保存选择的数据源数据
+    //       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+    //     }
+    //   })
+    // }
+  },
+  computed: {
+    ...mapGetters({
+      saveSelectTable: 'saveSelectTable',
+      saveLocalSelectTable: 'saveLocalSelectTable',
+      lastClickTab: 'lastClickTab',
+      serchTableList: 'serchTableList'
+    })
+  },
+  beforeDestroy () {
+    this.$root.eventBus.$off('getserchTableList')
+    this.$root.eventBus.$off('clearSelect')
+    this.$root.eventBus.$off('saveSelectTables')
+  },
+  created () {
+    this.fetchTreeList(this.lastClickTab)
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+  .mechanism{
+    height 98%
+    width 200px
+    // height calc(100vh - 150px)
+    overflow auto
+    border-right 1px solid #f0f0f0
+    .trees{
+      width 198px
+      // height 100%
+      // overflow-y auto
+    }
+    >>>.el-tree{
+      // min-width 500px
+      overflow: initial
+      width 600px
+    }
+    >>>.el-input{
+      width 80%
+      margin-left 10%
+    }
+    >>>.el-input__suffix{
+      margin-top -10px
+    }
+    >>>.el-tree{
+    .el-tree-node__content{
+      font-size: 14px;
+      height 25px
+      line-height 25px
+      color: rgba(0,0,0,0.85);
+    }
+    .el-tree-node__children{
+      .el-tree-node__content{
+      font-size: 12px;
+      color: rgba(0,0,0,0.65)!important;
+      }
+    }
+  }
+  >>>.el-loading-spinner{
+    width 30%
+    top 30%
+    .circular{
+      width 30px
+      height 30px
+    }
+  }
+    >>>.el-input{
+      // width 300px
+      height 50px
+      .el-input__inner{
+        height 30px
+      }
+    }
+    >>>.is-leaf{
+      background none
+      width 0
+      height 0
+      color transparent
+      cursor default
+    }
+  .trees::-webkit-scrollbar{
+    width 8px
+    height 8px
+    background #fff
+  }
+  .trees::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color:#fff;
+  }
+  .trees::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #B5D2DE;
+  }
+}
+</style>
