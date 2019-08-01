@@ -50,7 +50,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
-                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
+                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
               </el-select>
             </div>
           </template>
@@ -90,7 +90,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
-                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.id"></el-option>
+                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
               </el-select>
             </div>
           </template>
@@ -177,7 +177,7 @@ export default {
   },
   methods: {
     init () {
-      this.tableOptions = this.selectTableTotal
+      this.tableOptions = [...this.selectTableTotal]
       this.tableData = this.relaodFilterList
       this.formData = this.reloadData
     },

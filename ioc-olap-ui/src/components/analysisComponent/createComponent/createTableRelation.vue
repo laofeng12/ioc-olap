@@ -740,9 +740,13 @@ export default {
     },
 
     nextModel (val) {
-      this.jointResult.lookups.length > 0
-        ? this.$router.push('/analysisModel/createolap/setFiled') && this.$parent.getStepCountAdd(val)
-        : this.$message.warning('请建立表关系~')
+      // if (this.jointResult.lookups.length > 0) {
+      if (this.jointResult.lookups) {
+        this.$router.push('/analysisModel/createolap/setFiled')
+        this.$parent.getStepCountAdd(val)
+      } else {
+        this.$message.warning('请建立表关系~')
+      }
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
