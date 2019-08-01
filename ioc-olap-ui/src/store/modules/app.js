@@ -39,7 +39,7 @@ const app = {
         resId: '1',
         index: '5',
         resName: 'OLAP分析',
-        resURL: '/olapAnalysisList',
+        resURL: '/analysisList',
         resIcon: 'fa fa-columns',
         subResList: []
       }, {
