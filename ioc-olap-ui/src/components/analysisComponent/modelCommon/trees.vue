@@ -75,9 +75,9 @@ export default {
           this.setTree(res.data.dataLakeDirectoryTree, 1)
           this.setTree(res.data.dataSetDirectoryTree, 2)
           const ids = val || this.treeList[0].id
-          console.log(this.$refs.tree.store.nodesMap, '=======', ids)
-          ids && setTimeout(() => {
-            this.$refs.tree.store.nodesMap[ids].expanded = true
+          const newids = ids.length > 10 ? this.treeList[0].id : val
+          newids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[newids].expanded = true
           }, 500)
           this.defaultFrist(this.treeList)
         }
@@ -131,8 +131,12 @@ export default {
     // 选中对应的表
     getCurrents (data, node, me) {
       if (data.isLeaf === true) {
-        console.log(node)
-        this.fetchResourceList(data, node.id)
+        console.log('来了', data.databaseType)
+        if (data.databaseType !== '1') {
+          this.$message.warning('暂只支持HIVE类型数据查询')
+        } else {
+          this.fetchResourceList(data, node.parent.key)
+        }
       }
       // 为资源列表的时候
       if (data.isTable === true) {
@@ -155,20 +159,13 @@ export default {
       })
     },
     fetchResourceList (data, nodeId) {
-      // this.treeLoading = true
-      this.$store.dispatch('GetThreeList', { orgId: data.orgId, type: data.type, databaseType: data.databaseType }).then(res => {
-        if (res.code === 200) {
-          this.$root.eventBus.$emit('getserchTableList', res)
-          // 点击时清除其他选择框
-          this.$root.eventBus.$emit('clearSelect')
-          // 存储当前点击的父节点的id
-          this.$store.dispatch('setLastClickTab', nodeId)
-          // 保存选择的数据源数据
-          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
-        }
-      }).finally(() => {
-        this.treeLoading = false
-      })
+      this.$root.eventBus.$emit('getserchTableList', data, 1)
+      // 点击时清除其他选择框
+      this.$root.eventBus.$emit('clearSelect')
+      // 存储当前点击的父节点的id
+      this.$store.dispatch('setLastClickTab', nodeId)
+      // 保存选择的数据源数据
+      this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     },
     fetchResourceInfo (data, nodeId) {
       this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {

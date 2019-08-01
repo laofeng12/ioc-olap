@@ -57,11 +57,11 @@ export default {
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups // 表的关系
-      this.totalSaveData.models.modelDescData.dimensions = this.dimensions
+      this.totalSaveData.models.cubeDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
       this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
-      this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
+      this.totalSaveData.cube.modelDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
@@ -73,7 +73,7 @@ export default {
       this.totalSaveData.body.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.body.autoReload = this.reloadData.autoReload
       this.totalSaveData.body.dataMany = this.reloadData.dataMany
-      console.log(this.totalSaveData, '高级', this.hbase_mapping)
+      console.log(this.totalSaveData, '高级', this.jointResult.lookups)
     },
     nextModel (val) {
       // this.$message.error('暂未完成')

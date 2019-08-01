@@ -40,12 +40,17 @@ export default {
   methods: {
     init () {
       // 接收数据湖传递的信息
-      this.$root.eventBus.$on('getserchTableList', res => {
-        this.dataList[0].children = []
+      this.$root.eventBus.$on('getserchTableList', (res, type) => {
+        console.log(res, 'yayayyayaya')
         this.loading = true
-        if (res.code && res.code === 200) {
-          res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
-          setTimeout(() => { this.loading = false }, 300)
+        this.dataList[0].children = []
+        if (type && type === 1) {
+          this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+            if (res.code === 200) {
+              res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+              this.loading = false
+            }
+          })
         } else {
           this.saveSelectTable.map(res => { this.dataList[0].children.push({ id: res.id, resourceId: res.resourceId, label: res.label }) })
           setTimeout(() => { this.loading = false }, 300)
