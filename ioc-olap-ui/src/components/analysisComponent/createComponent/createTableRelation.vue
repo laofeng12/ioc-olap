@@ -96,7 +96,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.jointResult, '保存后的')
       let list = this.jointResult.lookups || []
 
       this.graph = new joint.dia.Graph()
@@ -139,8 +138,9 @@ export default {
             this.linkModalFields = []
 
             if (data) {
-              let join = data.join
-              let fields = this.getFields(join)
+              console.log('李帆', data)
+              // let join = data.join
+              let fields = this.getFields(data)
 
               this.linkModal = data
               this.linkModalModel = e.model
@@ -518,21 +518,22 @@ export default {
     },
 
     getFields (data) {
+      let join = data.join
       let list = []
-      let primary_key = data.primary_key || []
-      let foreign_key = data.foreign_key || []
-      let pk_type = data.pk_type || []
-      let fk_type = data.fk_type || []
+      let primary_key = join.primary_key || []
+      let foreign_key = join.foreign_key || []
+      let pk_type = join.pk_type || []
+      let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
         list.push({
-          primary_key: primary_key[i],
-          foreign_key: foreign_key[i],
+          primary_key: `${data.alias}.${primary_key[i]}`,
+          foreign_key: `${data.joinAlias}.${foreign_key[i]}`,
           pk_type: pk_type[i],
           fk_type: fk_type[i]
         })
       })
-
+      console.log('哪吒', list)
       return list
     },
 
@@ -871,6 +872,11 @@ export default {
       margin-left 10px
       color #009688
       cursor pointer
+    }
+  }
+  >>>.el-select{
+    .el-input__inner{
+      font-size 10px
     }
   }
   >>>.el-input__inner{
