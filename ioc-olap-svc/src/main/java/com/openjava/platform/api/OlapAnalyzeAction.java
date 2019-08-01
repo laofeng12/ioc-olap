@@ -4,8 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.common.Export;
-import com.openjava.platform.domain.OlapAnalyze;
-import com.openjava.platform.domain.OlapFolder;
+import com.openjava.platform.domain.*;
 import com.openjava.platform.service.*;
 import com.openjava.platform.vo.*;
 import io.swagger.annotations.Api;
@@ -51,7 +50,7 @@ public class OlapAnalyzeAction {
     public List<TreeVo> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         List<TreeVo> trees=new ArrayList<TreeVo>();
-        List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "DataAnalyze");
+        List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "Analyze");
         for (OlapFolder folder : folders){
             TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
             List<OlapAnalyze> olapAnalyzes=olapAnalyzeService.getListWithFolderId(folder.getFolderId());
@@ -103,9 +102,13 @@ public class OlapAnalyzeAction {
             analyzeVo.setIsNew(true);
             AnalyzeVo dbObj = olapAnalyzeService.save(analyzeVo);
         } else {
+            OlapAnalyze db = olapAnalyzeService.get(analyzeVo.getId());
+            analyzeVo.setCreateId(db.getCreateId());
+            analyzeVo.setCreateName(db.getCreateName());
+            analyzeVo.setCreateTime(db.getCreateTime());
+            analyzeVo.setUpdateId(Long.parseLong(userVO.getUserId()));
+            analyzeVo.setUpdateName(userVO.getUserAccount());
             analyzeVo.setUpdateTime(date);
-            analyzeVo.setCreateId(Long.parseLong(userVO.getUserId()));
-            analyzeVo.setCreateName(userVO.getUserAccount());
             analyzeVo.setIsNew(false);
             olapAnalyzeService.save(analyzeVo);
         }
@@ -131,8 +134,54 @@ public class OlapAnalyzeAction {
     @ApiOperation(value = "获取当前登录人立方体、指标、维度数据")
     @RequestMapping(value = "/Cubes", method = RequestMethod.GET)
     @Security(session = true)
-    public AnalyzeVo Cubes() {
+    public List<AnalyzeCubeVo> Cubes() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        return null;
+        List<OlapCube> cubes=olapCubeService.getListByUserId(Long.parseLong(userVO.getUserId()));
+        List<AnalyzeCubeVo> analyzeCubes=new ArrayList<AnalyzeCubeVo>();
+        List<TreeVo> measures,dimensions;
+        AnalyzeCubeVo analyzeCube;
+        for (OlapCube cube : cubes){
+            analyzeCube=new AnalyzeCubeVo();
+            MyBeanUtils.copyPropertiesNotBlank(analyzeCube, cube);
+            measures=new ArrayList<TreeVo>();
+            dimensions=new ArrayList<TreeVo>();
+            ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
+            for (OlapCubeTable table : cubeTables){
+                TreeVo meareTreeVo=new TreeVo();
+                meareTreeVo.setId(table.getId().toString());
+                meareTreeVo.setName(table.getName());
+                meareTreeVo.setChildren(new ArrayList<TreeNodeVo>());
+                meareTreeVo.setAttrs(table);
+                TreeVo dimTreeVo=new TreeVo();
+                dimTreeVo.setId(table.getId().toString());
+                dimTreeVo.setName(table.getName());
+                dimTreeVo.setChildren(new ArrayList<TreeNodeVo>());
+                dimTreeVo.setAttrs(table);
+                ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
+                for (OlapCubeTableColumn column : cubeTableColumns){
+                    TreeNodeVo leafNode=new TreeNodeVo();
+                    leafNode.setId(column.getId().toString());
+                    leafNode.setAttrs(column);
+                    if(column.getExpressionType()==null || column.getExpressionType()==""){
+                        leafNode.setName(column.getName());
+                        dimTreeVo.getChildren().add(leafNode);
+                    }
+                    else{
+                        leafNode.setName(column.getName());
+                        meareTreeVo.getChildren().add(leafNode);
+                    }
+                }
+                if(meareTreeVo.getChildren().size()>0){
+                    measures.add(meareTreeVo);
+                }
+                if(dimTreeVo.getChildren().size()>0){
+                    dimensions.add(dimTreeVo);
+                }
+            }
+            analyzeCube.setDimensures(dimensions);
+            analyzeCube.setMeasures(measures);
+            analyzeCubes.add(analyzeCube);
+        }
+        return analyzeCubes;
     }
 }

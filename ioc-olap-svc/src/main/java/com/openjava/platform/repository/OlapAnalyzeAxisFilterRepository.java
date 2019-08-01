@@ -14,4 +14,7 @@ import org.springframework.data.repository.query.Param;
 public interface OlapAnalyzeAxisFilterRepository extends DynamicJpaRepository<OlapAnalyzeAxisFilter, Long>, OlapAnalyzeAxisFilterRepositoryCustom{
 
     OlapAnalyzeAxisFilter findByAxisId(Long analyzeAxisId);
+    @Modifying
+    @Query("delete from OlapAnalyzeAxisFilter where analyzeId=?1")
+    void deleteByAnalyzeId(Long analyzeId);
 }

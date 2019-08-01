@@ -1,14 +1,11 @@
 package com.openjava.platform.domain;
 
-import java.util.Date;
 import java.io.Serializable;
 
 import javax.persistence.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Persistable;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModel;
@@ -25,13 +22,13 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapAnalyzeAxis implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键id")
-	private Long id;
+	private Long analyzeAxisId;
 	@ApiModelProperty("分析id")
 	private Long analyzeId;
 	@ApiModelProperty("列id")
 	private Long columnId;
 	@ApiModelProperty("1 行轴 2 列轴 3 指标轴 4 筛选轴")
-	private Long type;
+	private Integer type;
 	@ApiModelProperty("表ID")
 	private Long tableId;
 	
@@ -42,7 +39,7 @@ public class OlapAnalyzeAxis implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.analyzeAxisId;
 	}
     
     @JsonIgnore
@@ -52,7 +49,7 @@ public class OlapAnalyzeAxis implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.analyzeAxisId != null) {
     		return false;
     	}
     	return true;
@@ -69,10 +66,10 @@ public class OlapAnalyzeAxis implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getAnalyzeAxisId() {
-		return id;
+		return analyzeAxisId;
 	}
 	public void setAnalyzeAxisId(Long id) {
-		this.id = id;
+		this.analyzeAxisId = id;
 	}
 	
 
@@ -95,10 +92,10 @@ public class OlapAnalyzeAxis implements Persistable<Long>,Serializable {
 	
 
 	@Column(name = "TYPE")
-	public Long getType() {
+	public Integer getType() {
 		return type;
 	}
-	public void setType(Long type) {
+	public void setType(Integer type) {
 		this.type = type;
 	}
 

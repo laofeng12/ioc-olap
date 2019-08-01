@@ -1,14 +1,11 @@
 package com.openjava.platform.domain;
 
-import java.util.Date;
 import java.io.Serializable;
 
 import javax.persistence.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Persistable;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModel;
@@ -25,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapCubeTable implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键")
-	private Long id;
+	private Long cubeTableId;
 	@ApiModelProperty("表中文名称")
 	private String name;
 	@ApiModelProperty("立方体id")
@@ -45,7 +42,7 @@ public class OlapCubeTable implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.cubeTableId;
 	}
     
     @JsonIgnore
@@ -55,7 +52,7 @@ public class OlapCubeTable implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.cubeTableId != null) {
     		return false;
     	}
     	return true;
@@ -72,10 +69,10 @@ public class OlapCubeTable implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getCubeTableId() {
-		return id;
+		return cubeTableId;
 	}
 	public void setCubeTableId(Long id) {
-		this.id = id;
+		this.cubeTableId = id;
 	}
 	
 

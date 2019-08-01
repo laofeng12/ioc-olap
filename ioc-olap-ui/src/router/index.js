@@ -111,14 +111,14 @@ export default new Router({
       ]
     },
     {
-      path: '/olapAnalysis',
+      path: '/',
       name: 'queries',
       component: ContainerWrapper,
-      redirect: '/olapAnalysis/olapAnalysisList',
+      redirect: '/analysisList',
       children: [
         {
-          path: 'olapAnalysisList',
-          name: 'olapAnalysisList',
+          path: 'analysisList',
+          name: 'analysisList',
           meta: { title: 'olap分析' },
           component: () => import('@/views/analysisModel/olapAnalysisList.vue')
         },

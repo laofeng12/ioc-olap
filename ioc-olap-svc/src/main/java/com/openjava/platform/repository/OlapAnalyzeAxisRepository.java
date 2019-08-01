@@ -16,4 +16,7 @@ import java.util.List;
 public interface OlapAnalyzeAxisRepository extends DynamicJpaRepository<OlapAnalyzeAxis, Long>, OlapAnalyzeAxisRepositoryCustom{
 
     List<OlapAnalyzeAxis> findByAnalyzeId(Long id);
+    @Modifying
+    @Query("delete from OlapAnalyzeAxis where analyzeId=?1")
+    void deleteByAnalyzeId(Long analyzeId);
 }
