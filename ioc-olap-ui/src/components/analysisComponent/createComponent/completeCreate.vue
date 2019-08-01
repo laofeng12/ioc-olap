@@ -58,9 +58,9 @@ export default {
       this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups // 表的关系
       this.totalSaveData.models.modelDescData.dimensions = this.dimensions
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format
-      this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
+      this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
       this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list

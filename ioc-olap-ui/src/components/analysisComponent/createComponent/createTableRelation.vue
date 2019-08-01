@@ -89,14 +89,13 @@ export default {
     }
   },
   mounted: function () {
-    this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+    this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
   },
   watch: {
   },
   methods: {
     init () {
-      console.log('保存的数据', this.jointResult)
       let list = this.jointResult.lookups || []
 
       this.graph = new joint.dia.Graph()
@@ -303,7 +302,6 @@ export default {
         updateList.forEach(t => {
           this.jointResult.lookups[t.idx][t.field] = value
         })
-        this.$store.dispatch('SaveJointResult', this.jointResult)
       }
     },
 
@@ -451,7 +449,7 @@ export default {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed === 1 && !this.jointResult.fact_table) {
+        if (item.filed == 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = item.label
         }
 
@@ -651,7 +649,7 @@ export default {
 
     },
 
-    addJointList: function (item, i) {
+    addJointList: function (item) {
       let list = this.jointResult.lookups || []
 
       if (list.length >= 1) {
@@ -741,11 +739,11 @@ export default {
     },
 
     nextModel (val) {
-      this.$router.push('/analysisModel/createolap/setFiled')
+      this.$router.push('/olap/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
-      this.$router.push('/analysisModel/createolap/selectStep')
+      this.$router.push('/olap/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
       this.$root.eventBus.$emit('openDefaultTree')
     },
@@ -757,9 +755,8 @@ export default {
         console.log('已经请求过了~')
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-          this.couponList = [...res.data]
-          console.log(res)
-          // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+          this.couponList = res.data
+          // this.couponList = [{"comment":"所属老板","isSupport":"true","columnName":"SUO_SHU_LAO_BAN","dataType":"string"},{"comment":"老板电话","isSupport":"true","columnName":"LAO_BAN_DIAN_HUA","dataType":"string"},{"comment":"餐馆名称","isSupport":"true","columnName":"CAN_GUAN_MING_CHENG","dataType":"string"},{"comment":"餐馆地址","isSupport":"true","columnName":"CAN_GUAN_DI_ZHI","dataType":"string"},{"comment":null,"isSupport":"true","columnName":"DS_U_X5OSRKK1C_ID","dataType":"number"}]
         })
       }
       this.prevId = id

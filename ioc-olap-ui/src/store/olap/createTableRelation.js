@@ -11,7 +11,6 @@ const creatTableRelation = {
   actions: {
     SaveJointResult ({ state }, data) {
       state.jointResult = data
-      console.log('来了', state.jointResult)
     }
   }
 }
