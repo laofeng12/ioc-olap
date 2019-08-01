@@ -104,7 +104,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             return;
         }
 
-        OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().get();
+        OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().orElse(null);
 
         if (relation == null) {
             throw new APIException("结构错误！");
@@ -301,27 +301,31 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
         //QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
         QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
+        if(resultMapper==null){
+            throw new APIException("网络错误！");
+        }
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
         List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
         Integer axisYCount = yAxises.size(), axisXCount = xAxises.size();
-        ArrayList<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
+        List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
         String axisXData, axisYData, cellId;
         ArrayList<AnyDimensionCellVo> rowCells;
         AnyDimensionCellVo cell;
         List<String> xTemps, yTemps, dTemps;
+        Integer dataIndex=axisYCount+1;
         //定义y轴头部
         for (Integer i = 0; i < yAxises.size(); i++) {
             rowCells = new ArrayList<AnyDimensionCellVo>();
-            cell = new AnyDimensionCellVo("", axisXCount, 0, yAxises.get(i).getColumnChName(), 0);
+            cell = new AnyDimensionCellVo("", axisXCount, 1, yAxises.get(i).getColumnChName(), 2);
             rowCells.add(cell);
             results.add(rowCells);
         }
         //定义x轴头部
         rowCells = new ArrayList<AnyDimensionCellVo>();
         for (Integer i = 0; i < xAxises.size(); i++) {
-            cell = new AnyDimensionCellVo("", 0, 0, xAxises.get(i).getColumnChName(), 0);
+            cell = new AnyDimensionCellVo("", 1, 1, xAxises.get(i).getColumnChName(), 1);
             rowCells.add(cell);
         }
         results.add(rowCells);
@@ -337,13 +341,19 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             if (!axisXDatas.contains(axisXData)) {
                 rowCells = new ArrayList<AnyDimensionCellVo>();
                 for (String xTemp : xTemps) {
-                    cell = new AnyDimensionCellVo("", 0, 0, xTemp, 1);
+                    cell = new AnyDimensionCellVo("", 1, 1, xTemp, 1);
                     rowCells.add(cell);
+                }
+                for (Integer i=0;i<axisYDatas.size()*measureAxises.size();i++){
+                    rowCells.add(null);
                 }
                 results.add(rowCells);
                 axisXDatas.add(axisXData);
+                dataIndex++;
             }
             if (!axisYDatas.contains(axisYData)) {
+                axisYDatas.add(axisYData);
+                axisYDatas.sort(Comparator.comparing(String::trim));
                 //写入Y轴
                 for (Integer i = 0; i < yTemps.size(); i++) {
                     cellId = String.join("-", yTemps.subList(0, i + 1));
@@ -352,52 +362,46 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                         // 如果是最后一个，就开始写入度量轴
                         if (i.equals(yTemps.size() - 1)) {
                             for (AnalyzeAxisVo measure : measureAxises) {
-                                cell = new AnyDimensionCellVo("", 0, 0, measure.getColumnChName(), 0);
+                                cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
                                 results.get(i + 1).add(cell);
                             }
                         }
-                        cell = new AnyDimensionCellVo(cellId, 0, 0, yTemps.get(i), 2);
+                        cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
                         results.get(i).add(cell);
+                        results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
                     } else {
-                        cell.setColspan(cell.getColspan() + 1);
+                        cell.setColspan(cell.getColspan() + measureAxises.size());
                     }
                 }
-                Integer beginIndex = axisYDatas.size() * measureAxises.size() + axisXCount;
-                for (; rowCells.size() < beginIndex; ) {
-                    rowCells.add(null);
-                }
-                for (String dTemp : dTemps) {
-                    cell = new AnyDimensionCellVo(axisYData, 0, 0, dTemp, 3);
-                    rowCells.add(cell);
-                }
-                axisYDatas.add(axisYData);
-            } else {
+
                 Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
-                if (rowCells.size() < beginIndex + 1) {
-                    for (; rowCells.size() < beginIndex; ) {
-                        rowCells.add(null);
+                for (String dTemp : dTemps) {
+                    for (Integer i=axisYCount+1;i<dataIndex-1;i++){
+                        if(results.get(i).size()>beginIndex){
+                            results.get(i).add(beginIndex,null);
+                        }
+                        else{
+                            results.get(i).add(null);
+                        }
                     }
-                    for (String dTemp : dTemps) {
-                        cell = new AnyDimensionCellVo(axisYData, 0, 0, dTemp, 3);
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    if(rowCells.size()>beginIndex){
+                        rowCells.add(beginIndex,cell);
+                    }
+                    else{
                         rowCells.add(cell);
                     }
-                } else {
-                    for (String dTemp : dTemps) {
-                        cell = new AnyDimensionCellVo(axisYData, 0, 0, dTemp, 3);
-                        rowCells.set(beginIndex, cell);
-                        beginIndex++;
-                    }
+                    beginIndex++;
+                }
+            } else {
+                Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+                for (String dTemp : dTemps) {
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    rowCells.set(beginIndex, cell);
+                    beginIndex++;
                 }
             }
         }
-        //补足不够的列
-        Integer cellCount = axisYDatas.size() * measureAxises.size() + axisXCount;
-        for (ArrayList<AnyDimensionCellVo> result : results) {
-            for (;result.size()<cellCount;){
-                result.add(null);
-            }
-        }
-
         anyDimensionVo.setResults(results);
         return anyDimensionVo;
     }
