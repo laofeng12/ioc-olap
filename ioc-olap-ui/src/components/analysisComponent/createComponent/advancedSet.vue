@@ -53,7 +53,7 @@
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
-            :data="rowkey.rowkey_columns"
+            :data="rowkeyData.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
@@ -78,7 +78,7 @@
             <el-table-column prop="apiPaths" label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="changeShardby">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -103,7 +103,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine_type" placeholder="请选择">
+              <el-select v-model="formData.engine_type" placeholder="请选择" @change="changeEngine">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -135,9 +135,10 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/modelCommon/steps'
-import selectAggregation from '@/components/olapComponent/dialog/selectAggregation'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     steps, selectAggregation
@@ -202,35 +203,31 @@ export default {
   },
   methods: {
     init () {
+      this.formData.engine_type = String(this.engine_types)
       let datas = [...this.reloadNeedData]
       datas.forEach(item => {
-        this.rowkey.rowkey_columns.push({
+        this.rowkeyData.rowkey_columns.push({
           column: item.value,
           encoding: item.encoding ? item.encoding : '',
           engine_type: item.type ? item.type : '',
           isShardBy: item.isShardBy ? item.isShardBy : ''
         })
       })
+      this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
     },
     nextModel (val) {
-      // 整理接口数据-----
-      this.totalSaveData.models.modelDescData.dimensions = this.dimensions
-      this.totalSaveData.models.modelDescData.partition_desc = this.reloadData
-      this.totalSaveData.cube.cubeDescData.dimensions = this.saveNewSortListstructure
-      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
-      this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
-      this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
-      console.log(this.totalSaveData, '高级', this.hbase_mapping)
-      // this.$parent.getStepCountAdd(val)
-      // this.$router.push('/olap/createolap/completeCreate')
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/completeCreate')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/reloadSet')
+      this.$router.push('/analysisModel/createolap/reloadSet')
     },
     handleSelectionChange (val) {
 
+    },
+    changeEngine (val) {
+      this.$store.dispatch('SetEngine', val)
     },
     // 选择对应的编码类型
     codingType (val) {
@@ -306,10 +303,11 @@ export default {
     },
     // 改变对应的长度格式
     encodingIpt () {
-      this.rowkey.rowkey_columns.map(item => {
-        // item.encoding = 'integer' + item.encoding
-      })
-      console.log(this.rowkey.rowkey_columns)
+      // console.log(this.rowkey.rowkey_columns)
+    },
+    changeShardby () {
+      // this.$store.dispatch('SaveRowkeyList', )
+      // console.log(this.rowkey.rowkey_columns)
     }
   },
   computed: {
@@ -318,13 +316,10 @@ export default {
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
+      engine_types: 'engine_types',
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合
-      dimensions: 'dimensions', // 设置维度表
-      saveNewSortListstructure: 'saveNewSortListstructure', // 设置维度表(已选维度)
-      measureTableList: 'measureTableList', // 设置度量
-      reloadData: 'reloadData', // 刷新页面
-      totalSaveData: 'totalSaveData'
+      rowkeyData: 'rowkeyData' // rowkeys
     })
   }
 }

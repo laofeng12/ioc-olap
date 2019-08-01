@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import modelList from '@/components/olapComponent/modelList'
-import constructList from '@/components/olapComponent/constructList'
+import modelList from '@/components/analysisComponent/modelList'
+import constructList from '@/components/analysisComponent/constructList'
 export default {
   components: {
     modelList, constructList

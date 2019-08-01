@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import filedTable from '@/components/olapComponent/modelCommon/filedTable'
-import steps from '@/components/olapComponent/modelCommon/steps'
-import selectFiled from '@/components/olapComponent/dialog/selectFiled'
+import filedTable from '@/components/analysisComponent/modelCommon/filedTable'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import selectFiled from '@/components/analysisComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
 export default {
@@ -130,14 +130,14 @@ export default {
       if (flag === '1') {
         this.$message.warning('请选择事实表维度字段')
       } else {
-        this.$router.push('/olap/createolap/setMeasure')
+        this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
       }
       // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
       // this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
-      this.$router.push('/olap/createolap/createTableRelation')
+      this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
     selectcheck (rows, row) {
@@ -198,7 +198,8 @@ export default {
     }
     >>>.el-table__body-wrapper{
       height calc(100vh - 150px)
-      padding-bottom 50px
+      padding-bottom 100px
+      overflow auto
     }
     >>>.el-table__body td{
       border none!important

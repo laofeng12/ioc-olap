@@ -65,7 +65,7 @@
 
 <script>
 import { getApiList } from '@/api/olapModel'
-import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/olapComponent/modelListComponent'
+import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 export default {
   components: {
     modelDetail, rename, construct, reloads, merge, sharedTable
@@ -99,7 +99,7 @@ export default {
       console.log(val)
     },
     createolap () {
-      this.$router.push('/olap/createolap/selectStep')
+      this.$router.push('/analysisModel/createolap/selectStep')
     },
     // 展开详情
     clickTable (val) {

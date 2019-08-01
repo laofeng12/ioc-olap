@@ -30,6 +30,15 @@ module.exports = {
         pathRewrite: { '^/olapweb/pds/': '/pds/' },
         changeOrigin: true
       },
+<<<<<<< HEAD
+      '/olapweb/olap/': {
+        // target: 'http://19.104.40.36', // 麒麟测试环境
+        target: 'http://172.16.60.85:8081', // 左烨本地
+        // pathRewrite: { '^/olapweb/olap/': '/olap/' },
+        changeOrigin: true
+      }
+=======
+>>>>>>> origin/develop
       // '/olapweb/olap': {
       //   target: 'http://19.104.40.36', // 麒麟测试环境
       //   changeOrigin: true

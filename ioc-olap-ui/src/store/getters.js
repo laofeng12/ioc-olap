@@ -16,6 +16,8 @@ const getters = {
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
   /* */
+  jointResult: state => state.createTableRelation.jointResult,
+  /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,
   saveNewSortList: state => state.setFiled.saveNewSortList,
@@ -33,6 +35,8 @@ const getters = {
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,
   savedimensionDataId: state => state.advancedSet.savedimensionDataId,
+  rowkeyData: state => state.advancedSet.rowkeyData,
+  engine_types: state => state.advancedSet.engine_types,
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId
 }
 export default getters

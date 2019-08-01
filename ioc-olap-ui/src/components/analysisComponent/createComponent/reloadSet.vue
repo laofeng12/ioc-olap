@@ -32,7 +32,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
-                <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
+                <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
           </template>
@@ -41,7 +41,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
-                <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
+                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
           </template>
@@ -72,7 +72,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
-                <el-option v-for="item in tableOptions" :key="item.label" :label="item.label" :value="item.label"></el-option>
+                <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
               </el-select>
             </div>
           </template>
@@ -81,7 +81,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
-                <el-option v-for="item in textOptions" :key="item.comment" :label="item.columnName" :value="item.comment"></el-option>
+                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
               </el-select>
             </div>
           </template>
@@ -134,8 +134,8 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/modelCommon/steps'
-import addReloadSet from '@/components/olapComponent/dialog/addReloadSet'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import addReloadSet from '@/components/analysisComponent/dialog/addReloadSet'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -153,16 +153,16 @@ export default {
         frequencytype: 1
       },
       tableOptions: [
-        { label: 'a' },
-        { label: 'b' },
-        { label: 'c' }
+        // { label: 'a' },
+        // { label: 'b' },
+        // { label: 'c' }
       ],
       textOptions: [
-        { comment: 'aaa', columnName: 'aaa' },
-        { comment: 'bbb', columnName: 'bbb' },
-        { comment: 'vccc', columnName: 'vccc' },
-        { comment: 'vvvv', columnName: 'vvvv' },
-        { comment: 'bbbbb', columnName: 'bbbbb' }
+        // { comment: 'aaa', columnName: 'aaa' },
+        // { comment: 'bbb', columnName: 'bbb' },
+        // { comment: 'vccc', columnName: 'vccc' },
+        // { comment: 'vvvv', columnName: 'vvvv' },
+        // { comment: 'bbbbb', columnName: 'bbbbb' }
       ],
       formatOptions: [
         { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
@@ -177,18 +177,18 @@ export default {
   },
   methods: {
     init () {
-      // this.tableOptions = this.selectTableTotal
+      this.tableOptions = this.selectTableTotal
       this.tableData = this.relaodFilterList
       this.formData = this.reloadData
     },
     nextModel (val) {
-      console.log(this.formData)
+      console.log(this.formData, '=========', this.relaodFilterList)
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/advancedSet')
+      this.$router.push('/analysisModel/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/setMeasure')
+      this.$router.push('/analysisModel/createolap/setMeasure')
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
@@ -199,7 +199,7 @@ export default {
         tableName: val
       }
       this.$store.dispatch('GetColumnList', params).then(res => {
-        // this.textOptions = res.data
+        this.textOptions = res.data
       })
     },
     handleChange (val) {
@@ -258,6 +258,11 @@ export default {
   }
   >>>.el-input__suffix{
     top 10px
+  }
+  >>>.is-focus{
+    .el-input__suffix{
+      top 0px
+    }
   }
   .datarowmore{
     width 80%

@@ -191,8 +191,8 @@
 </template>
 
 <script>
-import ShirinkPannel from '@/components/olapComponent/olapAside/ShirinkPannel'
-import ElementPagination from '@/components/olapComponent/olapAside/ElementPagination'
+import ShirinkPannel from '@/components/analysisComponent/olapAside/ShirinkPannel'
+import ElementPagination from '@/components/analysisComponent/olapAside/ElementPagination'
 import FilterTemp from '@/components/BITemp/FilterTemp'
 // import RowTemp from '@/components/BITemp/RowTemp'
 // import StatementTable from '@/components/BITemp/StatementTable'

@@ -32,7 +32,7 @@ const app = {
         resId: 'asdasdasdasdasd',
         index: '4',
         resName: 'OLAP模型',
-        resURL: '/olap',
+        resURL: '/analysisModel',
         resIcon: 'fa fa-columns',
         subResList: []
       }, {

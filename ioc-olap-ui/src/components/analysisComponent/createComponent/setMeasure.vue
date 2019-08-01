@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import steps from '@/components/olapComponent/modelCommon/steps'
-import addMeasure from '@/components/olapComponent/dialog/addMeasure'
+import steps from '@/components/analysisComponent/modelCommon/steps'
+import addMeasure from '@/components/analysisComponent/dialog/addMeasure'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -58,11 +58,11 @@ export default {
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)
-      this.$router.push('/olap/createolap/reloadSet')
+      this.$router.push('/analysisModel/createolap/reloadSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
-      this.$router.push('/olap/createolap/setFiled')
+      this.$router.push('/analysisModel/createolap/setFiled')
     },
     handleSelectionChange (val) {
 

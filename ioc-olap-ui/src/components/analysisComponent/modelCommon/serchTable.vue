@@ -41,7 +41,6 @@ export default {
     init () {
       // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', res => {
-        console.log('接受的', res)
         this.dataList[0].children = []
         this.loading = true
         if (res.code && res.code === 200) {
@@ -136,7 +135,6 @@ export default {
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      console.log(this.$refs.trees.getCheckedNodes(), '数量')
       this.$store.state.selectStep.searchType === 1
         ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
         : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())

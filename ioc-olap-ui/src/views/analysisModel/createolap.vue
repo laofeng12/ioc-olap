@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import headBox from '@/components/olapComponent/modelCommon/head'
+import headBox from '@/components/analysisComponent/modelCommon/head'
 export default {
   components: { headBox },
   data () {
@@ -31,7 +31,7 @@ export default {
       this.selectStep -= 1
     },
     tobackList () {
-      this.$router.push('/olap/olapList')
+      this.$router.push('/analysisModel/Configuration')
       this.$store.dispatch('resetList')
     }
   }

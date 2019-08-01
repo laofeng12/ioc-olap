@@ -63,9 +63,9 @@ const common = {
             'KYLIN_SALES.ITEM_COUNT'
           ],
           'partition_desc': { // 刷新及过滤
-            'partition_date_column': 'KYLIN_SALES.PART_DT',
-            'partition_type': 'APPEND',
-            'partition_date_format': 'yyyy-MM-dd'
+            'partition_date_column': 'KYLIN_SALES.PART_DT', // 表
+            'partition_type': 'APPEND', // 字段
+            'partition_date_format': 'yyyy-MM-dd' // 日期
           },
           'last_modified': 0
         }
@@ -207,7 +207,14 @@ const common = {
           'override_kylin_properties': {}
         }
       },
-      body: {}
+      body: {
+        filterCondidion: [], // 刷新过滤设置
+        INTERVAL: '', // 更新频率
+        frequencytype: '', // 更新方式
+        autoReload: false, // 是否自动刷新
+        dataMany: false // 日期是否存在多列
+
+      }
     }
   },
   mutations: {

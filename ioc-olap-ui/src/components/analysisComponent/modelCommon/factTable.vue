@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import setfactTable from '@/components/olapComponent/dialog/setfactTable'
+import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -97,7 +97,6 @@ export default {
     dragLi (item) {
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
-          debugger
           this.$parent.dragTable(item)
         }
       } else {
