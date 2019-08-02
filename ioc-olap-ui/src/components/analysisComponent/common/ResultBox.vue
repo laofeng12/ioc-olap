@@ -25,8 +25,8 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" @click="newFormVisible = true">保存结果</el-button>
-          <el-button class="button" type="primary" size="mini" @click="reset()">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">保存结果</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset()">重置</el-button>
           <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0" @click="showShareListVisible = true">
             查看分享人
           </el-button>
@@ -81,6 +81,10 @@ export default {
       required: true
     },
     titleShow: {
+      type: Boolean,
+      default: false
+    },
+    resetShow: {
       type: Boolean,
       default: false
     },

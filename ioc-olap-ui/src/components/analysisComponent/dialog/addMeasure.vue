@@ -17,7 +17,7 @@
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth">
           <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
-            <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.value" :value="item.id"></el-option>
+            <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item style="margin-top:-20px;" :label-width="formLabelWidth">
@@ -218,7 +218,7 @@ export default {
     })
   },
   mounted () {
-    console.log(this.selectTableTotal)
+    // console.log(this.selectTableTotal)
   },
   methods: {
     resetData () {
@@ -254,9 +254,11 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
-      this.selectTableTotal.map(item => {
-        if (item.filed === 1) {
-          this.fieldtextOption.push({ id: item.label, label: item.label })
+      this.saveSelectFiled.map(item => {
+        if (item.filed === '1') {
+          this.fieldtextOption.push(
+            { id: item.id, label: `${item.tableName}.${item.columnName}` }
+          )
         }
       })
       if (data) {
@@ -272,11 +274,11 @@ export default {
       this.formData.function.parameter.value = ''
       n === true
         ? this.saveSelectFiled.map(res => {
-          this.fieldtextOption.push({ id: res.id, label: res.tableName })
+          this.fieldtextOption.push({ id: res.id, label: `${res.tableName}.${res.columnName}` })
         })
-        : this.selectTableTotal.map(item => {
-          if (item.filed === 1) {
-            this.fieldtextOption.push({ id: item.label, label: item.label })
+        : this.saveSelectFiled.map(item => {
+          if (item.filed === '1') {
+            this.fieldtextOption.push({ id: item.id, label: `${item.tableName}.${item.columnName}` })
           }
         })
     },

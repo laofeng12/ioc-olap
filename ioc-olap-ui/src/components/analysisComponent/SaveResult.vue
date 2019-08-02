@@ -36,7 +36,6 @@ export default {
         desc: ''
       },
       formLabelWidth: '120px',
-      menuList: [],
       menuDefault: {
         children: 'children', // 子集的属性
         label: 'name', // 标题的属性

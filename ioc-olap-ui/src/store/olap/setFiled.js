@@ -6,19 +6,19 @@ const setFiled = {
     saveLeftFiled: {
       'name': 'bb',
       'description': '',
-      'fact_table': 'DS_U_EDJUSUVJY',
+      'fact_table': 'KYLIN_ACCOUNT',
       lookups: [{
-        'table': 'DS_U_EDJUSUVJY',
-        'alias': 'DS_U_EDJUSUVJY',
-        'joinTable': 'DS_U_KGUXTEDWD',
+        'table': 'KYLIN_ACCOUNT',
+        'alias': 'KYLIN_CAL_DT',
+        'joinTable': 'KYLIN_CAL_DT',
         'kind': 'LOOKUP',
         'join': {
           'type': 'inner',
           'primary_key': [
-            'KYLIN_CAL_DT.CAL_DT'
+            'KYLIN_ACCOUNT.CAL_DT'
           ],
           'foreign_key': [
-            'KYLIN_SALES.PART_DT1' // 衍生模式需要取到包含维度里
+            'KYLIN_CAL_DT.PART_DT1' // 衍生模式需要取到包含维度里
           ],
           'isCompatible': [
             true
@@ -32,9 +32,9 @@ const setFiled = {
         }
       },
       {
-        'table': 'DS_U_KGUXTEDWD',
-        'alias': 'DS_U_KGUXTEDWD',
-        'joinTable': 'DS_U_R3T5TA2TA',
+        'table': 'KYLIN_CAL_DT',
+        'alias': 'KYLIN_CAL_DT',
+        'joinTable': 'KYLIN_CATEGORY_GRO',
         'kind': 'LOOKUP',
         'join': {
           'type': 'inner',
@@ -42,7 +42,7 @@ const setFiled = {
             'KYLIN_CAL_DT.CAL_DT'
           ],
           'foreign_key': [
-            'KYLIN_SALES.PART_DT2'
+            'KYLIN_CATEGORY_GRO.PART_DT2'
           ],
           'isCompatible': [
             true
@@ -141,14 +141,30 @@ const setFiled = {
         }
       })
     },
-    // 存储加了显示名称的数据
+    // 存储输入的显示名称
+    changePushalias ({ state }, val) {
+      console.log(val, '啊', state.saveSelectFiled)
+      state.saveSelectFiled.map((item, index) => {
+        if (val.length) {
+          val.map(res => {
+            if (res.id === item.id) {
+              state.saveSelectFiled[index].tableName = res.tableName
+            }
+          })
+        } else {
+          if (val.id === item.id) {
+            state.saveSelectFiled[index].tableName = val.tableName
+          }
+        }
+      })
+    },
+    // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
-              state.saveSelectFiled[index].name = res.name
             }
             if (String(res.mode) === '1') {
               dispatch('normalFn', { item: item, val: res })
@@ -159,7 +175,6 @@ const setFiled = {
         } else {
           if (val.id === item.id) {
             state.saveSelectFiled[index].mode = val.mode
-            state.saveSelectFiled[index].name = val.name
           }
           if (String(val.mode) === '1' && String(item.mode) === '1') {
             dispatch('normalFn', { item: item, val: val })
@@ -207,7 +222,7 @@ const setFiled = {
           table: item.tableName,
           column: item.columnName,
           derived: item.mode === '1' ? null : item.columnName.split(','),
-          name: item.name ? item.name : item.columnName
+          name: item.tableName ? item.tableName : item.columnName
         })
       })
     },

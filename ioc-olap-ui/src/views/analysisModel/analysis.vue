@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import OlapAside from '../../components/olapComponent/olapAside'
-import ResultBox from '../../components/olapComponent/common/ResultBox'
+import OlapAside from '../../components/analysisComponent/olapAside'
+import ResultBox from '../../components/analysisComponent/common/ResultBox'
 
 export default {
   components: { OlapAside, ResultBox },

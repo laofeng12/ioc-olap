@@ -8,7 +8,7 @@
         :key="index" @click="changeLi(titleData[index], dataList.fact_table, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{titleData[index]}}
-         <span v-if="index===0">事实表</span>
+         <span v-if="titleData[index]===dataList.fact_table">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -79,13 +79,13 @@ export default {
           n.mode = n.mode ? n.mode : '2'
           n.derived = n.columnName
           n.tableName = item
-          n.filed = name
+          n.filed = item === this.dataList.fact_table ? '1' : '0'
           n.id = `${item}${i}`
         })
         // 存储选择对应的表
         this.$root.eventBus.$emit('filedTable', res.data, res.code)
         // 存储已选择的表
-        // this.$store.dispatch('SaveList', res.data)
+        this.$store.dispatch('SaveList', res.data)
       })
     }
   },
