@@ -10,12 +10,8 @@
                 <el-form-item class="m-b-0" label="" prop="fileName">
                   <el-select v-model="dashBoardForm.fileName" placeholder="请选择olap模型"
                              @change="getFileName(dashBoardForm.fileName)" size="small">
-                    <el-option label="新建" value="1"></el-option>
-                    <el-option
-                      v-for="item in categoryList"
-                      :key="item.categoryId"
-                      :label="item.categoryName"
-                      :value="item.categoryId">
+                    <!--<el-option label="新建" value="1"></el-option>-->
+                    <el-option v-for="(item, index) in menuList" :key="index" :label="item.name" :value="item.cubeId">
                     </el-option>
                   </el-select>
                 </el-form-item>
@@ -200,11 +196,13 @@ import FiltrateDialog from '@/components/FiltrateDialogBywzh'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
 
+import { getCubesApi } from '../../../api/olapAnalysisList'
+
 export default {
   components: { ShirinkPannel, FilterTemp, ElementPagination, FiltrateDialog },
   data () {
     return {
-      categoryList: [],
+      menuList: [],
       dialogDataSet: false,
       dataSetData: [{ name: '南城交通数据源1' }],
       formInline: {
@@ -268,8 +266,13 @@ export default {
   },
   mounted () {
     this.setSortTable()
+    this.getCubes()
   },
   methods: {
+    async getCubes () {
+      const menuList = await getCubesApi()
+      this.menuList = menuList
+    },
     // 选择文件夹名称
     getFileName (fileValue) {
       if (fileValue === '1') {

@@ -25,3 +25,10 @@ export function getQueryTableApi (params) {
     params
   })
 }
+
+export function getCubesApi () {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/Cubes',
+    method: 'get'
+  })
+}
