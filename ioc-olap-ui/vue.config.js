@@ -1,5 +1,5 @@
 // const baseUrl = process.env.NODE_ENV === 'production' ? '/' : '/'
-const baseUrl = '/olapweb'
+const baseUrl  '/olapweb'
 const path = require('path')
 function resolve (dir) {
   return path.join(__dirname, '.', dir)
