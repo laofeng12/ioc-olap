@@ -41,7 +41,7 @@
           <template>
             <div>
                <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
-                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
+                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.columnName"></el-option>
               </el-select>
             </div>
           </template>
@@ -198,8 +198,11 @@ export default {
         dsDataSourceId: 2,
         tableName: val
       }
-      this.$store.dispatch('GetColumnList', params).then(res => {
-        this.textOptions = res.data
+      // this.$store.dispatch('GetColumnList', params).then(res => {
+      //   this.textOptions = res.data
+      // })
+      this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+        this.textOptions = res.data.columns
       })
     },
     handleChange (val) {

@@ -254,6 +254,7 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
+      console.log(this.saveSelectFiled, '获取的')
       this.saveSelectFiled.map(item => {
         if (item.filed === '1') {
           this.fieldtextOption.push(

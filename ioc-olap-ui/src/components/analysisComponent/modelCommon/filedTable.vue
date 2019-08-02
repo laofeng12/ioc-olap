@@ -5,7 +5,7 @@
        <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
-        :key="index" @click="changeLi(titleData[index], dataList.fact_table, index)">
+        :key="index" @click="changeLi(item, dataList.fact_table, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{titleData[index]}}
          <span v-if="titleData[index]===dataList.fact_table">事实表</span>
@@ -19,6 +19,7 @@
 <script>
 import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     setfactTable
@@ -39,14 +40,16 @@ export default {
   methods: {
     init () {
       this.dataList = this.saveLeftFiled
+      // this.dataList = this.jointResult
       // 遍历去重数据拿到表名称
       this.dataList.lookups.map((item, index) => {
-        this.titleData.push(item.table, item.joinTable)
+        this.titleData.push(item.alias)
       })
+      this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
       this.titleData = [...new Set(this.titleData)]
       // 初始化已选择的表
       setTimeout(() => {
-        this.changeLi(this.titleData[0], 0)
+        this.changeLi(this.dataList.lookups[0], 0)
         this.current = 0
       }, 300)
       // 接收设置表关系的数据
@@ -63,29 +66,70 @@ export default {
           })
         }, 300)
       })
-      console.log(this.dataList)
     },
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
     changeLi (item, name, index) {
+      console.log(item)
       this.current = index
       const parmas = {
         dsDataSourceId: 2,
-        tableName: item
+        tableName: item.alias
       }
-      this.$store.dispatch('GetColumnList', parmas).then(res => {
-        res.data && res.data.map((n, i) => {
-          n.mode = n.mode ? n.mode : '2'
-          n.derived = n.columnName
-          n.tableName = item
-          n.filed = item === this.dataList.fact_table ? '1' : '0'
-          n.id = `${item}${i}`
+      // this.$store.dispatch('GetColumnList', parmas).then(res => {
+      //   res.data && res.data.map((n, i) => {
+      //     n.mode = n.mode ? n.mode : '2'
+      //     n.derived = n.columnName
+      //     n.tableName = item
+      //     n.filed = item === this.dataList.fact_table ? '1' : '0'
+      //     n.id = `${item}${i}`
+      //   })
+      //   // 存储选择对应的表
+      //   this.$root.eventBus.$emit('filedTable', res.data, res.code)
+      //   // 存储已选择的表
+      //   this.$store.dispatch('SaveList', res.data)
+      // })
+      // kelin
+      // this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+      //   res.data.columns.map((n, i) => {
+      //     n.mode = n.mode ? n.mode : '2'
+      //     n.derived = n.columnName
+      //     n.tableName = item.alias ? item.alias : ''
+      //     n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
+      //   })
+      //   // 存储选择对应的表
+      //   this.$root.eventBus.$emit('filedTable', res.data.columns)
+      // })
+      // -------------------------
+      this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
+        let datas = []
+        res.data.column.forEach(item => {
+          datas.push(item.columnAlias)
         })
-        // 存储选择对应的表
-        this.$root.eventBus.$emit('filedTable', res.data, res.code)
-        // 存储已选择的表
-        this.$store.dispatch('SaveList', res.data)
+        let obj = {
+          params: {
+            'columnList': datas,
+            'page': 0,
+            'size': 0
+          },
+          data: {
+            resourceId: '811937214570250',
+            type: 1
+          }
+        }
+        this.$store.dispatch('getResourceData', obj).then(res => {
+          res.data.columnList.map((n, i) => {
+            n.mode = n.mode ? n.mode : '2'
+            n.derived = n.name
+            n.tableName = item.alias ? item.alias : ''
+            n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
+            n.id = `${item.alias}${i}`
+          })
+          // 存储选择对应的表
+          this.$root.eventBus.$emit('filedTable', res.data.columnList)
+          // this.$root.eventBus.$emit('getTabdataList', res, columnData)
+        })
       })
     }
   },
@@ -96,6 +140,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      jointResult: 'jointResult',
       saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     })

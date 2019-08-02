@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="tableName" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -89,28 +89,28 @@ export default {
   },
   methods: {
     init () {
-      this.tableData = this.saveList
+      // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
+        console.log(res)
         this.loading = true
-        if (code === 200) {
-          console.log(res)
-          this.tableData = res
-          setTimeout(() => {
-            this.loading = false
-            let arr = []
-            this.tableData && this.tableData.forEach((item, i) => {
-              this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                if (val.id === item.id) {
-                  this.tableData[i].tableName = val.tableName
-                  this.tableData[i].mode = val.mode
-                  arr.push(item)
-                }
-              })
+        // if (code === 200) {
+        this.tableData = res
+        setTimeout(() => {
+          this.loading = false
+          let arr = []
+          this.tableData && this.tableData.forEach((item, i) => {
+            this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+              if (val.id === item.id) {
+                this.tableData[i].tableName = val.tableName
+                this.tableData[i].mode = val.mode
+                arr.push(item)
+              }
             })
-            this.toggleSelection(arr)
-          }, 300)
-        }
+          })
+          this.toggleSelection(arr)
+        }, 300)
+        // }
       })
     },
     toggleSelection (rows) {
@@ -170,6 +170,7 @@ export default {
     },
     // 单选框触发
     radioChange (val) {
+      console.log(val)
       this.$store.dispatch('changePushSelectFiled', val)
       // this.$store.dispatch('SaveFiledData')
     }
@@ -179,6 +180,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       saveList: 'saveList',
+      jointResult: 'jointResult',
       saveNewSortList: 'saveNewSortList'
     })
   },

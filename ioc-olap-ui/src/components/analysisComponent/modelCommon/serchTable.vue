@@ -44,15 +44,15 @@ export default {
         this.loading = true
         this.dataList[0].children = []
         if (type && type === 1) {
-          // this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
-          //   if (res.code === 200) {
-          //     res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
-          //     this.loading = false
-          //   }
-          // })
-          // 模拟数据
-          res.map(res => { this.dataList[0].children.push({ id: res.table_NAME, resourceId: res.table_NAME, label: res.table_NAME, list: res.columns }) })
-          this.loading = false
+          this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+          // this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => {
+            if (res.code === 200) {
+              res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+              this.loading = false
+            }
+            // res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName }) })
+            // this.loading = false
+          })
         } else {
           this.saveSelectTable.map(res => { this.dataList[0].children.push({ id: res.id, resourceId: res.resourceId, label: res.label }) })
           setTimeout(() => { this.loading = false }, 300)
@@ -97,29 +97,31 @@ export default {
     handleNodeClick (value) {
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
-        // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
-        //   let datas = []
-        //   let columnData = res.data.column // 子段说明
-        //   res.data.column.forEach(item => {
-        //     datas.push(item.columnAlias)
-        //   })
-        //   let obj = {
-        //     params: {
-        //       'columnList': datas,
-        //       'page': 0,
-        //       'size': 0
-        //     },
-        //     data: {
-        //       resourceId: value.resourceId,
-        //       type: searchType
-        //     }
-        //   }
-        //   this.$store.dispatch('getResourceData', obj).then(res => {
-        //     this.$root.eventBus.$emit('getTabdataList', res, columnData)
-        //   })
-        // })
+        this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
+          let datas = []
+          let columnData = res.data.column // 子段说明
+          res.data.column.forEach(item => {
+            datas.push(item.columnAlias)
+          })
+          let obj = {
+            params: {
+              'columnList': datas,
+              'page': 0,
+              'size': 0
+            },
+            data: {
+              resourceId: value.resourceId,
+              type: searchType
+            }
+          }
+          this.$store.dispatch('getResourceData', obj).then(res => {
+            this.$root.eventBus.$emit('getTabdataList', res, columnData)
+          })
+        })
         // 模拟数据
-        console.log('数据===', value)
+        // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId }).then(res => {
+        //   this.$root.eventBus.$emit('klinFetchData', res.data.columns)
+        // })
       } else {
         const parmas = {
           dsDataSourceId: 2,
@@ -170,6 +172,7 @@ export default {
     this.$root.eventBus.$off('getTableContentList')
     this.$root.eventBus.$off('getLocalTableContentList')
     this.$root.eventBus.$off('saveSelectTables')
+    this.$root.eventBus.$off('klinFetchData')
   }
 }
 </script>

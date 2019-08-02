@@ -90,8 +90,11 @@ export default {
         dsDataSourceId: 2,
         tableName: val
       }
-      this.$store.dispatch('GetColumnList', params).then(res => {
-        this.textOptions = res.data
+      // this.$store.dispatch('GetColumnList', params).then(res => {
+      //   this.textOptions = res.data
+      // })
+      this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+        this.textOptions = res.data.columns
       })
     },
     submitBtn (index) {
