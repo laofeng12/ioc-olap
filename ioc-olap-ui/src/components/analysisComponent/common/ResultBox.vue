@@ -180,7 +180,7 @@ export default {
       })
     },
     goNewOlap () {
-      this.$router.push('/olapAnalysis/newOlapAnalysis')
+      this.$router.push('/newOlapAnalysis')
     },
     handleAutoSearch () {
       this.autoSearch = !this.autoSearch
