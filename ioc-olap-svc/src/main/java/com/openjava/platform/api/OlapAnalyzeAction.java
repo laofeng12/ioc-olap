@@ -6,6 +6,7 @@ import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.common.Export;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.dto.ShareUserDto;
+import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.service.*;
 import com.openjava.platform.vo.*;
 import io.swagger.annotations.Api;
@@ -201,5 +202,14 @@ public class OlapAnalyzeAction {
             analyzeCubes.add(analyzeCube);
         }
         return analyzeCubes;
+    }
+
+    @ApiOperation(value = "获取维度表某列数据")
+    @RequestMapping(value = "/queryDimension", method = RequestMethod.GET)
+    @Security(session = true)
+    public QueryResultMapper queryDimension(Long tableId, Long columnId,String key,Integer pageIndex,Integer pageSize) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        Integer offeset=(pageIndex-1)*pageSize;
+        return olapAnalyzeService.queryDimension(tableId,columnId,Long.parseLong(userVO.getUserId()),key,offeset,pageSize);
     }
 }

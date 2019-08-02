@@ -411,4 +411,53 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         AnalyzeVo analyzeVo = getVo(analyzeId);
         return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql());
     }
+
+    @Override
+    public QueryResultMapper queryDimension(Long tableId, Long columnId, Long userId,String key,Integer offeset,Integer limit) throws APIException {
+        if(limit==-1){
+            limit=Integer.MAX_VALUE;
+        }
+        OlapCubeTable cubeTable=olapCubeTableRepository.findById(tableId).get();
+        OlapCubeTableColumn cubeTableColumn=olapCubeTableColumnRepository.findById(columnId).get();
+        String sql=MessageFormat.format("select {0} from {1} where 1=1",cubeTableColumn.getColumnName(),cubeTable.getTableName());
+        if(key!=null && !key.equals("")){
+            String columnType=cubeTableColumn.getColumnType();
+            if(columnType!=null && !columnType.equals("")){
+                if(isStringType(columnType)){
+                    sql+=MessageFormat.format(" and {0} like '%{1}%'",cubeTableColumn.getColumnName(),key);
+                }
+                else{
+                    sql+=MessageFormat.format(" and {0}={1}",cubeTableColumn.getColumnName(),key);
+                }
+            }
+        }
+        String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
+        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,userId.toString());
+        if(countMapper==null){
+            throw new APIException("网络错误！");
+        }
+        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,userId.toString());
+        if(mapper==null){
+            throw new APIException("网络错误！");
+        }
+        Integer count=Integer.parseInt(countMapper.results.get(0).get(0));
+        mapper.setTotalRecord(count);
+        return mapper;
+    }
+
+    private boolean isStringType(String columnType){
+        switch (columnType.toUpperCase()){
+            case "DOUBLE":
+            case "FlOAT":
+            case "BIGINT":
+            case "INT":
+            case "SMALLINT":
+            case "TINYINT":{
+                return false;
+            }
+            default:{
+                return true;
+            }
+        }
+    }
 }

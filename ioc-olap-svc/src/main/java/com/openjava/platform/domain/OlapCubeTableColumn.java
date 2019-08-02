@@ -37,6 +37,8 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	private String expressionType;
 	@ApiModelProperty("完整表达式")
 	private String expressionFull;
+	@ApiModelProperty("列类型")
+	private String columnType;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -139,5 +141,13 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	}
 	public void setExpressionFull(String expressionFull) {
 		this.expressionFull = expressionFull;
+	}
+
+	@Column(name = "COLUMN_TYPE")
+	public String getColumnType() {
+		return columnType;
+	}
+	public void setColumnType(String columnType) {
+		this.columnType = columnType;
 	}
 }
