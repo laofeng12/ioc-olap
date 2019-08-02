@@ -199,7 +199,11 @@ export default {
             if (createId) {
               this.$message.success('新建成功')
               this.newVisible = false
-              await this.$store.dispatch('getSaveFolderListAction')
+              if (this.$route.name === 'instantInquiry') {
+                await this.$store.dispatch('getSaveFolderListAction')
+              } else {
+                await this.$store.dispatch('getSaveFolderListAction')
+              }
             } else {
               this.$message.error('新建失败')
             }
@@ -252,13 +256,17 @@ export default {
     async getShareUserList (node, data) {
       this.shareLoading = true
       this.shareData = data
-      if (data.attrs.realQueryId) {
-        this.shareId = data.attrs.realQueryId
+      const shareId = data.attrs.realQueryId || data.attrs.analyzeId
+      if (shareId) {
+        this.shareId = shareId
         this.shareVisible = true
         const { rows, totalPage } = await getUserListApi()
         this.totalPage = totalPage
         this.userRows = rows
-        const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
+        const res = await getShareUserApi({
+          sourceId: this.shareId,
+          sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
+        })
         let shareList = []
         res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
         this.shareList = shareList
@@ -282,7 +290,7 @@ export default {
     async share () {
       const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
         sourceId: this.shareId,
-        sourceType: 'RealQuery'
+        sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
       }
       let url = '/olap/apis/olapShare/save?'
       this.shareList.forEach((v, i) => {
@@ -341,12 +349,14 @@ export default {
         this.userPage = 0
       }
       const data = this.shareData
-      if (data.attrs.realQueryId) {
-        this.shareId = data.attrs.realQueryId
+      const shareId = data.attrs.realQueryId || data.attrs.analyzeId
+      if (shareId) {
+        this.shareId = shareId
         this.shareVisible = true
         const params = { page: this.userPage, like_account: this.searchUser }
         const { rows, totalPage } = await getUserListApi(params)
         this.userRows = rows
+        this.totalPage = totalPage
         // const res = await getShareUserApi({ sourceId: this.shareId, sourceType: 'RealQuery' })
         // let shareList = []
         // res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))

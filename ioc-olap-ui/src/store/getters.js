@@ -37,6 +37,8 @@ const getters = {
   savedimensionDataId: state => state.advancedSet.savedimensionDataId,
   rowkeyData: state => state.advancedSet.rowkeyData,
   engine_types: state => state.advancedSet.engine_types,
-  savehetComposeDataId: state => state.advancedSet.savehetComposeDataId
+  savehetComposeDataId: state => state.advancedSet.savehetComposeDataId,
+  /* */
+  saveFolderList: state => state.analysis.saveFolderList
 }
 export default getters

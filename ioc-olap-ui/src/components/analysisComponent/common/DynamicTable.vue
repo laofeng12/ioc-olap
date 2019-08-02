@@ -8,9 +8,9 @@
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
         <tr v-for="(item, index) in tableData" :key="index">
-          <td  v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
-               :class="`${ tdItem.type === 'th' && 'table-header' }`"
-               :rowspan="tdItem.rowspan" :key="tdIndex">
+          <td v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
+              :class="`${ tdItem.type === 'th' && 'table-header' }`"
+              :rowspan="tdItem.rowspan" :key="`${index}-${tdIndex}`">
             <div class="cell">
               {{tdItem.value}}
             </div>
