@@ -19,10 +19,10 @@
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
               <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
-              <el-table-column prop="name" label="显示名称" align="center">
+              <el-table-column prop="tableName" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <el-form-item :prop="'tableData.' + scope.$index + '.name'">
-                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.tableName'">
+                    <el-input type="text" v-model="scope.row.tableName" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -89,11 +89,12 @@ export default {
   },
   methods: {
     init () {
-      // this.tableData = this.saveList
+      this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
         if (code === 200) {
+          console.log(res)
           this.tableData = res
           setTimeout(() => {
             this.loading = false
@@ -101,7 +102,7 @@ export default {
             this.tableData && this.tableData.forEach((item, i) => {
               this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                 if (val.id === item.id) {
-                  this.tableData[i].name = val.name
+                  this.tableData[i].tableName = val.tableName
                   this.tableData[i].mode = val.mode
                   arr.push(item)
                 }
@@ -122,7 +123,7 @@ export default {
       }
     },
     nextModel (val) {
-      // if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         flag = item.filed !== 1 ? 1 : 0
@@ -133,8 +134,8 @@ export default {
         this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
       }
-      // flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
-      // this.$router.push('/olap/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      // this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
@@ -164,13 +165,13 @@ export default {
     },
     // 输入框监听
     iptChange (val) {
-      this.$store.dispatch('changePushSelectFiled', val)
-      this.$store.dispatch('SaveFiledData')
+      this.$store.dispatch('changePushalias', val)
+      // this.$store.dispatch('SaveFiledData')
     },
     // 单选框触发
     radioChange (val) {
       this.$store.dispatch('changePushSelectFiled', val)
-      this.$store.dispatch('SaveFiledData')
+      // this.$store.dispatch('SaveFiledData')
     }
   },
   computed: {

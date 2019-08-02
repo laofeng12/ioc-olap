@@ -84,23 +84,21 @@ export default {
       //   lookups: []
       // },
       linkModalFields: []
-      // jointResult: {"name":"joint","description":"","fact_table":"DS_DATALAKE_TABLE","lookups":[{"table":"DS_DATALAKE_TABLE","alias":"DS_DATALAKE_TABLE","joinTable":"test_juan","joinAlias":"aaa","kind":"LOOKUP","join":{"type":"左连接","primary_key":["DLT_ID"],"foreign_key":["Id"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}},{"table":"test_juan","alias":"aaa","joinTable":"Test_zlj","joinAlias":"Test_zlj","kind":"LOOKUP","join":{"type":"左连接","primary_key":["Id"],"foreign_key":["ID"],"isCompatible":[true],"pk_type":["number"],"fk_type":["number"]}}]}
+      // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
 
     }
   },
   mounted: function () {
-    this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
+    this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
   },
   watch: {
   },
   methods: {
     init () {
-      console.log('保存的数据', this.jointResult)
       let list = this.jointResult.lookups || []
 
       this.graph = new joint.dia.Graph()
-
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
         width: '100%',
@@ -140,8 +138,9 @@ export default {
             this.linkModalFields = []
 
             if (data) {
-              let join = data.join
-              let fields = this.getFields(join)
+              console.log('李帆', data)
+              // let join = data.join
+              let fields = this.getFields(data)
 
               this.linkModal = data
               this.linkModalModel = e.model
@@ -303,7 +302,6 @@ export default {
         updateList.forEach(t => {
           this.jointResult.lookups[t.idx][t.field] = value
         })
-        this.$store.dispatch('SaveJointResult', this.jointResult)
       }
     },
 
@@ -451,7 +449,7 @@ export default {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed === 1 && !this.jointResult.fact_table) {
+        if (item.filed == 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = item.label
         }
 
@@ -520,21 +518,22 @@ export default {
     },
 
     getFields (data) {
+      let join = data.join
       let list = []
-      let primary_key = data.primary_key || []
-      let foreign_key = data.foreign_key || []
-      let pk_type = data.pk_type || []
-      let fk_type = data.fk_type || []
+      let primary_key = join.primary_key || []
+      let foreign_key = join.foreign_key || []
+      let pk_type = join.pk_type || []
+      let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
         list.push({
-          primary_key: primary_key[i],
-          foreign_key: foreign_key[i],
+          primary_key: `${data.alias}.${primary_key[i]}`,
+          foreign_key: `${data.joinAlias}.${foreign_key[i]}`,
           pk_type: pk_type[i],
           fk_type: fk_type[i]
         })
       })
-
+      console.log('哪吒', list)
       return list
     },
 
@@ -582,7 +581,7 @@ export default {
 
       if (index >= 0 && primary_key && pk_type) {
         if (fk_type && pk_type && pk_type != fk_type) {
-          alert('请选择类型一致的字段')
+          this.$message.warning('请选择类型一致的字段')
           primary_key = ''
           pk_type = ''
         }
@@ -607,7 +606,7 @@ export default {
 
       if (index >= 0 && foreign_key && fk_type) {
         if (fk_type && pk_type && pk_type != fk_type) {
-          alert('请选择类型一致的字段')
+          this.$message.warning('请选择类型一致的字段')
           foreign_key = ''
           fk_type = ''
         }
@@ -651,21 +650,21 @@ export default {
 
     },
 
-    addJointList: function (item, i) {
+    addJointList: function (item) {
       let list = this.jointResult.lookups || []
 
       if (list.length >= 1) {
-        let isAdd = true
+        let replaceIdx = -1
         list.forEach((t, i) => {
-          if (t.table === item.table && t.joinTable === item.joinTable && t.alias === item.joinAlias) {
-            isAdd = false
+          if (t.table === item.table && t.joinTable === item.joinTable && t.alias === item.alias && t.joinAlias === item.joinAlias) {
+            replaceIdx = i
           }
         })
 
-        if (isAdd) {
+        if (replaceIdx == -1) {
           this.jointResult.lookups.push(item)
         } else {
-          this.jointResult.lookups.splice(i, 1, item)
+          this.jointResult.lookups.splice(replaceIdx, 1, item)
         }
       } else {
         this.jointResult.lookups.push(item)
@@ -741,8 +740,13 @@ export default {
     },
 
     nextModel (val) {
-      this.$router.push('/analysisModel/createolap/setFiled')
-      this.$parent.getStepCountAdd(val)
+      // if (this.jointResult.lookups.length > 0) {
+      if (this.jointResult.lookups) {
+        this.$router.push('/analysisModel/createolap/setFiled')
+        this.$parent.getStepCountAdd(val)
+      } else {
+        this.$message.warning('请建立表关系~')
+      }
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -757,9 +761,8 @@ export default {
         console.log('已经请求过了~')
       } else {
         this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-          this.couponList = [...res.data]
-          console.log(res)
-          // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+          // this.couponList = res.data
+          this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
         })
       }
       this.prevId = id
@@ -873,6 +876,11 @@ export default {
       margin-left 10px
       color #009688
       cursor pointer
+    }
+  }
+  >>>.el-select{
+    .el-input__inner{
+      font-size 10px
     }
   }
   >>>.el-input__inner{

@@ -43,7 +43,6 @@ export default {
       this.$router.push('/analysisModel/createolap/createTableRelation')
     },
     tabClick (val) {
-      console.log('============', this.saveSelectTable)
       val.name === '2'
         ? this.$store.dispatch('GetdsUploadTable').then(res => {
           this.$root.eventBus.$emit('getUploadTable', res)
