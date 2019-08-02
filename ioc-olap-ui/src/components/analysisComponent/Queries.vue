@@ -28,7 +28,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :duration="duration"></ResultBox>
+                   @reset="reset" :exportData="exportData" :duration="duration" :resetShow="true"></ResultBox>
       </div>
     </div>
   </div>

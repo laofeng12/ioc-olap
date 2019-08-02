@@ -120,7 +120,7 @@ export default new Router({
           path: 'analysisList',
           name: 'analysisList',
           meta: { title: 'olap分析' },
-          component: () => import('@/views/analysisModel/olapAnalysisList.vue')
+          component: () => import('@/views/analysisModel/analysisList.vue')
         },
         {
           path: 'newOlapAnalysis',

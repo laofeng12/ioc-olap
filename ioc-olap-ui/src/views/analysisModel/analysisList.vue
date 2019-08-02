@@ -14,7 +14,7 @@
         </el-tabs>
       </el-row>
     </el-aside>
-    <div class="cus-right">
+    <div class="cus-right" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew" :folderData="folderData"
                  :duration="duration" :shareList="shareList"></ResultBox>
     </div>
@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import FolderAside from '../../components/olapComponent/common/FolderAside'
-import ResultBox from '../../components/olapComponent/common/ResultBox'
+import FolderAside from '../../components/analysisComponent/common/FolderAside'
+import ResultBox from '../../components/analysisComponent/common/ResultBox'
 // import ShareDialog from '../../components/ShareDialog'
 // import MoveDialog from '../../components/MoveDialog'
 // import StatementTable from '@/components/BITemp/StatementTable'
@@ -87,8 +87,19 @@ export default {
         cubeId: folderData.attrs.cubeId
       }
       try {
-        const { results, duration } = await getQueryTableApi(params)
-        this.tableData = results
+        const { results = [], duration } = await getQueryTableApi(params)
+        const tableData = results.map(item => {
+          return (
+            item.map(itemTd => {
+              if (!itemTd) {
+                return { colspan: 1, rowspan: 1, value: '-', type: 'td' }
+              } else {
+                return itemTd
+              }
+            })
+          )
+        })
+        this.tableData = tableData
         this.duration = duration
         // this.shareList = shareList
         // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
@@ -126,6 +137,7 @@ export default {
       }
     }
     .cus-right {
+      flex-grow: 1;
       margin-left: 20px;
     }
   }
