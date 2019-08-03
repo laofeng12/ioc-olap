@@ -122,13 +122,13 @@ export default {
           res.data.columnList.map((n, i) => {
             n.mode = n.mode ? n.mode : '2'
             n.derived = n.name
+            n.dataType = n.dataType ? n.dataType : 'string'
             n.tableName = item.alias ? item.alias : ''
             n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
             n.id = `${item.alias}${i}`
           })
           // 存储选择对应的表
           this.$root.eventBus.$emit('filedTable', res.data.columnList)
-          // this.$root.eventBus.$emit('getTabdataList', res, columnData)
         })
       })
     }

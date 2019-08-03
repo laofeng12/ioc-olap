@@ -5,17 +5,17 @@
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
         <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
-          <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
+          <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, pk_type: coupon.dataType, primary_key: coupon.columnName}">{{coupon.columnName}}</el-option>
+          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.table)" @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, pk_type: coupon.dataType, primary_key: coupon.columnName}"  >{{coupon.columnName}}</el-option>
           </el-select>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinTable)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.columnName}">{{coupon.columnName}}</el-option>
+            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.columnName}" >{{coupon.columnName}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
@@ -65,7 +65,7 @@ export default {
       },
       couponList: [],
       prevId: '', // 记录上一个id
-      relationData: [{ label: 'left', value: '左连接' }, { label: 'inner', value: '内连接' }],
+      relationData: [{ label: 1, value: '左连接' }, { label: 2, value: '内连接' }],
       dragRectPosition: {
         filed: 0,
         id: 0,
@@ -166,10 +166,8 @@ export default {
 
               linkModal = {
                 'table': source.label || '',
-                'tableId': source.id || '',
                 'alias': source.alias || '',
                 'joinTable': target.label || '',
-                'joinTableId': target.id || '',
                 'joinAlias': target.alias || '',
                 'kind': 'LOOKUP',
                 'join': {
@@ -230,7 +228,6 @@ export default {
       switch (e.target.dataset.type) {
         case 'remove': // 删除
           this.clearElementLink(model)
-          element.remove()
           break
         case 'clone': // 重命名
           let attrs = model.get('attrs')
@@ -328,7 +325,6 @@ export default {
     },
 
     dragTable (e) {
-      console.log('啦啦啦啦====', e)
       if (e && !e.filed) {
         this.isDragRect = true
         this.dragRectPosition.label = e.label
@@ -687,6 +683,10 @@ export default {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id) {
             ele.remove()
           }
+        } else {
+          if (ele.id === target.id) {
+            ele.remove()
+          }
         }
       }
     },
@@ -743,13 +743,9 @@ export default {
     },
 
     nextModel (val) {
-      // if (this.jointResult.lookups.length > 0) {
-      if (this.jointResult.lookups) {
-        this.$router.push('/analysisModel/createolap/setFiled')
-        this.$parent.getStepCountAdd(val)
-      } else {
-        this.$message.warning('请建立表关系~')
-      }
+      this.jointResult.lookups.length > 0
+        ? this.$router.push('/analysisModel/createolap/setFiled') && this.$parent.getStepCountAdd(val)
+        : this.$message.warning('请建立表关系~')
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -760,16 +756,15 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      // if (this.prevId === id) {
-      //   console.log('已经请求过了~')
-      // } else {
-      // this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-      //   // this.couponList = res.data
-      // })
-      // this.couponList = [{ datatype: 'bigint', id: '1', name: 'LEAF_CATEG_ID' }, { datatype: 'bigint', id: '2', name: 'LEAF_CATEG_NAME' }, { datatype: 'bigint', id: '3', name: 'SITE_ID' }]
-      this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'LEAF_CATEG_ID', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LEAF_CATEG_NAME', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'SITE_ID', 'dataType': 'string' }]
-      // }
-      // this.prevId = id
+      if (this.prevId === id) {
+        console.log('已经请求过了~')
+      } else {
+        this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
+          // this.couponList = res.data
+          this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+        })
+      }
+      this.prevId = id
     }
   },
   computed: {

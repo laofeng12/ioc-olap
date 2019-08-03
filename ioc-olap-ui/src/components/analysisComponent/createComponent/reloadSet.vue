@@ -1,6 +1,6 @@
 <template>
   <div class="reloadSet">
-     <el-form :model="formData" ref="formData">
+     <el-form :model="formData" :rules="rules" ref="formData">
         <el-form-item label="刷新设置" class="item_line"></el-form-item>
         <el-form-item label="自动刷新" class="item_line"></el-form-item>
         <el-form-item label="自动刷新模型？">
@@ -29,31 +29,19 @@
         </el-form-item>
         <el-form-item label="日期字段" class="item_line"></el-form-item>
         <el-form-item label="日期字段表" class="datarowmore">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
-                <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
+            <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="日期字段">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
-                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.columnName"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.columnName"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
-                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
+            <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="日期存在多列？">
           <template>
@@ -69,31 +57,19 @@
         </el-form-item>
         <div v-if="formData.dataMany">
         <el-form-item label="日期字段表" class="datarowmore">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
-                <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
+            <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="日期字段">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
-                <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
-          <template>
-            <div>
-               <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
-                <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
-              </el-select>
-            </div>
-          </template>
+          <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
+            <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
+          </el-select>
         </el-form-item>
         </div>
         <el-form-item label="过滤设置" class="item_line"></el-form-item>
@@ -126,7 +102,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" @click="addReloadSet()">添加过滤条件</el-button>
+        <el-button style="float:right;margin-top:20px;" type="primary" @click="addReloadSet()">添加过滤条件</el-button>
      </el-form>
      <add-reload-set ref="dialog"></add-reload-set>
      <steps class="steps" :step="5" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -169,7 +145,12 @@ export default {
         { id: 2, value: 'yyyy-MM-dd' },
         { id: 3, value: 'hh:mm:ss' }
       ],
-      tableData: []
+      tableData: [],
+      rules: {
+        partition_date_column1: [
+          { required: true, message: '请选择日期表字段', trigger: 'change' }
+        ]
+      }
     }
   },
   mounted () {
@@ -183,12 +164,19 @@ export default {
     },
     nextModel (val) {
       console.log(this.formData, '=========', this.relaodFilterList)
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/analysisModel/createolap/advancedSet')
+      // this.$parent.getStepCountAdd(val)
+      // this.$router.push('/analysisModel/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/setMeasure')
+    },
+    verification () {
+      this.$refs.formData.validate((valid) => {
+        if (valid) {
+
+        }
+      })
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()

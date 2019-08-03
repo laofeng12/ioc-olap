@@ -92,7 +92,6 @@ export default {
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
-        console.log(res)
         this.loading = true
         // if (code === 200) {
         this.tableData = res
@@ -126,16 +125,9 @@ export default {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        flag = item.filed !== 1 ? 1 : 0
+        flag = item.filed === '1' ? 0 : 1
       })
-      if (flag === '1') {
-        this.$message.warning('请选择事实表维度字段')
-      } else {
-        this.$router.push('/analysisModel/createolap/setMeasure')
-        this.$parent.getStepCountAdd(val)
-      }
-      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
-      // this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      flag === 1 ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
@@ -170,7 +162,6 @@ export default {
     },
     // 单选框触发
     radioChange (val) {
-      console.log(val)
       this.$store.dispatch('changePushSelectFiled', val)
       // this.$store.dispatch('SaveFiledData')
     }
@@ -203,6 +194,12 @@ export default {
       height calc(100vh - 150px)
       padding-bottom 100px
       overflow auto
+    }
+    >>>.el-form-item{
+      margin-bottom 0
+      .el-input__inner{
+        height 35px
+      }
     }
     >>>.el-table__body td{
       border none!important

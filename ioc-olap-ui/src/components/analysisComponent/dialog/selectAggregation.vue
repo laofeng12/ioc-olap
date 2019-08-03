@@ -119,14 +119,24 @@ export default {
     .el-checkbox-group{
     }
     .el-checkbox-button{
-      width 200px
+      // width 200px
       margin-left 20px
       margin-bottom 20px
-      border-left 1px solid #DCDFE6
+      // border-left 1px solid #DCDFE6
       span{
         text-align center
         width 100%
         font-size 11px
+      }
+    }
+    .el-checkbox-button__inner{
+      border 1px solid #DCDFE6
+    }
+    .is-checked{
+      .el-checkbox-button__inner{
+        background #009688!important
+        color #ffffff
+        border 1px solid #009688!important
       }
     }
     .el-checkbox-button:last-child{
@@ -136,7 +146,10 @@ export default {
     }
     .el-checkbox-button:first-child .el-checkbox-button__inner{
       border-radius 0
-      border-left none
+      // border-left none
+    }
+    .el-checkbox-button.is-checked .el-checkbox-button__inner{
+      border 1px solid #009688!important
     }
   }
   .container{
