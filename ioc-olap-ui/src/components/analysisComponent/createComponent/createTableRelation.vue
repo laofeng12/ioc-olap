@@ -27,13 +27,21 @@
         <div id="myholder" ref="myHolder"></div>
         <div class="papers" ref="papers" @click="papersClick">
           <div class="halo-cell-layer" :style="cellLayerStyle">
-            <!-- 删除 -->
-            <div class="remove" data-type="remove"></div>
-            <!-- 设置关联 -->
-            <div class="link" data-type="link"></div>
-            <!-- 设置别名 -->
-            <div class="clone" data-type="clone"></div>
-            <!-- <div class="resize" data-type="resize"></div> -->
+            <!-- 方块部分 -->
+            <div v-if="cellLayerData && !cellLayerData.isLink">
+              <!-- 删除 -->
+              <div class="remove" data-type="remove"></div>
+              <!-- 设置关联 -->
+              <div class="link" data-type="link"></div>
+              <!-- 设置别名 -->
+              <div class="clone" data-type="clone"></div>
+              <!-- <div class="resize" data-type="resize"></div> -->
+            </div>
+            <!-- 连线部分 -->
+            <div v-else>
+              <!-- 删除 -->
+              <div class="remove" data-type="remove"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -73,8 +81,6 @@ export default {
         x: -1,
         y: -1
       },
-      linkModal: null,
-      linkModalModel: null,
       cellLayerStyle: '',
       cellLayerData: null,
       // jointResult: {
@@ -83,6 +89,8 @@ export default {
       //   fact_table: '',
       //   lookups: []
       // },
+      linkModal: null,
+      linkModalModel: null,
       linkModalFields: []
       // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
 
@@ -138,8 +146,6 @@ export default {
             this.linkModalFields = []
 
             if (data) {
-              console.log('李帆', data)
-              // let join = data.join
               let fields = this.getFields(data)
 
               this.linkModal = data
@@ -167,8 +173,10 @@ export default {
               linkModal = {
                 'table': source.label || '',
                 'alias': source.alias || '',
+                'id': source.id || '',
                 'joinTable': target.label || '',
                 'joinAlias': target.alias || '',
+                'joinId': target.id || '',
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
@@ -212,6 +220,8 @@ export default {
         }
 
         this.isClick = false
+        this.cellLayerData = null
+        this.cellLayerStyle = ''
       })
     },
     clickTable (e) {
@@ -228,7 +238,6 @@ export default {
       switch (e.target.dataset.type) {
         case 'remove': // 删除
           this.clearElementLink(model)
-          element.remove()
           break
         case 'clone': // 重命名
           let attrs = model.get('attrs')
@@ -314,15 +323,6 @@ export default {
         inputErrorMessage: '不能超过20个字符',
         type: 'warning'
       })
-      // this.$prompt(`（${val}）设置别名：`, {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   inputPattern: /^.{0,20}$/,
-      //   inputErrorMessage: '不能超过20个字符',
-      //   type: 'warning'
-      // }).then(({ value }) => {
-      //   console.log(value)
-      // })
     },
 
     dragTable (e) {
@@ -403,6 +403,7 @@ export default {
         position.x = (width - rectWidth) / 2
         position.y = (height - rectHeight) / 2
       }
+
       return position
     },
 
@@ -462,7 +463,7 @@ export default {
             y: (item.position && item.position.y) || randomPosition.y
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, fill: 'white', 'font-size': 12 } }
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, fill: 'white', 'font-size': 12 } }
         })
 
         this.graph.addCell(newRect)
@@ -475,13 +476,13 @@ export default {
       let result = []
       let source = {
         filed: item.table === item.alias ? 1 : 0,
-        id: item.table,
+        id: item.id,
         label: item.table,
         alias: item.alias
       }
       let target = {
         filed: item.joinTable === item.alias ? 1 : 0,
-        id: item.joinTable,
+        id: item.joinId,
         label: item.joinTable,
         alias: item.joinAlias
       }
@@ -526,14 +527,23 @@ export default {
       let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
+        let pk_index = primary_key[i].indexOf('.')
+        let fk_index = foreign_key[i].indexOf('.')
+
+        if (pk_index > -1) {
+          primary_key[i] = primary_key[i].slice(pk_index)
+        }
+        if (fk_index > -1) {
+          foreign_key[i] = foreign_key[i].slice(fk_index)
+        }
+
         list.push({
-          primary_key: `${data.alias}.${primary_key[i]}`,
-          foreign_key: `${data.joinAlias}.${foreign_key[i]}`,
+          primary_key: `${primary_key[i]}`,
+          foreign_key: `${foreign_key[i]}`,
           pk_type: pk_type[i],
           fk_type: fk_type[i]
         })
       })
-      console.log('哪吒', list)
       return list
     },
 
@@ -590,7 +600,7 @@ export default {
         this.linkModalFields[index].pk_type = pk_type
 
         if (foreign_key && fk_type) {
-          this.updateFields(this.linkModalFields)
+          this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
       }
     },
@@ -615,17 +625,18 @@ export default {
         this.linkModalFields[index].fk_type = fk_type
 
         if (primary_key && pk_type) {
-          this.updateFields(this.linkModalFields)
+          this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
       }
     },
 
-    updateFields (fields) {
+    updateFields (alias, joinAlias, fields) {
       let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
+
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
-          primary_key.push(t.primary_key)
-          foreign_key.push(t.foreign_key)
+          primary_key.push(`${alias}.${t.primary_key}`)
+          foreign_key.push(`${joinAlias}.${t.foreign_key}`)
           pk_type.push(t.pk_type)
           fk_type.push(t.fk_type)
         }
@@ -681,7 +692,11 @@ export default {
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
         if (ele.attributes.type === 'standard.Link') {
-          if (ele.get('source').id === target.id || ele.get('target').id === target.id) {
+          if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
+            ele.remove()
+          }
+        } else {
+          if (ele.id === target.id) {
             ele.remove()
           }
         }
@@ -736,17 +751,14 @@ export default {
       let offset = element.$el.offset()
 
       this.cellLayerData = element
+      this.cellLayerData.isLink = element.model.isLink()
       this.cellLayerStyle = `display:block;width:${rect.width}px;height:${rect.height}px;left:${offset.left - parentOffset.left}px;top:${offset.top - parentOffset.top}px`
     },
 
     nextModel (val) {
-      // if (this.jointResult.lookups.length > 0) {
-      if (this.jointResult.lookups) {
-        this.$router.push('/analysisModel/createolap/setFiled')
-        this.$parent.getStepCountAdd(val)
-      } else {
-        this.$message.warning('请建立表关系~')
-      }
+      this.jointResult.lookups.length > 0
+        ? this.$router.push('/analysisModel/createolap/setFiled') && this.$parent.getStepCountAdd(val)
+        : this.$message.warning('请建立表关系~')
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')

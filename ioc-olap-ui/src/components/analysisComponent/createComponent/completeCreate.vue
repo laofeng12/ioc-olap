@@ -54,14 +54,15 @@ export default {
       this.formData.dimensionFiled = this.saveSelectFiled.length
       this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
+      console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups // 表的关系
-      this.totalSaveData.models.cubeDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
       this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
-      this.totalSaveData.cube.modelDescData.dimensions = this.dimensions
+      this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
+      this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
@@ -88,6 +89,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      totalSaveData: 'totalSaveData',
       saveSelectFiled: 'saveSelectFiled', // 已选的维度
       selectTableTotal: 'selectTableTotal',
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
@@ -102,8 +104,7 @@ export default {
       measureTableList: 'measureTableList', // 设置度量
       reloadData: 'reloadData', // 刷新页面
       relaodFilterList: 'relaodFilterList', // 刷新过滤设置
-      jointResult: 'jointResult', // 表关系数据
-      totalSaveData: 'totalSaveData'
+      jointResult: 'jointResult' // 表关系数据
     })
   }
 }

@@ -130,3 +130,25 @@ export function saveolapModeldata (data) {
     data
   })
 }
+
+export function getselectCatalog (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectCatalog',
+    method: 'get',
+    params
+  })
+}
+export function getselectTable (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectTable',
+    method: 'get',
+    params
+  })
+}
+export function getselectColumn (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectColumn',
+    method: 'get',
+    params
+  })
+}

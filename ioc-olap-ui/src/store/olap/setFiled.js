@@ -6,10 +6,10 @@ const setFiled = {
     saveLeftFiled: {
       'name': 'bb',
       'description': '',
-      'fact_table': 'KYLIN_ACCOUNT',
+      'fact_table': 'DAILY_MODULE',
       lookups: [{
-        'table': 'KYLIN_ACCOUNT',
-        'alias': 'KYLIN_CAL_DT',
+        'table': 'DAILY_MODULE',
+        'alias': 'DAILY_MODULE',
         'joinTable': 'KYLIN_CAL_DT',
         'kind': 'LOOKUP',
         'join': {
@@ -112,7 +112,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        columnName: list.item.columnName,
+        name: list.item.name,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledNormalList, 'id')
@@ -129,7 +129,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        columnName: list.item.columnName,
+        name: list.item.name,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledDerivativelList, 'id')
@@ -160,6 +160,7 @@ const setFiled = {
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
+      console.log('val====', val)
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -207,7 +208,7 @@ const setFiled = {
         nomrlData = nomrlData.concat({
           id: res.id,
           type: res.dataType,
-          value: res.tableName + '.' + res.columnName
+          value: res.tableName + '.' + res.name
         })
       })
       state.reloadNeedData = [...nomrlData, ...datas]
@@ -220,9 +221,9 @@ const setFiled = {
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
         state.dimensions.push({
           table: item.tableName,
-          column: item.columnName,
-          derived: item.mode === '1' ? null : item.columnName.split(','),
-          name: item.tableName ? item.tableName : item.columnName
+          column: item.name,
+          derived: item.mode === '1' ? null : item.name.split(','),
+          name: item.tableName ? item.tableName : item.name
         })
       })
     },
