@@ -101,7 +101,7 @@ export default {
     },
     setTree (val, type) {
       let item = []
-      val.map((list, i) => {
+      val && val.map((list, i) => {
         let newData = {}
         newData.label = list.orgName
         newData.databaseType = list.databaseType

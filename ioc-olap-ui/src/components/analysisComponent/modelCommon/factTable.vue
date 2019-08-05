@@ -85,6 +85,7 @@ export default {
     },
     changeLi (item, index) {
       if (this.factTable) {
+        console.log(this.factTable)
         if (this.factTable.label !== item.label) {
           this.current = index
           this.$parent.clickTable(item)
@@ -95,6 +96,7 @@ export default {
       }
     },
     dragLi (item) {
+      console.log(this.factTable, '111111111111111111')
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.$parent.dragTable(item)
