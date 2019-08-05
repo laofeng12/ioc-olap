@@ -57,10 +57,15 @@ export default {
       console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table // 事实表明
-      this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups // 表的关系
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
-      this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
+      this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups.filter(item => {
+        return item.alias !== this.jointResult.fact_table
+      }) // 表的关系
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = null
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = null
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = null
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
       this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups

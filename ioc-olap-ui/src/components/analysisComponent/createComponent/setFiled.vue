@@ -94,7 +94,7 @@ export default {
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
         // if (code === 200) {
-        this.tableData = [...res]
+        this.tableData = res
         setTimeout(() => {
           this.loading = false
           let arr = []
@@ -124,14 +124,16 @@ export default {
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
+      console.log(this.saveSelectFiled)
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         flag = item.filed === '1' ? 0 : 1
       })
-      flag === 1 ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
+      console.log(this.jointResult)
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1

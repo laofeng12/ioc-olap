@@ -5,17 +5,17 @@
       <div class="linkSetting" v-if="linkModal">
         <h2 class="title">设置关联关系</h2>
         <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
-          <el-option v-for="item in relationData" :key="item.label" :value="item.value" :label="item.value">{{item.value}}</el-option>
+          <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.table)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, pk_type: coupon.dataType, primary_key: coupon.columnName}"  >{{coupon.columnName}}</el-option>
-          </el-select>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinTable)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.columnName" :label="coupon.columnName" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.columnName}" >{{coupon.columnName}}</el-option>
+          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
+          </el-select>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
+          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
@@ -40,7 +40,7 @@
             <!-- 连线部分 -->
             <div v-else>
               <!-- 删除 -->
-              <div class="remove" data-type="remove"></div>
+              <div class="remove linkRemove" data-type="remove"></div>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default {
       },
       couponList: [],
       prevId: '', // 记录上一个id
-      relationData: [{ label: 1, value: '左连接' }, { label: 2, value: '内连接' }],
+      relationData: [{ label: 'left', value: '左连接' }, { label: 'inner', value: '内连接' }],
       dragRectPosition: {
         filed: 0,
         id: 0,
@@ -165,17 +165,17 @@ export default {
               let target = {
                 filed: targetAttrs.text.filed || 0,
                 field: '',
-                label: targetAttrs.text.label,
+                label: `${targetAttrs.text.database}.${targetAttrs.text.label}`,
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
 
               linkModal = {
-                'table': source.label || '',
-                'alias': source.alias || '',
+                'joinTable': source.label || '',
+                'alias': target.alias || '',
                 'id': source.id || '',
-                'joinTable': target.label || '',
-                'joinAlias': target.alias || '',
+                'table': target.label || '',
+                'joinAlias': source.alias || '',
                 'joinId': target.id || '',
                 'kind': 'LOOKUP',
                 'join': {
@@ -193,6 +193,7 @@ export default {
               this.linkModal = linkModal
               this.linkModalModel = e.model
             }
+            this.showCellLayer(e)
           } else {
             this.showCellLayer(e)
           }
@@ -295,13 +296,13 @@ export default {
           if (t.get('source').id === id) {
             updateList.push({
               idx: linkIndex,
-              field: 'alias'
+              field: 'joinAlias'
             })
           }
           if (t.get('target').id === id) {
             updateList.push({
               idx: linkIndex,
-              field: 'joinAlias'
+              field: 'alias'
             })
           }
         }
@@ -330,6 +331,7 @@ export default {
         this.isDragRect = true
         this.dragRectPosition.label = e.label
         this.dragRectPosition.id = e.id
+        this.dragRectPosition.database = e.database
         this.dragRectPosition.filed = e.filed
         this.dragRectPosition.x = 0
         this.dragRectPosition.y = 0
@@ -349,6 +351,7 @@ export default {
           filed: this.dragRectPosition.filed,
           id: this.dragRectPosition.id,
           label: this.dragRectPosition.label,
+          database: this.dragRectPosition.database,
           alias: this.dragRectPosition.label,
           position: { x, y }
         }
@@ -373,6 +376,7 @@ export default {
       this.isDragRect = false
       this.dragRectPosition = {
         label: 'test',
+        id: '',
         x: 0,
         y: 0
       }
@@ -451,7 +455,7 @@ export default {
         }
         // 设置主表
         if (item.filed == 1 && !this.jointResult.fact_table) {
-          this.jointResult.fact_table = item.label
+          this.jointResult.fact_table = `${item.database}.${item.label}`
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
@@ -463,7 +467,7 @@ export default {
             y: (item.position && item.position.y) || randomPosition.y
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, fill: 'white', 'font-size': 12 } }
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
 
         this.graph.addCell(newRect)
@@ -477,14 +481,14 @@ export default {
       let source = {
         filed: item.table === item.alias ? 1 : 0,
         id: item.id,
-        label: item.table,
-        alias: item.alias
+        label: `${item.table}`,
+        alias: item.joinAlias
       }
       let target = {
         filed: item.joinTable === item.alias ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
-        alias: item.joinAlias
+        alias: item.alias
       }
 
       if (!this.graph) {
@@ -590,11 +594,11 @@ export default {
       let fk_type = this.linkModalFields[index].fk_type
 
       if (index >= 0 && primary_key && pk_type) {
-        if (fk_type && pk_type && pk_type != fk_type) {
-          this.$message.warning('请选择类型一致的字段')
-          primary_key = ''
-          pk_type = ''
-        }
+        // if (fk_type && pk_type && pk_type != fk_type) {
+        //   this.$message.warning('请选择类型一致的字段')
+        //   primary_key = ''
+        //   pk_type = ''
+        // }
 
         this.linkModalFields[index].primary_key = primary_key
         this.linkModalFields[index].pk_type = pk_type
@@ -615,11 +619,11 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        if (fk_type && pk_type && pk_type != fk_type) {
-          this.$message.warning('请选择类型一致的字段')
-          foreign_key = ''
-          fk_type = ''
-        }
+        // if (fk_type && pk_type && pk_type != fk_type) {
+        //   this.$message.warning('请选择类型一致的字段')
+        //   foreign_key = ''
+        //   fk_type = ''
+        // }
 
         this.linkModalFields[index].foreign_key = foreign_key
         this.linkModalFields[index].fk_type = fk_type
@@ -635,17 +639,16 @@ export default {
 
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
-          primary_key.push(`${alias}.${t.primary_key}`)
-          foreign_key.push(`${joinAlias}.${t.foreign_key}`)
+          primary_key.push(`${joinAlias}.${t.primary_key}`)
+          foreign_key.push(`${alias}.${t.foreign_key}`)
           pk_type.push(t.pk_type)
           fk_type.push(t.fk_type)
         }
       })
-
-      this.linkModal.join.primary_key = primary_key
-      this.linkModal.join.foreign_key = foreign_key
-      this.linkModal.join.pk_type = pk_type
-      this.linkModal.join.fk_type = fk_type
+      this.linkModal.join.primary_key = foreign_key
+      this.linkModal.join.foreign_key = primary_key
+      this.linkModal.join.pk_type = fk_type
+      this.linkModal.join.fk_type = pk_type
 
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
@@ -745,8 +748,24 @@ export default {
       this.cellLayerData = null
     },
 
+    getAbsoluteOffset (el) {
+      let target = el
+      let pos = {
+        left: 0,
+        top: 0
+      }
+
+      while (target) {
+        pos.left += target.offsetLeft
+        pos.top += target.offsetTop
+        target = target.offsetParent
+      }
+
+      return pos
+    },
+
     showCellLayer (element) {
-      let parentOffset = this.$refs.holder.getBoundingClientRect()
+      let parentOffset = this.getAbsoluteOffset(this.$refs.holder)
       let rect = element.$el[0].getBoundingClientRect()
       let offset = element.$el.offset()
 
@@ -769,15 +788,19 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      if (this.prevId === id) {
-        console.log('已经请求过了~')
-      } else {
-        this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-          // this.couponList = res.data
-          this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-        })
-      }
-      this.prevId = id
+      // if (this.prevId === id) {
+      //   console.log('已经请求过了~')
+      // } else {
+      //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
+      //     // this.couponList = res.data
+      //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      //   })
+      // }
+      // this.prevId = id
+      this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
+        this.couponList = res.data.columns
+      // console.log(this.couponList)
+      })
     }
   },
   computed: {
@@ -836,6 +859,12 @@ export default {
   width 18px
   height 18px
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cg%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M15.386%2C3.365c-3.315-3.314-8.707-3.313-12.021%2C0c-3.314%2C3.315-3.314%2C8.706%2C0%2C12.02%20c3.314%2C3.314%2C8.707%2C3.314%2C12.021%2C0S18.699%2C6.68%2C15.386%2C3.365L15.386%2C3.365z%20M4.152%2C14.598C1.273%2C11.719%2C1.273%2C7.035%2C4.153%2C4.154%20c2.88-2.88%2C7.563-2.88%2C10.443%2C0c2.881%2C2.88%2C2.881%2C7.562%2C0%2C10.443C11.716%2C17.477%2C7.032%2C17.477%2C4.152%2C14.598L4.152%2C14.598z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M12.157%2C11.371L7.38%2C6.593C7.162%2C6.375%2C6.809%2C6.375%2C6.592%2C6.592c-0.218%2C0.219-0.218%2C0.572%2C0%2C0.79%20l4.776%2C4.776c0.218%2C0.219%2C0.571%2C0.219%2C0.79%2C0C12.375%2C11.941%2C12.375%2C11.588%2C12.157%2C11.371L12.157%2C11.371z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M11.369%2C6.593l-4.777%2C4.778c-0.217%2C0.217-0.217%2C0.568%2C0%2C0.787c0.219%2C0.219%2C0.571%2C0.217%2C0.788%2C0l4.777-4.777%20c0.218-0.218%2C0.218-0.571%2C0.001-0.789C11.939%2C6.375%2C11.587%2C6.375%2C11.369%2C6.593L11.369%2C6.593z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E%20')
+}
+
+.papers .linkRemove{
+  left 50%
+  top 50%
+  tranform translate(-50%, -50%)
 }
 
 .papers .rotate {

@@ -5,7 +5,7 @@ const common = {
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
-          'name': 'bb',
+          'name': 'model1',
           'description': '',
           'fact_table': 'KYLIN.KYLIN_SALES',
           'lookups': [
@@ -37,35 +37,21 @@ const common = {
           'filter_condition': '',
           'dimensions': [ // 设置维度选择字段 （选择的维度）
             {
-              'table': 'KYLIN_SALES',
-              'realName': 'KYLIN_CAL_DT',
-              'columns': [
-                'PART_DT',
-                'LEAF_CATEG_ID',
-                'LSTG_SITE_ID',
-                'SLR_SEGMENT_CD'
-              ]
+              'table': '',
+              'realName': '',
+              'columns': []
             },
             {
-              'table': 'KYLIN_CAL_DT',
-              'realName': 'KYLIN_CAL_DT',
-              'columns': [
-                'CAL_DT',
-                'YEAR_BEG_DT',
-                'QTR_BEG_DT',
-                'MONTH_BEG_DT',
-                'WEEK_BEG_DT'
-              ]
+              'table': '',
+              'realName': '',
+              'columns': []
             }
           ],
-          'metrics': [
-            'KYLIN_SALES.PRICE',
-            'KYLIN_SALES.ITEM_COUNT'
-          ],
+          'metrics': [],
           'partition_desc': { // 刷新及过滤
-            'partition_date_column': 'KYLIN_SALES.PART_DT', // 表
-            'partition_type': 'APPEND', // 字段
-            'partition_date_format': 'yyyy-MM-dd' // 日期
+            // 'partition_date_column': null, // 表
+            // 'partition_type': 'APPEND' // 字段
+            // // 'partition_date_format': null // 日期
           },
           'last_modified': 0
         }

@@ -143,7 +143,6 @@ const setFiled = {
     },
     // 存储输入的显示名称
     changePushalias ({ state }, val) {
-      console.log(val, '啊', state.saveSelectFiled)
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -160,7 +159,7 @@ const setFiled = {
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
-      console.log('val====', val)
+      // console.log(state.saveSelectFiled, 'val====', val)
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -187,13 +186,14 @@ const setFiled = {
       dispatch('filterFiledTable')
     },
     // 整合正常模式或者衍生模式的数据
-    filterFiledTable ({ state }) {
+    filterFiledTable ({ state, getters }) {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
-      state.saveLeftFiled.lookups.map((item, index) => {
+      console.log(getters.jointResult)
+      getters.jointResult.lookups.map((item, index) => {
         resultVal.map((n, i) => {
-          if (item.alias === n.tableName) {
+          if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
             datas.push({
               id: n.id,
               type: n.dataType,

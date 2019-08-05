@@ -164,9 +164,9 @@ export default {
       this.formData = this.reloadData
     },
     nextModel (val) {
-      console.log(this.formData, '=========', this.relaodFilterList)
-      // this.$parent.getStepCountAdd(val)
-      // this.$router.push('/analysisModel/createolap/advancedSet')
+      // console.log(this.formData, '=========', this.relaodFilterList)
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -194,13 +194,12 @@ export default {
       let valId = this.selectTableTotal.filter((res, index) => {
         return res.label === val
       })
-      console.log(valId, '=====', this.idx)
       this.formData.partition_date_format[this.idx] = ''
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
       this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-        this.textOptions = res.data.column
+        this.textOptions = res.data.columns
       })
     },
     handleChange (val) {

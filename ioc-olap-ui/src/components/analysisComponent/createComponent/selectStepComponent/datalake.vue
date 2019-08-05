@@ -58,8 +58,8 @@ export default {
       this.$root.eventBus.$on('klinFetchData', res => {
         this.descriptionHead = [
           { prop: 'name', label: '字段名称' },
-          { prop: 'datatype', label: '字段类型' },
-          { prop: 'datatype', label: '字段描述' }
+          { prop: 'dataType', label: '字段类型' },
+          { prop: 'dataType', label: '字段描述' }
         ]
         this.descriptionData = res
       })
