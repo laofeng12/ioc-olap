@@ -29,13 +29,13 @@
         </el-form-item>
         <el-form-item label="日期字段" class="item_line"></el-form-item>
         <el-form-item label="日期字段表" class="datarowmore">
-          <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable">
-            <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
+          <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)">
+            <el-option v-for="(item, index) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期字段">
           <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.columnName"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
@@ -57,13 +57,13 @@
         </el-form-item>
         <div v-if="formData.dataMany">
         <el-form-item label="日期字段表" class="datarowmore">
-          <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable">
+          <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期字段">
           <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
@@ -122,6 +122,7 @@ export default {
       formData: {
         autoReload: false,
         dataMany: false,
+        idx: 0,
         partition_date_column: [],
         partition_date_format: [],
         partition_time_format: [],
@@ -163,9 +164,9 @@ export default {
       this.formData = this.reloadData
     },
     nextModel (val) {
-      console.log(this.formData, '=========', this.relaodFilterList)
-      // this.$parent.getStepCountAdd(val)
-      // this.$router.push('/analysisModel/createolap/advancedSet')
+      // console.log(this.formData, '=========', this.relaodFilterList)
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/advancedSet')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -181,15 +182,23 @@ export default {
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
     },
+    visibleData (type) {
+      console.log(type)
+      this.idx = type
+    },
     selectTable (val) {
       const params = {
         dsDataSourceId: 2,
         tableName: val
       }
+      let valId = this.selectTableTotal.filter((res, index) => {
+        return res.label === val
+      })
+      this.formData.partition_date_format[this.idx] = ''
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
-      this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+      this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
         this.textOptions = res.data.columns
       })
     },
