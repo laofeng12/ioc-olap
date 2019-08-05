@@ -10,10 +10,10 @@
           <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="name" label="度量名称" align="center"> </el-table-column>
           <el-table-column prop="function.expression" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent">
+          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent" width="400">
             <template slot-scope="scope">
-              <div style="text-align: left;"><span>值：</span>{{'LEAF_CATEG_ID'}}</div>
-              <div style="text-align: left;"><span>类型：</span>{{scope.row.function.parameter.value}}</div>
+              <div style="text-align: left;margin-left:62px;"><span>值：</span>{{'LEAF_CATEG_ID'}}</div>
+              <div style="text-align: center;"><span>类型：</span>{{scope.row.function.parameter.value}}</div>
             </template>
           </el-table-column>
           <el-table-column prop="function.parameter.type" label="计算类型" align="center"> </el-table-column>

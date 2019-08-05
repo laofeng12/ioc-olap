@@ -94,7 +94,7 @@ export default {
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
         // if (code === 200) {
-        this.tableData = res
+        this.tableData = [...res]
         setTimeout(() => {
           this.loading = false
           let arr = []
