@@ -1,6 +1,5 @@
 package com.openjava.platform.service;
 
-import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -315,6 +314,8 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         AnyDimensionCellVo cell;
         List<String> xTemps, yTemps, dTemps;
         Integer dataIndex=axisYCount+1;
+        ArrayList<Double> rowSummarys =new ArrayList<>();
+        ArrayList<Double> columnSummarys =new ArrayList<>();
         //定义y轴头部
         for (Integer i = 0; i < yAxises.size(); i++) {
             rowCells = new ArrayList<AnyDimensionCellVo>();
@@ -340,15 +341,16 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             //写入X轴
             if (!axisXDatas.contains(axisXData)) {
                 rowCells = new ArrayList<AnyDimensionCellVo>();
-                for (String xTemp : xTemps) {
-                    cell = new AnyDimensionCellVo("", 1, 1, xTemp, 1);
-                    rowCells.add(cell);
+                for (Integer i=0;i<xTemps.size();i++){
+                    cellId = String.join("-", xTemps.subList(0, i + 1));
+                    rowCells.add(new AnyDimensionCellVo(cellId, 1, 1, xTemps.get(i), 1));
                 }
                 for (Integer i=0;i<axisYDatas.size()*measureAxises.size();i++){
                     rowCells.add(null);
                 }
                 results.add(rowCells);
                 axisXDatas.add(axisXData);
+                rowSummarys.add(0.0);
                 dataIndex++;
             }
             if (!axisYDatas.contains(axisYData)) {
@@ -387,9 +389,13 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
                     if(rowCells.size()>beginIndex){
                         rowCells.add(beginIndex,cell);
+                        columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     }
                     else{
                         rowCells.add(cell);
+                        columnSummarys.add(Double.parseDouble(dTemp));
+                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     }
                     beginIndex++;
                 }
@@ -398,8 +404,42 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 for (String dTemp : dTemps) {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
                     rowCells.set(beginIndex, cell);
+                    columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                    rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     beginIndex++;
                 }
+            }
+        }
+
+        Integer compareIndex =0;
+        rowCells = new ArrayList<AnyDimensionCellVo>();
+        rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
+        for (Double columnSummary :columnSummarys){
+            rowCells.add(new AnyDimensionCellVo("",1,1,columnSummary.toString(),4) );
+        }
+        results.add(rowCells);
+        rowSummarys.add(columnSummarys.stream().collect(Collectors.summingDouble(Double::doubleValue)));
+        results.get(0).add(new AnyDimensionCellVo("",1,axisYCount+1,"汇总",5));
+        //合并X轴
+        for (Integer i=axisYCount+1;i<results.size();i++){
+            results.get(i).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(i-axisYCount-1).toString(),4));
+            for (Integer j=i+1;j<results.size();j++){
+                if(results.get(i).get(0).getId().equals(results.get(j).get(0).getId())){
+                    for (Integer k=0;k<axisXCount;k++){
+                        if(results.get(i).get(k).getId().equals(results.get(j).get(compareIndex).getId())){
+                            results.get(i).get(k).setRowspan(results.get(i).get(k).getRowspan()+1);
+                            results.get(j).remove(0);
+                        }
+                        else{
+                            compareIndex++;
+                        }
+                    }
+                    compareIndex =0;
+                }
+                else{
+                    i=j;
+                }
+                results.get(j).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(j-axisYCount-1).toString(),4));
             }
         }
         anyDimensionVo.setResults(results);
