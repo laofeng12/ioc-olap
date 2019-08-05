@@ -116,8 +116,9 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 230px
+  max-width 250px
   // width 200px
+  font-size 12px
   float left
   // padding 0 25px
   border-right 1px solid #f0f0f0

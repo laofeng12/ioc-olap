@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="tableName" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -89,28 +89,27 @@ export default {
   },
   methods: {
     init () {
-      this.tableData = this.saveList
+      // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (res, code) => {
         this.loading = true
-        if (code === 200) {
-          console.log(res)
-          this.tableData = res
-          setTimeout(() => {
-            this.loading = false
-            let arr = []
-            this.tableData && this.tableData.forEach((item, i) => {
-              this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                if (val.id === item.id) {
-                  this.tableData[i].tableName = val.tableName
-                  this.tableData[i].mode = val.mode
-                  arr.push(item)
-                }
-              })
+        // if (code === 200) {
+        this.tableData = res
+        setTimeout(() => {
+          this.loading = false
+          let arr = []
+          this.tableData && this.tableData.forEach((item, i) => {
+            this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+              if (val.id === item.id) {
+                this.tableData[i].tableName = val.tableName
+                this.tableData[i].mode = val.mode
+                arr.push(item)
+              }
             })
-            this.toggleSelection(arr)
-          }, 300)
-        }
+          })
+          this.toggleSelection(arr)
+        }, 300)
+        // }
       })
     },
     toggleSelection (rows) {
@@ -126,16 +125,9 @@ export default {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        flag = item.filed !== 1 ? 1 : 0
+        flag = item.filed === '1' ? 0 : 1
       })
-      if (flag === '1') {
-        this.$message.warning('请选择事实表维度字段')
-      } else {
-        this.$router.push('/analysisModel/createolap/setMeasure')
-        this.$parent.getStepCountAdd(val)
-      }
-      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
-      // this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      flag === 1 ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
@@ -179,6 +171,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       saveList: 'saveList',
+      jointResult: 'jointResult',
       saveNewSortList: 'saveNewSortList'
     })
   },
@@ -201,6 +194,12 @@ export default {
       height calc(100vh - 150px)
       padding-bottom 100px
       overflow auto
+    }
+    >>>.el-form-item{
+      margin-bottom 0
+      .el-input__inner{
+        height 35px
+      }
     }
     >>>.el-table__body td{
       border none!important

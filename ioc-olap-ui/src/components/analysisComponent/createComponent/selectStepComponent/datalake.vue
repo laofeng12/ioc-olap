@@ -54,7 +54,16 @@ export default {
   },
   methods: {
     init () {
-    // 数据湖获取表的数据
+    // kelin模拟数据
+      this.$root.eventBus.$on('klinFetchData', res => {
+        this.descriptionHead = [
+          { prop: 'name', label: '字段名称' },
+          { prop: 'datatype', label: '字段类型' },
+          { prop: 'datatype', label: '字段描述' }
+        ]
+        this.descriptionData = res
+      })
+      // 数据湖获取表的数据
       this.$root.eventBus.$on('getTabdataList', (res, columnData) => {
         console.log(columnData)
         this.managementHead = []

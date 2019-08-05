@@ -1,4 +1,4 @@
-import { getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
+import { getselectCatalog, getselectTable, getselectColumn, getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
 
 const selectStep = {
   state: {
@@ -61,6 +61,7 @@ const selectStep = {
     GetThreeList ({ commit }, obj) {
       return new Promise((resolve, reject) => {
         getTreethreeList(obj).then(res => {
+        // getselectTable(obj).then(res => { // kelin
           resolve(res)
         })
       })
@@ -69,6 +70,7 @@ const selectStep = {
     GetResourceInfo ({ commit }, obj) {
       return new Promise((resolve, reject) => {
         getResourceInfo(obj).then(res => {
+        // getselectColumn(obj).then(res => { // kelin
           resolve(res)
         })
       })

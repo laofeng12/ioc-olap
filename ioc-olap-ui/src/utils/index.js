@@ -58,7 +58,7 @@ export function reduceJson (arr, name) {
     obj[next[name]] ? '' : obj[next[name]] = true && item.push({
       id: next[name],
       dataType: next.dataType,
-      columnName: next.columnName,
+      name: next.name,
       tableName: next.tableName
     })
     return item
@@ -76,14 +76,14 @@ export function filterArrData (data) {
     if (!map[ai.tableName]) {
       dest.push({
         table: ai.tableName,
-        columns: [ai.columnName]
+        columns: [ai.name]
       })
       map[ai.tableName] = ai
     } else {
       for (var j = 0; j < dest.length; j++) {
         var dj = dest[j]
         if (dj.table === ai.tableName) {
-          dj.columns.push(ai.columnName)
+          dj.columns.push(ai.name)
           break
         }
       }
@@ -102,7 +102,7 @@ export function filterArr (data) {
       dest.push({
         comment: ai.comment,
         tableName: ai.tableName,
-        columnName: ai.columnName,
+        name: ai.name,
         apiPaths: ai.apiPaths,
         filed: ai.filed,
         list: [ai]
