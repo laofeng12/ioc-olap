@@ -118,6 +118,7 @@ export default {
       // })
       // kelin
       this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
+        console.log(res, '====')
         res.data.columns.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
           n.derived = n.name

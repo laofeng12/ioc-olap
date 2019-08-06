@@ -66,22 +66,7 @@ export default {
       loading: false,
       totalCount: 1,
       tableData: [],
-      dimensions: [
-        // {
-        //   name: '2',
-        //   table: 'KYLIN_CAL_DT',
-        //   derived: null,
-        //   column: 'WEEK_BEG_DT'
-        // }
-        // {
-        //   'name': 'LEAF_CATEG_ID',
-        //   'table': 'KYLIN_CATEGORY_GROUPINGS',
-        //   'derived': [
-        //     'LEAF_CATEG_ID'
-        //   ],
-        //   'column': null
-        // }
-      ]
+      dimensions: []
     }
   },
   mounted () {

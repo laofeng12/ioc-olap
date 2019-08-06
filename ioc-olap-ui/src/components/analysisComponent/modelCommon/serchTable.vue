@@ -45,12 +45,12 @@ export default {
         this.dataList[0].children = []
         if (type && type === 1) {
           // this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
-          this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => {
+          this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => { // kelin
             // if (res.code === 200) {
             //   res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
             //   this.loading = false
             // }
-            res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) })
+            res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
             this.loading = false
           })
         } else {
