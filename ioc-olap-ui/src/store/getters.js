@@ -39,6 +39,11 @@ const getters = {
   engine_types: state => state.advancedSet.engine_types,
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId,
   /* */
-  saveFolderList: state => state.analysis.saveFolderList
+  saveFolderList: state => state.analysis.saveFolderList,
+  cubeId: state => state.analysis.cubeId,
+  newValueList: state => state.analysis.newValueList,
+  newFilterList: state => state.analysis.newFilterList,
+  newRowList: state => state.analysis.newRowList,
+  newColList: state => state.analysis.newColList
 }
 export default getters

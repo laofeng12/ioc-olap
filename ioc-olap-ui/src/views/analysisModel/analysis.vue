@@ -1,7 +1,7 @@
 <template>
   <div class="dis-flex">
     <OlapAside></OlapAside>
-    <div class="olapTable">
+    <div class="olapTable" v-loading="loading">
       <div class="top">
         <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" :inline="true">
           <el-form-item class="form-item" label="文件夹" prop="folder">
@@ -15,8 +15,9 @@
           </el-form-item>
         </el-form>
       </div>
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :diffWidth="736"
-                 showType="isAnalysis"></ResultBox>
+      <ResultBox :tableData="tableData" :diffWidth="736"
+                 showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true"
+                 @reset="reset" :duration="duration"></ResultBox>
     </div>
   </div>
 </template>
@@ -24,6 +25,7 @@
 <script>
 import OlapAside from '../../components/analysisComponent/olapAside'
 import ResultBox from '../../components/analysisComponent/common/ResultBox'
+import { getOlapAnalyzeApi } from '../../api/olapAnalysisList'
 
 export default {
   components: { OlapAside, ResultBox },
@@ -42,85 +44,47 @@ export default {
           { required: true, message: '请选择活动区域', trigger: 'change' }
         ]
       },
-      tableData: [
-        [
-          { colspan: 1, rowspan: 1, value: '标题1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '标题8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ],
-        [
-          { colspan: 1, rowspan: 1, value: '内容1', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容2', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容3', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容4', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容5', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容6', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容7', type: 3, attrs: {} },
-          { colspan: 1, rowspan: 1, value: '内容8', type: 3, attrs: {} }
-        ]
-      ]
+      tableData: [],
+      duration: '',
+      loading: false
     }
   },
   watch: {},
   mounted () {
     // this.setSortTable()
   },
-  methods: {}
+  methods: {
+    async searchFunc (list, cubeId) {
+      this.loading = true
+      try {
+        const { results = [], duration } = await getOlapAnalyzeApi({ cubeId }, list)
+        const tableData = results.map(item => {
+          return (
+            item.map(itemTd => {
+              if (!itemTd) {
+                return { colspan: 1, rowspan: 1, value: '-', type: 'td' }
+              } else {
+                return itemTd
+              }
+            })
+          )
+        })
+        this.tableData = tableData
+        this.duration = duration
+        // this.shareList = shareList
+        // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
+        if (type !== 'share') {
+          this.$message.success('查询完成')
+        }
+      } catch (e) {
+        console.error(e)
+      }
+      this.loading = false
+    },
+    reset () {
+      alert('8888888')
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>

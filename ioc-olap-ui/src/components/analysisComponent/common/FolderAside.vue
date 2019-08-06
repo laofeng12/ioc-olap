@@ -12,19 +12,19 @@
              default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
-          <span class="cus-node-content" v-if="showDo" @click.stop>
-            <el-dropdown size="mini" @command="handleCommand($event, node, data)">
-              <el-button type="primary" size="mini">
-                操作<i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="0">编辑</el-dropdown-item>
-                <el-dropdown-item command="1">分享</el-dropdown-item>
-                <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
-                <el-dropdown-item command="3">删除</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </span>
+        <span class="cus-node-content" v-if="showDo" @click.stop>
+          <el-dropdown size="mini" @command="handleCommand($event, node, data)">
+            <el-button type="primary" size="mini">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="0">编辑</el-dropdown-item>
+              <el-dropdown-item command="1">分享</el-dropdown-item>
+              <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
+              <el-dropdown-item command="3">删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </span>
        </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
