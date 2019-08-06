@@ -55,9 +55,9 @@ export default {
   methods: {
     init () {
       this.tableData = [...this.measureTableList]
+      console.log(this.measureTableList)
     },
     nextModel (val) {
-      console.log(this.measureTableList.length)
       this.measureTableList.length > 0
         ? this.$router.push('/analysisModel/createolap/reloadSet') && this.$parent.getStepCountAdd(val)
         : this.$message.warning('至少添加一条度量')

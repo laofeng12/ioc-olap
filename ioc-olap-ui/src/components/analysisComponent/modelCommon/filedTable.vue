@@ -53,7 +53,6 @@ export default {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
       this.dataList = this.jointResult
-      // 遍历去重数据拿到表名称
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
@@ -97,7 +96,6 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      console.log(item)
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,
@@ -118,6 +116,7 @@ export default {
       // })
       // kelin
       this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
+        console.log(res, '====')
         res.data.columns.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
           n.derived = n.name

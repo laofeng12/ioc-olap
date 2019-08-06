@@ -131,6 +131,15 @@ export function saveolapModeldata (data) {
   })
 }
 
+// 模型列表
+export function getModelDataList (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/cubeList',
+    method: 'get',
+    params
+  })
+}
+
 // kelin
 export function getselectCatalog (params) {
   return fetch({

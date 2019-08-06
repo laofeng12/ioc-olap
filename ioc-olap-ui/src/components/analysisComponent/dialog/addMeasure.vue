@@ -15,12 +15,12 @@
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
-          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
+        <el-form-item v-if="formData.function.expression !== 'COUNT'" label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
+          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectType">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="margin-top:-10px;" :label-width="formLabelWidth">
+        <el-form-item v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
           <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
@@ -131,6 +131,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { deflate } from 'zlib'
 export default {
   props: {
     border: {
@@ -147,8 +148,7 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       },
@@ -215,7 +215,7 @@ export default {
           { required: true, message: '请选择类型', trigger: 'change' }
         ],
         'function.parameter.value': [
-          { required: true, message: '请选择字段', trigger: 'change' }
+          { required: false, message: '请选择字段', trigger: 'change' }
         ]
       }
     }
@@ -227,7 +227,7 @@ export default {
     })
   },
   mounted () {
-    // console.log(this.selectTableTotal)
+    console.log(this.formData)
   },
   methods: {
     resetData () {
@@ -238,8 +238,7 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       }
@@ -247,6 +246,12 @@ export default {
     closeBtn () {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
+    },
+    selectType (val) {
+      let result = this.fieldtextOption.filter((res, index) => {
+        return res.label === val
+      })
+      this.formData.function.returntype = result[0].dataType
     },
     submitBtn (index) {
       this.$refs.formData.validate((valid) => {
@@ -259,6 +264,7 @@ export default {
             if (res) {
               this.$message.success('保存成功~')
               this.resetData()
+              this.$refs.formData.clearValidate()
             }
           })
           this.$parent.init()
@@ -268,11 +274,10 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
-      console.log(this.saveSelectFiled, '获取的')
       this.saveSelectFiled.map(item => {
         if (item.filed === '1') {
           this.fieldtextOption.push(
-            { id: item.id, label: `${item.tableName}.${item.name}` }
+            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
           )
         }
       })
@@ -289,11 +294,11 @@ export default {
       this.formData.function.parameter.value = ''
       n === true
         ? this.saveSelectFiled.map(res => {
-          this.fieldtextOption.push({ id: res.id, label: `${res.tableName}.${res.name}` })
+          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: `${res.tableName}.${res.name}` })
         })
         : this.saveSelectFiled.map(item => {
           if (item.filed === '1') {
-            this.fieldtextOption.push({ id: item.id, label: `${item.tableName}.${item.name}` })
+            this.fieldtextOption.push({ id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` })
           }
         })
     },
@@ -303,8 +308,11 @@ export default {
         case 'COUNT':
           this.formData.function.parameter.type = 'constant'
           this.formData.function.parameter.value = 1
+          this.formData.function.returntype = 'bigint'
           this.isDisabledtype = true
           this.isDisabledtext = true
+          // delete this.formData.function.returntype
+          delete this.formData.function.parameter.value
           break
         case 'PERCENTILE':
           this.formData.function.parameter.type = 'column'
