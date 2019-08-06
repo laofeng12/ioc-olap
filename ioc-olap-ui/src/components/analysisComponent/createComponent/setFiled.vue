@@ -19,10 +19,10 @@
               <el-table-column type="selection" prop="全选" align="center"></el-table-column>
               <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
-              <el-table-column prop="tableName" label="显示名称" align="center">
+              <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <el-form-item :prop="'tableData.' + scope.$index + '.tableName'">
-                    <el-input type="text" v-model="scope.row.tableName" @change="iptChange(scope.row)"></el-input>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.name'">
+                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -31,7 +31,7 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.row)">
+                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>

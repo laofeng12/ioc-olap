@@ -24,13 +24,13 @@
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column prop="apiName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="catalogName" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiPaths" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiProtocols" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiMethod" label="上次构建的时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiMethod" label="创建时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiMethod" label="模型来源" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="name" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="status" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="size_kb" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="input_records_count" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="last_modified" label="上次构建的时间" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="partitionDateStart" label="创建时间" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="partitionDateColumn" label="模型来源" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column
           label="操作"
           align="center">
@@ -39,13 +39,13 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'rename', params: scope.row.apiId}">重命名</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookDetail', params: scope.row.apiId}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'clones', params: scope.row}">复制</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { getApiList } from '@/api/olapModel'
+import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 export default {
   components: {
@@ -86,12 +86,11 @@ export default {
   },
   mounted () {
     const params = {
-      size: this.pageSize,
-      sort: 'createtime,desc',
-      page: this.currentPage - 1
+      limit: 15,
+      offset: 0
     }
-    getApiList(params).then(res => {
-      this.tableData = res.rows
+    getModelDataList(params).then(res => {
+      this.tableData = res
     })
   },
   methods: {
@@ -105,25 +104,49 @@ export default {
     clickTable (val) {
       console.log(val)
     },
+    returnSuccess () {
+      this.$message({
+        type: 'success',
+        message: '成功!'
+      })
+      this.dialogFormVisible = false
+    },
     handleCommand (val) {
       this.expands = []
-      let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
-        : (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
+      let texts = ''
+      switch (val.type) {
+        case 'disableds':
+          texts = '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
+          break
+        case 'enable':
+          texts = '确定启用该模型？'
+          break
+        case 'clones':
+          texts = '确定复制该模型？'
+          break
+        case 'dels':
+          texts = '确定删除该模型？'
+          break
+      }
+      // let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
+      //   : (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
       if (val.type === 'lookDetail') {
         this.expands.push(val.params)
         return
       }
-      if (val.type === 'disableds' || val.type === 'clones' || val.type === 'dels') {
+      if (val.type === 'disableds' || val.type === 'enable' || val.type === 'clones' || val.type === 'dels') {
         this.$confirm(texts, {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '成功!'
-          })
-          this.dialogFormVisible = false
+          if (val.type === 'disableds') {
+            disableModeling({ cubeName: val.params.name }).then(res => {
+              console.log(res)
+            })
+          } else if (val.type === '') {
+
+          }
         })
         return
       }

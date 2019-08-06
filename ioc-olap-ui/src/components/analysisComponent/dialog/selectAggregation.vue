@@ -66,8 +66,8 @@ export default {
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
+      console.log(this.reloadNeedData, '无敌的')
       this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
-      console.log(this.options, '无敌的')
       this.index = index
       this.type = type
       this.findIndex = findIndex

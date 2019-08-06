@@ -121,6 +121,7 @@ export default {
               this.$message.success('保存成功~')
               this.formData = {}
               this.$parent.init()
+              this.$refs.formData.clearValidate()
             }
           })
         }

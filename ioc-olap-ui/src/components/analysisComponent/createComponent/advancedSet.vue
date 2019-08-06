@@ -62,7 +62,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
+                  <el-select v-model.number="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -103,7 +103,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine_type" placeholder="请选择" @change="changeEngine">
+              <el-select v-model="formData.engine_typeTit" placeholder="请选择" @change="changeEngine">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -154,7 +154,7 @@ export default {
       hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
-        engine_type: '2' // 构建引擎
+        engine_typeTit: '2' // 构建引擎
       },
       tableData: [],
       dimensionData: [{}], // 维度黑白名单
@@ -168,6 +168,7 @@ export default {
       codingTypeData: {
         'string': ['date', 'time', 'dict'],
         'date': ['date', 'time', 'dict'],
+        'dict': ['date', 'time', 'dict'],
         'double': ['dict'],
         'varchar': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
         'number': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
@@ -203,14 +204,15 @@ export default {
   },
   methods: {
     init () {
-      this.formData.engine_type = String(this.engine_types)
+      this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
       datas.forEach(item => {
         this.rowkeyData.rowkey_columns.push({
           column: item.value,
-          encoding: item.encoding ? item.encoding : '',
+          encoding: item.encoding ? item.encoding : 'dict',
           engine_type: item.type ? item.type : '',
-          isShardBy: item.isShardBy ? item.isShardBy : ''
+          encoding_version: '1',
+          isShardBy: item.isShardBy ? item.isShardBy : false
         })
       })
       this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
@@ -232,6 +234,7 @@ export default {
     // 选择对应的编码类型
     codingType (val) {
       for (let item in this.codingTypeData) {
+        console.log(val, '======', item)
         if (val === item) {
           this.encodingOption = this.codingTypeData[item]
         }
