@@ -170,23 +170,33 @@ public class OlapAnalyzeAction {
                 meareTreeVo.setId(table.getId().toString());
                 meareTreeVo.setName(table.getName());
                 meareTreeVo.setChildren(new ArrayList<TreeNodeVo>());
-                meareTreeVo.setAttrs(table);
                 TreeVo dimTreeVo=new TreeVo();
                 dimTreeVo.setId(table.getId().toString());
                 dimTreeVo.setName(table.getName());
                 dimTreeVo.setChildren(new ArrayList<TreeNodeVo>());
-                dimTreeVo.setAttrs(table);
                 ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
                 for (OlapCubeTableColumn column : cubeTableColumns){
                     TreeNodeVo leafNode=new TreeNodeVo();
+                    AnalyzeAxisVo axisVo=new AnalyzeAxisVo();
+                    axisVo.setExpressionFull(column.getExpressionFull());
+                    axisVo.setExpressionType(column.getExpressionType());
+                    axisVo.setColumnAlias(column.getColumnAlias());
+                    axisVo.setColumnChName(column.getName());
+                    axisVo.setColumnName(column.getColumnName());
+                    axisVo.setIsDict(table.getIsDict());
+                    axisVo.setTableAlias(table.getTableAlias());
+                    axisVo.setTableName(table.getTableName());
+                    axisVo.setCubeId(table.getCubeId());
+                    axisVo.setName(table.getName());
+                    axisVo.setColumnId(column.getCubeTableColumnId());
+                    axisVo.setTableId(column.getTableId());
                     leafNode.setId(column.getId().toString());
-                    leafNode.setAttrs(column);
+                    leafNode.setAttrs(axisVo);
+                    leafNode.setName(column.getName());
                     if(column.getExpressionType()==null || column.getExpressionType()==""){
-                        leafNode.setName(column.getName());
                         dimTreeVo.getChildren().add(leafNode);
                     }
                     else{
-                        leafNode.setName(column.getName());
                         meareTreeVo.getChildren().add(leafNode);
                     }
                 }

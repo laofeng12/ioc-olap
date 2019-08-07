@@ -459,7 +459,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
         OlapCubeTable cubeTable=olapCubeTableRepository.findById(tableId).get();
         OlapCubeTableColumn cubeTableColumn=olapCubeTableColumnRepository.findById(columnId).get();
-        String sql=MessageFormat.format("select {0} from {1} where 1=1",cubeTableColumn.getColumnName(),cubeTable.getTableName());
+        String sql=MessageFormat.format("select {0} from {1} where 1=1 group by {0}",cubeTableColumn.getColumnName(),cubeTable.getTableName());
         if(key!=null && !key.equals("")){
             String columnType=cubeTableColumn.getColumnType();
             if(columnType!=null && !columnType.equals("")){
@@ -472,11 +472,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
-        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,userId.toString());
+        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,"learn_kylin");
         if(countMapper==null){
             throw new APIException("网络错误！");
         }
-        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,userId.toString());
+        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,"learn_kylin");
         if(mapper==null){
             throw new APIException("网络错误！");
         }

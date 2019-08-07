@@ -12,10 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 public class AnalyzeAxisVo {
-    @ApiModelProperty("主键id")
-    private Long id;
-    @ApiModelProperty("分析id")
-    private Long analyzeId;
     @ApiModelProperty("列id")
     private Long columnId;
     @ApiModelProperty("1 行轴 2 列轴 3 指标轴 4 筛选轴")
