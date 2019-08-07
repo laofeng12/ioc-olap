@@ -9,7 +9,7 @@
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth" prop="FIELD">
           <el-select v-model="formData.FIELD" placeholder="请选择字段">
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择过滤条件" :label-width="formLabelWidth" prop="PATTERN">

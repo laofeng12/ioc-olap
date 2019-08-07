@@ -60,8 +60,8 @@ const selectStep = {
     // 获取第三级列表
     GetThreeList ({ commit }, obj) {
       return new Promise((resolve, reject) => {
-        getTreethreeList(obj).then(res => {
-        // getselectTable(obj).then(res => { // kelin
+        // getTreethreeList(obj).then(res => {
+        getselectTable(obj).then(res => { // kelin
           resolve(res)
         })
       })
@@ -69,8 +69,8 @@ const selectStep = {
     // 获取列表获取资源信息
     GetResourceInfo ({ commit }, obj) {
       return new Promise((resolve, reject) => {
-        getResourceInfo(obj).then(res => {
-        // getselectColumn(obj).then(res => { // kelin
+        // getResourceInfo(obj).then(res => {
+        getselectColumn(obj).then(res => { // kelin
           resolve(res)
         })
       })
@@ -145,7 +145,8 @@ const selectStep = {
           state.saveSelectTable.push({
             id: item.id,
             label: item.label,
-            resourceId: item.resourceId
+            resourceId: item.resourceId,
+            database: item.database
           })
         }
       })

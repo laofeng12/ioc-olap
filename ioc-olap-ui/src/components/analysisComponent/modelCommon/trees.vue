@@ -70,30 +70,30 @@ export default {
     },
     fetchTreeList (val) {
       this.treeLoading = true
-      this.$store.dispatch('GetTreeList').then(res => {
-        if (res && res.code === 200) {
-          this.treeLoading = false
-          this.setTree(res.data.dataLakeDirectoryTree, 1)
-          this.setTree(res.data.dataSetDirectoryTree, 2)
-          const ids = val || this.treeList[0].id
-          const newids = ids.length > 10 ? this.treeList[0].id : val
-          newids && setTimeout(() => {
-            this.$refs.tree.store.nodesMap[newids].expanded = true
-          }, 500)
-          this.defaultFrist(this.treeList)
-        }
-      }).finally(() => {
-        this.treeLoading = false
-      })
-      // kelin测试
-      // getselectCatalog().then(res => {
+      // this.$store.dispatch('GetTreeList').then(res => {
+      //   if (res && res.code === 200) {
+      //     this.treeLoading = false
+      //     this.setTree(res.data.dataLakeDirectoryTree, 1)
+      //     this.setTree(res.data.dataSetDirectoryTree, 2)
+      //     const ids = val || this.treeList[0].id
+      //     const newids = ids.length > 10 ? this.treeList[0].id : val
+      //     newids && setTimeout(() => {
+      //       this.$refs.tree.store.nodesMap[newids].expanded = true
+      //     }, 500)
+      //     this.defaultFrist(this.treeList)
+      //   }
+      // }).finally(() => {
       //   this.treeLoading = false
-      //   res.map(res => {
-      //     res.label = res.orgName
-      //     res.id = res.orgId
-      //   })
-      //   this.treeList = res
       // })
+      // kelin测试
+      getselectCatalog().then(res => {
+        this.treeLoading = false
+        res.map(res => {
+          res.label = res.orgName
+          res.id = res.orgId
+        })
+        this.treeList = res
+      })
     },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
@@ -101,7 +101,7 @@ export default {
     },
     setTree (val, type) {
       let item = []
-      val.map((list, i) => {
+      val && val.map((list, i) => {
         let newData = {}
         newData.label = list.orgName
         newData.databaseType = list.databaseType
@@ -152,7 +152,7 @@ export default {
         // this.fetchResourceInfo(data)
       }
       // kelin
-      // this.fetchResourceList(data)
+      this.fetchResourceList(data)
     },
     fetchTree (data) {
       this.treeLoading = true
