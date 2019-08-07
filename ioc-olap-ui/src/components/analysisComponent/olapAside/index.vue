@@ -2,15 +2,14 @@
   <div class="chart-setting-box">
     <el-form :model="dashBoardForm" :rules="rules" ref="addDashboardForm">
       <el-row :gutter="8">
-        <el-col :span="12" class="cus-drag-setting">
+        <el-col :span="12" class="cus-drag-setting" :style="`max-height: ${limitHeight}px`">
           <div class="grid-content">
             <!--报表名称-->
             <shirink-pannel name="OLAP模型">
               <div slot="content">
-                <el-form-item class="m-b-0" label="" prop="fileName">
-                  <el-select v-model="dashBoardForm.fileName" placeholder="请选择olap模型"
-                             @change="getFileName(dashBoardForm.fileName)" size="small">
-                    <!--<el-option label="新建" value="1"></el-option>-->
+                <el-form-item class="m-b-0">
+                  <el-select v-model="selectCubeId" placeholder="请选择olap模型" size="small">
+                             <!--@change="getFileName(dashBoardForm.fileName)" size="small">-->
                     <el-option v-for="(item, index) in menuList" :key="index" :label="item.name" :value="item.cubeId">
                     </el-option>
                   </el-select>
@@ -42,10 +41,27 @@
                     <i slot="prefix" class="el-input__icon el-icon-search"></i>
                   </el-input>
                   <ul class="has-dataset dimen" id="dimen">
-                    <li class="data-list dimen-list " v-for=" (item, index) in dimenData" :key="index"
-                        :data-type="item.type">
-                      <span><i class="el-icon-notebook-2"></i>{{item.name}}</span>
+                    <li :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`"
+                        v-for=" (item, index) in dimensuresList" :key="index">
+                      <span class="line">
+                        <i class="el-icon-notebook-2"></i>
+                        <span>{{item.name}}</span>
+                      </span>
+                      <!--<ul v-if="item.children">-->
+                        <!--<li v-for=" (v, i) in item.children" :key="`${index}-${i}`" >-->
+                          <!--<span class="line">-->
+                            <!--<i class="el-icon-notebook-2"></i>-->
+                            <!--<span>{{v.name}}</span>-->
+                          <!--</span>-->
+                        <!--</li>-->
+                      <!--</ul>-->
                     </li>
+                    <!--<el-tree class="filter-tree" icon-class="el-icon-notebook-2" :data="dimensuresList" :props="menuDefault"-->
+                             <!--default-expand-all :filter-node-method="filterAll" ref="alltree">-->
+                      <!--<span class="custom-tree-node" slot-scope="{ node, data }">-->
+                        <!--<span class="cus-node-title" :title="data.name">{{ data.name }}</span>-->
+                       <!--</span>-->
+                    <!--</el-tree>-->
                   </ul>
                 </div>
               </div>
@@ -60,9 +76,12 @@
                     <i slot="prefix" class="el-input__icon el-icon-search"></i>
                   </el-input>
                   <ul class="has-dataset dimen measure" id="measure">
-                    <li class="data-list dimen-list measure-list " v-for=" (item,index) in measureData" :key="index"
-                        :data-type="item.type">
-                      <span><i class="el-icon-notebook-2"></i>{{item.name}}</span>
+                    <li :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`"
+                        v-for=" (item,index) in measuresList" :key="index">
+                      <span class="line">
+                        <i class="el-icon-notebook-2"></i>
+                        <span>{{item.name}}</span>
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -70,7 +89,7 @@
             </shirink-pannel>
           </div>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" class="cus-drag-setting" :style="`max-height: ${limitHeight}px`">
           <div class="grid-content">
             <!--维度设定-->
             <shirink-pannel name="维度设定">
@@ -78,37 +97,22 @@
                 <ul class="has-dataset draw-list drawListClass" id="drawList">
                   <header>维度(X轴)：</header>
                   <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动数据到此处</div>
-                  <filter-temp v-for="(item,index) in rItems" :name="item.name" :dataType="item.dataType"
-                               :data-id="item.dataId"
-                               :key="index"
-                               :index="index"
-                               :items="rItems"
-                               :showEdit="false"
-                               @deleteIndex="delRow">
+                  <filter-temp v-for="(item,index) in rItems" :name="item.columnChName" :key="index" :index="index"
+                               :items="rItems" :showEdit="false" @deleteIndex="delRow">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawColClass">
                   <header>维度(Y轴)：</header>
                   <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动数据到此处</div>
-                  <filter-temp v-for="(item,index) in cItems" :name="item.name" :dataType="item.dataType"
-                               :data-id="item.dataId"
-                               :key="index"
-                               :index="index"
-                               :items="cItems"
-                               :showEdit="false"
-                               @deleteIndex="delCol">
+                  <filter-temp v-for="(item,index) in cItems" :name="item.columnChName" :key="index" :index="index"
+                               :items="cItems" :showEdit="false" @deleteIndex="delCol">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawValClass">
                   <header>数值：</header>
                   <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动数据到此处</div>
-                  <filter-temp v-for="(item,index) in nItems" :name="item.name" :dataType="item.dataType"
-                               :data-id="item.dataId"
-                               :key="index"
-                               :index="index"
-                               :items="nItems"
-                               :showEdit="false"
-                               @deleteIndex="delVal">
+                  <filter-temp v-for="(item,index) in nItems" :name="item.columnChName" :key="index" :index="index"
+                               :items="nItems" :showEdit="false" @deleteIndex="delVal">
                   </filter-temp>
                 </ul>
               </div>
@@ -119,11 +123,8 @@
               <div slot="content" class="filtrate-wrap">
                 <ul class="has-dataset filtrate-list filtrateClass" id="filtrate">
                   <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动数据到此处</div>
-                  <filter-temp v-else v-for="(item,index) in bItems" :name="item.name" :dataType="item.dataType"
-                               :data-id="item.dataId"
-                               :key="index"
-                               :index="index"
-                               :items="bItems" @editClick="editF(item.dataType, item, index)" @deleteIndex="delFiter">
+                  <filter-temp v-else v-for="(item,index) in bItems" :name="item.columnChName" :key="index" :index="index"
+                               :items="bItems" @editClick="editF(item, index)" @deleteIndex="delFiter">
                   </filter-temp>
                 </ul>
               </div>
@@ -133,53 +134,52 @@
       </el-row>
     </el-form>
 
-    <!-- 选择数据集/自助报表 -->
-    <el-dialog title="选择数据集/自助报表" :visible.sync="dialogDataSet" class="newfile-dialog">
-      <el-form :inline="true" :model="formInline" label-width="80px">
-        <el-form-item label="数据集：" prop="">
-          <el-input v-model="formInline.name" placeholder="请输入关键词" size="small"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="search()" size="small">查询</el-button>
-        </el-form-item>
-      </el-form>
-      <div>
-        <el-table :header-cell-style="{background:'#f0f2f5'}" height="250" :data="tableData" border style="width: 100%">
-          <el-table-column type="index" label="序号" width="100"></el-table-column>
-          <el-table-column prop="address" label="数据集名称"></el-table-column>
-          <el-table-column prop="name" label="创建人"></el-table-column>
-          <el-table-column prop="date" label="创建时间"></el-table-column>
-          <el-table-column label="操作" width="80">
-            <template slot-scope="scope">
-              <el-button @click="chooseRow(scope.row)" type="text" size="small">选择</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <element-pagination :isSureBtn="true" @sureClick="dialogDataSet = false"></element-pagination>
+    <el-dialog title="过滤设置" :visible.sync="filterVisible">
+      <div class="filterBox dis-flex" v-loading="filterLoading">
+        <div class="box">
+          <div class="title">可用值</div>
+          <div class="dis-flex">
+            <el-input placeholder="请输入内容" size="mini" v-model="searchFilter"></el-input>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchUserFunc('search')"></el-button>
+          </div>
+          <el-checkbox-group v-model="allCheckList" class="list">
+            <div v-for="(item, index) in filterAllList" class="line" :key="index">
+              <el-checkbox :label="item">{{item}}</el-checkbox>
+            </div>
+          </el-checkbox-group>
+          <div class="bottom dis-flex">
+            <!--<el-button size="mini" @click="lastPage" :disabled="userPage <= 0">上一页</el-button>-->
+            <!--<el-button size="mini" @click="nextPage" :disabled="userPage >= totalPage">下一页</el-button>-->
+            <el-button size="mini" @click="lastPage">上一页</el-button>
+            <el-button size="mini" @click="nextPage">下一页</el-button>
+          </div>
+        </div>
+        <div class="centerButton">
+          <!--<el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>-->
+          <!--<el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>-->
+          <el-button icon="el-icon-arrow-left" circle></el-button>
+          <el-button icon="el-icon-arrow-right" circle></el-button>
+        </div>
+        <div class="box">
+          <div class="title">使用值</div>
+          <div class="dis-flex">
+            <el-input placeholder="请输入内容" size="mini" v-model="searchFilter"></el-input>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="editF"></el-button>
+          </div>
+          <el-checkbox-group v-model="filterCheckList" class="list no-bottom">
+            <div v-for="(item, index) in showFilterList" class="line" :key="index">
+              <el-checkbox :label="item">{{item.label}}</el-checkbox>
+            </div>
+          </el-checkbox-group>
+          <!--<div class="bottom dis-flex">-->
+          <!--<el-button size="mini">上一页</el-button>-->
+          <!--<el-button size="mini">下一页</el-button>-->
+          <!--</div>-->
+        </div>
       </div>
-    </el-dialog>
-
-    <!--拖拽后弹出筛选弹窗-->
-    <!--日期窗口-->
-    <filtrate-dialog :getDataId="getDataId" :getTextAllData="bItems" :showDateF='true' width='50%'
-                     :dialogVisible="dialogDateFiltrate" @sureClick="dateSure" @close="dateClose()"></filtrate-dialog>
-    <!--文本窗口-->
-    <filtrate-dialog :getDataId="getDataId" :getTextAllData="bItems" :showTextF='true' width="500px"
-                     :dialogVisible="dialogTextFiltrate" @sureClick="textSure" @close="textClose()"></filtrate-dialog>
-    <!--数值窗口-->
-    <filtrate-dialog :getDataId="getDataId" :getTextAllData="bItems" :showNumF='true' width="500px"
-                     :dialogVisible="dialogNumFiltrate" @sureClick="numSure" @close="numClose()"></filtrate-dialog>
-
-    <!-- 新建文件夹弹框开始 -->
-    <el-dialog title="新建文件夹" :visible.sync="dialogFormVisible" class="newfile-dialog" width="400px">
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
-        <el-form-item label="" prop="name">
-          <el-input v-model="ruleForm.name" placeholder="请输入文件夹名称（1~20字）" size="small"></el-input>
-        </el-form-item>
-      </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false" size="small">取 消</el-button>
-        <el-button type="primary" size="small" @click="submitForm('ruleForm')">确 定</el-button>
+        <el-button @click="filterVisible = false">取 消</el-button>
+        <el-button type="primary">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -196,13 +196,28 @@ import FiltrateDialog from '@/components/FiltrateDialogBywzh'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
 
-import { getCubesApi } from '../../../api/olapAnalysisList'
+import { getCubesApi, getFilterDetailsApi } from '../../../api/olapAnalysisList'
 
 export default {
   components: { ShirinkPannel, FilterTemp, ElementPagination, FiltrateDialog },
   data () {
     return {
+      limitHeight: 0,
       menuList: [],
+      menuDefault: {
+        children: 'children', // 子集的属性
+        label: 'name', // 标题的属性
+        disabled: function (resData) {
+          if (resData.isShare === 0) {
+            return false
+          } else {
+            return true
+          }
+        }
+      },
+      dimensuresList: [],
+      measuresList: [],
+      selectCubeId: '',
       dialogDataSet: false,
       dataSetData: [{ name: '南城交通数据源1' }],
       formInline: {
@@ -212,7 +227,7 @@ export default {
         searchKey: '',
         measureSearch: '',
         // statementName: '',
-        fileName: '',
+        // fileName: '',
         name: ''
       },
       tableData: [
@@ -221,12 +236,6 @@ export default {
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄'
         }
-      ],
-      dimenData: [
-        { name: '南城鸿福路文本', type: 'Text', id: '1' }
-      ],
-      measureData: [
-        { name: '车辆4', type: 'Integer', id: '44' }
       ],
       // 拖拽到筛选器
       nItems: [],
@@ -237,7 +246,7 @@ export default {
       dialogDateFiltrate: false,
       dialogTextFiltrate: false,
       dialogNumFiltrate: false,
-      dialogFormVisible: false,
+      // dialogFormVisible: false,
       ruleForm: {
         name: ''
       },
@@ -245,26 +254,69 @@ export default {
         name: [
           { required: true, message: '请输入文件夹名称', trigger: 'blur' },
           { min: 1, max: 20, message: '文件夹名称不能超过20个字，请重新输入', trigger: 'blur' }
-        ],
-        fileName: [
-          { required: true, message: '请选择报表存放文件夹', trigger: 'change' }
-        ],
+        ]
+        // fileName: [
+        //   { required: true, message: '请选择报表存放文件夹', trigger: 'change' }
+        // ],
         // statementName: [
         //   { required: true, message: '请输入自助报表名称', trigger: 'blur' },
         //   { min: 1, max: 20, message: '自助报表名称为1～20个字，请重新输入', trigger: 'blur' }
         // ]
-      }
+      },
+      filterPageIndex: 0,
+      totalPage: 0,
+      searchFilter: '',
+      filterVisible: false,
+      filterLoading: false,
+      filterAllList: [],
+      filterCheckList: [],
+      showFilterList: [],
+      allCheckList: []
+
     }
   },
   watch: {
+    nItems (val) {
+      this.$store.dispatch('getNewValueListAction', val)
+    },
+    bItems (val) {
+      this.$store.dispatch('getNewFilterListAction', val)
+    },
+    rItems (val) {
+      this.$store.dispatch('getNewRowListAction', val)
+    },
+    cItems (val) {
+      this.$store.dispatch('getNewColListAction', val)
+    },
     'dashBoardForm.searchKey' (val) {
       if (val) this.handleShrinkSearch(val, 'searchKey')
     },
     'dashBoardForm.measureSearch' (val) {
       if (val) this.handleShrinkSearch(val, 'measureSearch')
+    },
+    selectCubeId (val) {
+      const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]
+      this.$store.dispatch('getCubeIdAction', cubeId)
+      let dimensuresList = []
+      let measuresList = []
+      dimensures.forEach(item => {
+        dimensuresList.push(item)
+        item.children && item.children.forEach(v => {
+          dimensuresList.push(v)
+        })
+      })
+      measures.forEach(item => {
+        measuresList.push(item)
+        item.children && item.children.forEach(v => {
+          measuresList.push(v)
+        })
+      })
+      this.dimensuresList = dimensuresList
+      this.measuresList = measuresList
     }
   },
   mounted () {
+    this.limitHeight = document.body.offsetHeight - 123
     this.setSortTable()
     this.getCubes()
   },
@@ -274,17 +326,17 @@ export default {
       this.menuList = menuList
     },
     // 选择文件夹名称
-    getFileName (fileValue) {
-      if (fileValue === '1') {
-        this.dashBoardForm.fileName = ''
-        this.dialogFormVisible = true
-      }
-    },
+    // getFileName (fileValue) {
+    //   if (fileValue === '1') {
+    //     // this.dashBoardForm.fileName = ''
+    //     this.dialogFormVisible = true
+    //   }
+    // },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.dashBoardForm.fileName = this.ruleForm.name
-          this.dialogFormVisible = false
+          // this.dashBoardForm.fileName = this.ruleForm.name
+          // this.dialogFormVisible = false
         } else {
           return false
         }
@@ -348,19 +400,21 @@ export default {
         this.setSortTableOther()
       }, 0)
     },
-    editF (dataType, item, index) {
+    async editF (item, index) {
       this.getDataId = item
-      if (dataType === 'DATE') {
-        this.dialogDateFiltrate = true
+      const params = {
+        columnId: item.columnId,
+        key: this.searchFilter,
+        pageIndex: this.filterPageIndex,
+        pageSize: 20,
+        tableId: item.tableId
       }
-      if (dataType === 'Integer') {
-        this.dialogNumFiltrate = true
-      }
-      if (dataType === 'Text') {
-        this.dialogTextFiltrate = true
-      }
+      const res = await getFilterDetailsApi(params)
+      const results = res.results.map(v => v[0])
+      this.filterAllList = results
+      this.filterVisible = true
       // console.log(this.dialogTextFiltrate)
-      console.log(dataType, item, index)
+      console.log(item, index)
       // if (item) this.tempTextDialog = [item]
     },
     setSortTableOther () {
@@ -424,54 +478,23 @@ export default {
           },
           sort: false,
           animation: 150,
+          filter: '.parent',
           onEnd: evt => {
-            console.log('onEnd------', evt.to.classList, evt.from.id)
-            let index = evt.oldIndex
-            let name = this[evt.from.id + 'Data'][index].name
-            // let itemEl = evt.item
-            // this.dataTypeF = itemEl.getAttribute('data-type')
-            let dataId = this[evt.from.id + 'Data'][index].id
-            let dataType = this[evt.from.id + 'Data'][index].type
+            let obj = {}
+            if (evt.from.id === 'dimen') {
+              obj = this.dimensuresList[evt.oldIndex].attrs
+            } else {
+              obj = this.measuresList[evt.oldIndex].attrs
+            }
             // 拖动进筛选
             if (evt.to.classList.contains('filtrateClass')) {
-              // this.bItems.push({ 'name': name, 'dataType': dataType })
-              // this.editF(dataType)
-              const index = this.bItems.findIndex(_ => _.name === name)
+              if (evt.from.id !== 'dimen') {
+                return this.$message.error('只支持维度数值')
+              }
+              const index = this.bItems.findIndex(_ => _.columnChName === obj.columnChName)
               if (!~index) {
                 // 如果不存在，那么插入
-                if (dataType === 'DATE') {
-                  this.dialogDateFiltrate = true
-                  this.bItems.push({
-                    name,
-                    dataType,
-                    dataId,
-                    options: [{ 'region': '1', 'dateSpecific': '', 'dateStart': '', 'dateEnd': '', 'days': '' }]
-                  })
-                  this.editF(dataType, {
-                    name,
-                    dataType,
-                    dataId,
-                    options: [{ 'region': '1', 'dateSpecific': '', 'dateStart': '', 'dateEnd': '', 'days': '' }]
-                  })
-                }
-                if (dataType === 'Integer') {
-                  this.bItems.push({
-                    name,
-                    dataType,
-                    dataId,
-                    options: [{ region: '1', num: null, numMin: null, numMax: null }]
-                  })
-                  this.editF(dataType, {
-                    name,
-                    dataType,
-                    dataId,
-                    options: [{ region: '1', num: null, numMin: null, numMax: null }]
-                  })
-                }
-                if (dataType === 'Text') {
-                  this.bItems.push({ name, dataType, dataId, options: [{ region: '1', range: '' }] })
-                  this.editF(dataType, { name, dataType, dataId, options: [{ region: '1', range: '' }] })
-                }
+                this.bItems.push(obj)
               } else {
                 //  如果存在
                 this.$message({
@@ -483,13 +506,17 @@ export default {
             // 拖动到维度行
             if (evt.to.classList.contains('drawListClass')) {
               if (evt.from.id !== 'dimen') {
-                this.$message.error('只支持维度数值')
-                return
+                return this.$message.error('只支持维度数值')
               }
-              const index = this.rItems.findIndex(_ => _.name === name)
-              if (!~index) {
+              const rIndex = this.rItems.findIndex(_ => {
+                if (_.columnChName === obj.columnChName) {
+                  return _
+                }
+              })
+              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
-                this.rItems.push({ name, dataType, dataId })
+                this.rItems.push(obj)
               } else {
                 //  如果存在
                 this.$message({
@@ -504,10 +531,11 @@ export default {
                 this.$message.error('只支持维度数值')
                 return
               }
-              const index = this.cItems.findIndex(_ => _.name === name)
-              if (!~index) {
+              const rIndex = this.rItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
-                this.cItems.push({ name, dataType, dataId })
+                this.cItems.push(obj)
               } else {
                 //  如果存在
                 this.$message({
@@ -522,10 +550,10 @@ export default {
                 this.$message.error('只支持度量数值')
                 return
               }
-              const index = this.nItems.findIndex(_ => _.name === name)
+              const index = this.nItems.findIndex(_ => _.columnChName === obj.columnChName)
               if (!~index) {
                 // 如果不存在，那么插入
-                this.nItems.push({ name, dataType, dataId })
+                this.nItems.push(obj)
               } else {
                 //  如果存在
                 this.$message({
@@ -538,7 +566,51 @@ export default {
         })
       })
       this.setSortTableOther()
+    },
+    lastPage () {
+      if (this.filterPageIndex <= 0) return false
+      this.filterPageIndex = this.filterPageIndex - 1
+      this.editF()
+    },
+    nextPage () {
+      if (this.filterPageIndex >= this.totalPage) return false
+      this.filterPageIndex = this.filterPageIndex + 1
+      this.editF()
     }
+    // addFilter () {
+    //   this.searchFilter = ''
+    //   this.filterList = [...this.FilterList, ...this.userCheckList]
+    //   this.showFilterList = this.FilterList
+    //   this.userCheckList = []
+    //   this.cleanFilter()
+    // },
+    // reduceFilter () {
+    //   this.searchFilter = ''
+    //   let list = []
+    //   this.FilterList.forEach((item, index) => {
+    //     this.FilterCheckList.forEach(v => {
+    //       if (item.key === v.key) {
+    //         list.push(index)
+    //       }
+    //     })
+    //   })
+    //   list.reverse()
+    //   list.forEach(v => this.FilterList.splice(v, 1))
+    //   this.showFilterList = this.FilterList
+    //   this.cleanFilter()
+    // },
+    // cleanFilter () {
+    //   const filterAllList = this.userRows.map(item => {
+    //     let disabled = false
+    //     this.FilterList.forEach(v => {
+    //       if (v.key === item.userid) {
+    //         disabled = true
+    //       }
+    //     })
+    //     return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+    //   })
+    //   this.filterAllList = filterAllList
+    // }
   }
 }
 </script>
@@ -549,10 +621,8 @@ export default {
     flex-shrink: 0;
     margin-right: 20px;
     width: 400px;
-    /*min-height: calc(100vh - 50px);*/
     .cus-drag-setting {
       overflow: auto;
-      /*height: calc(100vh - 200px);*/
     }
     .filtrate-wrap {
       position: relative;
@@ -599,6 +669,45 @@ export default {
       text-align: center;
       border: 1px dashed #ccc;
       padding: 5px;
+      /*>>> .custom-tree-node { // 小图标*/
+        /*width: 84%;*/
+        /*overflow: hidden;*/
+        /*text-overflow: ellipsis;*/
+        /*.cus-node-title {*/
+          /*color: #606266;*/
+          /*font-size: 14px;*/
+        /*}*/
+      /*}*/
+      /*>>> .el-tree-node__content {*/
+        /*position: relative;*/
+        /*overflow: hidden;*/
+        /*text-overflow: ellipsis;*/
+        /*white-space: nowrap;*/
+      /*}*/
+      /*>>> .el-tree-node__content:hover {*/
+        /*.cus-node-content {*/
+          /*display: inline-block;*/
+          /*opacity: 1;*/
+          /*filter:Alpha(opacity=100);*/
+          /*transition: opacity .5s;*/
+        /*}*/
+      /*}*/
+      /*>>> .el-tree {*/
+        /*height: calc(100vh - 299px);*/
+        /*overflow: auto;*/
+        /*>>> .el-tree-node__expand-icon.expanded {*/
+          /*transform: none;*/
+        /*}*/
+        /*>>> .el-tree-node__expand-icon.expanded:before {*/
+          /*content: "\e784";*/
+        /*}*/
+        /*>>> .el-tree-node__expand-icon {*/
+          /*color: #c0c4cc;*/
+        /*}*/
+      /*}*/
+      .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {
+        display: block!important;
+      }
     }
     .has-dataset {
       font-size: 14px;
@@ -607,11 +716,29 @@ export default {
       padding-inline-start: 0;
       .data-list {
         display: flex;
-        flex-wrap: nowrap;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 5px;
+        span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .line {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
         i {
+          flex-shrink: 0;
           color: #409EFF;
+          margin-right: 5px;
           &.close:hover {
             cursor: pointer;
             font-weight: bold;
@@ -632,6 +759,15 @@ export default {
       .dimen-list {
         cursor: move;
       }
+      .left-list {
+        display: block;
+        margin-left: 15px;
+        cursor: move;
+      }
+      .parent {
+        margin-left: 0;
+        cursor: default;
+      }
       &.unvisable {
         li {
           display: none;
@@ -647,6 +783,37 @@ export default {
     .unvisable {
       li {
         display: none;
+      }
+    }
+  }
+  .filterBox {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    .box {
+      width: 35%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px #ddd solid;
+      border-radius: 5px;
+      .title {
+        margin-bottom: 10px;
+      }
+      .list {
+        height: 200px;
+        margin: 10px 0;
+        overflow: auto;
+        .line {
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+      .no-bottom {
+        height: 230px;
+      }
+      .bottom {
+        justify-content: space-between;
+        height: 30px;
       }
     }
   }

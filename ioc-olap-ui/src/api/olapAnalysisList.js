@@ -32,3 +32,20 @@ export function getCubesApi () {
     method: 'get'
   })
 }
+
+export function getFilterDetailsApi (params) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/queryDimension',
+    method: 'get',
+    params
+  })
+}
+
+export function getOlapAnalyzeApi (params, data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/query',
+    method: 'post',
+    params,
+    data
+  })
+}

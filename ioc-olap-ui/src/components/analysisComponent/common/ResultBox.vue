@@ -25,13 +25,19 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">保存结果</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset()">重置</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0" @click="showShareListVisible = true">
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">
+            保存结果
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0"
+                     @click="showShareListVisible = true">
             查看分享人
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="analysisSearch">
+            查询
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
+                     @click="handleAutoSearch">
             {{autoSearch ? '关闭' : '开启'}}自动查询
           </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">行列转换</el-button>
@@ -94,7 +100,7 @@ export default {
     },
     exportData: {
       type: Object,
-      default: {}
+      default: () => ({})
     },
     diffWidth: {
       type: Number,
@@ -107,11 +113,11 @@ export default {
     },
     shareList: {
       type: Array,
-      default: []
+      default: () => ([])
     },
     folderData: {
       type: Object,
-      default: {}
+      default: () => ({})
     }
   },
   components: { DynamicTable },
@@ -139,7 +145,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ saveFolderList: 'saveFolderList' })
+    ...mapGetters([
+      'saveFolderList',
+      'cubeId',
+      'newValueList',
+      'newFilterList',
+      'newRowList',
+      'newColList'
+    ])
   },
   mounted () {
     const date = new Date()
@@ -156,6 +169,14 @@ export default {
     this.nowDate = nowDate
   },
   methods: {
+    analysisSearch () {
+      const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign(v, { type: 3 })) : []
+      const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign(v, { type: 4 })) : []
+      const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign(v, { type: 1 })) : []
+      const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign(v, { type: 2 })) : []
+      const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
+      this.$emit('searchFunc', list, this.cubeId)
+    },
     submitNewForm () {
       this.$refs.newForm.validate(async (valid) => {
         if (valid) {
