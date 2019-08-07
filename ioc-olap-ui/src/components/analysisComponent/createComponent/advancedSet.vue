@@ -139,6 +139,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
 import { reduceObj } from '@/utils/index'
+import { log } from 'util'
 export default {
   components: {
     steps, selectAggregation
@@ -200,6 +201,7 @@ export default {
     }
   },
   mounted () {
+    this.resortAggregation()
     this.init()
   },
   methods: {
@@ -216,6 +218,14 @@ export default {
         })
       })
       this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
+    },
+    resortAggregation () {
+      console.log(this.aggregation_groups)
+      this.aggregation_groups.forEach(item => {
+        let data = item.select_rule
+        if (data.hierarchy_dims.length === 0) data.hierarchy_dims = [[]]
+        if (data.joint_dims.length === 0) data.joint_dims = [[]]
+      })
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)

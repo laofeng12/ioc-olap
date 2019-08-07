@@ -227,11 +227,13 @@ const setFiled = {
             state.dimensions.push({
               table: item.tableName,
               column: item.name,
+              columnType: item.dataType,
               name: item.name ? item.name : item.name
             })
           } else {
             state.dimensions.push({
               table: item.tableName,
+              columnType: item.dataType,
               derived: item.mode === '1' ? null : item.name.split(','),
               name: item.name ? item.name : item.name
             })

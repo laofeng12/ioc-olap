@@ -40,7 +40,7 @@ export default {
       current: '',
       colors: 'red',
       ids: '',
-      foreign_key: '',
+      primary_key: '',
       titleData: [], // 表名
       // 模拟数据
       dataList: {}
@@ -57,7 +57,7 @@ export default {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
           this.ids = item.id
-          this.foreign_key = item.join.foreign_key
+          this.primary_key = item.join.foreign_key
         }
       })
       let factData = {
@@ -65,7 +65,7 @@ export default {
         joinId: this.ids,
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          foreign_key: this.foreign_key
+          primary_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups]

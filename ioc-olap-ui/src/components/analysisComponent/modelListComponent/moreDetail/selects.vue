@@ -13,6 +13,11 @@ export default {
   components: {
     elementTable
   },
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
+  },
   data () {
     return {
       descriptionData: [
@@ -29,6 +34,16 @@ export default {
         { prop: 'dataType', label: '来源' },
         { prop: 'columnName', label: '表名称' }
       ]
+    }
+  },
+  mounted () {
+    this.init()
+  },
+  methods: {
+    init () {
+      if (this.jsonData) {
+        console.log('父亲来的', this.jsonData)
+      }
     }
   }
 }

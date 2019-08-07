@@ -9,6 +9,15 @@ export function getModelDataList (params) {
   })
 }
 
+// 查看立方体
+export function descDataList (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/desc',
+    method: 'get',
+    params
+  })
+}
+
 // 构建
 export function buildModeling (params) {
   return fetch({
@@ -57,3 +66,13 @@ export function enableModeling (params) {
 //     params
 //   })
 // }
+
+// 构建列表
+export function jobsListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/jobsList',
+    method: 'post',
+    contentType: 'application/json',
+    params
+  })
+}

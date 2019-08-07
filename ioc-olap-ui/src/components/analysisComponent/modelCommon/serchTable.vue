@@ -43,18 +43,22 @@ export default {
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
         this.loading = true
         this.dataList[0].children = []
+        console.log(res)
+        /* KELIN */
         if (type && type === 1) {
-          // this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
           this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => { // kelin
-            // if (res.code === 200) {
-            //   res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
-            //   this.loading = false
-            // }
             res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
             this.loading = false
           })
+        // if (type && type === 1) {
+        //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+        //     if (res.code === 200) {
+        //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+        //       this.loading = false
+        //     }
+        //   })
         } else {
-          this.saveSelectTable.map(res => { this.dataList[0].children.push({ id: res.id, resourceId: res.resourceId, label: res.label }) })
+          this.serchTableList.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName }) })
           setTimeout(() => { this.loading = false }, 300)
         }
       })
@@ -95,6 +99,8 @@ export default {
       })
     },
     handleNodeClick (value) {
+      console.log(value)
+      if (value.label === '全选') return
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
         // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {

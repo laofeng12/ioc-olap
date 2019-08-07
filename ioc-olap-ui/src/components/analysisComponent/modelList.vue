@@ -10,9 +10,11 @@
     </header>
     <el-table
         :data="tableData"
+        v-loading="getLoading"
         ref="multipleTable"
         :row-key="getRowKeys"
         :expand-row-keys="expands"
+         class="statusDiv"
         tooltip-effect="dark"
         @row-click="clickTable"
         @selection-change="handleSelectionChange"
@@ -20,16 +22,38 @@
         <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
             <el-popover>
-              <model-detail @closeExpands="closeExpands"></model-detail>
+              <model-detail @closeExpands="closeExpands" :jsonData="jsonData"></model-detail>
             </el-popover>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="status" label="模型状态" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="size_kb" label="模型大小" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="status" label="模型状态" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              <el-button size="mini" :type="scope.row.status === 'DISABLED' ? 'type' : 'success'">{{scope.row.status === 'DISABLED' ? '禁用' : '准备中'}}</el-button>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="size_kb" label="模型大小" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>{{scope.row.size_kb}}.00kb</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="input_records_count" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="last_modified" label="上次构建的时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="partitionDateStart" label="创建时间" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="last_modified" label="上次构建的时间" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+               {{scope.row.last_modified | formatDate}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="partitionDateStart" label="创建时间" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+               {{scope.row.partitionDateStart | formatDate}}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="partitionDateColumn" label="模型来源" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column
           label="操作"
@@ -39,8 +63,8 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'lookDetail', params: scope.row.apiId}">查看</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">编辑</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookDetail', params: scope.row}">查看</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item>
@@ -64,24 +88,33 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling } from '@/api/modelList'
+import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
+import { filterTime } from '@/utils/index'
 export default {
   components: {
     modelDetail, rename, construct, reloads, merge, sharedTable
   },
   data () {
     return {
+      getLoading: false,
       like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
       getRowKeys (row) {
-        return row.apiId
+        return row.uuid
       },
       // 要展开的行，数值的元素是row的key值
       expands: [],
-      tableData: []
+      tableData: [],
+      jsonData: {}
+    }
+  },
+  filters: {
+    formatDate (time) {
+      var date = new Date(time)
+      return filterTime(date)
     }
   },
   mounted () {
@@ -102,7 +135,7 @@ export default {
     },
     // 展开详情
     clickTable (val) {
-      console.log(val)
+      // console.log(val)
     },
     returnSuccess () {
       this.$message({
@@ -128,10 +161,14 @@ export default {
           texts = '确定删除该模型？'
           break
       }
-      // let texts = val.type === 'disableds' ? '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
-      //   : (val.type === 'clones' ? '确定赋值该模型？' : '确定删除改模型？')
       if (val.type === 'lookDetail') {
-        this.expands.push(val.params)
+        this.expands.push(val.params.uuid)
+        descDataList({ cubeName: val.params.name, models: val.params.model }).then(res => {
+          if (res) {
+            this.jsonData = res
+            console.log(JSON.stringify(res.ModesList.lookups), '==============')
+          }
+        })
         return
       }
       if (val.type === 'disableds' || val.type === 'enable' || val.type === 'clones' || val.type === 'dels') {
@@ -140,12 +177,19 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.getLoading = true
           if (val.type === 'disableds') {
             disableModeling({ cubeName: val.params.name }).then(res => {
-              console.log(res)
+              res.code === 200 && (this.getLoading = false && this.$message.success('已禁用'))
+            }).finally(_ => {
+              this.getLoading = false
             })
-          } else if (val.type === '') {
-
+          } else if (val.type === 'enable') {
+            enableModeling({ cubeName: val.params.name }).then(res => {
+              res.code === 200 && (this.getLoading = false && this.$message.success('已启用'))
+            }).finally(_ => {
+              this.getLoading = false
+            })
           }
         })
         return
@@ -179,6 +223,12 @@ export default {
   >>>.el-table__row{
     .el-table__expand-column{
       opacity 0
+    }
+  }
+  >>>.el-table__body-wrapper{
+    .el-button{
+      width 80px!important
+      text-align center
     }
   }
   >>>.el-table__expanded-cell{

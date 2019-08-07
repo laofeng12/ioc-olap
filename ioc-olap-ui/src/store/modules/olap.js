@@ -58,10 +58,10 @@ const common = {
       },
       cube: {
         'cubeDescData': {
-          'name': 'myCube',
-          'model_name': 'aaa',
+          'name': '',
+          'model_name': '',
           'engine_type': 2,
-          'description': 'cc',
+          'description': '',
           'dimensions': [ // 设置维度表
             {
               'name': 'USER_DEFINED_FIELD1',
@@ -127,15 +127,10 @@ const common = {
               ],
               'select_rule': {
                 'hierarchy_dims': [
-                  [
-
-                  ]
                 ],
                 'mandatory_dims': [
                 ],
                 'joint_dims': [
-                  [
-                  ]
                 ]
               }
             }
@@ -185,13 +180,20 @@ const common = {
           // 'override_kylin_properties': {}
         }
       },
-      body: {
-        filterCondidion: [], // 刷新过滤设置
+      filterCondidion: [], // 刷新过滤设置
+      timingreFresh: {
         INTERVAL: '', // 更新频率
         frequencytype: '', // 更新方式
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       }
+    },
+    selectStep: {
+      library: {
+        id: '',
+        name: ''
+      },
+      tableId: []
     }
   },
   mutations: {
@@ -223,6 +225,10 @@ const common = {
         data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
       // dispatch('setSelectTableTotal')
+    },
+    // 存储选择的库以及表
+    Savelibrary ({ state }) {
+
     }
   }
 }

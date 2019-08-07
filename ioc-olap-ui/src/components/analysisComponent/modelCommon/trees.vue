@@ -70,6 +70,7 @@ export default {
     },
     fetchTreeList (val) {
       this.treeLoading = true
+      /** 数据湖 */
       // this.$store.dispatch('GetTreeList').then(res => {
       //   if (res && res.code === 200) {
       //     this.treeLoading = false
@@ -144,7 +145,7 @@ export default {
         if (data.databaseType !== '1') {
           this.$message.warning('暂只支持HIVE类型数据查询')
         } else {
-          this.fetchResourceList(data, node.parent.key)
+          // this.fetchResourceList(data, node.parent.key)
         }
       }
       // 为资源列表的时候
@@ -179,7 +180,7 @@ export default {
       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     },
     fetchResourceInfo (data, nodeId) {
-      this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
+      this.$store.dispatch('GetResourceInfo', { resourceId: data.orgId, type: data.type }).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框

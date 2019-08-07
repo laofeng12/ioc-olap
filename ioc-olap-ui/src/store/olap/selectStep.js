@@ -62,6 +62,7 @@ const selectStep = {
       return new Promise((resolve, reject) => {
         // getTreethreeList(obj).then(res => {
         getselectTable(obj).then(res => { // kelin
+          commit('GET_SERCHTABLE_LIST', res)
           resolve(res)
         })
       })

@@ -15,12 +15,12 @@
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="formData.function.expression !== 'COUNT'" label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
+        <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
           <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectType">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
+        <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
           <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
@@ -260,6 +260,7 @@ export default {
           let id = Math.random().toString(36).substr(3)
           this.formData['id'] = id
           this.formData['isNew'] = this.isNew
+          this.formData['showDim'] = true
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('保存成功~')
@@ -312,7 +313,7 @@ export default {
           this.isDisabledtype = true
           this.isDisabledtext = true
           // delete this.formData.function.returntype
-          delete this.formData.function.parameter.value
+          // delete this.formData.function.parameter.value
           break
         case 'PERCENTILE':
           this.formData.function.parameter.type = 'column'
