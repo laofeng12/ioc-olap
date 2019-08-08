@@ -3,6 +3,7 @@ package com.openjava.platform.api;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapRealQuery;
 import com.openjava.platform.domain.OlapShare;
+import com.openjava.platform.dto.ShareUserDto;
 import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapShareService;
 import io.swagger.annotations.Api;
@@ -35,7 +36,7 @@ public class OlapShareAction {
     @ApiOperation(value = "读取共享")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @Security(session=true)
-    public List<OlapShare> get(String sourceType,String sourceId) {
+    public List<ShareUserDto> get(String sourceType, String sourceId) {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapShareService.getList(sourceType,sourceId,Long.parseLong(userVO.getUserId()));
     }

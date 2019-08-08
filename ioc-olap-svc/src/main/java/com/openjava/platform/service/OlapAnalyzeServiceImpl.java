@@ -51,6 +51,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Resource
     private OlapCubeTableColumnRepository olapCubeTableColumnRepository;
 
+    @Resource
+    private CubeAction cubeAction;
+
     public Page<OlapAnalyze> query(OlapAnalyzeDBParam params, Pageable pageable) {
         Page<OlapAnalyze> pageresult = olapAnalyzeRepository.query(params, pageable);
         return pageresult;
@@ -96,12 +99,16 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     }
 
     private void writeJoinTable(OlapCubeTable dict, List<OlapCubeTableRelation> relations, ArrayList<TableInnerDto> joinTables, List<OlapCubeTable> cubeTables, Long tableId) throws APIException {
-        OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().get();
-        ;
+        if (tableId.equals(dict.getId())) {
+            return;
+        }
+
+        OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().orElse(null);
+
         if (relation == null) {
             throw new APIException("结构错误！");
         }
-        if (relation.getTableId() != dict.getCubeTableId()) {
+        if (!relation.getTableId().equals(dict.getCubeTableId())) {
             writeJoinTable(dict, relations, joinTables, cubeTables, relation.getTableId());
         }
         if (joinTables.stream().filter((p) -> p.getJoinTableId().equals(tableId)).count() == 0) {
@@ -116,6 +123,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             innerDto.setJoinFkKeys(relation.getFkKey().split(","));
             innerDto.setJoinPkKeys(relation.getPkKey().split(","));
             innerDto.setDatabaseName(joinTable.getDatabaseName());
+            joinTables.add(innerDto);
         }
     }
 
@@ -132,33 +140,54 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     }
                 }
             }
-            return p.getJoinType() + " " + p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
+            return p.getJoinType() + " join " + p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
         }).collect(Collectors.toList());
-        String sql = MessageFormat.format("select {0} from {1}.{2} as {3} {4} where {5} group by {6} order by {6}", String.join(",", selectColumns),
-                dict.getDatabaseName(), dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), String.join(" and ", filters),
-                String.join(",", groups));
+        String where = filters.size() > 0 ? String.join(" and ", filters) : "1=1";
+        String sql = MessageFormat.format("select {0} from {1} as {2} {3} where {4} group by {5} order by {5}", String.join(",", selectColumns),
+                dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), where, String.join(",", groups));
         return sql;
     }
 
     @Override
+    @Transactional(readOnly = false)
     public AnalyzeVo save(AnalyzeVo analyzeVo) throws APIException {
         String sql = getSql(analyzeVo.getCubeId(), analyzeVo.getOlapAnalyzeAxes());
         OlapAnalyze analyze = new OlapAnalyze();
-        MyBeanUtils.copyPropertiesNotBlank(analyze, analyzeVo);
         analyze.setSql(sql);
+        analyze.setAnalyzeId(analyzeVo.getAnalyzeId());
+        analyze.setCreateId(analyzeVo.getCreateId());
+        analyze.setCreateName(analyzeVo.getCreateName());
+        analyze.setCreateTime(analyzeVo.getCreateTime());
+        analyze.setCubeId(analyzeVo.getCubeId());
+        analyze.setFlags(analyzeVo.getFlags());
+        analyze.setFolderId(analyzeVo.getFolderId());
+        analyze.setIsNew(analyzeVo.getIsNew());
+        analyze.setName(analyzeVo.getName());
+        analyze.setUpdateId(analyzeVo.getUpdateId());
+        analyze.setUpdateName(analyzeVo.getUpdateName());
+        analyze.setUpdateTime(analyzeVo.getUpdateTime());
         olapAnalyzeRepository.save(analyze);
+        if (analyze.getIsNew() != null && !analyze.getIsNew()) {
+            olapAnalyzeAxisRepository.deleteByAnalyzeId(analyze.getAnalyzeId());
+            olapAnalyzeAxisFilterRepository.deleteByAnalyzeId(analyze.getAnalyzeId());
+        }
         for (AnalyzeAxisVo axis : analyzeVo.getOlapAnalyzeAxes()) {
             OlapAnalyzeAxis analyzeAxis = new OlapAnalyzeAxis();
-            MyBeanUtils.copyPropertiesNotBlank(analyzeAxis, axis);
             analyzeAxis.setAnalyzeAxisId(ConcurrentSequence.getInstance().getSequence());
             analyzeAxis.setAnalyzeId(analyze.getAnalyzeId());
+            analyzeAxis.setColumnId(axis.getColumnId());
+            analyzeAxis.setType(axis.getType());
+            analyzeAxis.setIsNew(true);
+            analyzeAxis.setTableId(axis.getTableId());
             olapAnalyzeAxisRepository.save(analyzeAxis);
             if (axis.getType() == 4) {
                 OlapAnalyzeAxisFilter analyzeAxisFilter = new OlapAnalyzeAxisFilter();
                 analyzeAxisFilter.setAnalyzeAxisFilterId(ConcurrentSequence.getInstance().getSequence());
                 analyzeAxisFilter.setAxisId(analyzeAxis.getAnalyzeAxisId());
+                analyzeAxisFilter.setAnalyzeId(analyze.getAnalyzeId());
                 analyzeAxisFilter.setIsInclude(axis.getIsInclude());
                 analyzeAxisFilter.setSelectValues(axis.getSelectValues());
+                analyzeAxisFilter.setIsNew(true);
                 olapAnalyzeAxisFilterRepository.save(analyzeAxisFilter);
             }
         }
@@ -175,6 +204,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         List<OlapCubeTableRelation> relations = olapCubeTableRelationRepository.findByCubeId(cubeId);
         List<OlapCubeTable> cubeTables = olapCubeTableRepository.findByCubeId(cubeId);
         OlapCubeTable dict = cubeTables.stream().filter(p -> p.getIsDict() == 1).findFirst().get();
+        axisVos.sort(Comparator.comparing(AnalyzeAxisVo::getType));
         for (AnalyzeAxisVo axis : axisVos) {
             // 连接查询构建
             writeJoinTable(dict, relations, joinTables, cubeTables, axis.getTableId());
@@ -214,17 +244,17 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     public AnalyzeVo getVo(Long id) {
         AnalyzeVo analyzeVo = new AnalyzeVo();
         //获取analyze
-        OlapAnalyze olapAnalyze = olapAnalyzeRepository.getOne(id);
+        OlapAnalyze olapAnalyze = get(id);
         //复制属性到VO中
         MyBeanUtils.copyPropertiesNotBlank(analyzeVo, olapAnalyze);
         //查询子表数据
         List<OlapAnalyzeAxis> analyzeAxes = olapAnalyzeAxisRepository.findByAnalyzeId(id);
-        List<OlapCubeTableColumn> cubeTableColumns = olapCubeTableColumnRepository.findByCubeId(id);
+        List<OlapCubeTableColumn> cubeTableColumns = olapCubeTableColumnRepository.findByCubeId(analyzeVo.getCubeId());
         List<OlapCubeTable> cubeTables = olapCubeTableRepository.findByCubeId(analyzeVo.getCubeId());
         analyzeVo.setOlapAnalyzeAxes(new ArrayList<AnalyzeAxisVo>());
         for (OlapAnalyzeAxis axis : analyzeAxes) {
-            OlapCubeTable cubeTable = cubeTables.stream().filter(p -> p.getCubeTableId() == axis.getTableId()).findFirst().get();
-            OlapCubeTableColumn cubeTableColumn = cubeTableColumns.stream().filter(p -> p.getCubeTableColumnId() == axis.getColumnId()).findFirst().get();
+            OlapCubeTable cubeTable = cubeTables.stream().filter(p -> p.getCubeTableId().equals(axis.getTableId())).findFirst().get();
+            OlapCubeTableColumn cubeTableColumn = cubeTableColumns.stream().filter(p -> p.getCubeTableColumnId().equals(axis.getColumnId())).findFirst().get();
             AnalyzeAxisVo axisVo = new AnalyzeAxisVo();
             MyBeanUtils.copyPropertiesNotBlank(axisVo, axis);
             axisVo.setName(cubeTable.getName());
@@ -248,9 +278,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         return analyzeVo;
     }
 
-    private AnyDimensionCellVo getCell(ArrayList<AnyDimensionCellVo> rowCells, String value, Integer begin) {
+    private AnyDimensionCellVo getCell(ArrayList<AnyDimensionCellVo> rowCells, String id, Integer begin) {
         for (Integer i = begin; i < rowCells.size(); i++) {
-            if (rowCells.get(i).getValue() == value) {
+            if (rowCells.get(i).getId().equals(id)) {
                 return rowCells.get(i);
             }
         }
@@ -265,32 +295,38 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     private AnyDimensionVo query(Long cubeId, List<AnalyzeAxisVo> axises, String userId, String sql) throws APIException {
         AnyDimensionVo anyDimensionVo = new AnyDimensionVo();
         ArrayList<ArrayList<AnyDimensionCellVo>> results = new ArrayList<ArrayList<AnyDimensionCellVo>>();
-        if (sql == null || sql == "") {
+        if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
-        QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
+        //QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
+        QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
+        if(resultMapper==null){
+            throw new APIException("网络错误！");
+        }
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
-        Integer axisYCount = (int) axises.stream().filter(p -> p.getType() == 2).count(),
-                axisXCount = (int) axises.stream().filter(p -> p.getType() == 1).count();
-        ArrayList<String> axisXDatas = new ArrayList<String>();
-        String axisXData;
+        List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
+        List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
+        List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
+        Integer axisYCount = yAxises.size(), axisXCount = xAxises.size();
+        List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
+        String axisXData, axisYData, cellId;
         ArrayList<AnyDimensionCellVo> rowCells;
         AnyDimensionCellVo cell;
-        List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType() == 2).collect(Collectors.toList());
-        List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType() == 1).collect(Collectors.toList());
-        List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType() == 3).collect(Collectors.toList());
         List<String> xTemps, yTemps, dTemps;
+        Integer dataIndex=axisYCount+1;
+        ArrayList<Double> rowSummarys =new ArrayList<>();
+        ArrayList<Double> columnSummarys =new ArrayList<>();
         //定义y轴头部
         for (Integer i = 0; i < yAxises.size(); i++) {
             rowCells = new ArrayList<AnyDimensionCellVo>();
-            cell = new AnyDimensionCellVo(axisXCount, 0, yAxises.get(i).getColumnChName(), 0);
+            cell = new AnyDimensionCellVo("", axisXCount, 1, yAxises.get(i).getColumnChName(), 2);
             rowCells.add(cell);
             results.add(rowCells);
         }
         //定义x轴头部
         rowCells = new ArrayList<AnyDimensionCellVo>();
         for (Integer i = 0; i < xAxises.size(); i++) {
-            cell = new AnyDimensionCellVo(0, 0, xAxises.get(i).getColumnChName(), 0);
+            cell = new AnyDimensionCellVo("", 1, 1, xAxises.get(i).getColumnChName(), 1);
             rowCells.add(cell);
         }
         results.add(rowCells);
@@ -299,37 +335,111 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             xTemps = row.subList(0, axisXCount);
             yTemps = row.subList(axisXCount, axisXCount + axisYCount);
             dTemps = row.subList(axisXCount + axisYCount, row.size());
-            for (String dTemp : dTemps) {
-                axisXData = String.join("-", xTemps);
-                //写入X轴
-                if (!axisXDatas.contains(axisXData)) {
-                    rowCells = new ArrayList<AnyDimensionCellVo>();
-                    results.add(rowCells);
-                    for (String xTemp : xTemps) {
-                        cell = new AnyDimensionCellVo(0, 0, xTemp, 1);
-                        rowCells.add(cell);
-                    }
+
+            axisXData = String.join("-", xTemps);
+            axisYData = String.join("-", yTemps);
+            //写入X轴
+            if (!axisXDatas.contains(axisXData)) {
+                rowCells = new ArrayList<AnyDimensionCellVo>();
+                for (Integer i=0;i<xTemps.size();i++){
+                    cellId = String.join("-", xTemps.subList(0, i + 1));
+                    rowCells.add(new AnyDimensionCellVo(cellId, 1, 1, xTemps.get(i), 1));
                 }
+                for (Integer i=0;i<axisYDatas.size()*measureAxises.size();i++){
+                    rowCells.add(null);
+                }
+                results.add(rowCells);
+                axisXDatas.add(axisXData);
+                rowSummarys.add(0.0);
+                dataIndex++;
+            }
+            if (!axisYDatas.contains(axisYData)) {
+                axisYDatas.add(axisYData);
+                axisYDatas.sort(Comparator.comparing(String::trim));
                 //写入Y轴
                 for (Integer i = 0; i < yTemps.size(); i++) {
-                    cell = getCell(results.get(i), yTemps.get(i), 1);
+                    cellId = String.join("-", yTemps.subList(0, i + 1));
+                    cell = getCell(results.get(i), cellId, 1);
                     if (cell == null) {
                         // 如果是最后一个，就开始写入度量轴
-                        if (i == yTemps.size() - 1) {
+                        if (i.equals(yTemps.size() - 1)) {
                             for (AnalyzeAxisVo measure : measureAxises) {
-                                cell = new AnyDimensionCellVo(0, 0, measure.getColumnChName(), 0);
+                                cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
                                 results.get(i + 1).add(cell);
                             }
                         }
-                        cell = new AnyDimensionCellVo(0, 0, yTemps.get(i), 2);
+                        cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
                         results.get(i).add(cell);
+                        results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
                     } else {
-                        cell.setColspan(cell.getColspan() + 1);
+                        cell.setColspan(cell.getColspan() + measureAxises.size());
                     }
                 }
-                //写入数据
-                cell = new AnyDimensionCellVo(0, 0, dTemp, 3);
-                rowCells.add(cell);
+
+                Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+                for (String dTemp : dTemps) {
+                    for (Integer i=axisYCount+1;i<dataIndex-1;i++){
+                        if(results.get(i).size()>beginIndex){
+                            results.get(i).add(beginIndex,null);
+                        }
+                        else{
+                            results.get(i).add(null);
+                        }
+                    }
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    if(rowCells.size()>beginIndex){
+                        rowCells.add(beginIndex,cell);
+                        columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+                    }
+                    else{
+                        rowCells.add(cell);
+                        columnSummarys.add(Double.parseDouble(dTemp));
+                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+                    }
+                    beginIndex++;
+                }
+            } else {
+                Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+                for (String dTemp : dTemps) {
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    rowCells.set(beginIndex, cell);
+                    columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                    rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+                    beginIndex++;
+                }
+            }
+        }
+
+        Integer compareIndex =0;
+        rowCells = new ArrayList<AnyDimensionCellVo>();
+        rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
+        for (Double columnSummary :columnSummarys){
+            rowCells.add(new AnyDimensionCellVo("",1,1,columnSummary.toString(),4) );
+        }
+        results.add(rowCells);
+        rowSummarys.add(columnSummarys.stream().collect(Collectors.summingDouble(Double::doubleValue)));
+        results.get(0).add(new AnyDimensionCellVo("",1,axisYCount+1,"汇总",5));
+        //合并X轴
+        for (Integer i=axisYCount+1;i<results.size();i++){
+            results.get(i).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(i-axisYCount-1).toString(),4));
+            for (Integer j=i+1;j<results.size();j++){
+                if(results.get(i).get(0).getId().equals(results.get(j).get(0).getId())){
+                    for (Integer k=0;k<axisXCount;k++){
+                        if(results.get(i).get(k).getId().equals(results.get(j).get(compareIndex).getId())){
+                            results.get(i).get(k).setRowspan(results.get(i).get(k).getRowspan()+1);
+                            results.get(j).remove(0);
+                        }
+                        else{
+                            compareIndex++;
+                        }
+                    }
+                    compareIndex =0;
+                }
+                else{
+                    i=j;
+                }
+                results.get(j).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(j-axisYCount-1).toString(),4));
             }
         }
         anyDimensionVo.setResults(results);
@@ -339,6 +449,55 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Override
     public AnyDimensionVo query(Long analyzeId, Long cubeId, String userId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId,analyzeVo.getSql());
+        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql());
+    }
+
+    @Override
+    public QueryResultMapper queryDimension(Long tableId, Long columnId, Long userId,String key,Integer offeset,Integer limit) throws APIException {
+        if(limit==-1){
+            limit=Integer.MAX_VALUE;
+        }
+        OlapCubeTable cubeTable=olapCubeTableRepository.findById(tableId).get();
+        OlapCubeTableColumn cubeTableColumn=olapCubeTableColumnRepository.findById(columnId).get();
+        String sql=MessageFormat.format("select {0} from {1} where 1=1 group by {0}",cubeTableColumn.getColumnName(),cubeTable.getTableName());
+        if(key!=null && !key.equals("")){
+            String columnType=cubeTableColumn.getColumnType();
+            if(columnType!=null && !columnType.equals("")){
+                if(isStringType(columnType)){
+                    sql+=MessageFormat.format(" and {0} like '%{1}%'",cubeTableColumn.getColumnName(),key);
+                }
+                else{
+                    sql+=MessageFormat.format(" and {0}={1}",cubeTableColumn.getColumnName(),key);
+                }
+            }
+        }
+        String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
+        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,"learn_kylin");
+        if(countMapper==null){
+            throw new APIException("网络错误！");
+        }
+        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,"learn_kylin");
+        if(mapper==null){
+            throw new APIException("网络错误！");
+        }
+        Integer count=Integer.parseInt(countMapper.results.get(0).get(0));
+        mapper.setTotalRecord(count);
+        return mapper;
+    }
+
+    private boolean isStringType(String columnType){
+        switch (columnType.toUpperCase()){
+            case "DOUBLE":
+            case "FlOAT":
+            case "BIGINT":
+            case "INT":
+            case "SMALLINT":
+            case "TINYINT":{
+                return false;
+            }
+            default:{
+                return true;
+            }
+        }
     }
 }

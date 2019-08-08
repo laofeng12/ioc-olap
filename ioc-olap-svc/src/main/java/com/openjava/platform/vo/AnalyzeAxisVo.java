@@ -11,15 +11,11 @@ import java.util.List;
 
 @Getter
 @Setter
-public class AnalyzeAxisVo  {
-    @ApiModelProperty("主键id")
-    private Long id;
-    @ApiModelProperty("分析id")
-    private Long analyzeId;
+public class AnalyzeAxisVo {
     @ApiModelProperty("列id")
     private Long columnId;
     @ApiModelProperty("1 行轴 2 列轴 3 指标轴 4 筛选轴")
-    private Long type;
+    private Integer type;
     @ApiModelProperty("表ID")
     private Long tableId;
     @ApiModelProperty("表中文名称")
@@ -46,7 +42,7 @@ public class AnalyzeAxisVo  {
     private String expressionFull;
 
     @ApiModelProperty("是否包含 1 包含 0 不包含")
-    private Long isInclude;
+    private Integer isInclude;
     @ApiModelProperty("选中的值列表 逗号分隔")
     private String selectValues;
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.openjava.platform.domain.OlapAnalyze;
 import com.openjava.platform.domain.OlapRealQuery;
+import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.query.OlapAnalyzeDBParam;
 import com.openjava.platform.vo.AnalyzeAxisVo;
 import com.openjava.platform.vo.AnalyzeVo;
@@ -40,4 +41,6 @@ public interface OlapAnalyzeService {
     AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises,String userId) throws APIException;
 
 	AnyDimensionVo query(Long analyzeId, Long cubeId,String userId) throws APIException;
+
+    QueryResultMapper queryDimension(Long tableId, Long columnId, Long userId,String key,Integer offeset,Integer limit) throws APIException;
 }

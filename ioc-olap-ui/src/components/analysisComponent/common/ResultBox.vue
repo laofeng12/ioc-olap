@@ -1,0 +1,266 @@
+<template>
+  <div class="result">
+    <div class="resultBox">
+      <div class="f-w-b f-s-16" v-if="titleShow">查询结果</div>
+      <div class="top m-t-10">
+        <div class="left dis-flex">
+          <div class="item dis-flex">
+            <div class="tit">查询状态：</div>
+            <div class="word">成功</div>
+          </div>
+          <div class="item dis-flex">
+            <div class="tit">查询时间：</div>
+            <div class="word">{{nowDate}}</div>
+          </div>
+          <div class="item dis-flex">
+            <div class="tit">耗时：</div>
+            <div class="word">{{duration / 1000}}s</div>
+          </div>
+          <div class="item dis-flex" v-if="folderData.name">
+            <div class="tit">查询类型：</div>
+            <div class="word">{{folderData.name}}</div>
+          </div>
+        </div>
+        <div class="right dis-flex">
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
+            新建OLAP分析
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">
+            保存结果
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0"
+                     @click="showShareListVisible = true">
+            查看分享人
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="analysisSearch">
+            查询
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
+                     @click="handleAutoSearch">
+            {{autoSearch ? '关闭' : '开启'}}自动查询
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">行列转换</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">求和</el-button>
+          <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
+          <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
+        </div>
+      </div>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
+    </div>
+    <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
+      <el-form :model="newForm" :rules="newFormRules" ref="newForm">
+        <el-form-item label="文件夹" label-width="100px" prop="folder">
+          <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+            <el-option v-for="(item, index) in saveFolderList" :key="index" :label="item.name"
+                       :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
+          <el-input v-model="newForm.resultName" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="newFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitNewForm()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
+      <el-table :data="shareList" max-height="250" border style="width: 100%">
+        <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="分享时间" align="center"></el-table-column>
+      </el-table>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+import DynamicTable from '../common/DynamicTable'
+
+export default {
+  props: {
+    tableData: {
+      type: Array,
+      required: true
+    },
+    titleShow: {
+      type: Boolean,
+      default: false
+    },
+    resetShow: {
+      type: Boolean,
+      default: false
+    },
+    showType: {
+      type: String,
+      default: ''
+    },
+    exportData: {
+      type: Object,
+      default: () => ({})
+    },
+    diffWidth: {
+      type: Number,
+      default: 536
+    },
+    duration: {
+      type: Number,
+      default: 1000,
+      required: true
+    },
+    shareList: {
+      type: Array,
+      default: () => ([])
+    },
+    folderData: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  components: { DynamicTable },
+  data () {
+    return {
+      search: '',
+      nowDate: '',
+      newFormVisible: false,
+      word: '',
+      autoSearch: false,
+      isFullscreen: false,
+      newForm: {
+        folder: '',
+        resultName: ''
+      },
+      newFormRules: {
+        resultName: [
+          { required: true, message: '请输入查询结果名称', trigger: 'blur' }
+        ],
+        folder: [
+          { required: true, message: '请选择文件夹', trigger: 'change' }
+        ]
+      },
+      showShareListVisible: false
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'saveFolderList',
+      'cubeId',
+      'newValueList',
+      'newFilterList',
+      'newRowList',
+      'newColList'
+    ])
+  },
+  mounted () {
+    const date = new Date()
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let strDate = date.getDate()
+    if (month >= 1 && month <= 9) {
+      month = '0' + month
+    }
+    if (strDate >= 0 && strDate <= 9) {
+      strDate = '0' + strDate
+    }
+    const nowDate = `${year}-${month}-${strDate}`
+    this.nowDate = nowDate
+  },
+  methods: {
+    analysisSearch () {
+      const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign(v, { type: 3 })) : []
+      const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign(v, { type: 4 })) : []
+      const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign(v, { type: 1 })) : []
+      const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign(v, { type: 2 })) : []
+      const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
+      this.$emit('searchFunc', list, this.cubeId)
+    },
+    submitNewForm () {
+      this.$refs.newForm.validate(async (valid) => {
+        if (valid) {
+          const data = {
+            isNew: this.word === 'save',
+            folderId: this.newForm.folder,
+            name: this.newForm.resultName
+          }
+          try {
+            await this.$confirm(`确认保存数据吗？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+            this.$emit('saveFunc', data)
+            this.newFormVisible = false
+          } catch (e) {
+            this.newFormVisible = false
+            this.$message('已取消')
+          }
+        }
+      })
+    },
+    goNewOlap () {
+      this.$router.push('/newOlapAnalysis')
+    },
+    handleAutoSearch () {
+      this.autoSearch = !this.autoSearch
+      this.$message.success(`已${this.autoSearch ? '开启' : '关闭'}自动查询`)
+    },
+    fullscreenToggle () {
+      this.$fullscreen.toggle(this.$el.querySelector('.allScreen'), {
+        wrap: false,
+        callback: this.fullscreenChange
+      })
+    },
+    fullscreenChange (fullscreen) {
+      this.isFullscreen = fullscreen
+    },
+    async reset () {
+      try {
+        await this.$confirm(`确认重置吗？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        this.$emit('reset')
+        this.$message.success('重置成功!')
+      } catch (e) {
+        this.$message('已取消')
+      }
+    },
+    async exportTable () {
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+  .result {
+    overflow: auto;
+    .resultBox {
+      .top {
+        .left {
+          .item {
+            margin-right: 10px;
+            .tit {
+              margin-right: 2px;
+            }
+          }
+        }
+        .right {
+          flex-wrap: wrap;
+          margin: 20px 0;
+          .button {
+            margin-bottom: 10px;
+            margin-right: 10px;
+          }
+          .button + .button {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+  }
+</style>

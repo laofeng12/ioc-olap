@@ -17,4 +17,5 @@ public class QueryResultMapper {
     public Integer duration;
     public Integer totalScanCount;
     public Integer totalScanBytes;
+    public Integer totalRecord;
 }

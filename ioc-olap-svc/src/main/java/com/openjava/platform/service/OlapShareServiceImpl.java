@@ -1,11 +1,7 @@
 package com.openjava.platform.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Resource;
-
 import com.openjava.platform.domain.OlapShare;
+import com.openjava.platform.dto.ShareUserDto;
 import com.openjava.platform.query.OlapShareDBParam;
 import com.openjava.platform.repository.OlapShareRepository;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -13,6 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 /**
  * 文件夹表业务层
  * @author xiepc
@@ -77,7 +79,22 @@ public class OlapShareServiceImpl implements OlapShareService {
 	}
 
 	@Override
-	public List<OlapShare> getList(String sourceType, String sourceId, Long userId) {
-		return olapShareRepository.getList(sourceType,sourceId,userId);
+	public List<ShareUserDto> getList(String sourceType, String sourceId, Long userId) {
+		List<Object[]> objectList=olapShareRepository.getList(sourceType,sourceId,userId);
+		List<ShareUserDto> shareUserDtoList =new ArrayList<ShareUserDto>();
+		for(int i=0;i<objectList.size();i++){
+			Object[] date= objectList.get(i);
+			ShareUserDto shareUserDto = new ShareUserDto();
+			shareUserDto.setShareId(Long.valueOf(date[0].toString()));	   //Long id
+			shareUserDto.setFkId(Long.valueOf(date[1].toString()));		  //Long fkId
+			shareUserDto.setFkType(date[2].toString());					  //String fkType
+			shareUserDto.setShareUserId(Long.valueOf(date[3].toString()));//Long shareUserId
+			shareUserDto.setCreateTime((Date)date[4]);    				  //Date createTime
+			shareUserDto.setCreateId(Long.valueOf(date[5].toString()));  //Long createId
+			shareUserDto.setCreateName(date[6].toString());			    //String createName
+			shareUserDto.setShareUserName(date[7].toString());     	   //String shareUserName
+			shareUserDtoList.add(shareUserDto);
+		}
+		return shareUserDtoList;
 	}
 }

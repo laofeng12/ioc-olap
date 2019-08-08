@@ -3,6 +3,7 @@ package com.openjava.platform.service;
 import java.util.List;
 
 import com.openjava.platform.domain.OlapShare;
+import com.openjava.platform.dto.ShareUserDto;
 import com.openjava.platform.query.OlapShareDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,5 +27,5 @@ public interface OlapShareService {
 
     void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId,String userName);
 
-	List<OlapShare> getList(String sourceType, String sourceId, Long userId);
+	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId);
 }

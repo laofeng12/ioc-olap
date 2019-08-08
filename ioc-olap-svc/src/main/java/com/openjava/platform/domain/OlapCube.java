@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapCube implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键ID")
-	private Long id;
+	private Long cubeId;
 	@ApiModelProperty("立方体名称")
 	private String name;
 	@ApiModelProperty("描述")
@@ -50,7 +50,7 @@ public class OlapCube implements Persistable<Long>,Serializable {
     @JsonIgnore
     @Override
     public Long getId() {
-        return this.id;
+        return this.cubeId;
 	}
     
     @JsonIgnore
@@ -60,7 +60,7 @@ public class OlapCube implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.cubeId != null) {
     		return false;
     	}
     	return true;
@@ -77,10 +77,10 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	@Id
 	@Column(name = "ID")
 	public Long getCubeId() {
-		return id;
+		return cubeId;
 	}
 	public void setCubeId(Long id) {
-		this.id = id;
+		this.cubeId = id;
 	}
 	
 

@@ -1,15 +1,13 @@
 package com.openjava.platform.api;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.api.kylin.CubeAction;
 import com.openjava.platform.common.Export;
 import com.openjava.platform.domain.*;
+import com.openjava.platform.dto.ShareUserDto;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.service.*;
+import com.openjava.platform.vo.QueryResultMapperVo;
 import com.openjava.platform.vo.TreeNodeVo;
 import com.openjava.platform.vo.TreeVo;
 import io.swagger.annotations.*;
@@ -48,6 +46,8 @@ public class OlapRealQueryAction extends BaseAction {
 	private OlapFolderService olapFolderService;
 	@Resource
 	private CubeAction cubeAction;
+	@Resource
+	private OlapShareService olapShareService;
 
 	
 	/**
@@ -134,25 +134,24 @@ public class OlapRealQueryAction extends BaseAction {
 			tree.setChildren(new ArrayList<TreeNodeVo>());
 			ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
 			for (OlapCubeTable table : cubeTables){
-				TreeNodeVo nodeVo=new TreeNodeVo();
-				nodeVo.setId(table.getId().toString());
-				nodeVo.setName(table.getDatabaseName()+"."+table.getTableName());
-				nodeVo.setChildren(new ArrayList<TreeNodeVo>());
-				nodeVo.setAttrs(table);
+				TreeNodeVo nodeVo=tree.getChildren().stream().filter(p->p.getName().equals(table.getTableName())).findFirst().orElse(null);;
+				if(nodeVo==null){
+					nodeVo=new TreeNodeVo();
+					nodeVo.setId(table.getId().toString());
+					nodeVo.setName(table.getTableName());
+					nodeVo.setChildren(new ArrayList<TreeNodeVo>());
+					tree.getChildren().add(nodeVo);
+				}
 				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
 				for (OlapCubeTableColumn column : cubeTableColumns){
-					TreeNodeVo leafNode=new TreeNodeVo();
-					leafNode.setId(column.getId().toString());
-					if(column.getExpressionType()==null || column.getExpressionType()==""){
+					TreeNodeVo leafNode=nodeVo.getChildren().stream().filter(p->p.getName().equals(column.getColumnName())).findFirst().orElse(null);
+					if(leafNode==null){
+						leafNode=new TreeNodeVo();
+						leafNode.setId(column.getId().toString());
 						leafNode.setName(column.getColumnName());
+						nodeVo.getChildren().add(leafNode);
 					}
-					else{
-						leafNode.setName(column.getColumnName()+"->"+column.getExpressionType());
-					}
-					leafNode.setAttrs(column);
-					nodeVo.getChildren().add(leafNode);
 				}
-				tree.getChildren().add(nodeVo);
 			}
 			trees.add(tree);
 		}
@@ -169,6 +168,20 @@ public class OlapRealQueryAction extends BaseAction {
 			limit=Integer.MAX_VALUE;
 		}
 		return cubeAction.query(sql,0,limit,"learn_kylin");
+	}
+
+	@ApiOperation(value = "通过ID查询数据")
+	@RequestMapping(value = "/queryById", method = RequestMethod.POST)
+	@Security(session=true)
+	public QueryResultMapperVo queryById(Long id) {
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+		OlapRealQuery m = olapRealQueryService.get(id);
+		QueryResultMapper mapper=cubeAction.query(m.getSql(),0,m.getLimit(),"learn_kylin");//获取数据
+		List<ShareUserDto> shareList=olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
+		QueryResultMapperVo mapperVo=new QueryResultMapperVo();
+		MyBeanUtils.copyPropertiesNotBlank(mapperVo, mapper);//复制mapper属性到VO中
+		mapperVo.setShareList(shareList);
+		return mapperVo;
 	}
 
 	@ApiOperation(value = "获取层级文件夹结构")
@@ -197,7 +210,7 @@ public class OlapRealQueryAction extends BaseAction {
 		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
 	}
 
-	@ApiOperation(value = "导出即时查询", nickname="exportWithRealQuery", notes = "报文格式：content-type=application/download")
+	@ApiOperation(value = "导出即时查询", nickname="export", notes = "报文格式：content-type=application/download")
 	@RequestMapping(value="/export",method= RequestMethod.GET)
 	//@Security(session=true)
 	public void export(String sql,Integer limit, HttpServletResponse response)
