@@ -3,7 +3,9 @@ const setMeasure = {
   state: {
     /* 度量 */
     measureTableList: []
+
   },
+
   actions: {
     // 新增的table表
     MeasureTableList ({ state }, data) {

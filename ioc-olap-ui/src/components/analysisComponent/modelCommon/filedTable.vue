@@ -52,7 +52,7 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
-      this.dataList = this.jointResult
+      this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
@@ -71,7 +71,7 @@ export default {
       this.dataList.lookups = [factData, ...this.dataList.lookups]
       this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
-      console.log(this.jointResult, '表库', this.titleData)
+      console.log(this.jointResultData, '表库', this.titleData)
       // 初始化已选择的表
       setTimeout(() => {
         this.changeLi(this.dataList.lookups[0], 0)
@@ -166,7 +166,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
-      jointResult: 'jointResult',
+      jointResultData: 'jointResultData',
       saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),

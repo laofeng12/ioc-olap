@@ -153,7 +153,9 @@ export default {
         // this.fetchResourceInfo(data)
       }
       // kelin
-      this.fetchResourceList(data)
+      this.fetchResourceList(data, node.parent.key)
+      // 保存数据到store
+      this.$store.dispatch('SaveSelectData', data)
     },
     fetchTree (data) {
       this.treeLoading = true
@@ -173,7 +175,7 @@ export default {
     fetchResourceList (data, nodeId) {
       this.$root.eventBus.$emit('getserchTableList', data, 1)
       // 点击时清除其他选择框
-      this.$root.eventBus.$emit('clearSelect')
+      // this.$root.eventBus.$emit('clearSelect')
       // 存储当前点击的父节点的id
       this.$store.dispatch('setLastClickTab', nodeId)
       // 保存选择的数据源数据

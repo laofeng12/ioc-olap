@@ -42,7 +42,7 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        console.log('父亲来的', this.jsonData)
+        // console.log('父亲来的', this.jsonData)
       }
     }
   }

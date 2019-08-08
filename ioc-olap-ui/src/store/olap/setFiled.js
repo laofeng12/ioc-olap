@@ -193,7 +193,7 @@ const setFiled = {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
-      getters.jointResult.lookups.map((item, index) => {
+      getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
             datas.push({
@@ -213,7 +213,7 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      state.reloadNeedData = [...nomrlData, ...datas]
+      state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
       console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
@@ -227,18 +227,19 @@ const setFiled = {
             state.dimensions.push({
               table: item.tableName,
               column: item.name,
-              columnType: item.dataType,
+              // columnType: item.dataType,
+              column_type: item.dataType,
               name: item.name ? item.name : item.name
             })
           } else {
             state.dimensions.push({
               table: item.tableName,
-              columnType: item.dataType,
+              // columnType: item.dataType,
+              column_type: item.dataType,
               derived: item.mode === '1' ? null : item.name.split(','),
               name: item.name ? item.name : item.name
             })
           }
-          console.log('传给后端的', state.dimensions)
         }, 300)
       })
     },

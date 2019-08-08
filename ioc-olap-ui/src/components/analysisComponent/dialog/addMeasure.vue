@@ -11,12 +11,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth" prop="function.parameter.type">
-          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
+          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype" @change="selectType">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
-          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectType">
+          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectValue">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
@@ -169,9 +169,6 @@ export default {
         value: 'MIN',
         label: 'MIN'
       }, {
-        value: 'COUNT',
-        label: 'COUNT'
-      }, {
         value: 'COUNT_DISTINCT',
         label: 'COUNT_DISTINCT '
       }, {
@@ -247,11 +244,20 @@ export default {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
     },
-    selectType (val) {
+    selectValue (val) {
       let result = this.fieldtextOption.filter((res, index) => {
         return res.label === val
       })
       this.formData.function.returntype = result[0].dataType
+    },
+    selectType (val) {
+      if (val === 'constant') {
+        this.formData.function.parameter.value = 1
+        this.isDisabledtext = true
+      } else {
+        this.formData.function.parameter.value = ''
+        this.isDisabledtext = false
+      }
     },
     submitBtn (index) {
       this.$refs.formData.validate((valid) => {
@@ -264,7 +270,7 @@ export default {
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('保存成功~')
-              this.resetData()
+              // this.resetData()
               this.$refs.formData.clearValidate()
             }
           })
@@ -288,6 +294,9 @@ export default {
       } else {
         this.resetData()
         this.isNew = 0
+        setTimeout(() => {
+          this.$refs.formData.clearValidate()
+        }, 100)
       }
     },
     changeAll (n) {

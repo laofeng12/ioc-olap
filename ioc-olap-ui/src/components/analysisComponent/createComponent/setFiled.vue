@@ -16,7 +16,7 @@
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
-              <el-table-column type="selection" prop="全选" align="center"></el-table-column>
+              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
@@ -108,7 +108,8 @@ export default {
     },
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/setMeasure')
+      this.$parent.getStepCountAdd(val)
       // let flag
       // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
@@ -117,9 +118,10 @@ export default {
       // String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
     prevModel (val) {
+      // debugger
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
-      console.log(this.jointResult)
+      console.log(this.jointResultData)
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
@@ -159,7 +161,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       saveList: 'saveList',
-      jointResult: 'jointResult',
+      jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList'
     })
   },
@@ -187,6 +189,11 @@ export default {
       margin-bottom 0
       .el-input__inner{
         height 35px
+      }
+    }
+    >>>.el-radio-group{
+      label:nth-child(1) {
+        margin-right 18px
       }
     }
     >>>.el-table__body td{

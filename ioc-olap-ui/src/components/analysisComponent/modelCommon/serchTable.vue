@@ -43,12 +43,15 @@ export default {
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
         this.loading = true
         this.dataList[0].children = []
-        console.log(res)
+        // console.log(res)
         /* KELIN */
         if (type && type === 1) {
           this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => { // kelin
-            res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
-            this.loading = false
+            if (res) {
+              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
+              this.loading = false
+              this.$root.eventBus.$emit('saveSelectTables')
+            }
           })
         // if (type && type === 1) {
         //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
@@ -66,18 +69,21 @@ export default {
       this.$root.eventBus.$on('getUploadTable', res => {
         this.dataList[0].children = []
         this.loading = true
-        if (res.code === 200) {
-          res.rows.map(res => {
-            this.dataList[0].children.push({
-              id: res.dsUploadTableId,
-              label: res.tableCode
+        this.$store.dispatch('GetdsUploadTable').then(res => {
+          if (res.code === 200) {
+            this.loading = false
+            res.rows.map(res => {
+              this.dataList[0].children.push({
+                id: res.dsUploadTableId,
+                label: res.tableCode
+              })
             })
-          })
-          if (this.dataList[0].children.length < 1) {
-            this.$refs.trees.setCheckedKeys([])
+            if (this.dataList[0].children.length < 1) {
+              this.$refs.trees.setCheckedKeys([])
+            }
+            this.$root.eventBus.$emit('saveSelectTables')
           }
-          setTimeout(() => { this.loading = false }, 300)
-        }
+        })
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
@@ -89,7 +95,6 @@ export default {
           this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
         }
         setTimeout(() => {
-          this.loading = false
           this.defaultKey = [...new Set(this.defaultKey)]
         }, 500)
       })
@@ -99,7 +104,6 @@ export default {
       })
     },
     handleNodeClick (value) {
-      console.log(value)
       if (value.label === '全选') return
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
@@ -138,23 +142,38 @@ export default {
           dsDataSourceId: 2,
           tableName: value.label
         }
-        this.$store.dispatch('GetColumnList', parmas).then(data => {
-          if (data.code === 200) {
-            this.$root.eventBus.$emit('getLocalTableHeadList', data)
-          }
-        })
-        this.$store.dispatch('GetTableData', valparams).then(res => {
-          if (res.code === 200) {
-            this.$root.eventBus.$emit('getLocalTableContentList', res)
-          }
-        })
+        this.$root.eventBus.$emit('getLocalTableHeadList', parmas)
+        this.$root.eventBus.$emit('getLocalTableContentList', valparams)
+        // this.$store.dispatch('GetColumnList', parmas).then(data => {
+        //   if (data.code === 200) {
+        //     this.$root.eventBus.$emit('getLocalTableHeadList', data)
+        //   }
+        // })
+        // this.$store.dispatch('GetTableData', valparams).then(res => {
+        //   if (res.code === 200) {
+        //     this.$root.eventBus.$emit('getLocalTableContentList', res)
+        //   }
+        // })
       }
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
-      this.$store.state.selectStep.searchType === 1
-        ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
-        : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
+      if (this.$store.state.selectStep.searchType === 1) {
+        let list = {
+          type: type,
+          delData: data
+        }
+        if (type === true) {
+          this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
+        } else {
+          this.$store.dispatch('delSelectTableList', list)
+        }
+      } else {
+        this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
+      }
+      // this.$store.state.selectStep.searchType === 1
+      //   ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
+      //   : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
       // 设置已选择的数据表的数量
       this.$store.dispatch('setSelectTableTotal')
     }

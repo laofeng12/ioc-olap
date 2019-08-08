@@ -40,7 +40,7 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag @close.stop="rmTag(index, 4, x, i)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -212,7 +212,7 @@ export default {
         this.rowkeyData.rowkey_columns.push({
           column: item.value,
           encoding: item.encoding ? item.encoding : 'dict',
-          engine_type: item.type ? item.type : '',
+          columns_Type: item.type ? item.type : '',
           encoding_version: '1',
           isShardBy: item.isShardBy ? item.isShardBy : false
         })
@@ -312,6 +312,7 @@ export default {
         type: type,
         findIndex: findIndex
       }
+      console.log(list, '拉拉拉')
       this.$store.dispatch('RmtagList', list)
     },
     // 改变对应的长度格式

@@ -186,14 +186,8 @@ const common = {
         frequencytype: '', // 更新方式
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
-      }
-    },
-    selectStep: {
-      library: {
-        id: '',
-        name: ''
       },
-      tableId: []
+      selectStepList: {}
     }
   },
   mutations: {

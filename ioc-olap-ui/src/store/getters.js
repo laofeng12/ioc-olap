@@ -16,8 +16,9 @@ const getters = {
   lastClickTab: state => state.selectStep.lastClickTab,
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
+  selectStepList: state => state.selectStep.selectStepList,
   /* */
-  jointResult: state => state.createTableRelation.jointResult,
+  jointResultData: state => state.createTableRelation.jointResultData,
   /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,
