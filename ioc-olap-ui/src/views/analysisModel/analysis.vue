@@ -59,8 +59,7 @@ export default {
   },
   watch: {},
   mounted () {
-    this.getFolderWithQuery()
-    this.getOlapAnalyzeDetails()
+    if (this.$route.query.dataId) this.getOlapAnalyzeDetails()
   },
   methods: {
     async getFolderWithQuery () {
