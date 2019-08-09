@@ -16,13 +16,13 @@
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
-              <el-table-column type="selection" prop="全选" align="center"></el-table-column>
+              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
-              <el-table-column prop="tableName" label="显示名称" align="center">
+              <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <el-form-item :prop="'tableData.' + scope.$index + '.tableName'">
-                    <el-input type="text" v-model="scope.row.tableName" @change="iptChange(scope.row)"></el-input>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.name'">
+                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -31,7 +31,7 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.row)">
+                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
@@ -66,22 +66,7 @@ export default {
       loading: false,
       totalCount: 1,
       tableData: [],
-      dimensions: [
-        // {
-        //   name: '2',
-        //   table: 'KYLIN_CAL_DT',
-        //   derived: null,
-        //   column: 'WEEK_BEG_DT'
-        // }
-        // {
-        //   'name': 'LEAF_CATEG_ID',
-        //   'table': 'KYLIN_CATEGORY_GROUPINGS',
-        //   'derived': [
-        //     'LEAF_CATEG_ID'
-        //   ],
-        //   'column': null
-        // }
-      ]
+      dimensions: []
     }
   },
   mounted () {
@@ -123,17 +108,20 @@ export default {
     },
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      let flag
-      console.log(this.saveSelectFiled)
-      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        flag = item.filed === '1' ? 0 : 1
-      })
-      String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      this.$router.push('/analysisModel/createolap/setMeasure')
+      this.$parent.getStepCountAdd(val)
+      // let flag
+      // console.log(this.saveSelectFiled)
+      // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+      //   flag = item.filed === '1' ? 0 : 1
+      // })
+      // String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
     prevModel (val) {
+      // debugger
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
-      console.log(this.jointResult)
+      console.log(this.jointResultData)
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
@@ -173,7 +161,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       saveList: 'saveList',
-      jointResult: 'jointResult',
+      jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList'
     })
   },
@@ -201,6 +189,11 @@ export default {
       margin-bottom 0
       .el-input__inner{
         height 35px
+      }
+    }
+    >>>.el-radio-group{
+      label:nth-child(1) {
+        margin-right 18px
       }
     }
     >>>.el-table__body td{

@@ -2,7 +2,13 @@
 const setMeasure = {
   state: {
     /* 度量 */
-    measureTableList: []
+    measureTableList: [],
+    test: ''
+  },
+  mutations: {
+    setTest (state, val) {
+      state.test = val
+    }
   },
   actions: {
     // 新增的table表

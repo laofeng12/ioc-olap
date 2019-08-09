@@ -86,7 +86,6 @@ export default {
     },
     changeLi (item, index) {
       if (this.factTable) {
-        console.log(this.factTable)
         if (this.factTable.label !== item.label) {
           this.current = index
           this.$parent.clickTable(item)

@@ -224,16 +224,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 }
             } else {
                 // 过滤条件构建
-                List<String> values = Arrays.stream(axis.getSelectValues().split(",")).map((p) -> {
-                    return "'" + p + "'";
-                }).collect(Collectors.toList());
-                filter = "{0}.{1} {2} ({3})";
-                if (axis.getIsInclude() == 1) {
-                    filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "in", String.join(",", values));
-                } else {
-                    filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "not in", String.join(",", values));
+                if(axis.getSelectValues()!=null && !axis.getSelectValues().equals("")){
+                    List<String> values = Arrays.stream(axis.getSelectValues().split(",")).map((p) -> {
+                        return "'" + p + "'";
+                    }).collect(Collectors.toList());
+                    filter = "{0}.{1} {2} ({3})";
+                    if (axis.getIsInclude() == 1) {
+                        filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "in", String.join(",", values));
+                    } else {
+                        filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "not in", String.join(",", values));
+                    }
+                    filters.add(filter);
                 }
-                filters.add(filter);
             }
         }
 
@@ -298,8 +300,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
-        //QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
-        QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
+        QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
         if(resultMapper==null){
             throw new APIException("网络错误！");
         }
@@ -361,19 +362,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     cellId = String.join("-", yTemps.subList(0, i + 1));
                     cell = getCell(results.get(i), cellId, 1);
                     if (cell == null) {
-                        // 如果是最后一个，就开始写入度量轴
-                        if (i.equals(yTemps.size() - 1)) {
-                            for (AnalyzeAxisVo measure : measureAxises) {
-                                cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
-                                results.get(i + 1).add(cell);
-                            }
-                        }
                         cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
                         results.get(i).add(cell);
                         results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
                     } else {
                         cell.setColspan(cell.getColspan() + measureAxises.size());
                     }
+                }
+
+                // 写入度量轴
+                for (AnalyzeAxisVo measure : measureAxises) {
+                    cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
+                    results.get(axisYCount).add(cell);
                 }
 
                 Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
@@ -472,11 +472,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
-        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,"learn_kylin");
+        QueryResultMapper countMapper=cubeAction.query(countSql,0,100,userId.toString());
         if(countMapper==null){
             throw new APIException("网络错误！");
         }
-        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,"learn_kylin");
+        QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,userId.toString());
         if(mapper==null){
             throw new APIException("网络错误！");
         }

@@ -42,6 +42,8 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	private Long updateId;
 	@ApiModelProperty("更新人名称")
 	private String updateName;
+	@ApiModelProperty("0 不可用 1可用")
+	private Integer flags;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -160,5 +162,12 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	public void setUpdateName(String updateName) {
 		this.updateName = updateName;
 	}
-	
+
+	@Column(name = "FLAGS")
+	public Integer getFlags() {
+		return flags;
+	}
+	public void setFlags(Integer flags) {
+		this.flags = flags;
+	}
 }

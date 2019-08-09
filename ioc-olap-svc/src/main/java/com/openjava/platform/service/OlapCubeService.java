@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.openjava.platform.domain.OlapCube;
+import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.query.OlapCubeDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,9 @@ import org.springframework.data.domain.Pageable;
  */
 public interface OlapCubeService {
 	Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable);
-	
+
+	OlapCube findTableInfo(String cubeName, Long createId);
+
 	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 	
 	OlapCube get(Long id);

@@ -42,7 +42,7 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
-	
+
 	@Transient
     @JsonIgnore
     @Override
@@ -150,6 +150,4 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	public void setColumnType(String columnType) {
 		this.columnType = columnType;
 	}
-	
-	
 }

@@ -40,7 +40,7 @@ export default {
       current: '',
       colors: 'red',
       ids: '',
-      foreign_key: '',
+      primary_key: '',
       titleData: [], // 表名
       // 模拟数据
       dataList: {}
@@ -52,13 +52,12 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
-      this.dataList = this.jointResult
-      // 遍历去重数据拿到表名称
+      this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
           this.ids = item.id
-          this.foreign_key = item.join.foreign_key
+          this.primary_key = item.join.foreign_key
         }
       })
       let factData = {
@@ -66,13 +65,13 @@ export default {
         joinId: this.ids,
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          foreign_key: this.foreign_key
+          primary_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups]
       this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
-      console.log(this.jointResult, '表库', this.titleData)
+      console.log(this.jointResultData, '表库', this.titleData)
       // 初始化已选择的表
       setTimeout(() => {
         this.changeLi(this.dataList.lookups[0], 0)
@@ -97,7 +96,6 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      console.log(item)
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,
@@ -118,6 +116,7 @@ export default {
       // })
       // kelin
       this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
+        console.log(res, '====')
         res.data.columns.map((n, i) => {
           n.mode = n.mode ? n.mode : '2'
           n.derived = n.name
@@ -167,7 +166,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
-      jointResult: 'jointResult',
+      jointResultData: 'jointResultData',
       saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),

@@ -83,18 +83,20 @@ export default {
       },
       cellLayerStyle: '',
       cellLayerData: null,
-      // jointResult: {
-      //   name: 'joint',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
-      // },
+      jointResult: {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      },
       linkModal: null,
       linkModalModel: null,
       linkModalFields: []
       // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
 
     }
+  },
+  created () {
   },
   mounted: function () {
     this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
@@ -104,7 +106,11 @@ export default {
   },
   methods: {
     init () {
+      this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
+      console.log(this.jointResult)
       let list = this.jointResult.lookups || []
+      // let jointResultData = [...this.jointResultData.lookups]
+      // let list = jointResultData || []
 
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -253,7 +259,7 @@ export default {
 
               this.updateModel(model.id, res.value)
               console.log(JSON.stringify(this.jointResult))
-              this.$store.dispatch('SaveJointResult', this.jointResult)
+              this.$store.commit('SaveJointResult', this.jointResult)
             }
           })
           break
@@ -477,7 +483,6 @@ export default {
     },
 
     addLinkCell (item) {
-      let result = []
       let source = {
         filed: item.table === item.alias ? 1 : 0,
         id: item.id,
@@ -657,7 +662,7 @@ export default {
 
       this.addJointList(this.linkModal)
       console.log(JSON.stringify(this.jointResult))
-      this.$store.dispatch('SaveJointResult', this.jointResult)
+      this.$store.commit('SaveJointResult', this.jointResult)
     },
 
     getModalRelationSelected (e) {
@@ -775,9 +780,12 @@ export default {
     },
 
     nextModel (val) {
-      this.jointResult.lookups.length > 0
-        ? this.$router.push('/analysisModel/createolap/setFiled') && this.$parent.getStepCountAdd(val)
-        : this.$message.warning('请建立表关系~')
+      if (this.jointResult.lookups.length > 0) {
+        this.$router.push('/analysisModel/createolap/setFiled')
+        this.$parent.getStepCountAdd(val)
+      } else {
+        this.$message.warning('请建立表关系~')
+      }
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -806,7 +814,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
-      jointResult: 'jointResult'
+      jointResultData: 'jointResultData'
     })
   },
   beforeDestroy () {

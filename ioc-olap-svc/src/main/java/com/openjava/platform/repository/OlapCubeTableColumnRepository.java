@@ -19,4 +19,7 @@ public interface OlapCubeTableColumnRepository extends DynamicJpaRepository<Olap
     ArrayList<OlapCubeTableColumn> findByTableId(Long cubeTableId);
 
     List<OlapCubeTableColumn> findByCubeId(Long id);
+
+    @Query(value = "delete from OLAP_CUBE_TABLE_COLUMN t where t.CUBE_ID=:cubeId)", nativeQuery = true)
+    void deleteCubeId(@Param("cubeId") Long cubeId);
 }
