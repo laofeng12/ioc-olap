@@ -109,7 +109,7 @@ export default {
     return {
       search: '',
       newFormVisible: false,
-      word: '',
+      isNew: true,
       autoSearch: false,
       isFullscreen: false,
       newForm: {
@@ -138,7 +138,8 @@ export default {
     ])
   },
   mounted () {
-    this.newForm.folder = this.$route.query.folderId || ''
+    this.newForm.folder = this.$route.query && this.$route.query.folderId || ''
+    this.isNew = this.$route.query && this.$route.query.isNew !== 'false'
   },
   methods: {
     analysisSearch () {
@@ -153,7 +154,7 @@ export default {
       this.$refs.newForm.validate(async (valid) => {
         if (valid) {
           const data = {
-            isNew: this.word === 'save',
+            isNew: this.isNew,
             folderId: this.newForm.folder,
             name: this.newForm.resultName
           }

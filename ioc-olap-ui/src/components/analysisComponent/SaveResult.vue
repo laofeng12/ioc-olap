@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById"
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
@@ -97,6 +97,10 @@ export default {
       const res = await deleteOlapApi({id})
       this.$message.success('删除成功')
       await this.$store.dispatch('getSaveFolderListAction')
+    },
+    async editSave (data) {
+      // await this.$store.dispatch('getEditInstantAction', data)
+      // this.$router.replace('/instantInquiry?edit=true')
     }
   }
 }

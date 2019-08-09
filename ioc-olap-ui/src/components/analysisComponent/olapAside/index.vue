@@ -518,7 +518,7 @@ export default {
               if (evt.from.id !== 'dimen') {
                 return this.$message.error('只支持维度数值')
               }
-              const index = this.bItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const index = this.bItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~index) {
                 // 如果不存在，那么插入
                 this.bItems.push(obj)
@@ -536,11 +536,11 @@ export default {
                 return this.$message.error('只支持维度数值')
               }
               const rIndex = this.rItems.findIndex(_ => {
-                if (_.columnChName === obj.columnChName) {
+                if (_.columnId === obj.columnId) {
                   return _
                 }
               })
-              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const cIndex = this.cItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
                 this.rItems.push(obj)
@@ -558,8 +558,8 @@ export default {
                 this.$message.error('只支持维度数值')
                 return
               }
-              const rIndex = this.rItems.findIndex(_ => _.columnChName === obj.columnChName)
-              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const rIndex = this.rItems.findIndex(_ => _.columnId === obj.columnId)
+              const cIndex = this.cItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
                 this.cItems.push(obj)
@@ -577,7 +577,7 @@ export default {
                 this.$message.error('只支持度量数值')
                 return
               }
-              const index = this.nItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const index = this.nItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~index) {
                 // 如果不存在，那么插入
                 this.nItems.push(obj)
@@ -648,7 +648,6 @@ export default {
       this.$message.success('筛选成功')
     },
     autoFunc () {
-      debugger
       const newValueList = this.nItems.length > 0 ? this.nItems.map(v => Object.assign({}, v, { type: 3 })) : []
       const newFilterList = this.bItems.length > 0 ? this.bItems.map(v => Object.assign({}, v, { type: 4 })) : []
       const newRowList = this.rItems.length > 0 ? this.rItems.map(v => Object.assign({}, v, { type: 1 })) : []

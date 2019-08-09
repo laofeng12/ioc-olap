@@ -5,6 +5,7 @@
         <Queries></Queries>
       </el-tab-pane>
       <el-tab-pane label="已保存结果" name="2">
+        <!--<SaveResult @changeActive="changeActive"></SaveResult>-->
         <SaveResult></SaveResult>
       </el-tab-pane>
       <el-tab-pane label="共享的结果" name="3">
@@ -29,6 +30,12 @@ export default {
   },
   computed: {
     ...mapGetters(['userInfo'])
+  },
+  methods: {
+    // changeActive (index) {
+    //   this.activeName = index
+    //   debugger
+    // }
   }
 }
 </script>
