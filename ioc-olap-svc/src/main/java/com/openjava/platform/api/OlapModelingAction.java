@@ -274,7 +274,7 @@ public class OlapModelingAction extends BaseAction {
             olapCube.setCreateTime(date);
             olapCube.setCreateId(Long.parseLong(userVO.getUserId()));
             olapCube.setCreateName(userVO.getUserAccount());
-            olapCube.setFlags(0L);
+            olapCube.setFlags(0);
             olapCube.setIsNew(true);
             return olapCube;
         }
