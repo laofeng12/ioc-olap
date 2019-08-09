@@ -206,6 +206,16 @@ export default {
   },
   methods: {
     init () {
+      // 重置高级组合
+      this.hbase_mapping.column_family.forEach((item, index) => {
+        if (item.name === 'F1') {
+          item.columns[0].measure_refs.forEach((n, i) => {
+            if (n === '_COUNT_') {
+              item.columns[0].measure_refs.splice(i, 1)
+            }
+          })
+        }
+      })
       this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
       datas.forEach(item => {
@@ -220,7 +230,6 @@ export default {
       this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
     },
     resortAggregation () {
-      console.log(this.aggregation_groups)
       this.aggregation_groups.forEach(item => {
         let data = item.select_rule
         if (data.hierarchy_dims.length === 0) data.hierarchy_dims = [[]]
@@ -244,7 +253,6 @@ export default {
     // 选择对应的编码类型
     codingType (val) {
       for (let item in this.codingTypeData) {
-        console.log(val, '======', item)
         if (val === item) {
           this.encodingOption = this.codingTypeData[item]
         }
@@ -312,7 +320,6 @@ export default {
         type: type,
         findIndex: findIndex
       }
-      console.log(list, '拉拉拉')
       this.$store.dispatch('RmtagList', list)
     },
     // 改变对应的长度格式

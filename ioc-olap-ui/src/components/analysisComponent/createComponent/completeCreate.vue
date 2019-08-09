@@ -50,7 +50,7 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionName = this.jointResultData.lookups.length + 1
+      this.formData.dimensionName = this.jointResultData.lookups.length
       this.formData.dimensionFiled = this.saveSelectFiled.length
       this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
@@ -85,6 +85,11 @@ export default {
       this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
+        if (item.name === 'F1') {
+          item.columns[0].measure_refs.push('_COUNT_')
+        }
+      })
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types

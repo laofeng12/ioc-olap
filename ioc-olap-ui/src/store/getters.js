@@ -33,6 +33,7 @@ const getters = {
   reloadData: state => state.reloadSet.reloadData,
   /* */
   mandatory_dimension_set_list: state => state.advancedSet.mandatory_dimension_set_list,
+  saveselectIncludesData: state => state.advancedSet.saveselectIncludesData,
   hbase_mapping: state => state.advancedSet.hbase_mapping,
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,
