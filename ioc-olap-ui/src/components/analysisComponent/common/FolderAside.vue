@@ -12,19 +12,20 @@
              default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
-          <span class="cus-node-content" v-if="showDo" @click.stop>
-            <el-dropdown size="mini" @command="handleCommand($event, node, data)">
-              <el-button type="primary" size="mini">
-                操作<i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="0">编辑</el-dropdown-item>
-                <el-dropdown-item command="1">分享</el-dropdown-item>
-                <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
-                <el-dropdown-item command="3">删除</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </span>
+        <span class="cus-node-content" v-if="showDo" @click.stop>
+          <el-dropdown size="mini" @command="handleCommand($event, node, data)">
+            <el-button type="primary" size="mini">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
+              <el-dropdown-item command="0">编辑</el-dropdown-item>
+              <el-dropdown-item command="1">分享</el-dropdown-item>
+              <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
+              <el-dropdown-item command="3">删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </span>
        </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
@@ -35,8 +36,8 @@
         <el-form-item label="文件夹名称" label-width="100px" prop="name">
           <el-input v-model="folderForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="文件夹序号" label-width="100px" prop="sort">
-          <el-input type="number" v-model="folderForm.sort"></el-input>
+        <el-form-item label="文件夹序号" label-width="100px" prop="sortNum">
+          <el-input type="number" v-model="folderForm.sortNum"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -130,7 +131,7 @@ export default {
       folderForm: {
         isNew: true,
         name: '',
-        sort: ''
+        sortNum: ''
       },
       folderRules: {
         name: [
@@ -141,7 +142,7 @@ export default {
           },
           { max: 50, message: '请不要超过50个字', trigger: 'blur' }
         ],
-        sort: [
+        sortNum: [
           { required: true, message: '请输入序号', trigger: 'blur' }
         ]
       },
@@ -186,10 +187,10 @@ export default {
       return data.name.indexOf(value) !== -1
     },
     submitFolder () {
-      const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
+      const data = { // RealQuery（即席查询） Analyze（Olap分析）
         flags: 0,
         parentId: 0,
-        type: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
+        type: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
       }
       Object.assign(data, this.folderForm)
       this.$refs.folderForm.validate(async (valid) => {
@@ -202,7 +203,7 @@ export default {
               if (this.$route.name === 'instantInquiry') {
                 await this.$store.dispatch('getSaveFolderListAction')
               } else {
-                await this.$store.dispatch('getSaveFolderListAction')
+                this.$emit('getAnalysisList')
               }
             } else {
               this.$message.error('新建失败')
@@ -221,6 +222,8 @@ export default {
           return this.getShareUserList(node, data)
         case '3': // 删除
           return this.delete(data, node.isLeaf)
+        case '4': // 新建olap
+          return this.$router.push(`/newOlapAnalysis?folderId=${data.id}`)
       }
     },
     newFolder () {
@@ -228,12 +231,16 @@ export default {
       this.folderForm.isNew = true
     },
     edit (node, data) {
-      this.newVisible = true
-      this.folderForm = {
-        id: data.id,
-        isNew: false,
-        name: data.name,
-        sort: data.sortNum
+      if (node.parent.parent) {
+        this.$emit('editFunc', data)
+      } else {
+        this.newVisible = true
+        this.folderForm = {
+          id: data.id,
+          isNew: false,
+          name: data.name,
+          sortNum: data.attrs.sortNum
+        }
       }
       // this.$emit('editFunc', this.folderForm)
     },
@@ -265,7 +272,7 @@ export default {
         this.userRows = rows
         const res = await getShareUserApi({
           sourceId: this.shareId,
-          sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
+          sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
         })
         let shareList = []
         res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
@@ -288,9 +295,9 @@ export default {
       }
     },
     async share () {
-      const data = { // RealQuery（即席查询） DataAnalyze（Olap分析）
+      const data = { // RealQuery（即席查询） Analyze（Olap分析）
         sourceId: this.shareId,
-        sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'DataAnalyze'
+        sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
       }
       let url = '/olap/apis/olapShare/save?'
       this.shareList.forEach((v, i) => {
@@ -418,7 +425,7 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
       .cus-node-title {
-        color: #606266;
+        color: #5558da;
         font-size: 14px;
       }
     }

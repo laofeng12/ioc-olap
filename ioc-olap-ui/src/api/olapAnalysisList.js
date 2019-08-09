@@ -32,3 +32,37 @@ export function getCubesApi () {
     method: 'get'
   })
 }
+
+export function getFilterDetailsApi (params) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/queryDimension',
+    method: 'get',
+    params
+  })
+}
+
+export function getOlapAnalyzeApi (params, data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/query',
+    method: 'post',
+    params,
+    data
+  })
+}
+
+export function saveOlapAnalyzeApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/save',
+    method: 'post',
+    data
+  })
+}
+
+export function getOlapAnalyzeDetailsApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/get',
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}

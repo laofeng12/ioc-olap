@@ -10,8 +10,14 @@
             </el-checkbox-group>
           </div>
         </div> -->
-        <el-checkbox-group ref="group" v-model="selctCheckData">
-          <el-checkbox-button v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else>
+          <el-checkbox-button v-for="(item, index) in saveselectIncludesData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -46,6 +52,9 @@ export default {
       findIndex: ''
     }
   },
+  mounted () {
+    console.log(this.saveselectIncludesData)
+  },
   methods: {
     closeBtn () {
       this.dialogFormVisible = false
@@ -67,7 +76,6 @@ export default {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
       this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
-      console.log(this.options, '无敌的')
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -104,6 +112,7 @@ export default {
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId',
+      saveselectIncludesData: 'saveselectIncludesData', // 选择过的包含维度
       measureTableList: 'measureTableList', // 度量数据
       reloadNeedData: 'reloadNeedData' // 包含维度
     })

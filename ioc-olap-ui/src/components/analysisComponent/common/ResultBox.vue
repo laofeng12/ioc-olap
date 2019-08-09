@@ -3,41 +3,32 @@
     <div class="resultBox">
       <div class="f-w-b f-s-16" v-if="titleShow">查询结果</div>
       <div class="top m-t-10">
-        <div class="left dis-flex">
-          <div class="item dis-flex">
-            <div class="tit">查询状态：</div>
-            <div class="word">成功</div>
-          </div>
-          <div class="item dis-flex">
-            <div class="tit">查询时间：</div>
-            <div class="word">{{nowDate}}</div>
-          </div>
-          <div class="item dis-flex">
-            <div class="tit">耗时：</div>
-            <div class="word">{{duration / 1000}}s</div>
-          </div>
-          <div class="item dis-flex" v-if="folderData.name">
-            <div class="tit">查询类型：</div>
-            <div class="word">{{folderData.name}}</div>
-          </div>
-        </div>
         <div class="right dis-flex">
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">保存结果</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset()">重置</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0" @click="showShareListVisible = true">
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">
+            保存结果
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset">重置</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0"
+                     @click="showShareListVisible = true">
             查看分享人
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">查询</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="handleAutoSearch">
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="analysisSearch">
+            查询
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
+                     @click="handleAutoSearch">
             {{autoSearch ? '关闭' : '开启'}}自动查询
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">行列转换</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
+                     @click="changeRowAndColFunc">
+            行列转换
+          </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">求和</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
           <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
@@ -47,7 +38,11 @@
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
         <el-form-item label="文件夹" label-width="100px" prop="folder">
-          <el-select class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+          <el-select v-if="saveFolderListByProp" class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+            <el-option v-for="(item, index) in saveFolderListByProp" :key="index" :label="item.name"
+                       :value="item.id"></el-option>
+          </el-select>
+          <el-select v-else class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
             <el-option v-for="(item, index) in saveFolderList" :key="index" :label="item.name"
                        :value="item.id"></el-option>
           </el-select>
@@ -94,31 +89,25 @@ export default {
     },
     exportData: {
       type: Object,
-      default: {}
+      default: () => ({})
     },
     diffWidth: {
       type: Number,
       default: 536
     },
-    duration: {
-      type: Number,
-      default: 1000,
-      required: true
-    },
     shareList: {
       type: Array,
-      default: []
+      default: () => ([])
     },
-    folderData: {
-      type: Object,
-      default: {}
+    saveFolderListByProp: {
+      type: Array,
+      default: () => ([])
     }
   },
   components: { DynamicTable },
   data () {
     return {
       search: '',
-      nowDate: '',
       newFormVisible: false,
       word: '',
       autoSearch: false,
@@ -139,23 +128,27 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ saveFolderList: 'saveFolderList' })
+    ...mapGetters([
+      'saveFolderList',
+      'cubeId',
+      'newValueList',
+      'newFilterList',
+      'newRowList',
+      'newColList'
+    ])
   },
   mounted () {
-    const date = new Date()
-    let year = date.getFullYear()
-    let month = date.getMonth() + 1
-    let strDate = date.getDate()
-    if (month >= 1 && month <= 9) {
-      month = '0' + month
-    }
-    if (strDate >= 0 && strDate <= 9) {
-      strDate = '0' + strDate
-    }
-    const nowDate = `${year}-${month}-${strDate}`
-    this.nowDate = nowDate
+    this.newForm.folder = this.$route.query.folderId
   },
   methods: {
+    analysisSearch () {
+      const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign({}, v, { type: 3 })) : []
+      const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign({}, v, { type: 4 })) : []
+      const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
+      const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign({}, v, { type: 2 })) : []
+      const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
+      this.$emit('searchFunc', list, this.cubeId)
+    },
     submitNewForm () {
       this.$refs.newForm.validate(async (valid) => {
         if (valid) {
@@ -185,6 +178,7 @@ export default {
     handleAutoSearch () {
       this.autoSearch = !this.autoSearch
       this.$message.success(`已${this.autoSearch ? '开启' : '关闭'}自动查询`)
+      this.$emit('autoFunc')
     },
     fullscreenToggle () {
       this.$fullscreen.toggle(this.$el.querySelector('.allScreen'), {
@@ -210,6 +204,12 @@ export default {
     },
     async exportTable () {
       window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
+    },
+    showSum () {
+      this.$emit('showSum')
+    },
+    changeRowAndColFunc () {
+      this.$emit('changeRowAndColFunc')
     }
   }
 }
@@ -220,14 +220,6 @@ export default {
     overflow: auto;
     .resultBox {
       .top {
-        .left {
-          .item {
-            margin-right: 10px;
-            .tit {
-              margin-right: 2px;
-            }
-          }
-        }
         .right {
           flex-wrap: wrap;
           margin: 20px 0;

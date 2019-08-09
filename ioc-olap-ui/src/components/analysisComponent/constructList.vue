@@ -54,14 +54,14 @@ export default {
     }
   },
   mounted () {
-    const params = {
-      size: this.pageSize,
-      sort: 'createtime,desc',
-      page: this.currentPage - 1
-    }
-    getApiList(params).then(res => {
-      this.tableData = res.rows
-    })
+    // const params = {
+    //   size: this.pageSize,
+    //   sort: 'createtime,desc',
+    //   page: this.currentPage - 1
+    // }
+    // getApiList(params).then(res => {
+    //   this.tableData = res.rows
+    // })
   },
   methods: {
     searchFetch (val) {
