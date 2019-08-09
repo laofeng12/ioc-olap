@@ -42,11 +42,10 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	private String expressionFull;
 	@ApiModelProperty("列类型 HIVE基本数据类型")
 	private String columnType;
-
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
-	
+
 	@Transient
     @JsonIgnore
     @Override
