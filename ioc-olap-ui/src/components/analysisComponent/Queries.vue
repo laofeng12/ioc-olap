@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
 import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
@@ -67,8 +68,15 @@ export default {
       exportData: {}
     }
   },
+  computed: {
+    ...mapGetters({ editInstant: 'editInstant' })
+  },
   mounted () {
     this.getAsideList()
+    if ((this.$route.query && this.$route.query.edit === 'true') && (this.editInstant && this.editInstant.sql)) {
+      this.textarea = this.editInstant.sql
+      this.lineNumber = this.editInstant.lineNumber
+    }
   },
   methods: {
     async getAsideList () {
@@ -114,6 +122,7 @@ export default {
       }
       const res = await saveOlapApi(Object.assign({}, data, callbackData))
       if (res.createId) {
+        await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
       }
     },

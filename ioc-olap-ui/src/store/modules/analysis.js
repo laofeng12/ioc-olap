@@ -7,7 +7,8 @@ export const analysis = {
     newValueList: [],
     newFilterList: [],
     newRowList: [],
-    newColList: []
+    newColList: [],
+    editInstant: {}
   },
 
   mutations: {
@@ -28,6 +29,9 @@ export const analysis = {
     },
     GET_NEW_COL_LIST: (state, newColList) => {
       state.newColList = newColList
+    },
+    GET_EDIT_INSTANT: (state, editInstant) => {
+      state.editInstant = editInstant
     }
   },
 
@@ -55,6 +59,9 @@ export const analysis = {
     },
     getNewColListAction ({ commit }, list) {
       commit('GET_NEW_COL_LIST', list)
+    },
+    getEditInstantAction ({ commit }, data) {
+      commit('GET_EDIT_INSTANT', data)
     }
   }
 }
