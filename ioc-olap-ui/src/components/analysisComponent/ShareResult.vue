@@ -3,7 +3,7 @@
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="shareResult" @clickItem="getTableById"
                  :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :duration="duration" :shareList="shareList"
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :shareList="shareList"
                  :exportData="exportData"></ResultBox>
     </div>
   </div>
@@ -49,7 +49,6 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      duration: '',
       shareList: [],
       exportData: {}
     }
@@ -72,7 +71,7 @@ export default {
     async getTableById (folderData, type) {
       this.loading = true
       try {
-        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
+        const { columnMetas, results, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -86,7 +85,6 @@ export default {
           })
           return list
         })
-        this.duration = duration
         this.shareList = shareList
         this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
@@ -103,6 +101,7 @@ export default {
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;

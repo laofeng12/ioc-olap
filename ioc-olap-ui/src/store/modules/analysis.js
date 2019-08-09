@@ -34,12 +34,12 @@ export const analysis = {
   actions: {
     async getSaveFolderListAction ({ commit }) {
       const res = await getFolderWithQueryApi()
-      const list = res.map(v => {
-        return (
-          { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum }
-        )
-      })
-      commit('GET_SAVE_FOLDER_LIST', list)
+      // const list = res.map(v => {
+      //   return (
+      //     { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum, attrs: v.attrs }
+      //   )
+      // })
+      commit('GET_SAVE_FOLDER_LIST', res)
     },
     getCubeIdAction ({ commit }, cubeId) {
       commit('GET_CUBE_ID', cubeId)

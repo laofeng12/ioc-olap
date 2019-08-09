@@ -4,19 +4,19 @@
       <el-row class="left-tabs">
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
-            <FolderAside :menuList="myMenuList" :menuDefault="menuDefault" vueType="myOlap"
-                         :menuListLoading="myLoading" @clickItem="getTableById"></FolderAside>
+            <FolderAside :menuList="myMenuList" :menuDefault="menuDefault" vueType="myOlap" @editFunc="edit"
+                         :menuListLoading="myLoading" @clickItem="getTableById" @getAnalysisList="getFolderWithQuery"></FolderAside>
           </el-tab-pane>
           <el-tab-pane label="分享" name="share">
             <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap"
-                         :menuListLoading="shareLoading" @clickItem="getTableById"></FolderAside>
+                         :menuListLoading="shareLoading" @clickItem="getTableById" :needNewFolder="false"></FolderAside>
           </el-tab-pane>
         </el-tabs>
       </el-row>
     </el-aside>
     <div class="cus-right" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew" :folderData="folderData"
-                 :duration="duration" :shareList="shareList"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew"
+                 :shareList="shareList"></ResultBox>
     </div>
   </el-container>
 </template>
@@ -56,9 +56,7 @@ export default {
       },
       tableData: [],
       loading: false,
-      folderData: {},
       // exportData: {},
-      duration: '',
       shareList: []
     }
   },
@@ -81,13 +79,12 @@ export default {
     },
     async getTableById (folderData, type) {
       this.loading = true
-      this.folderData = folderData
       const params = {
         analyzeId: folderData.attrs.analyzeId,
         cubeId: folderData.attrs.cubeId
       }
       try {
-        const { results = [], duration } = await getQueryTableApi(params)
+        const { results = [] } = await getQueryTableApi(params)
         const tableData = results.map(item => {
           return (
             item.map(itemTd => {
@@ -100,7 +97,6 @@ export default {
           )
         })
         this.tableData = tableData
-        this.duration = duration
         // this.shareList = shareList
         // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         if (type !== 'share') {
@@ -110,6 +106,10 @@ export default {
         console.error(e)
       }
       this.loading = false
+    },
+    edit (data) {
+      console.info(data)
+      // this.$router.push(`/newOlapAnalysis?dataId=${}`)
     }
   }
 }

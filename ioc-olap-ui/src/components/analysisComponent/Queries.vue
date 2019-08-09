@@ -28,7 +28,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :duration="duration" :resetShow="true"></ResultBox>
+                   @reset="reset" :exportData="exportData" :resetShow="true"></ResultBox>
       </div>
     </div>
   </div>
@@ -64,8 +64,7 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      exportData: {},
-      duration: 1000
+      exportData: {}
     }
   },
   mounted () {
@@ -86,7 +85,7 @@ export default {
       }
       this.exportData = data
       try {
-        const { columnMetas, results, duration } = await searchOlapApi(data)
+        const { columnMetas, results } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -101,7 +100,6 @@ export default {
           return list
         })
         this.tableData = [...[columnMetasList], ...resultsList]
-        this.duration = duration
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -130,6 +128,7 @@ export default {
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;

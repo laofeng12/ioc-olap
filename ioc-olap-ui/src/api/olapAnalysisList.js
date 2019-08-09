@@ -49,3 +49,20 @@ export function getOlapAnalyzeApi (params, data) {
     data
   })
 }
+
+export function saveOlapAnalyzeApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/save',
+    method: 'post',
+    data
+  })
+}
+
+export function getOlapAnalyzeDetailsApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/get',
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}
