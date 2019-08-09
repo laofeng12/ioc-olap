@@ -11,6 +11,7 @@ const advancedSet = {
         }
       }
     ],
+    saveselectIncludesData: [], // 存储已选择的包含维度
     mandatory_dimension_set_list: [[]], // 存储维度黑白名单
     hbase_mapping: { // 存储高级设置组合
       'column_family': [
@@ -50,6 +51,7 @@ const advancedSet = {
         case 1:
           state.aggregation_groups[slectData.index].includes = slectData.data
           state.selectDataidList[slectData.index].includesId = slectData.data
+          dispatch('SaveselectIncludesData', slectData.data)
           break
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data
@@ -110,7 +112,7 @@ const advancedSet = {
     // 新增高级组合
     AddhetComposeData ({ state }) {
       state.hbase_mapping.column_family.push({
-        'name': 'F1',
+        'name': `F${state.hbase_mapping.column_family.length + 1}`,
         'columns': [
           {
             'qualifier': 'M',
@@ -194,6 +196,11 @@ const advancedSet = {
     // 设置模型引擎
     SetEngine ({ state }, data) {
       state.engine_types = data
+    },
+    // 存储选择的包含维度
+    SaveselectIncludesData ({ state }, data) {
+      state.saveselectIncludesData = data
+      console.log('获取的', state.saveselectIncludesData)
     }
     // 存储rowkeys设置
     // SaveRowkeyList ({ state }, data) {

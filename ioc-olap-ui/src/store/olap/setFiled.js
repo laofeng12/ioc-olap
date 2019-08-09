@@ -166,7 +166,10 @@ const setFiled = {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
             }
-            if (String(res.mode) === '1') {
+            if (res.filed === '1') {
+              state.saveSelectFiled[index].mode = 1
+            }
+            if (String(res.mode) === '1' || res.filed === '1') {
               dispatch('normalFn', { item: item, val: res })
             } else if (String(res.mode) === '2') {
               dispatch('derivativeFn', { item: item, val: res })
@@ -176,7 +179,7 @@ const setFiled = {
           if (val.id === item.id) {
             state.saveSelectFiled[index].mode = val.mode
           }
-          if (String(val.mode) === '1' && String(item.mode) === '1') {
+          if ((String(val.mode) === '1' && String(item.mode) === '1') || item.filed === '1') {
             dispatch('normalFn', { item: item, val: val })
           } else if (String(val.mode) === '2' && String(item.mode) === '2') {
             dispatch('derivativeFn', { item: item, val: val })
@@ -190,8 +193,7 @@ const setFiled = {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
-      console.log(getters.jointResult)
-      getters.jointResult.lookups.map((item, index) => {
+      getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
             datas.push({
@@ -211,7 +213,7 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      state.reloadNeedData = [...nomrlData, ...datas]
+      state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
       console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
@@ -219,12 +221,26 @@ const setFiled = {
       // 对接数据格式
       state.dimensions = []
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
-        state.dimensions.push({
-          table: item.tableName,
-          column: item.name,
-          derived: item.mode === '1' ? null : item.name.split(','),
-          name: item.tableName ? item.tableName : item.name
-        })
+        if (item.filed === '1') { item.mode = 1 }
+        setTimeout(_ => {
+          if (String(item.mode) === '1') {
+            state.dimensions.push({
+              table: item.tableName,
+              column: item.name,
+              // columnType: item.dataType,
+              column_type: item.dataType,
+              name: item.name ? item.name : item.name
+            })
+          } else {
+            state.dimensions.push({
+              table: item.tableName,
+              // columnType: item.dataType,
+              column_type: item.dataType,
+              derived: item.mode === '1' ? null : item.name.split(','),
+              name: item.name ? item.name : item.name
+            })
+          }
+        }, 300)
       })
     },
     // 存储最新分类后的维度
