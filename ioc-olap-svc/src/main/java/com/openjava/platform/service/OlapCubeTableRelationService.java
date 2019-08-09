@@ -23,4 +23,5 @@ public interface OlapCubeTableRelationService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+	void deleteCubeId(Long cubeId);
 }

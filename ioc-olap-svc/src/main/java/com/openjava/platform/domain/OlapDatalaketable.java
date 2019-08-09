@@ -25,47 +25,64 @@ import io.swagger.annotations.ApiModelProperty;
  * @author zy
  *
  */
-@ApiModel("过滤条件")
+@ApiModel("构建选择表")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Entity
-@Table(name = "OLAP_FILTER_CONDIDION")
-public class OlapFilterCondidion implements Persistable<Long>,Serializable {
+@Table(name = "OLAP_DATALAKETABLE")
+public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	
 	@ApiModelProperty("主键ID")
 	@Id
 	@Column(name = "ID")
 	private Long id;
-	
-	@ApiModelProperty("过滤表ID")
-	@Column(name = "FILTER_ID")
-	private Long filterId;
 
+	@ApiModelProperty("cubeName")
+	@Length(min=0, max=200)
+	@Column(name = "CUBE_NAME")
+	private Long cubeId;
+	
+	@ApiModelProperty("库名")
+	@Length(min=0, max=200)
+	@Column(name = "ORG_NAME")
+	private String orgName;
+	
+	@ApiModelProperty("库名ID")
+	@Max(0L)
+	@Column(name = "ORG_ID")
+	private Long orgId;
+	
+	@ApiModelProperty("表名称ID")
+	@Length(min=0, max=200)
+	@Column(name = "TABLE_ID")
+	private Long tableId;
+	
 	@ApiModelProperty("表名称")
-	@Length(min=0, max=50)
-	@Column(name = "TABLENAME")
-	private String tablename;
-	
-	@ApiModelProperty("表字段")
-	@Length(min=0, max=500)
-	@Column(name = "FIELD")
-	private String field;
-	
-	@ApiModelProperty("过滤方式")
-	@Length(min=0, max=500)
-	@Column(name = "PATTERN")
-	private String pattern;
-	
-	@ApiModelProperty("过滤值")
-	@Length(min=0, max=500)
-	@Column(name = "PARAMETER")
-	private String parameter;
+	@Length(min=0, max=200)
+	@Column(name = "TABLE_NAME")
+	private String tableName;
 
-	@ApiModelProperty("过滤值")
-	@Length(min=0, max=500)
-	@Column(name = "PARAMETERBE")
-	private String parameterbe;
+	@ApiModelProperty("RESOURCE_ID")
+	@Length(min=0, max=200)
+	@Column(name = "RESOURCE_ID")
+	private Long resourceId;
+
+
+	@ApiModelProperty("库类型")
+	@Length(min=0, max=200)
+	@Column(name = "DATABASE")
+	private String database;
+
+	@ApiModelProperty("类型")
+	@Max(0L)
+	@Column(name = "TYPE")
+	private String type;
+
+	@ApiModelProperty("FILED")
+	@Max(0L)
+	@Column(name = "FILED")
+	private Long filed;
 	
 	@ApiModelProperty("是否新增")
 	@Transient

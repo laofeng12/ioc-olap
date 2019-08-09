@@ -57,4 +57,7 @@ public class OlapFilterCondidionServiceImpl implements OlapFilterCondidionServic
 			olapFilterCondidionRepository.deleteById(new Long(items[i]));
 		}
 	}
+	public void deleteCubeId(Long filterId) {
+		olapFilterCondidionRepository.deleteCubeId(filterId);
+	}
 }

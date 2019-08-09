@@ -170,5 +170,4 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	public void setFlags(Integer flags) {
 		this.flags = flags;
 	}
-	
 }
