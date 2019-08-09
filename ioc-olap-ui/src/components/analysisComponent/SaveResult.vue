@@ -4,7 +4,7 @@
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
-                 :folderData="folderData" :duration="duration" :shareList="shareList"></ResultBox>
+                 :shareList="shareList"></ResultBox>
     </div>
   </div>
 </template>
@@ -50,8 +50,6 @@ export default {
       menuListLoading: false,
       exportData: {},
       loading: false,
-      folderData: {},
-      duration: '',
       shareList: []
     }
   },
@@ -69,9 +67,8 @@ export default {
     },
     async getTableById (folderData, type) {
       this.loading = true
-      this.folderData = folderData
       try {
-        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
+        const { columnMetas, results, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -85,7 +82,6 @@ export default {
           })
           return list
         })
-        this.duration = duration
         this.shareList = shareList
         this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
@@ -107,6 +103,7 @@ export default {
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;
