@@ -1,7 +1,7 @@
 #开发环境配置
 debug: true
 server:
-  port: 8080 #tomcat运行端口
+  port: 8078 #tomcat运行端口
   servlet:
     context-path: /
 #  tomcat:
@@ -70,8 +70,13 @@ schedule:
     waitqueue: 0/5 * * * * ?
   example:
     example: 0/5 * * * * ?
-
-
+#
+#  hour:
+#    hour: 0/5 * * * * ?
+#  day:
+#    day: 0/10 * * * * ?
+#  month:
+#    month: 0/20 * * * * ?
 
 
 
