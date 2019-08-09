@@ -66,7 +66,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.selectTableTotal)
       this.dataList = [...this.selectTableTotal] || []
       this.checkFactFile()
     },
@@ -117,7 +116,7 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 250px
+  max-width 270px
   // width 200px
   font-size 12px
   float left

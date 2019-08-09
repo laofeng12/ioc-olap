@@ -5,9 +5,9 @@ const reloadSet = {
     reloadData: {
       autoReload: false,
       dataMany: false,
-      partition_date_column: [],
-      partition_date_format: [],
-      partition_time_format: [],
+      partition_date_column: '',
+      partition_date_format: '',
+      partition_time_format: '',
       INTERVAL: '',
       frequencytype: 1
     }

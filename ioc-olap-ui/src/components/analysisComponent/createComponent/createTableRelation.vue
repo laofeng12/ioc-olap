@@ -107,7 +107,7 @@ export default {
   methods: {
     init () {
       // this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log(this.jointResult, '啦啦啦啦啦')
+      console.log(this.jointResult.lookups, '啦啦啦啦啦')
       let list = this.jointResult.lookups || []
       // let jointResultData = [...this.jointResultData.lookups]
       // let list = jointResultData || []
@@ -121,7 +121,7 @@ export default {
         gridSize: 1
       })
 
-      // this.clearCells()
+      this.clearCells()
       list.forEach(t => this.addLinkCell)
 
       this.bindEvent(paper)

@@ -201,6 +201,7 @@ export default {
         { value: '5', label: 'TOP 5000' },
         { value: '6', label: 'TOP 10000' }
       ],
+      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal', 'bigint'],
       rules: {
         name: [
           { required: true, message: '请输入度量名称', trigger: 'blur' }
@@ -249,6 +250,10 @@ export default {
         return res.label === val
       })
       this.formData.function.returntype = result[0].dataType
+      // if (this.jsonType.indexOf(result[0].dataType) === -1) {
+      //   this.$message.warning('不支持当前字段类型~')
+      //   this.formData.function.parameter.value = ''
+      // }
     },
     selectType (val) {
       if (val === 'constant') {
