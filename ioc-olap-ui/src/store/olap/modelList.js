@@ -3,7 +3,6 @@ const setMeasure = {
   state: {
     /* 度量 */
     measureTableList: []
-
   },
 
   actions: {

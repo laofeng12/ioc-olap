@@ -111,7 +111,6 @@ export default {
       let list = this.jointResult.lookups || []
       // let jointResultData = [...this.jointResultData.lookups]
       // let list = jointResultData || []
-
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -121,7 +120,7 @@ export default {
         gridSize: 1
       })
 
-      this.clearCells()
+      // this.clearCells()
       list.forEach(t => this.addLinkCell)
 
       this.bindEvent(paper)

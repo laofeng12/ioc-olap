@@ -125,7 +125,6 @@ const advancedSet = {
     // 根据id筛选出需要的数据
     WithidGetList ({ state }, id) {
       state.NewDataList = []
-      // let data = JSON.parse(getLocalStorage('saveNewSortList'))
       let data = state.saveNewSortList
       data.map(item => {
         item.list.map((n, i) => {
