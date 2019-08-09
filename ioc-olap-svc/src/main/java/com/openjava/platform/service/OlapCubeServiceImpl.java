@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import com.openjava.platform.domain.OlapCube;
+import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.query.OlapCubeDBParam;
 import com.openjava.platform.repository.OlapCubeRepository;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,15 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	
 	public List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable){
 		return olapCubeRepository.queryDataOnly(params, pageable);
+	}
+
+	public OlapCube findTableInfo(String cubeName, Long createId) {
+		Optional<OlapCube> o = olapCubeRepository.findTableInfo(cubeName, createId);
+		if (o.isPresent()) {
+			OlapCube m = o.get();
+			return m;
+		}
+		return null;
 	}
 	
 	public OlapCube get(Long id) {

@@ -28,8 +28,9 @@ public class CubeDescDataMapper {
     public String volatile_range;
     public String retention_range;
     public ArrayList<String> status_need_notify;
-    public ArrayList<Integer> auto_merge_time_ranges;
+    public ArrayList<Long> auto_merge_time_ranges;
     public Integer engine_type;
     public String storage_type;
+    public String columns_Type;
     public HashMap override_kylin_properties;
 }

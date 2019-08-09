@@ -32,8 +32,8 @@ public class CubeServiceImpl extends KylinAction implements CubeService {
     }
 
     @Override
-    public List<OlapTimingrefresh> findTableInfo(int frequencyType) throws Exception {
-        List<OlapTimingrefresh> timingList = olapTimingrefreshService.findTableInfo(frequencyType);
+    public List<OlapTimingrefresh> findTiming(int frequencyType) throws Exception {
+        List<OlapTimingrefresh> timingList = olapTimingrefreshService.findTiming(frequencyType);
         return timingList;
     }
 

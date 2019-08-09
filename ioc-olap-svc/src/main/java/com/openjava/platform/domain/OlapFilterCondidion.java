@@ -41,7 +41,7 @@ public class OlapFilterCondidion implements Persistable<Long>,Serializable {
 	@ApiModelProperty("过滤表ID")
 	@Column(name = "FILTER_ID")
 	private Long filterId;
-	
+
 	@ApiModelProperty("表名称")
 	@Length(min=0, max=50)
 	@Column(name = "TABLENAME")

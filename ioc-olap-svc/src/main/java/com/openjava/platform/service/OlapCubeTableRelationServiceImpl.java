@@ -56,4 +56,7 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 			olapCubeTableRelationRepository.deleteById(new Long(items[i]));
 		}
 	}
+	public void deleteCubeId(Long cubeId) {
+		olapCubeTableRelationRepository.deleteCubeId(cubeId);
+	}
 }

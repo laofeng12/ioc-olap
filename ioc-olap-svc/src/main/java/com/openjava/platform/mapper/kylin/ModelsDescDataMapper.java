@@ -19,8 +19,8 @@ public class ModelsDescDataMapper {
     public String name;
     @JSONField(name = "owner")
     public String owner;
-    @JSONField(name = "is_draft")
-    public boolean is_draft;
+//    @JSONField(name = "is_draft")
+//    public boolean is_draft;
     @JSONField(name = "description")
     public String description;
     @JSONField(name = "fact_table")

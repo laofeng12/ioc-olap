@@ -58,6 +58,11 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 		}
 	}
 
+	public void deleteCubeId(Long cubeId) {
+		olapCubeTableColumnRepository.deleteCubeId(cubeId);
+	}
+
+
 	@Override
 	public ArrayList<OlapCubeTableColumn> getListByTableId(Long cubeTableId) {
 		return olapCubeTableColumnRepository.findByTableId(cubeTableId);

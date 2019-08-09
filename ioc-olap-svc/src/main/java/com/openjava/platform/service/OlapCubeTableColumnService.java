@@ -22,9 +22,10 @@ public interface OlapCubeTableColumnService {
 	OlapCubeTableColumn get(Long id);
 	
 	OlapCubeTableColumn doSave(OlapCubeTableColumn m);
-	
+
 	void doDelete(Long id);
 	void doRemove(String ids);
+	void deleteCubeId(Long cubeId);
 
 	ArrayList<OlapCubeTableColumn> getListByTableId(Long cubeTableId);
 }

@@ -28,27 +28,27 @@ public class ExampleJob {
     @Resource
     private CubeService cubeService;
 
-    @Scheduled(cron = "${schedule.example.example}")
+    @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
         System.out.println("=====> 执行定时任务-小时 <=====");
         configureTasks(1);
     }
 
-//    @Scheduled(cron = "${schedule.service.day}")
-//    public void day() throws Exception {
-//        System.out.println("=====> 执行定时任务-天 <=====");
-//        configureTasks(2);
-//    }
-//
-//    @Scheduled(cron = "${schedule.service.month}")
-//    public void month() throws Exception {
-//        System.out.println("=====> 执行定时任务-月 <=====");
-//        configureTasks(3);
-//    }
+    @Scheduled(cron = "${schedule.day.day}")
+    public void day() throws Exception {
+        System.out.println("=====> 执行定时任务-天 <=====");
+        configureTasks(2);
+    }
+
+    @Scheduled(cron = "${schedule.month.month}")
+    public void month() throws Exception {
+        System.out.println("=====> 执行定时任务-月 <=====");
+        configureTasks(3);
+    }
 
 
     private void configureTasks(int frequencyType) throws Exception {
-        List<OlapTimingrefresh> timingreFresh = cubeService.findTableInfo(frequencyType);
+        List<OlapTimingrefresh> timingreFresh = cubeService.findTiming(frequencyType);
         if (timingreFresh != null) {
 
             //执行bui

@@ -11,4 +11,6 @@ public class DimensionMapper {
     public String[] derived;
     public String table;
     public String column;
+    public String columnType;
+    public String column_type;
 }
