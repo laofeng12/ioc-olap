@@ -83,31 +83,31 @@ export default {
       },
       cellLayerStyle: '',
       cellLayerData: null,
-      jointResult: {
-        name: 'joint',
-        description: '',
-        fact_table: '',
-        lookups: []
-      },
+      // jointResult: {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // },
       linkModal: null,
       linkModalModel: null,
-      linkModalFields: []
-      // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
+      linkModalFields: [],
+      jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
 
     }
   },
   created () {
   },
   mounted: function () {
-    this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
+    // this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
   },
   watch: {
   },
   methods: {
     init () {
-      this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log(this.jointResult)
+      // this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
+      console.log(this.jointResult, '啦啦啦啦啦')
       let list = this.jointResult.lookups || []
       // let jointResultData = [...this.jointResultData.lookups]
       // let list = jointResultData || []
