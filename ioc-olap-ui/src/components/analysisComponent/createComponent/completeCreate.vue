@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="formData">
+    <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{formData.factName}}</el-form-item>
        <el-form-item label="维度表">{{formData.dimensionName}}</el-form-item>
@@ -29,6 +29,7 @@ export default {
   },
   data () {
     return {
+      completeLoading: false,
       formData: {
         factName: '',
         dimensionName: '',
@@ -60,9 +61,6 @@ export default {
       this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
         return item.alias !== this.jointResultData.fact_table
       }) // 表的关系
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
       /**
        * 处理聚合小组
        */
@@ -103,12 +101,15 @@ export default {
     },
     nextModel (val) {
       // this.$message.error('暂未完成')
+      this.completeLoading = true
       saveolapModeldata(this.totalSaveData).then(res => {
-        console.log(res)
         if (res.CubeList) {
           this.$message.success('保存成功~')
+          this.completeLoading = false
           this.$router.push('/analysisModel/Configuration')
         }
+      }).finally(_ => {
+        this.completeLoading = false
       })
     },
     prevModel (val) {

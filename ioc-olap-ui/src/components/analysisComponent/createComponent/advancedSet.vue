@@ -75,7 +75,7 @@
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column prop="apiPaths" label="碎片区" align="center">
+            <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="changeShardby">
@@ -224,7 +224,7 @@ export default {
           encoding: item.encoding ? item.encoding : 'dict',
           columns_Type: item.type ? item.type : '',
           encoding_version: '1',
-          isShardBy: item.isShardBy ? item.isShardBy : false
+          isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
       })
       this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')

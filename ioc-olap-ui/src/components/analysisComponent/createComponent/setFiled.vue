@@ -2,7 +2,7 @@
   <div class="setFiled">
     <div class="containers">
       <filed-table></filed-table>
-      <div class="dimension" style="margin-left:240px;">
+      <div class="dimension" style="margin-left:270px;">
         <p>
           <span>维度选择</span>
           <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -76,25 +76,50 @@ export default {
     init () {
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
-      this.$root.eventBus.$on('filedTable', (res, code) => {
+      this.$root.eventBus.$on('filedTable', (data, code) => {
         this.loading = true
-        // if (code === 200) {
-        this.tableData = res
-        setTimeout(() => {
-          this.loading = false
-          let arr = []
-          this.tableData && this.tableData.forEach((item, i) => {
-            this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-              if (val.id === item.id) {
-                this.tableData[i].tableName = val.tableName
-                this.tableData[i].mode = val.mode
-                arr.push(item)
-              }
-            })
-          })
-          this.toggleSelection(arr)
-        }, 300)
+        // this.tableData = res.data.columns
+        // setTimeout(() => {
+        // let arr = []
+        // this.tableData && this.tableData.forEach((item, i) => {
+        // this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+        // if (val.id === item.id) {
+        // this.tableData[i].tableName = val.tableName
+        // this.tableData[i].mode = val.mode
+        // arr.push(item)
         // }
+        // })
+        // })
+        // this.toggleSelection(arr)
+        // this.loading = false
+        // }, 300)
+        this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
+          if (res) {
+            this.loading = false
+            res.data.columns && res.data.columns.map((n, i) => {
+              n.mode = n.mode ? n.mode : '2'
+              n.derived = n.name
+              n.titName = n.name
+              n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
+              n.id = `${data.alias}${i}`
+              n.filed = data.alias === code ? '1' : '0'
+            })
+            this.tableData = res.data.columns
+            let arr = []
+            setTimeout(() => {
+              this.tableData && this.tableData.forEach((item, i) => {
+                this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                  if (val.id === item.id) {
+                    this.tableData[i].name = val.name
+                    this.tableData[i].mode = val.mode
+                    arr.push(item)
+                  }
+                })
+              })
+              this.toggleSelection(arr)
+            }, 500)
+          }
+        })
       })
     },
     toggleSelection (rows) {
