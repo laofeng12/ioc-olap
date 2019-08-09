@@ -169,6 +169,9 @@ public class OlapModelingAction extends BaseAction {
 //        ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
 //        projectDesc.setName(userVO.getUserId());
 //        projectDesc.setDescription(userVO.getUserName());
+//
+//        OverrideKylinPropertiesMapper A=new OverrideKylinPropertiesMapper();
+//
 //        projectDesc.override_kylin_properties.setAuthor(userVO.getUserName());
 //        projectAction.create(projectDesc);
 
