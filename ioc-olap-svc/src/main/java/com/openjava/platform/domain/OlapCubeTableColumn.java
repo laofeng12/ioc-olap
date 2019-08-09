@@ -150,4 +150,6 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	public void setColumnType(String columnType) {
 		this.columnType = columnType;
 	}
+	
+	
 }
