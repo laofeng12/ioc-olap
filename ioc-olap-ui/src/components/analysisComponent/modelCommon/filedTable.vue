@@ -17,8 +17,8 @@
         :style="{color: current===index?colors:''}"
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
-         {{titleData[index]}}
-         <span v-if="titleData[index]===dataList.fact_table">事实表</span>
+         <span class="tableTitle">{{titleData[index]}}</span>
+         <span class="filds" v-if="titleData[index]===dataList.fact_table">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -115,18 +115,19 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
-        console.log(res, '====')
-        res.data.columns.map((n, i) => {
-          n.mode = n.mode ? n.mode : '2'
-          n.derived = n.name
-          n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
-          n.id = `${item.alias}${i}`
-          n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
-        })
-        // 存储选择对应的表
-        this.$root.eventBus.$emit('filedTable', res.data.columns)
-      })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
+      //   res.data.columns.map((n, i) => {
+      //     n.mode = n.mode ? n.mode : '2'
+      //     n.derived = n.name
+      //     n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
+      //     n.id = `${item.alias}${i}`
+      //     n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
+      //   })
+      //   // 存储选择对应的表
+      //   // this.$root.eventBus.$emit('filedTable', res.data.columns)
+      // })
+      this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
+
       // ------------------------- 数据湖
       // this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
       //   let datas = []
@@ -193,7 +194,14 @@ export default {
       height 30px
       line-height 30px
       color #000000
-      span{
+      .tableTitle{
+        width: 70%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: bottom;
+      }
+      .filds{
         background #009688
         color #ffffff
         padding 2px 6px

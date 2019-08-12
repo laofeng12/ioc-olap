@@ -172,8 +172,8 @@ export default {
       this.formData = this.reloadData
     },
     nextModel (val) {
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = `${this.formData.data1a}.${this.formData.data1b}`
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
       if (this.formData.partition_type === true) {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`

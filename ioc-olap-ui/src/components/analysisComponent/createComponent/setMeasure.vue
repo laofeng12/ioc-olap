@@ -57,10 +57,12 @@ export default {
       this.tableData = [...this.measureTableList]
     },
     nextModel (val) {
-      this.$router.push('/analysisModel/createolap/reloadSet') && this.$parent.getStepCountAdd(val)
-      // this.measureTableList.length > 0
-      //   ? this.$router.push('/analysisModel/createolap/reloadSet') && this.$parent.getStepCountAdd(val)
-      //   : this.$message.warning('至少添加一条度量')
+      if (this.measureTableList.length > 0) {
+        this.$router.push('/analysisModel/createolap/reloadSet')
+        this.$parent.getStepCountAdd(val)
+      } else {
+        this.$message.warning('至少添加一条度量')
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
