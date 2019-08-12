@@ -9,7 +9,7 @@
             <local-upload></local-upload>
           </el-tab-pane>
           <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
-            <span slot="label" style="cursor:pointer" @click="cahngges" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
+            <span slot="label" style="cursor:pointer" @click="changes" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
     </div>
@@ -34,13 +34,14 @@ export default {
     }
   },
   methods: {
-    cahngges (val) {
+    changes (val) {
       this.$refs.dialog.dialog()
     },
     nextModel (val) {
       if (this.selectTableTotal.length === 0) return this.$message.warning('请选择创建模型的数据源')
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/createTableRelation')
+      this.$store.commit('SaveSelectAllList', this.saveSelectTable)
     },
     tabClick (val) {
       val.name === '2'

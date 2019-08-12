@@ -1,8 +1,13 @@
 <template>
   <div class="creates">
     <header>
-      <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
-      <el-input v-model="totalSaveData.cube.cubeDescData.name" placeholder="请输入模型名称(1~20字)"></el-input>
+      <!-- <el-form :rules="rules" :model="totalSaveData"> -->
+      <el-form>
+        <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
+        <!-- <el-form-item prop="cube.cubeDescData.name"> -->
+          <el-input v-model="totalSaveData.cube.cubeDescData.name" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
+        <!-- </el-form-item> -->
+      </el-form>
     </header>
     <head-box :selectId="selectStep"></head-box>
     <div>
@@ -16,12 +21,18 @@
 <script>
 import headBox from '@/components/analysisComponent/modelCommon/head'
 import { mapGetters } from 'vuex'
+import { isChineseChar } from '@/utils/validate'
 export default {
   components: { headBox },
   data () {
     return {
       selectStep: 1,
-      value: ''
+      value: '',
+      rules: {
+        'cube.cubeDescData.name': [
+          { required: true, message: '请输入模型名称', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -34,6 +45,12 @@ export default {
     tobackList () {
       this.$router.push('/analysisModel/Configuration')
       this.$store.dispatch('resetList')
+    },
+    blurIpt (val) {
+      let result = val.target.value
+      let flag = isChineseChar(val.target.value)
+      if (!result) return this.$message.warning('请填写模型名称~')
+      if (flag) return this.$message.warning('请勿输入中文~')
     }
   },
   computed: {

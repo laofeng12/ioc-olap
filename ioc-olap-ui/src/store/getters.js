@@ -17,6 +17,8 @@ const getters = {
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
   selectStepList: state => state.selectStep.selectStepList,
+  saveSelectAllList: state => state.selectStep.saveSelectAllList,
+  SaveFactData: state => state.selectStep.SaveFactData,
   /* */
   jointResultData: state => state.createTableRelation.jointResultData,
   /* */
@@ -34,6 +36,7 @@ const getters = {
   /* */
   mandatory_dimension_set_list: state => state.advancedSet.mandatory_dimension_set_list,
   saveselectIncludesData: state => state.advancedSet.saveselectIncludesData,
+  filterMappingData: state => state.advancedSet.filterMappingData,
   hbase_mapping: state => state.advancedSet.hbase_mapping,
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,

@@ -56,8 +56,10 @@ export default {
         // if (type && type === 1) {
         //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
+        //       console.log(res, '=====')
         //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
+        //       this.$root.eventBus.$emit('saveSelectTables')
         //     }
         //   })
         } else {
@@ -107,6 +109,7 @@ export default {
       if (value.label === '全选') return
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
+        /** 数据湖 */
         // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
         //   let datas = []
         //   let columnData = res.data.column // 子段说明
@@ -129,8 +132,8 @@ export default {
         //   })
         // })
         // 模拟数据kelin
-        this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId }).then(res => {
-          this.$root.eventBus.$emit('klinFetchData', res.data.columns)
+        this.$store.dispatch('GetResourceInfo', value.resourceId).then(res => {
+          this.$root.eventBus.$emit('klinFetchData', JSON.parse(res).data.columns)
         })
       } else {
         const parmas = {

@@ -77,7 +77,7 @@ export default {
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        this.loading = true
+        // this.loading = true
         // this.tableData = res.data.columns
         // setTimeout(() => {
         // let arr = []
@@ -93,10 +93,38 @@ export default {
         // this.toggleSelection(arr)
         // this.loading = false
         // }, 300)
-        this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
-          if (res) {
-            this.loading = false
-            res.data.columns && res.data.columns.map((n, i) => {
+        // this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
+        //   if (res) {
+        //     this.loading = false
+        //     res.data.columns && res.data.columns.map((n, i) => {
+        //       n.mode = n.mode ? n.mode : '2'
+        //       n.derived = n.name
+        //       n.titName = n.name
+        //       n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
+        //       n.id = `${data.alias}${i}`
+        //       n.filed = data.alias === code ? '1' : '0'
+        //     })
+        //     this.tableData = res.data.columns
+        //     let arr = []
+        //     setTimeout(() => {
+        //       this.tableData && this.tableData.forEach((item, i) => {
+        //         this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+        //           if (val.id === item.id) {
+        //             this.tableData[i].name = val.name
+        //             this.tableData[i].mode = val.mode
+        //             arr.push(item)
+        //           }
+        //         })
+        //       })
+        //       this.toggleSelection(arr)
+        //     }, 500)
+        //   }
+        // })
+        // 获取本地的数据
+        this.saveSelectAllList.forEach((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === data.joinId) {
+            items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
               n.titName = n.name
@@ -104,7 +132,7 @@ export default {
               n.id = `${data.alias}${i}`
               n.filed = data.alias === code ? '1' : '0'
             })
-            this.tableData = res.data.columns
+            this.tableData = items.data.columns
             let arr = []
             setTimeout(() => {
               this.tableData && this.tableData.forEach((item, i) => {
@@ -183,11 +211,12 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
       jointResultData: 'jointResultData',
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortList: 'saveNewSortList',
+      saveSelectAllList: 'saveSelectAllList'
     })
   },
   beforeDestroy () {
