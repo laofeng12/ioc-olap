@@ -17,7 +17,7 @@
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
           <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectValue">
-            <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
+            <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
@@ -29,7 +29,7 @@
         <div v-if="formData.function.expression === 'COUNT_DISTINCT'" class="coutDistinct">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
             <el-select v-model="formData.type" placeholder="请选择" :disabled="isDisabledtype">
-              <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              <el-option v-for="item in backType" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
           <el-table :data="formData.answers">
@@ -45,7 +45,7 @@
               <template slot-scope="scope">
                 <el-form-item :prop="'answers.' + scope.$index + '.answertext'">
                   <el-select v-model="scope.row.answertext" placeholder="请选择字段">
-                    <el-option v-for="(item, index) in datas" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
@@ -82,7 +82,7 @@
               <template slot-scope="scope">
                 <el-form-item :prop="'answers.' + scope.$index + '.answertext'" :rules='rules.answertext'>
                   <el-select v-model="scope.row.answertext" placeholder="请选择字段">
-                    <el-option v-for="(item, index) in datas" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
@@ -171,10 +171,12 @@ export default {
       }, {
         value: 'COUNT_DISTINCT',
         label: 'COUNT_DISTINCT '
-      }, {
-        value: 'TOP_N',
-        label: 'TOP_N'
-      }, {
+      },
+      //  {
+      //   value: 'TOP_N',
+      //   label: 'TOP_N'
+      // },
+      {
         value: 'EXTENDED_COLUMN',
         label: 'EXTENDED_COLUMN'
       }, {
@@ -221,7 +223,9 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
-      saveSelectFiled: 'saveSelectFiled'
+      saveSelectFiled: 'saveSelectFiled',
+      SaveFactData: 'SaveFactData',
+      saveSelectAllList: 'saveSelectAllList'
     })
   },
   mounted () {
@@ -286,12 +290,10 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
-      this.saveSelectFiled.map(item => {
-        if (item.filed === '1') {
-          this.fieldtextOption.push(
-            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
-          )
-        }
+      this.SaveFactData.map(item => {
+        this.fieldtextOption.push(
+          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+        )
       })
       if (data) {
         this.formData = data
@@ -307,14 +309,27 @@ export default {
     changeAll (n) {
       this.fieldtextOption = []
       this.formData.function.parameter.value = ''
-      n === true
-        ? this.saveSelectFiled.map(res => {
-          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: `${res.tableName}.${res.name}` })
+      let AllData = []
+      this.saveSelectAllList.forEach((item, index) => {
+        let findData = []
+        let items = JSON.parse(item)
+        items.data.columns.forEach((n, i) => {
+          findData.push({
+            name: items.name + '.' + n.name,
+            id: n.id,
+            dataType: n.dataType
+          })
         })
-        : this.saveSelectFiled.map(item => {
-          if (item.filed === '1') {
-            this.fieldtextOption.push({ id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` })
-          }
+        AllData = AllData.concat(findData)
+      })
+      n === true
+        ? AllData.map(res => {
+          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: res.name })
+        })
+        : this.SaveFactData.map(item => {
+          this.fieldtextOption.push(
+            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+          )
         })
     },
     selectChange (val) {

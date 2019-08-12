@@ -101,16 +101,20 @@ export default {
     },
     nextModel (val) {
       // this.$message.error('暂未完成')
-      this.completeLoading = true
-      saveolapModeldata(this.totalSaveData).then(res => {
-        if (res.CubeList) {
-          this.$message.success('保存成功~')
+      if (this.totalSaveData.cube.cubeDescData.name.length) {
+        this.completeLoading = true
+        saveolapModeldata(this.totalSaveData).then(res => {
+          if (res.CubeList) {
+            this.$message.success('保存成功~')
+            this.completeLoading = false
+            this.$router.push('/analysisModel/Configuration')
+          }
+        }).finally(_ => {
           this.completeLoading = false
-          this.$router.push('/analysisModel/Configuration')
-        }
-      }).finally(_ => {
-        this.completeLoading = false
-      })
+        })
+      } else {
+        this.$message.warning('请填写模型名称~')
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

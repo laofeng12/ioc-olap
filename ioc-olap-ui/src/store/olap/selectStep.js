@@ -23,7 +23,9 @@ const selectStep = {
           dataType: '' // 表类型（数据湖/本地上传）
         }
       ]
-    }
+    },
+    saveSelectAllList: [], // 保存选择的表的所有字段
+    SaveFactData: [] // 事实表对应的所有字段
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -49,6 +51,22 @@ const selectStep = {
     },
     SAVESELECT_TWO: (state, val) => {
       state.saveSelctchckouttwo = val
+    },
+    // 存储所有选择的表对应的字段
+    SaveSelectAllList (state, val) {
+      let columId = val.map(item => { return item.resourceId })
+      getselectColumn(columId).then(res => {
+        state.saveSelectAllList = res
+      })
+    },
+    // 存储事实表对应的字段
+    SaveFactData (state, list) {
+      state.SaveFactData = list.data.map(item => {
+        item.filed = '1'
+        item.tableName = list.list.joinTable
+        return item
+      })
+      console.log('事实表的数据', state.SaveFactData)
     }
   },
   actions: {
