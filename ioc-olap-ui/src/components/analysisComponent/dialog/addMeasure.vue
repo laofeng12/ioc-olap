@@ -11,16 +11,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth" prop="function.parameter.type">
-          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
+          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype" @change="selectType">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
-          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
+          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectValue">
             <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="margin-top:-10px;" :label-width="formLabelWidth">
+        <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
           <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
@@ -131,6 +131,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { deflate } from 'zlib'
 export default {
   props: {
     border: {
@@ -147,8 +148,7 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       },
@@ -168,9 +168,6 @@ export default {
       }, {
         value: 'MIN',
         label: 'MIN'
-      }, {
-        value: 'COUNT',
-        label: 'COUNT'
       }, {
         value: 'COUNT_DISTINCT',
         label: 'COUNT_DISTINCT '
@@ -204,6 +201,7 @@ export default {
         { value: '5', label: 'TOP 5000' },
         { value: '6', label: 'TOP 10000' }
       ],
+      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal', 'bigint'],
       rules: {
         name: [
           { required: true, message: '请输入度量名称', trigger: 'blur' }
@@ -215,7 +213,7 @@ export default {
           { required: true, message: '请选择类型', trigger: 'change' }
         ],
         'function.parameter.value': [
-          { required: true, message: '请选择字段', trigger: 'change' }
+          { required: false, message: '请选择字段', trigger: 'change' }
         ]
       }
     }
@@ -227,7 +225,7 @@ export default {
     })
   },
   mounted () {
-    // console.log(this.selectTableTotal)
+    console.log(this.formData)
   },
   methods: {
     resetData () {
@@ -238,8 +236,7 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       }
@@ -248,6 +245,25 @@ export default {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
     },
+    selectValue (val) {
+      let result = this.fieldtextOption.filter((res, index) => {
+        return res.label === val
+      })
+      this.formData.function.returntype = result[0].dataType
+      // if (this.jsonType.indexOf(result[0].dataType) === -1) {
+      //   this.$message.warning('不支持当前字段类型~')
+      //   this.formData.function.parameter.value = ''
+      // }
+    },
+    selectType (val) {
+      if (val === 'constant') {
+        this.formData.function.parameter.value = 1
+        this.isDisabledtext = true
+      } else {
+        this.formData.function.parameter.value = ''
+        this.isDisabledtext = false
+      }
+    },
     submitBtn (index) {
       this.$refs.formData.validate((valid) => {
         if (valid) {
@@ -255,10 +271,12 @@ export default {
           let id = Math.random().toString(36).substr(3)
           this.formData['id'] = id
           this.formData['isNew'] = this.isNew
+          this.formData['showDim'] = true
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('保存成功~')
-              this.resetData()
+              // this.resetData()
+              this.$refs.formData.clearValidate()
             }
           })
           this.$parent.init()
@@ -268,11 +286,10 @@ export default {
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
-      console.log(this.saveSelectFiled, '获取的')
       this.saveSelectFiled.map(item => {
         if (item.filed === '1') {
           this.fieldtextOption.push(
-            { id: item.id, label: `${item.tableName}.${item.name}` }
+            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
           )
         }
       })
@@ -282,6 +299,9 @@ export default {
       } else {
         this.resetData()
         this.isNew = 0
+        setTimeout(() => {
+          this.$refs.formData.clearValidate()
+        }, 100)
       }
     },
     changeAll (n) {
@@ -289,11 +309,11 @@ export default {
       this.formData.function.parameter.value = ''
       n === true
         ? this.saveSelectFiled.map(res => {
-          this.fieldtextOption.push({ id: res.id, label: `${res.tableName}.${res.name}` })
+          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: `${res.tableName}.${res.name}` })
         })
         : this.saveSelectFiled.map(item => {
           if (item.filed === '1') {
-            this.fieldtextOption.push({ id: item.id, label: `${item.tableName}.${item.name}` })
+            this.fieldtextOption.push({ id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` })
           }
         })
     },
@@ -303,8 +323,11 @@ export default {
         case 'COUNT':
           this.formData.function.parameter.type = 'constant'
           this.formData.function.parameter.value = 1
+          this.formData.function.returntype = 'bigint'
           this.isDisabledtype = true
           this.isDisabledtext = true
+          // delete this.formData.function.returntype
+          // delete this.formData.function.parameter.value
           break
         case 'PERCENTILE':
           this.formData.function.parameter.type = 'column'

@@ -2,7 +2,7 @@
   <div class="creates">
     <header>
       <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
-      <el-input v-model="value" placeholder="请输入模型名称(1~20字)"></el-input>
+      <el-input v-model="totalSaveData.cube.cubeDescData.name" placeholder="请输入模型名称(1~20字)"></el-input>
     </header>
     <head-box :selectId="selectStep"></head-box>
     <div>
@@ -15,6 +15,7 @@
 
 <script>
 import headBox from '@/components/analysisComponent/modelCommon/head'
+import { mapGetters } from 'vuex'
 export default {
   components: { headBox },
   data () {
@@ -34,6 +35,11 @@ export default {
       this.$router.push('/analysisModel/Configuration')
       this.$store.dispatch('resetList')
     }
+  },
+  computed: {
+    ...mapGetters({
+      totalSaveData: 'totalSaveData'
+    })
   }
 }
 </script>

@@ -16,8 +16,9 @@ const getters = {
   lastClickTab: state => state.selectStep.lastClickTab,
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
+  selectStepList: state => state.selectStep.selectStepList,
   /* */
-  jointResult: state => state.createTableRelation.jointResult,
+  jointResultData: state => state.createTableRelation.jointResultData,
   /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,
@@ -32,6 +33,7 @@ const getters = {
   reloadData: state => state.reloadSet.reloadData,
   /* */
   mandatory_dimension_set_list: state => state.advancedSet.mandatory_dimension_set_list,
+  saveselectIncludesData: state => state.advancedSet.saveselectIncludesData,
   hbase_mapping: state => state.advancedSet.hbase_mapping,
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,
@@ -45,6 +47,7 @@ const getters = {
   newValueList: state => state.analysis.newValueList,
   newFilterList: state => state.analysis.newFilterList,
   newRowList: state => state.analysis.newRowList,
-  newColList: state => state.analysis.newColList
+  newColList: state => state.analysis.newColList,
+  editInstant: state => state.analysis.editInstant
 }
 export default getters

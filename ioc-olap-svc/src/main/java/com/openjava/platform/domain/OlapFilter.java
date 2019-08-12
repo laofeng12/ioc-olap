@@ -38,9 +38,9 @@ public class OlapFilter implements Persistable<Long>,Serializable {
 	@Column(name = "ID")
 	private Long id;
 	
-	@ApiModelProperty("立方体ID")
-	@Column(name = "CUBE_ID")
-	private Long cubeId;
+	@ApiModelProperty("立方体Name")
+	@Column(name = "CUBE_NAME")
+	private String cubeName;
 	
 	@ApiModelProperty("过滤最终形成的sql")
 	@Length(min=0, max=500)

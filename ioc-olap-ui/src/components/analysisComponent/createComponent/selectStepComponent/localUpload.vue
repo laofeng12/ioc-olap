@@ -5,18 +5,18 @@
     <el-tabs v-model="activeName">
         <el-tab-pane label="表数据" name="1">
           <div class="tableBox" v-if="managementHead && managementHead.length">
-            <div class="tableBox_item headStep">
+            <div class="tableBox_item headStep" v-loading="loadingPlanHead">
               <!-- <li v-if="managementHead && managementHead.length">序号</li> -->
               <span v-for="(item, index) in managementHead" :key="index">{{item.label}}</span>
             </div>
-            <div class="tableBox_item" v-for="(n, index) in managementData" :key="index">
+            <div class="tableBox_item" v-for="(n, index) in managementData" v-loading="loadingPlanBody" :key="index">
               <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
         <el-tab-pane label="字段说明" name="2">
-          <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
+          <element-table  v-loading="loadingPlanBody" v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
         </el-tab-pane>
       </el-tabs>
@@ -34,7 +34,8 @@ export default {
   data () {
     return {
       activeName: '1',
-      loadingPlan: false,
+      loadingPlanHead: false,
+      loadingPlanBody: false,
       managementData: [],
       managementHead: [],
       descriptionData: [],
@@ -51,25 +52,32 @@ export default {
   methods: {
     init () {
       this.$root.eventBus.$on('getLocalTableHeadList', res => {
-        console.log(res, '本地数据')
         this.managementHead = []
-        this.loadingPlan = true
-        if (res.code === 200) {
-          this.loadingPlan = false
-          this.descriptionData = res.data
-          res.data.map((res, index) => {
-            this.managementHead.push({ label: res.comment })
-          })
-        }
+        this.loadingPlanHead = true
+        this.$store.dispatch('GetColumnList', res).then(res => {
+          if (res.code === 200) {
+            this.descriptionData = res.data
+            res.data.map((res, index) => {
+              this.managementHead.push({ label: res.comment })
+            })
+            setTimeout(() => {
+              this.loadingPlanHead = false
+            }, 300)
+          }
+        })
       })
       // 获取表格数据
       this.$root.eventBus.$on('getLocalTableContentList', res => {
         this.managementData = []
-        this.loadingPlan = true
-        if (res.code === 200) {
-          this.loadingPlan = false
-          this.managementData = res.data.data
-        }
+        this.loadingPlanBody = true
+        this.$store.dispatch('GetTableData', res).then(res => {
+          if (res.code === 200) {
+            this.managementData = res.data.data
+            setTimeout(() => {
+              this.loadingPlanBody = false
+            }, 300)
+          }
+        })
       })
     }
   }

@@ -125,7 +125,6 @@ export default {
             this.sumRowList.push(sum)
           }
         }
-        //console.info('行汇总：', this.sumRowList)
     },
     //列汇总
     getColSum(){
@@ -141,7 +140,6 @@ export default {
               this.sumColList.push(sum)
             }
           }
-          //  console.info('列汇总：', this.sumColList)
         }
       }
 

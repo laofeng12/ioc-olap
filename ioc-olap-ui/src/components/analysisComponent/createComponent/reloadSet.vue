@@ -29,17 +29,17 @@
         </el-form-item>
         <el-form-item label="日期字段" class="item_line"></el-form-item>
         <el-form-item label="日期字段表" class="datarowmore">
-          <el-select v-model="formData.partition_date_column[0]" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)">
+          <el-select v-model="formData.data1a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)">
             <el-option v-for="(item, index) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期字段">
-          <el-select v-model="formData.partition_date_format[0]" placeholder="请选择日期字段">
+        <el-form-item label="日期字段" prop="data1b">
+          <el-select v-model="formData.data1b" placeholder="请选择日期字段">
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
-          <el-select v-model="formData.partition_time_format[0]" placeholder="请选择日期格式">
+          <el-select v-model="formData.partition_date_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -47,7 +47,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.dataMany"
+                v-model="formData.partition_type"
                 active-color="#13ce66"
                 @change="changeDataMany"
                 inactive-color="#cccccc">
@@ -55,19 +55,19 @@
             </div>
           </template>
         </el-form-item>
-        <div v-if="formData.dataMany">
+        <div v-if="formData.partition_type">
         <el-form-item label="日期字段表" class="datarowmore">
-          <el-select v-model="formData.partition_date_column[1]" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
+          <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期字段">
-          <el-select v-model="formData.partition_date_format[1]" placeholder="请选择日期字段">
+        <el-form-item label="日期字段" prop="data2b">
+          <el-select v-model="formData.data2b" placeholder="请选择日期字段">
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式">
-          <el-select v-model="formData.partition_time_format[1]" placeholder="请选择日期格式">
+          <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -121,11 +121,16 @@ export default {
     return {
       formData: {
         autoReload: false,
-        dataMany: false,
+        partition_type: false,
         idx: 0,
-        partition_date_column: [],
-        partition_date_format: [],
-        partition_time_format: [],
+        data1a: '',
+        data1b: '',
+        data2a: '',
+        data2b: '',
+        partition_date_column: '', // 第一条数据表加字段
+        partition_date_format: '', // 第一条数据
+        partition_time_column: '',
+        partition_time_format: '',
         INTERVAL: '',
         frequencytype: 1
       },
@@ -148,8 +153,11 @@ export default {
       ],
       tableData: [],
       rules: {
-        partition_date_column1: [
-          { required: true, message: '请选择日期表字段', trigger: 'change' }
+        data1b: [
+          { required: false, message: '请选择日期字段', trigger: 'change' }
+        ],
+        data2b: [
+          { required: false, message: '请选择日期字段', trigger: 'change' }
         ]
       }
     }
@@ -164,9 +172,20 @@ export default {
       this.formData = this.reloadData
     },
     nextModel (val) {
-      // console.log(this.formData, '=========', this.relaodFilterList)
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/analysisModel/createolap/advancedSet')
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
+      this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
+      if (this.formData.partition_type === true) {
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
+      }
+      console.log(this.formData, '=========', this.totalSaveData.models.modelDescData.partition_desc)
+      this.$refs.formData.validate(valid => {
+        if (valid) {
+          this.$parent.getStepCountAdd(val)
+          this.$router.push('/analysisModel/createolap/advancedSet')
+        }
+      })
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -183,7 +202,6 @@ export default {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
     },
     visibleData (type) {
-      console.log(type)
       this.idx = type
     },
     selectTable (val) {
@@ -194,12 +212,14 @@ export default {
       let valId = this.selectTableTotal.filter((res, index) => {
         return res.label === val
       })
-      this.formData.partition_date_format[this.idx] = ''
+      // this.idx === 0 ? this.formData.data1b = '' : this.formData.data2b = ''
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
       this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-        this.textOptions = res.data.columns
+        if (res) {
+          this.textOptions = res.data.columns
+        }
       })
     },
     handleChange (val) {
@@ -220,11 +240,12 @@ export default {
       console.log(val)
     },
     changeDataMany (val) {
-      console.log(val)
       if (val !== true) {
-        this.formData.partition_date_column.splice(1, 1)
-        this.formData.partition_date_format.splice(1, 1)
-        this.formData.partition_time_format.splice(1, 1)
+        // this.formData.partition_date_column.splice(1, 1)
+        // this.formData.partition_date_format.splice(1, 1)
+        // this.formData.partition_time_format.splice(1, 1)
+        delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_column
+        delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_format
       }
     }
   },
@@ -232,7 +253,8 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
-      reloadData: 'reloadData'
+      reloadData: 'reloadData',
+      totalSaveData: 'totalSaveData'
     })
   }
 }

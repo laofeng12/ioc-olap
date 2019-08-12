@@ -70,6 +70,7 @@ export default {
     },
     fetchTreeList (val) {
       this.treeLoading = true
+      /** 数据湖 */
       // this.$store.dispatch('GetTreeList').then(res => {
       //   if (res && res.code === 200) {
       //     this.treeLoading = false
@@ -144,7 +145,7 @@ export default {
         if (data.databaseType !== '1') {
           this.$message.warning('暂只支持HIVE类型数据查询')
         } else {
-          this.fetchResourceList(data, node.parent.key)
+          // this.fetchResourceList(data, node.parent.key)
         }
       }
       // 为资源列表的时候
@@ -152,7 +153,9 @@ export default {
         // this.fetchResourceInfo(data)
       }
       // kelin
-      this.fetchResourceList(data)
+      this.fetchResourceList(data, node.parent.key)
+      // 保存数据到store
+      this.$store.dispatch('SaveSelectData', data)
     },
     fetchTree (data) {
       this.treeLoading = true
@@ -172,14 +175,14 @@ export default {
     fetchResourceList (data, nodeId) {
       this.$root.eventBus.$emit('getserchTableList', data, 1)
       // 点击时清除其他选择框
-      this.$root.eventBus.$emit('clearSelect')
+      // this.$root.eventBus.$emit('clearSelect')
       // 存储当前点击的父节点的id
       this.$store.dispatch('setLastClickTab', nodeId)
       // 保存选择的数据源数据
       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     },
     fetchResourceInfo (data, nodeId) {
-      this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
+      this.$store.dispatch('GetResourceInfo', { resourceId: data.orgId, type: data.type }).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框

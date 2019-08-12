@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="formData">
+    <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{formData.factName}}</el-form-item>
        <el-form-item label="维度表">{{formData.dimensionName}}</el-form-item>
@@ -29,6 +29,7 @@ export default {
   },
   data () {
     return {
+      completeLoading: false,
       formData: {
         factName: '',
         dimensionName: '',
@@ -50,41 +51,65 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionName = this.jointResult.lookups.length + 1
+      this.formData.dimensionName = this.jointResultData.lookups.length
       this.formData.dimensionFiled = this.saveSelectFiled.length
       this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
-      console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
+      // console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
       // 整理接口数据-----
-      this.totalSaveData.models.modelDescData.fact_table = this.jointResult.fact_table // 事实表明
-      this.totalSaveData.models.modelDescData.lookups = this.jointResult.lookups.filter(item => {
-        return item.alias !== this.jointResult.fact_table
+      this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
+      this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
+        return item.alias !== this.jointResultData.fact_table
       }) // 表的关系
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = null
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = null
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = null
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.reloadData.partition_date_column.join(',')
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.reloadData.partition_date_format.join(',')
-      // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.reloadData.partition_time_format.join(',')
+      /**
+       * 处理聚合小组
+       */
+      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
+      console.log(this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list)
+      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
+      this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
+        let item = i.select_rule
+        item.hierarchy_dims.forEach((k, idx1) => {
+          if (k.length === 0) item.hierarchy_dims = []
+        })
+        // if (item.hierarchy_dims.length === 1) item.hierarchy_dims = item.hierarchy_dims.join(',')
+        item.joint_dims.forEach((k, idx1) => {
+          if (k.length === 0) item.joint_dims = []
+        })
+      })
+      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
+        if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
+      })
       this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
-      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
+        if (item.name === 'F1') {
+          item.columns[0].measure_refs.push('_COUNT_')
+        }
+      })
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
-      this.totalSaveData.body.filterCondidion = this.relaodFilterList // 刷新过滤
-      this.totalSaveData.body.INTERVAL = this.reloadData.INTERVAL
-      this.totalSaveData.body.frequencytype = this.reloadData.frequencytype
-      this.totalSaveData.body.autoReload = this.reloadData.autoReload
-      this.totalSaveData.body.dataMany = this.reloadData.dataMany
-      console.log(this.totalSaveData, '高级', this.jointResult.lookups)
+      this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
+      this.totalSaveData.timingreFresh.INTERVAL = this.reloadData.INTERVAL
+      this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
+      this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
+      this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
+      this.totalSaveData.selectStepList = this.selectStepList
+      console.log(this.totalSaveData, '高级', this.selectStepList)
     },
     nextModel (val) {
       // this.$message.error('暂未完成')
+      this.completeLoading = true
       saveolapModeldata(this.totalSaveData).then(res => {
-        console.log(res)
+        if (res.CubeList) {
+          this.$message.success('保存成功~')
+          this.completeLoading = false
+          this.$router.push('/analysisModel/Configuration')
+        }
+      }).finally(_ => {
+        this.completeLoading = false
       })
     },
     prevModel (val) {
@@ -109,7 +134,8 @@ export default {
       measureTableList: 'measureTableList', // 设置度量
       reloadData: 'reloadData', // 刷新页面
       relaodFilterList: 'relaodFilterList', // 刷新过滤设置
-      jointResult: 'jointResult' // 表关系数据
+      selectStepList: 'selectStepList', // 保存第一步数据
+      jointResultData: 'jointResultData' // 表关系数据
     })
   }
 }

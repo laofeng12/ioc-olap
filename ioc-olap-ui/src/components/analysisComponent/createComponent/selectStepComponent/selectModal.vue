@@ -58,7 +58,7 @@ export default {
       float left
       margin-left 3%
       margin-bottom 20px
-      font-size 13px
+      font-size 12px
       background #009688
       color #ffffff
       text-align center

@@ -7,7 +7,8 @@ export const analysis = {
     newValueList: [],
     newFilterList: [],
     newRowList: [],
-    newColList: []
+    newColList: [],
+    editInstant: {}
   },
 
   mutations: {
@@ -28,18 +29,21 @@ export const analysis = {
     },
     GET_NEW_COL_LIST: (state, newColList) => {
       state.newColList = newColList
+    },
+    GET_EDIT_INSTANT: (state, editInstant) => {
+      state.editInstant = editInstant
     }
   },
 
   actions: {
     async getSaveFolderListAction ({ commit }) {
       const res = await getFolderWithQueryApi()
-      const list = res.map(v => {
-        return (
-          { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum }
-        )
-      })
-      commit('GET_SAVE_FOLDER_LIST', list)
+      // const list = res.map(v => {
+      //   return (
+      //     { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum, attrs: v.attrs }
+      //   )
+      // })
+      commit('GET_SAVE_FOLDER_LIST', res)
     },
     getCubeIdAction ({ commit }, cubeId) {
       commit('GET_CUBE_ID', cubeId)
@@ -55,6 +59,9 @@ export const analysis = {
     },
     getNewColListAction ({ commit }, list) {
       commit('GET_NEW_COL_LIST', list)
+    },
+    getEditInstantAction ({ commit }, data) {
+      commit('GET_EDIT_INSTANT', data)
     }
   }
 }

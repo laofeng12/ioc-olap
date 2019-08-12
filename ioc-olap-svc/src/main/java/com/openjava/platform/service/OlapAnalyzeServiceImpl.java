@@ -224,16 +224,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 }
             } else {
                 // 过滤条件构建
-                List<String> values = Arrays.stream(axis.getSelectValues().split(",")).map((p) -> {
-                    return "'" + p + "'";
-                }).collect(Collectors.toList());
-                filter = "{0}.{1} {2} ({3})";
-                if (axis.getIsInclude() == 1) {
-                    filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "in", String.join(",", values));
-                } else {
-                    filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "not in", String.join(",", values));
+                if(axis.getSelectValues()!=null && !axis.getSelectValues().equals("")){
+                    List<String> values = Arrays.stream(axis.getSelectValues().split(",")).map((p) -> {
+                        return "'" + p + "'";
+                    }).collect(Collectors.toList());
+                    filter = "{0}.{1} {2} ({3})";
+                    if (axis.getIsInclude() == 1) {
+                        filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "in", String.join(",", values));
+                    } else {
+                        filter = MessageFormat.format(filter, axis.getTableAlias(), axis.getColumnName(), "not in", String.join(",", values));
+                    }
+                    filters.add(filter);
                 }
-                filters.add(filter);
             }
         }
 
@@ -298,7 +300,6 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
-        //QueryResultMapper resultMapper = new CubeAction().query(sql, 0, Integer.MAX_VALUE, userId);
         QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
         if(resultMapper==null){
             throw new APIException("网络错误！");
@@ -361,19 +362,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     cellId = String.join("-", yTemps.subList(0, i + 1));
                     cell = getCell(results.get(i), cellId, 1);
                     if (cell == null) {
-                        // 如果是最后一个，就开始写入度量轴
-                        if (i.equals(yTemps.size() - 1)) {
-                            for (AnalyzeAxisVo measure : measureAxises) {
-                                cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
-                                results.get(i + 1).add(cell);
-                            }
-                        }
                         cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
                         results.get(i).add(cell);
                         results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
                     } else {
                         cell.setColspan(cell.getColspan() + measureAxises.size());
                     }
+                }
+
+                // 写入度量轴
+                for (AnalyzeAxisVo measure : measureAxises) {
+                    cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
+                    results.get(axisYCount).add(cell);
                 }
 
                 Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
@@ -386,7 +386,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                             results.get(i).add(null);
                         }
                     }
-                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1,String.format("%.2f",Double.parseDouble(dTemp)), 4);
                     if(rowCells.size()>beginIndex){
                         rowCells.add(beginIndex,cell);
                         columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
@@ -402,7 +402,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             } else {
                 Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
                 for (String dTemp : dTemps) {
-                    cell = new AnyDimensionCellVo(axisYData, 1, 1, dTemp, 4);
+                    cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
                     rowCells.set(beginIndex, cell);
                     columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
                     rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
@@ -415,14 +415,14 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         rowCells = new ArrayList<AnyDimensionCellVo>();
         rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
         for (Double columnSummary :columnSummarys){
-            rowCells.add(new AnyDimensionCellVo("",1,1,columnSummary.toString(),4) );
+            rowCells.add(new AnyDimensionCellVo("",1,1, String.format("%.2f",columnSummary),4) );
         }
         results.add(rowCells);
         rowSummarys.add(columnSummarys.stream().collect(Collectors.summingDouble(Double::doubleValue)));
         results.get(0).add(new AnyDimensionCellVo("",1,axisYCount+1,"汇总",5));
         //合并X轴
         for (Integer i=axisYCount+1;i<results.size();i++){
-            results.get(i).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(i-axisYCount-1).toString(),4));
+            results.get(i).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(i-axisYCount-1)),4));
             for (Integer j=i+1;j<results.size();j++){
                 if(results.get(i).get(0).getId().equals(results.get(j).get(0).getId())){
                     for (Integer k=0;k<axisXCount;k++){
@@ -439,7 +439,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 else{
                     i=j;
                 }
-                results.get(j).add(new AnyDimensionCellVo("",1,1,rowSummarys.get(j-axisYCount-1).toString(),4));
+                results.get(j).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(j-axisYCount-1)),4));
             }
         }
         anyDimensionVo.setResults(results);

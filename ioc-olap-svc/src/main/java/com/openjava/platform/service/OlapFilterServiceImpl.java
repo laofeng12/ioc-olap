@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Resource;
 
+import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapFilter;
 import com.openjava.platform.query.OlapFilterDBParam;
 import com.openjava.platform.repository.OlapFilterRepository;
@@ -33,7 +34,16 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 	public List<OlapFilter> queryDataOnly(OlapFilterDBParam params, Pageable pageable){
 		return olapFilterRepository.queryDataOnly(params, pageable);
 	}
-	
+
+	public OlapFilter findTableInfo(String cubeName, Long createId) {
+		Optional<OlapFilter> o = olapFilterRepository.findTableInfo(cubeName, createId);
+		if (o.isPresent()) {
+			OlapFilter m = o.get();
+			return m;
+		}
+		return null;
+	}
+
 	public OlapFilter get(Long id) {
 		Optional<OlapFilter> o = olapFilterRepository.findById(id);
 		if(o.isPresent()) {

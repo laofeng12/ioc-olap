@@ -1,5 +1,5 @@
 import { getselectCatalog, getselectTable, getselectColumn, getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
-
+import { reduceObj } from '@/utils/index'
 const selectStep = {
   state: {
     treeList: [], // 树形数据
@@ -11,7 +11,19 @@ const selectStep = {
     lastClickTab: '', // 存储最后一次点击的tabID
     lateData: [],
     saveSelctchckoutone: [],
-    saveSelctchckouttwo: []
+    saveSelctchckouttwo: [],
+    selectStepList: {
+      nodeId: '', // 库对应的key
+      orgId: '', // 库的id
+      orgName: '', // 库名
+      tableList: [
+        {
+          id: '', // 表id
+          name: '', // 表名称
+          dataType: '' // 表类型（数据湖/本地上传）
+        }
+      ]
+    }
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -33,7 +45,7 @@ const selectStep = {
       state.selectTableTotal = val
     },
     SAVESELECT_ONE: (state, val) => {
-      state.saveSelctchckoutone = val
+      state.saveSelctchckoutone = state.saveSelctchckoutone.concat(val)
     },
     SAVESELECT_TWO: (state, val) => {
       state.saveSelctchckouttwo = val
@@ -62,6 +74,7 @@ const selectStep = {
       return new Promise((resolve, reject) => {
         // getTreethreeList(obj).then(res => {
         getselectTable(obj).then(res => { // kelin
+          commit('GET_SERCHTABLE_LIST', res)
           resolve(res)
         })
       })
@@ -120,7 +133,7 @@ const selectStep = {
     // 存储已选择复选框
     saveSelctchckoutone ({ commit, state, dispatch }, data) {
       commit('SAVESELECT_ONE', data)
-      state.saveSelectTable = []
+      // state.saveSelectTable = []
       dispatch('setSelectTableTotal')
     },
     saveSelctchckouttwo ({ commit }, data) {
@@ -130,26 +143,39 @@ const selectStep = {
     setSerchTable ({ commit }, data) {
       commit('SET_SERCHTABLE_LIST', data)
     },
-    setLastClickTab ({ commit }, nodeId) {
+    setLastClickTab ({ state, commit }, nodeId) {
       commit('LSATCLICK_TAB', nodeId)
+      state.selectStepList.nodeId = nodeId
     },
     // 切换数据湖--本地上传控制
     changeSerachtype ({ commit, state }, val) {
       commit('CHANGE_SERACHTYPE', val)
     },
     // 存储数据湖的数据
-    getSelectTableList ({ state }, data) {
-      state.saveSelectTable = []
+    getSelectTableList ({ state, dispatch }, data) {
+      // state.saveSelectTable = []
       data.map(item => {
         if (!item.children) {
-          state.saveSelectTable.push({
+          state.saveSelectTable = state.saveSelectTable.concat({
             id: item.id,
             label: item.label,
             resourceId: item.resourceId,
-            database: item.database
+            database: item.database,
+            type: state.searchType
           })
         }
       })
+      state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
+      state.selectStepList.tableList = state.saveSelectTable
+    },
+    // 删除数据胡对应的数据
+    delSelectTableList ({ state }, data) {
+      state.saveSelectTable.map((item, index) => {
+        if (data.delData.id === item.id) {
+          state.saveSelectTable.splice(index, 1)
+        }
+      })
+      console.log('选择的', state.saveSelectTable)
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state }, data) {
@@ -171,6 +197,11 @@ const selectStep = {
     // 存储数据湖点击的表
     SavedataData ({ commit, state }, data) {
       state.lateData = data
+    },
+    // 存储第一步要保存的数据
+    SaveSelectData ({ state }, data) {
+      state.selectStepList.orgId = data.orgId
+      state.selectStepList.orgName = data.orgName
     }
   }
 }

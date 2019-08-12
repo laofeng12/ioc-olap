@@ -49,7 +49,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@Resource
 	private OlapShareService olapShareService;
 
-	
+
 	/**
 	 * 用主键获取数据
 	 * @param id
@@ -99,7 +99,7 @@ public class OlapRealQueryAction extends BaseAction {
 
 		return body;
 	}
-	
+
 	@ApiOperation(value = "删除", nickname="delete")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
@@ -109,7 +109,7 @@ public class OlapRealQueryAction extends BaseAction {
 	public void doDelete(@RequestParam("id")Long id) {
 		olapRealQueryService.doDelete(id);
 	}
-	
+
 	@ApiOperation(value = "批量删除", nickname="remove")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
@@ -148,7 +148,14 @@ public class OlapRealQueryAction extends BaseAction {
 					if(leafNode==null){
 						leafNode=new TreeNodeVo();
 						leafNode.setId(column.getId().toString());
-						leafNode.setName(column.getColumnName());
+						if(column.getExpressionType()!=null && !column.getExpressionType().equals(""))
+						{
+							leafNode.setName(column.getColumnName()+"->"+column.getExpressionType());
+						}
+						else{
+							leafNode.setName(column.getColumnName());
+						}
+
 						nodeVo.getChildren().add(leafNode);
 					}
 				}
@@ -163,7 +170,6 @@ public class OlapRealQueryAction extends BaseAction {
 	@Security(session=true)
 	public QueryResultMapper query(String sql, Integer limit) {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		//return cubeAction.query(sql,0,limit,userVO.getUserId());
 		if(limit==-1){
 			limit=Integer.MAX_VALUE;
 		}
@@ -212,9 +218,10 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "导出即时查询", nickname="export", notes = "报文格式：content-type=application/download")
 	@RequestMapping(value="/export",method= RequestMethod.GET)
-	//@Security(session=true)
+	@Security(session=true)
 	public void export(String sql,Integer limit, HttpServletResponse response)
 	{
+		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		QueryResultMapper mapper=cubeAction.query(sql,0,limit,"learn_kylin");
 		Export.dualDate(mapper,response);
 	}

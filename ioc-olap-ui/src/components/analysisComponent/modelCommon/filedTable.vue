@@ -17,8 +17,8 @@
         :style="{color: current===index?colors:''}"
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
-         {{titleData[index]}}
-         <span v-if="titleData[index]===dataList.fact_table">事实表</span>
+         <span class="tableTitle">{{titleData[index]}}</span>
+         <span class="filds" v-if="titleData[index]===dataList.fact_table">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -40,7 +40,7 @@ export default {
       current: '',
       colors: 'red',
       ids: '',
-      foreign_key: '',
+      primary_key: '',
       titleData: [], // 表名
       // 模拟数据
       dataList: {}
@@ -52,13 +52,12 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
-      this.dataList = this.jointResult
-      // 遍历去重数据拿到表名称
+      this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
           this.ids = item.id
-          this.foreign_key = item.join.foreign_key
+          this.primary_key = item.join.foreign_key
         }
       })
       let factData = {
@@ -66,13 +65,13 @@ export default {
         joinId: this.ids,
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          foreign_key: this.foreign_key
+          primary_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups]
       this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
-      console.log(this.jointResult, '表库', this.titleData)
+      console.log(this.jointResultData, '表库', this.titleData)
       // 初始化已选择的表
       setTimeout(() => {
         this.changeLi(this.dataList.lookups[0], 0)
@@ -97,7 +96,6 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      console.log(item)
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,
@@ -117,17 +115,19 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
-        res.data.columns.map((n, i) => {
-          n.mode = n.mode ? n.mode : '2'
-          n.derived = n.name
-          n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
-          n.id = `${item.alias}${i}`
-          n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
-        })
-        // 存储选择对应的表
-        this.$root.eventBus.$emit('filedTable', res.data.columns)
-      })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
+      //   res.data.columns.map((n, i) => {
+      //     n.mode = n.mode ? n.mode : '2'
+      //     n.derived = n.name
+      //     n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
+      //     n.id = `${item.alias}${i}`
+      //     n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
+      //   })
+      //   // 存储选择对应的表
+      //   // this.$root.eventBus.$emit('filedTable', res.data.columns)
+      // })
+      this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
+
       // ------------------------- 数据湖
       // this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
       //   let datas = []
@@ -167,7 +167,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
-      jointResult: 'jointResult',
+      jointResultData: 'jointResultData',
       saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),
@@ -194,7 +194,14 @@ export default {
       height 30px
       line-height 30px
       color #000000
-      span{
+      .tableTitle{
+        width: 70%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: bottom;
+      }
+      .filds{
         background #009688
         color #ffffff
         padding 2px 6px

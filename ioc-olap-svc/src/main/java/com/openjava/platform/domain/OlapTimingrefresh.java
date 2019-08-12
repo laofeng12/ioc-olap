@@ -96,7 +96,15 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "NEXT_EXECUTION_TIME")
 	private Date nextExecutionTime;
-	
+
+
+	@ApiModelProperty("前端判断是否打开")
+	@Column(name = "AUTORELOAD")
+	private Long autoReload;
+
+	@ApiModelProperty("前端判断是否打开")
+	@Column(name = "DATAMANY")
+	private Long dataMany;
 	
 	@ApiModelProperty("是否新增")
 	@Transient

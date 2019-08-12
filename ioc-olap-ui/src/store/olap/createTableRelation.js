@@ -1,7 +1,7 @@
 
 const creatTableRelation = {
   state: {
-    jointResult: {
+    jointResultData: {
       name: 'joint',
       description: '',
       fact_table: '',
@@ -31,13 +31,20 @@ const creatTableRelation = {
         //   }
         // }
       ]
+    },
+    testAAA: '123'
+  },
+  mutations: {
+    SaveJointResult (state, payload) {
+      state.jointResultData = payload
     }
   },
   actions: {
-    SaveJointResult ({ state }, data) {
-      state.jointResult = data
-      console.log(state.jointResult, '啦啦啦啦啦')
-    }
+    // SaveJointResult ({ commit }, data) {
+    //   commit('SAVE_JOINT_RESULT', data)
+    //   // state.jointResult = data
+    //   // console.log(state.jointResult, '啦啦啦啦啦')
+    // }
   }
 }
 

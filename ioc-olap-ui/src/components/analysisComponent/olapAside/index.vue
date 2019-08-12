@@ -140,35 +140,37 @@
           <div class="title">可用值</div>
           <div class="dis-flex">
             <el-input placeholder="请输入内容" size="mini" v-model="searchFilter"></el-input>
-            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchUserFunc('search')"></el-button>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchAllFunc()"></el-button>
           </div>
           <el-checkbox-group v-model="allCheckList" class="list">
-            <div v-for="(item, index) in filterAllList" class="line" :key="index">
-              <el-checkbox :label="item">{{item}}</el-checkbox>
+            <div v-for="(item, index) in filterAllList" class="line" :key="index" v-if="!item.disabled">
+              <el-checkbox :label="item.name">{{item.name}}</el-checkbox>
             </div>
           </el-checkbox-group>
           <div class="bottom dis-flex">
-            <!--<el-button size="mini" @click="lastPage" :disabled="userPage <= 0">上一页</el-button>-->
-            <!--<el-button size="mini" @click="nextPage" :disabled="userPage >= totalPage">下一页</el-button>-->
-            <el-button size="mini" @click="lastPage">上一页</el-button>
-            <el-button size="mini" @click="nextPage">下一页</el-button>
+            <el-button size="mini" @click="lastPage" :disabled="filterPageIndex <= 1">上一页</el-button>
+            <el-button size="mini" @click="nextPage" :disabled="filterPageIndex >= totalPage">下一页</el-button>
           </div>
         </div>
         <div class="centerButton">
-          <!--<el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>-->
-          <!--<el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>-->
-          <el-button icon="el-icon-arrow-left" circle></el-button>
-          <el-button icon="el-icon-arrow-right" circle></el-button>
+          <el-button icon="el-icon-arrow-left" circle @click="reduceFilter"></el-button>
+          <el-button icon="el-icon-arrow-right" circle @click="addFilter"></el-button>
         </div>
         <div class="box">
-          <div class="title">使用值</div>
-          <div class="dis-flex">
-            <el-input placeholder="请输入内容" size="mini" v-model="searchFilter"></el-input>
-            <el-button size="mini" type="primary" icon="el-icon-search" @click="editF"></el-button>
+          <div class="title dis-flex">
+            <div>使用值</div>
+            <div class="radio">
+              <el-radio class="radioItem" v-model="isException" :label="1">包含</el-radio>
+              <el-radio class="radioItem" v-model="isException" :label="0">不包含</el-radio>
+            </div>
           </div>
-          <el-checkbox-group v-model="filterCheckList" class="list no-bottom">
-            <div v-for="(item, index) in showFilterList" class="line" :key="index">
-              <el-checkbox :label="item">{{item.label}}</el-checkbox>
+          <div class="dis-flex">
+            <el-input placeholder="请输入内容" size="mini" v-model="searchFilterSelect"></el-input>
+            <el-button size="mini" type="primary" icon="el-icon-search" @click="searchFilterSelectFunc"></el-button>
+          </div>
+          <el-checkbox-group v-model="filterSelectCheckList" class="list no-bottom">
+            <div v-for="(item, index) in showFilterSelectList" class="line" :key="index">
+              <el-checkbox :label="item">{{item}}</el-checkbox>
             </div>
           </el-checkbox-group>
           <!--<div class="bottom dis-flex">-->
@@ -179,7 +181,7 @@
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="filterVisible = false">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button type="primary" @click="filter">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -187,6 +189,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ShirinkPannel from '@/components/analysisComponent/olapAside/ShirinkPannel'
 import ElementPagination from '@/components/analysisComponent/olapAside/ElementPagination'
 import FilterTemp from '@/components/BITemp/FilterTemp'
@@ -200,6 +203,16 @@ import { getCubesApi, getFilterDetailsApi } from '../../../api/olapAnalysisList'
 
 export default {
   components: { ShirinkPannel, FilterTemp, ElementPagination, FiltrateDialog },
+  props: {
+    changeRowAndCol: {
+      type: Boolean,
+      default: false
+    },
+    auto: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       limitHeight: 0,
@@ -263,30 +276,48 @@ export default {
         //   { min: 1, max: 20, message: '自助报表名称为1～20个字，请重新输入', trigger: 'blur' }
         // ]
       },
-      filterPageIndex: 0,
+      filterPageIndex: 1,
       totalPage: 0,
       searchFilter: '',
+      searchFilterSelect: '',
       filterVisible: false,
       filterLoading: false,
       filterAllList: [],
-      filterCheckList: [],
-      showFilterList: [],
-      allCheckList: []
-
+      allCheckList: [],
+      filterSelectList: [],
+      filterSelectCheckList: [],
+      showFilterSelectList: [],
+      filterParams: {},
+      isException: 1
     }
   },
+  computed: {
+    ...mapGetters([
+      'cubeId'
+    ])
+  },
   watch: {
+    changeRowAndCol (val) {
+      const newCol = [...this.rItems]
+      const newRow = [...this.cItems]
+      this.rItems = newRow
+      this.cItems = newCol
+    },
     nItems (val) {
       this.$store.dispatch('getNewValueListAction', val)
+      if (this.auto && (val.length > 0 && this.rItems.length > 0)) this.autoFunc()
     },
     bItems (val) {
       this.$store.dispatch('getNewFilterListAction', val)
+      if (this.auto && (this.nItems.length > 0 && this.rItems.length > 0)) this.autoFunc()
     },
     rItems (val) {
       this.$store.dispatch('getNewRowListAction', val)
+      if (this.auto && (val.length > 0 && this.nItems.length > 0)) this.autoFunc()
     },
     cItems (val) {
       this.$store.dispatch('getNewColListAction', val)
+      if (this.auto && (this.nItems.length > 0 && this.rItems.length > 0)) this.autoFunc()
     },
     'dashBoardForm.searchKey' (val) {
       if (val) this.handleShrinkSearch(val, 'searchKey')
@@ -400,22 +431,45 @@ export default {
         this.setSortTableOther()
       }, 0)
     },
-    async editF (item, index) {
+    editF (item, index) {
       this.getDataId = item
+      this.filterVisible = true
+      this.getFilterDetails(item, index)
+    },
+    searchAllFunc () {
+      this.filterPageIndex = 1
+      this.getFilterDetails()
+    },
+    searchFilterSelectFunc () {
+      const showFilterSelectList = this.filterSelectList.filter(v => v.includes(this.searchFilterSelect))
+      this.showFilterSelectList = showFilterSelectList
+    },
+    async getFilterDetails (item, index) {
+      this.filterLoading = true
+      if (item) {
+        this.filterParams = {
+          columnId: item.columnId,
+          index,
+          tableId: item.tableId
+        }
+        this.filterSelectList = item.selectValues ? item.selectValues.split(',') : []
+        this.filterSelectCheckList = []
+        this.showFilterSelectList = []
+        this.isException = item.isInclude === 0 ? 0 : 1
+      }
       const params = {
-        columnId: item.columnId,
+        columnId: this.filterParams.columnId,
         key: this.searchFilter,
         pageIndex: this.filterPageIndex,
         pageSize: 20,
-        tableId: item.tableId
+        tableId: this.filterParams.tableId
       }
-      const res = await getFilterDetailsApi(params)
-      const results = res.results.map(v => v[0])
-      this.filterAllList = results
-      this.filterVisible = true
-      // console.log(this.dialogTextFiltrate)
-      console.log(item, index)
-      // if (item) this.tempTextDialog = [item]
+      const { results, totalRecord } = await getFilterDetailsApi(params)
+      const filterAllList = results.map(v => ({ name: v[0], disabled: false }))
+      this.totalPage = Math.ceil(totalRecord / 20)
+      this.filterAllList = filterAllList
+      this.cleanFilter()
+      this.filterLoading = false
     },
     setSortTableOther () {
       let filtrate = document.querySelectorAll('.filtrateClass')
@@ -432,33 +486,6 @@ export default {
           }
         })
       })
-    },
-    // 日期筛选确认
-    dateSure (filtratevisible) {
-      this.dialogDateFiltrate = filtratevisible
-      console.log('bItems dateSure', this.bItems)
-    },
-    // 日期筛选关闭
-    dateClose (filtratevisible) {
-      this.dialogDateFiltrate = filtratevisible
-    },
-    // 文本筛选确认
-    textSure (filtratevisible) {
-      this.dialogTextFiltrate = filtratevisible
-      console.log('bItems textSure', this.bItems)
-    },
-    // 文本筛选关闭
-    textClose (filtratevisible) {
-      this.dialogTextFiltrate = filtratevisible
-    },
-    // 数值筛选确认
-    numSure (filtratevisible) {
-      this.dialogNumFiltrate = filtratevisible
-      console.log('bItems numSure', this.bItems)
-    },
-    // 数值筛选确认
-    numClose (filtratevisible) {
-      this.dialogNumFiltrate = filtratevisible
     },
     // 维度查询
     handleShrinkSearch: _.debounce(function (val, search) {
@@ -491,7 +518,7 @@ export default {
               if (evt.from.id !== 'dimen') {
                 return this.$message.error('只支持维度数值')
               }
-              const index = this.bItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const index = this.bItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~index) {
                 // 如果不存在，那么插入
                 this.bItems.push(obj)
@@ -509,11 +536,11 @@ export default {
                 return this.$message.error('只支持维度数值')
               }
               const rIndex = this.rItems.findIndex(_ => {
-                if (_.columnChName === obj.columnChName) {
+                if (_.columnId === obj.columnId) {
                   return _
                 }
               })
-              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const cIndex = this.cItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
                 this.rItems.push(obj)
@@ -531,8 +558,8 @@ export default {
                 this.$message.error('只支持维度数值')
                 return
               }
-              const rIndex = this.rItems.findIndex(_ => _.columnChName === obj.columnChName)
-              const cIndex = this.cItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const rIndex = this.rItems.findIndex(_ => _.columnId === obj.columnId)
+              const cIndex = this.cItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~cIndex && !~rIndex) {
                 // 如果不存在，那么插入
                 this.cItems.push(obj)
@@ -550,7 +577,7 @@ export default {
                 this.$message.error('只支持度量数值')
                 return
               }
-              const index = this.nItems.findIndex(_ => _.columnChName === obj.columnChName)
+              const index = this.nItems.findIndex(_ => _.columnId === obj.columnId)
               if (!~index) {
                 // 如果不存在，那么插入
                 this.nItems.push(obj)
@@ -568,49 +595,66 @@ export default {
       this.setSortTableOther()
     },
     lastPage () {
-      if (this.filterPageIndex <= 0) return false
+      if (this.filterPageIndex <= 1) return false
       this.filterPageIndex = this.filterPageIndex - 1
-      this.editF()
+      this.getFilterDetails()
     },
     nextPage () {
       if (this.filterPageIndex >= this.totalPage) return false
       this.filterPageIndex = this.filterPageIndex + 1
-      this.editF()
+      this.getFilterDetails()
+    },
+    addFilter () {
+      this.searchFilter = ''
+      this.filterSelectList = [...this.filterSelectList, ...this.allCheckList]
+      this.showFilterSelectList = this.filterSelectList
+      this.allCheckList = []
+      this.cleanFilter()
+    },
+    reduceFilter () {
+      this.searchFilter = ''
+      let list = []
+      this.filterSelectList.forEach((item, index) => {
+        this.filterSelectCheckList.forEach(v => {
+          if (item === v) {
+            list.push(index)
+          }
+        })
+      })
+      list.reverse()
+      list.forEach(v => this.filterSelectList.splice(v, 1))
+      this.showFilterSelectList = this.filterSelectList
+      this.filterSelectCheckList = []
+      this.cleanFilter()
+    },
+    cleanFilter () {
+      const filterAllList = this.filterAllList.map(item => {
+        let disabled = false
+        this.filterSelectList.forEach(v => {
+          if (v === item.name) {
+            disabled = true
+          }
+        })
+        return { name: item.name, disabled }
+      })
+      this.filterAllList = filterAllList
+    },
+    filter () {
+      Object.assign(this.bItems[this.filterParams.index], {
+        selectValues: this.filterSelectList.join(),
+        isInclude: this.isException
+      })
+      this.filterVisible = false
+      this.$message.success('筛选成功')
+    },
+    autoFunc () {
+      const newValueList = this.nItems.length > 0 ? this.nItems.map(v => Object.assign({}, v, { type: 3 })) : []
+      const newFilterList = this.bItems.length > 0 ? this.bItems.map(v => Object.assign({}, v, { type: 4 })) : []
+      const newRowList = this.rItems.length > 0 ? this.rItems.map(v => Object.assign({}, v, { type: 1 })) : []
+      const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
+      const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
+      this.$emit('searchFunc', list, this.cubeId)
     }
-    // addFilter () {
-    //   this.searchFilter = ''
-    //   this.filterList = [...this.FilterList, ...this.userCheckList]
-    //   this.showFilterList = this.FilterList
-    //   this.userCheckList = []
-    //   this.cleanFilter()
-    // },
-    // reduceFilter () {
-    //   this.searchFilter = ''
-    //   let list = []
-    //   this.FilterList.forEach((item, index) => {
-    //     this.FilterCheckList.forEach(v => {
-    //       if (item.key === v.key) {
-    //         list.push(index)
-    //       }
-    //     })
-    //   })
-    //   list.reverse()
-    //   list.forEach(v => this.FilterList.splice(v, 1))
-    //   this.showFilterList = this.FilterList
-    //   this.cleanFilter()
-    // },
-    // cleanFilter () {
-    //   const filterAllList = this.userRows.map(item => {
-    //     let disabled = false
-    //     this.FilterList.forEach(v => {
-    //       if (v.key === item.userid) {
-    //         disabled = true
-    //       }
-    //     })
-    //     return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
-    //   })
-    //   this.filterAllList = filterAllList
-    // }
   }
 }
 </script>
@@ -798,6 +842,11 @@ export default {
       border-radius: 5px;
       .title {
         margin-bottom: 10px;
+        .radio {
+          .radioItem {
+            margin: 0 10px;
+          }
+        }
       }
       .list {
         height: 200px;

@@ -52,6 +52,12 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
 	public void doDelete(Long id) {
 		olapCubeTableRepository.deleteById(id);
 	}
+
+	public void deleteCubeId(Long cubeId) {
+		olapCubeTableRepository.deleteCubeId(cubeId);
+	}
+
+
 	public void doRemove(String ids) {
 		String[] items = ids.split(",");
 		for (int i = 0; i < items.length; i++) {

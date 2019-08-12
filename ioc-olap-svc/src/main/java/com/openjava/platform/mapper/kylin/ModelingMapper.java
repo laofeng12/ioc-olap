@@ -1,6 +1,8 @@
 package com.openjava.platform.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.openjava.platform.domain.OlapDatalaketable;
 import com.openjava.platform.domain.OlapFilter;
 import com.openjava.platform.domain.OlapFilterCondidion;
 import com.openjava.platform.domain.OlapTimingrefresh;
@@ -23,9 +25,11 @@ public class ModelingMapper {
     @JSONField(name = "filterCondidion")
     public List<OlapFilterCondidion> filterCondidion;
 
-    @JSONField(name = "filterCondidion")
+    @JSONField(name = "timingreFresh")
     public OlapTimingrefresh timingreFresh;
 
+    @JSONField(name = "olapDatalaketable")
+    public List<CubeDatalaketableNewMapper> cubeDatalaketableNew;
 
 //    @JSONField(name = "partition_desc")
 //    public PartitionDescMapper partition_desc;

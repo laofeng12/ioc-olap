@@ -121,6 +121,7 @@ export default {
               this.$message.success('保存成功~')
               this.formData = {}
               this.$parent.init()
+              this.$refs.formData.clearValidate()
             }
           })
         }
@@ -134,6 +135,9 @@ export default {
       } else {
         this.formData = {}
         this.isNew = 0
+        setTimeout(() => {
+          this.$refs.formData.clearValidate()
+        }, 100)
       }
     }
   },

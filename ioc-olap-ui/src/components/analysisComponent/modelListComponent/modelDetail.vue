@@ -4,7 +4,7 @@
       <div v-for="(item, index) in dataHead" @click="selectTab(item.id, item.view)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
     <div class="content_box">
-      <component :is="currentView"></component>
+      <component :is="currentView" :jsonData="jsonData"></component>
     </div>
     <el-button type="primary" @click="closeDetail">关闭</el-button>
   </div>
@@ -15,6 +15,11 @@ import { selects, settableLine, setFiled, setMeasure, setReload, setAdvance, set
 export default {
   components: {
     selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate
+  },
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
   },
   data () {
     return {
@@ -31,7 +36,12 @@ export default {
       ]
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+    },
     selectTab (id, view) {
       this.cureent = id
       this.currentView = view

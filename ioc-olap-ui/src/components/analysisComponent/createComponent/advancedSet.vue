@@ -40,7 +40,7 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag @close.stop="rmTag(index, 4, x, i)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -62,7 +62,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
+                  <el-select v-model.number="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -75,7 +75,7 @@
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column prop="apiPaths" label="碎片区" align="center">
+            <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="changeShardby">
@@ -103,7 +103,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine_type" placeholder="请选择" @change="changeEngine">
+              <el-select v-model="formData.engine_typeTit" placeholder="请选择" @change="changeEngine">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -139,6 +139,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
 import { reduceObj } from '@/utils/index'
+import { log } from 'util'
 export default {
   components: {
     steps, selectAggregation
@@ -154,7 +155,7 @@ export default {
       hitDataIndex: 0, // 记录高级设置index
       radio: 3,
       formData: {
-        engine_type: '2' // 构建引擎
+        engine_typeTit: '2' // 构建引擎
       },
       tableData: [],
       dimensionData: [{}], // 维度黑白名单
@@ -168,6 +169,7 @@ export default {
       codingTypeData: {
         'string': ['date', 'time', 'dict'],
         'date': ['date', 'time', 'dict'],
+        'dict': ['date', 'time', 'dict'],
         'double': ['dict'],
         'varchar': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
         'number': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
@@ -199,21 +201,40 @@ export default {
     }
   },
   mounted () {
+    this.resortAggregation()
     this.init()
   },
   methods: {
     init () {
-      this.formData.engine_type = String(this.engine_types)
+      // 重置高级组合
+      this.hbase_mapping.column_family.forEach((item, index) => {
+        if (item.name === 'F1') {
+          item.columns[0].measure_refs.forEach((n, i) => {
+            if (n === '_COUNT_') {
+              item.columns[0].measure_refs.splice(i, 1)
+            }
+          })
+        }
+      })
+      this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
       datas.forEach(item => {
         this.rowkeyData.rowkey_columns.push({
           column: item.value,
-          encoding: item.encoding ? item.encoding : '',
-          engine_type: item.type ? item.type : '',
-          isShardBy: item.isShardBy ? item.isShardBy : ''
+          encoding: item.encoding ? item.encoding : 'dict',
+          columns_Type: item.type ? item.type : '',
+          encoding_version: '1',
+          isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
       })
       this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
+    },
+    resortAggregation () {
+      this.aggregation_groups.forEach(item => {
+        let data = item.select_rule
+        if (data.hierarchy_dims.length === 0) data.hierarchy_dims = [[]]
+        if (data.joint_dims.length === 0) data.joint_dims = [[]]
+      })
     },
     nextModel (val) {
       this.$parent.getStepCountAdd(val)

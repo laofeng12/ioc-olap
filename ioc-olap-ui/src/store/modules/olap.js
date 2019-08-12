@@ -58,9 +58,10 @@ const common = {
       },
       cube: {
         'cubeDescData': {
-          'name': 'myCube',
-          'model_name': 'aaa',
-          'description': 'cc',
+          'name': '',
+          'model_name': '',
+          'engine_type': 2,
+          'description': '',
           'dimensions': [ // 设置维度表
             {
               'name': 'USER_DEFINED_FIELD1',
@@ -86,7 +87,7 @@ const common = {
                   'value': 'KYLIN_SALES.PRICE'
                 }
               },
-              'showDim': false
+              'showDim': true
             },
             {
               'name': 'TOP_SELLER',
@@ -123,35 +124,22 @@ const common = {
           'aggregation_groups': [ // 高级设置
             {
               'includes': [
-                'KYLIN_SALES.TRANS_ID',
-                'KYLIN_SALES.PART_DT'
               ],
               'select_rule': {
                 'hierarchy_dims': [
-                  [
-                    'KYLIN_CATEGORY_GROUPINGS.USER_DEFINED_FIELD1',
-                    'KYLIN_CATEGORY_GROUPINGS.USER_DEFINED_FIELD3'
-                  ]
                 ],
                 'mandatory_dims': [
-                  'KYLIN_SALES.PART_DT'
                 ],
                 'joint_dims': [
-                  [
-                    'KYLIN_SALES.OPS_USER_ID',
-                    'KYLIN_SALES.OPS_REGION',
-                    'KYLIN_COUNTRY.NAME',
-                    'KYLIN_ACCOUNT.ACCOUNT_COUNTRY'
-                  ]
                 ]
               }
             }
           ],
           'mandatory_dimension_set_list': [], // 高级设置（黑白名单设置）
-          'partition_date_start': 0,
-          'notify_list': [
-            '278549309@qq.com'
-          ],
+          // 'partition_date_start': 0,
+          // 'notify_list': [
+          //   '278549309@qq.com'
+          // ],
           'hbase_mapping': { // 高级设置（高级列组合）
             'column_family': [
               {
@@ -180,26 +168,26 @@ const common = {
                 ]
               }
             ]
-          },
-          'volatile_range': '0',
-          'retention_range': '0',
-          'status_need_notify': [
-            'ERROR',
-            'DISCARDED',
-            'SUCCEED'
-          ],
-          'engine_type': 2,
-          'storage_type': '2',
-          'override_kylin_properties': {}
+          }
+          // 'volatile_range': '0',
+          // 'retention_range': '0',
+          // 'status_need_notify': [
+          //   'ERROR',
+          //   'DISCARDED',
+          //   'SUCCEED'
+          // ],
+          // 'storage_type': '2',
+          // 'override_kylin_properties': {}
         }
       },
-      body: {
-        filterCondidion: [], // 刷新过滤设置
+      filterCondidion: [], // 刷新过滤设置
+      timingreFresh: {
         INTERVAL: '', // 更新频率
         frequencytype: '', // 更新方式
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
-      }
+      },
+      selectStepList: {}
     }
   },
   mutations: {
@@ -231,6 +219,10 @@ const common = {
         data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
       // dispatch('setSelectTableTotal')
+    },
+    // 存储选择的库以及表
+    Savelibrary ({ state }) {
+
     }
   }
 }

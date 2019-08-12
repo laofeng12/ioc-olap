@@ -28,13 +28,14 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :duration="duration" :resetShow="true"></ResultBox>
+                   @reset="reset" :exportData="exportData" :resetShow="true"></ResultBox>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
 import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
@@ -64,12 +65,18 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      exportData: {},
-      duration: 1000
+      exportData: {}
     }
+  },
+  computed: {
+    ...mapGetters({ editInstant: 'editInstant' })
   },
   mounted () {
     this.getAsideList()
+    if ((this.$route.query && this.$route.query.edit === 'true') && (this.editInstant && this.editInstant.sql)) {
+      this.textarea = this.editInstant.sql
+      this.lineNumber = this.editInstant.lineNumber
+    }
   },
   methods: {
     async getAsideList () {
@@ -86,7 +93,7 @@ export default {
       }
       this.exportData = data
       try {
-        const { columnMetas, results, duration } = await searchOlapApi(data)
+        const { columnMetas, results } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -101,7 +108,6 @@ export default {
           return list
         })
         this.tableData = [...[columnMetasList], ...resultsList]
-        this.duration = duration
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -116,6 +122,7 @@ export default {
       }
       const res = await saveOlapApi(Object.assign({}, data, callbackData))
       if (res.createId) {
+        await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
       }
     },
@@ -130,6 +137,7 @@ export default {
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;
