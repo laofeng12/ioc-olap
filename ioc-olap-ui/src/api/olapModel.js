@@ -157,8 +157,7 @@ export function getselectTable (params) {
 }
 export function getselectColumn (params) {
   return fetch({
-    url: '/olap/apis/OlapModeling/selectColumn',
-    method: 'get',
-    params
+    url: '/olap/apis/OlapModeling/selectColumn?resourceIds=' + params,
+    method: 'get'
   })
 }

@@ -407,6 +407,7 @@ export default {
             padding 25px
             margin-left 80px
             margin-bottom 20px
+            cursor pointer
           }
         }
         .adds:first-child{
@@ -446,6 +447,7 @@ export default {
           flex 1
           padding 25px
           border 1px solid #cccccc
+          cursor pointer
         }
       }
       p{

@@ -127,7 +127,20 @@ export default {
       //   // this.$root.eventBus.$emit('filedTable', res.data.columns)
       // })
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
-
+      // 存储事实表的所有字段
+      console.log(this.saveSelectAllList)
+      if (index === 0) {
+        this.saveSelectAllList.map((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === this.dataList.lookups[0].joinId) {
+            let list = {
+              data: items.data.columns,
+              list: this.dataList.lookups[0]
+            }
+            this.$store.commit('SaveFactData', list)
+          }
+        })
+      }
       // ------------------------- 数据湖
       // this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
       //   let datas = []
@@ -166,6 +179,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',
       saveLeftFiled: 'saveLeftFiled',

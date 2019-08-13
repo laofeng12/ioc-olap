@@ -11,6 +11,11 @@ export function isExternal (path) {
   return /^(https?:|mailto:|tel:)/.test(path)
 }
 
+export function isChineseChar (str) {
+  var reg = /[\u4E00-\u9FA5\uF900-\uFA2D]/
+  return reg.test(str)
+}
+
 export function isCharCodeAt (rule, value, callback) {
   let code = value.charCodeAt(0)
   if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
