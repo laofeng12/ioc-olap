@@ -29,12 +29,12 @@ public class ProjectAction extends KylinAction {
 
 
     @ApiOperation(value = "创建project")
-    @RequestMapping(value = "/create", method = RequestMethod.PUT)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public void create(@RequestBody ProjectDescDataMapper body) {
         String url = config.address + "/kylin/api/projects";
         HashMap hash = new HashMap();
         hash.put("projectDescData", JSON.toJSONString(body));
-        HttpClient.post(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.post(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
 

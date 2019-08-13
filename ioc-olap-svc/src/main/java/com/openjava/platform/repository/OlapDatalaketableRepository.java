@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 构建选择表数据库访问层
@@ -16,6 +17,6 @@ import java.util.List;
  *
  */
 public interface OlapDatalaketableRepository extends DynamicJpaRepository<OlapDatalaketable, Long>, OlapDatalaketableRepositoryCustom{
-    @Query(value = "select * from OLAP_DATALAKETABLE t where t.CUBE_NAME=:cubeName)", nativeQuery = true)
-    ArrayList<OlapDatalaketable> getListByCubeName(@Param("cubeName") String cubeName);
+    @Query(value = "select * from OLAP_DATALAKETABLE t where t.CUBE_NAME=:cubeName", nativeQuery = true)
+    List<OlapDatalaketable> getListByCubeName(@Param("cubeName") String cubeName);
 }

@@ -2,6 +2,7 @@ package com.openjava.platform.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.domain.OlapDatalaketable;
@@ -26,5 +27,5 @@ public interface OlapDatalaketableService {
 	void doDelete(Long id);
 	void doRemove(String ids);
 
-	ArrayList<OlapDatalaketable> getListByCubeName(String cubeName);
+	List<OlapDatalaketable> getListByCubeName(String cubeName);
 }
