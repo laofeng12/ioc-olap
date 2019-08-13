@@ -38,8 +38,8 @@ public class ProjectDescDataMapper {
     public ArrayList<String> ext_filters;
     @JSONField(name = "override_kylin_properties")
     public OverrideKylinPropertiesMapper override_kylin_properties;
-    @JSONField(name = "accessLoading")
-    public boolean accessLoading;
+//    @JSONField(name = "accessLoading")
+//    public boolean accessLoading;
     @JSONField(name = "visiblePage")
     public String visiblePage;
     @JSONField(name = "accessEntities")

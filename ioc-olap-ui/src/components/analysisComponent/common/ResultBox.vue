@@ -87,6 +87,10 @@ export default {
       type: String,
       default: ''
     },
+    formData: {
+      type: Object,
+      default: () => ({})
+    },
     exportData: {
       type: Object,
       default: () => ({})
@@ -137,9 +141,16 @@ export default {
       'newColList'
     ])
   },
-  mounted () {
-    this.newForm.folder = this.$route.query && this.$route.query.folderId || ''
-    this.isNew = this.$route.query && this.$route.query.isNew !== 'false'
+  watch: {
+    formData (val) {
+      this.newForm = val
+    },
+    saveFolderListByProp (val) {
+      if (this.$route.query.folderId) {
+        this.newForm.folder = this.$route.query.folderId
+      }
+      this.newForm = this.formData
+    }
   },
   methods: {
     analysisSearch () {

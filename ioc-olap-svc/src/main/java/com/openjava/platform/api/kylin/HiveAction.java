@@ -38,6 +38,6 @@ public class HiveAction extends KylinAction {
         String url = config.address + "/kylin/api/tables/" + TableName + "/" + body.libraryName;
         HashMap hash = new HashMap();
         hash.put("projectDescData", body.calculate);
-        HttpClient.post(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.post(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 }

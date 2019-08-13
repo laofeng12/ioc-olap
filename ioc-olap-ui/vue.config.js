@@ -38,7 +38,7 @@ module.exports = {
         changeOrigin: true
       }
       // '/olapweb/olap': {
-      //   target: 'http://172.16.60.3:9090', // 沛辰本机
+      //   target: 'http://172.16.60.99:9090', // 沛辰本机
       //   // pathRewrite: { '^/olapweb/olap/': '/olap/' },
       //   changeOrigin: true
       // }

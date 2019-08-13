@@ -39,9 +39,9 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	private Long id;
 
 	@ApiModelProperty("cubeName")
-	@Length(min=0, max=200)
+	@Max(0L)
 	@Column(name = "CUBE_NAME")
-	private Long cubeId;
+	private String cubeId;
 	
 	@ApiModelProperty("库名")
 	@Length(min=0, max=200)

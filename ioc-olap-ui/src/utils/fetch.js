@@ -6,7 +6,7 @@ import { getToken } from './auth.js'
 
 const service = axios.create({
   baseURL: process.env.BASE_URL, // api 的 base_url
-  timeout: 14000 // 请求超时时间
+  timeout: 30000 // 请求超时时间
 })
 
 // request拦截器
