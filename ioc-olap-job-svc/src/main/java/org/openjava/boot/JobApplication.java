@@ -49,6 +49,7 @@ import java.util.Set;
 				"com.openjava.**.component",
 				"com.openjava.aop",
 				"com.openjava.job",
+				"com.openjava.platform.api.**",
 				"com.openjava.platform.common",
 				"org.openjava.boot.conf",
 				"org.openjava.boot.aop",

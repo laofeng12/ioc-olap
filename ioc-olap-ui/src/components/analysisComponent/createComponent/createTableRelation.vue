@@ -91,8 +91,8 @@ export default {
       // },
       linkModal: null,
       linkModalModel: null,
-      linkModalFields: [],
-      jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
+      linkModalFields: []
+      // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DEFAULT.KYLIN_CAL_DT', 'lookups': [{ 'joinTable': 'KYLIN_CAL_DT', 'alias': 'KYLIN_CATEGORY_GROUPINGS', 'id': '0ff420eb-79ad-40bd-bca9-12d8cd05c60a', 'table': 'DEFAULT.KYLIN_CATEGORY_GROUPINGS', 'joinAlias': 'KYLIN_CAL_DT', 'joinId': '952d11b5-69d9-45d1-92af-227489485e3f', 'kind': 'LOOKUP', 'join': { 'type': 'left', 'primary_key': ['KYLIN_CATEGORY_GROUPINGS.LEAF_CATEG_ID'], 'foreign_key': ['KYLIN_CAL_DT.CAL_DT'], 'isCompatible': [true], 'pk_type': ['bigint'], 'fk_type': ['date'] } }] }
 
     }
   },
@@ -102,15 +102,13 @@ export default {
     // this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
   },
-  watch: {
-  },
   methods: {
     init () {
-      // this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log(this.jointResult.lookups, '啦啦啦啦啦')
-      let list = this.jointResult.lookups || []
-      // let jointResultData = [...this.jointResultData.lookups]
-      // let list = jointResultData || []
+      this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
+      // let list = this.jointResult.lookups || []
+      let jointResultData = [...this.jointResultData.lookups]
+      let list = jointResultData || []
+      console.log(this.jointResult, '啦啦啦啦啦')
 
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -122,7 +120,9 @@ export default {
       })
 
       this.clearCells()
-      list.forEach(t => this.addLinkCell)
+      list.forEach(t => {
+        this.addLinkCell(t)
+      })
 
       this.bindEvent(paper)
     },
@@ -780,7 +780,8 @@ export default {
     },
 
     nextModel (val) {
-      if (this.jointResult.lookups.length > 0) {
+      // if (this.jointResult.lookups.length > 0) {
+      if (this.jointResult.lookups) {
         this.$router.push('/analysisModel/createolap/setFiled')
         this.$parent.getStepCountAdd(val)
       } else {
@@ -805,15 +806,22 @@ export default {
       //   })
       // }
       // this.prevId = id
-      this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
-        this.couponList = res.data.columns
-      // console.log(this.couponList)
+      // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
+      //   this.couponList = res.data.columns
+      // })
+      // 根据name去获取本地对应的数据
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.couponList = items.data.columns
+        }
       })
     }
   },
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
       jointResultData: 'jointResultData'
     })
   },
