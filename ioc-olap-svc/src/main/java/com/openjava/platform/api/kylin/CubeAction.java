@@ -55,19 +55,19 @@ public class CubeAction extends KylinAction {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public CubeDescNewMapper create(CubeDescMapper cube, String modelName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-//        //写死一组COUNT
-//        MeasureMapper measire = new MeasureMapper();
-//        measire.setName("_COUNT_");
-//        measire.setShowDim(true);
-//        FunctionMapper function = new FunctionMapper();
-//        function.setExpression("COUNT");
-//        function.setReturntype("bigint");
-//        ParameterMapper parameter = new ParameterMapper();
-//        parameter.setType("constant");
-//        parameter.setValue("1");
-//        function.setParameter(parameter);
-//        measire.setFunction(function);
-//        cube.cubeDescData.measures.add(measire);
+        //写死一组COUNT
+        MeasureMapper measire = new MeasureMapper();
+        measire.setName("_COUNT_");
+        measire.setShowDim(true);
+        FunctionMapper function = new FunctionMapper();
+        function.setExpression("COUNT");
+        function.setReturntype("bigint");
+        ParameterMapper parameter = new ParameterMapper();
+        parameter.setType("constant");
+        parameter.setValue("1");
+        function.setParameter(parameter);
+        measire.setFunction(function);
+        cube.cubeDescData.measures.add(measire);
 //
 //        for (MeasureMapper measure : cube.cubeDescData.measures) {
 //            if (measure.function.getExpression().equals("AVG")) {
