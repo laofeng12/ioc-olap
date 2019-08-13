@@ -211,6 +211,10 @@ export default {
     auto: {
       type: Boolean,
       default: false
+    },
+    editData: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
@@ -326,6 +330,41 @@ export default {
       if (val) this.handleShrinkSearch(val, 'measureSearch')
     },
     selectCubeId (val) {
+      this.changeCubeId(val)
+    },
+    editData (val) {
+      this.selectCubeId = val.cubeId
+      val.olapAnalyzeAxes.forEach(v => {
+        switch (v.type) {
+          case 1:
+            this.rItems.push(v)
+            break
+          case 2:
+            this.cItems.push(v)
+            break
+          case 3:
+            this.nItems.push(v)
+            break
+          case 4:
+            this.bItems.push(v)
+            break
+        }
+      })
+      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId)
+    }
+  },
+  mounted () {
+    this.limitHeight = document.body.offsetHeight - 123
+    this.setSortTable()
+    this.getCubes()
+  },
+  methods: {
+    async getCubes () {
+      const menuList = await getCubesApi()
+      this.menuList = menuList
+      this.changeCubeId(this.selectCubeId)
+    },
+    changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]
       this.$store.dispatch('getCubeIdAction', cubeId)
       let dimensuresList = []
@@ -344,17 +383,6 @@ export default {
       })
       this.dimensuresList = dimensuresList
       this.measuresList = measuresList
-    }
-  },
-  mounted () {
-    this.limitHeight = document.body.offsetHeight - 123
-    this.setSortTable()
-    this.getCubes()
-  },
-  methods: {
-    async getCubes () {
-      const menuList = await getCubesApi()
-      this.menuList = menuList
     },
     // 选择文件夹名称
     // getFileName (fileValue) {
@@ -454,7 +482,7 @@ export default {
         }
         this.filterSelectList = item.selectValues ? item.selectValues.split(',') : []
         this.filterSelectCheckList = []
-        this.showFilterSelectList = []
+        this.showFilterSelectList = item.selectValues ? item.selectValues.split(',') : []
         this.isException = item.isInclude === 0 ? 0 : 1
       }
       const params = {

@@ -47,7 +47,6 @@ const getters = {
   newValueList: state => state.analysis.newValueList,
   newFilterList: state => state.analysis.newFilterList,
   newRowList: state => state.analysis.newRowList,
-  newColList: state => state.analysis.newColList,
-  editInstant: state => state.analysis.editInstant
+  newColList: state => state.analysis.newColList
 }
 export default getters

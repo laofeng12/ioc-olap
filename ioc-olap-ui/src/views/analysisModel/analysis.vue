@@ -1,6 +1,7 @@
 <template>
   <div class="dis-flex" v-loading="loading">
-    <OlapAside v-if="showOlapAside" :changeRowAndCol="changeRowAndCol" :auto="auto"></OlapAside>
+    <OlapAside v-if="showOlapAside" :changeRowAndCol="changeRowAndCol" :auto="auto" :editData="editData"
+               @searchFunc="searchFunc"></OlapAside>
     <div class="olapTable">
       <!--<div class="top">-->
         <!--<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" :inline="true">-->
@@ -17,8 +18,8 @@
       <!--</div>-->
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
-                 @reset="reset" @showSum="showSumFunc"
-                 @changeRowAndColFunc="changeRowAndColFunc" @autoFunc="autoFunc"></ResultBox>
+                 @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
+                 @autoFunc="autoFunc"></ResultBox>
     </div>
   </div>
 </template>
@@ -54,11 +55,13 @@ export default {
       showSum: false,
       showOlapAside: true,
       changeRowAndCol: false,
-      auto: false
+      auto: false,
+      editData: {},
+      formData: {}
     }
   },
-  watch: {},
   mounted () {
+    this.getFolderWithQuery()
     if (this.$route.query.dataId) this.getOlapAnalyzeDetails()
   },
   methods: {
@@ -67,8 +70,17 @@ export default {
       this.saveFolderList = res
     },
     async getOlapAnalyzeDetails () {
-      const res = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
-      console.info(res)
+      const { olapAnalyzeAxes, name, cubeId, flags, folderId } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
+      this.editData = {
+        olapAnalyzeAxes,
+        cubeId,
+        flags
+      }
+      this.formData = {
+        folder: folderId.toString(),
+        resultName: name
+      }
+
       // const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign({}, v, { type: 3 })) : []
       // const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign({}, v, { type: 4 })) : []
       // const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
