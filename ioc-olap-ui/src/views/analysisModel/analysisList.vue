@@ -108,8 +108,7 @@ export default {
       this.loading = false
     },
     edit (data) {
-      console.info(data)
-      // this.$router.push(`/newOlapAnalysis?dataId=${}`)
+      this.$router.push(`/newOlapAnalysis?dataId=${data.attrs.analyzeId}`)
     }
   }
 }
