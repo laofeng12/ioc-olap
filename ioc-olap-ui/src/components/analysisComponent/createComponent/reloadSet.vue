@@ -216,11 +216,17 @@ export default {
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
-      this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-        if (res) {
-          this.textOptions = res.data.columns
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === valId[0].id) {
+          this.textOptions = items.data.columns
         }
       })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
+      //   if (res) {
+      //     this.textOptions = res.data.columns
+      //   }
+      // })
     },
     handleChange (val) {
       let idx = val.$index
@@ -254,6 +260,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
       reloadData: 'reloadData',
+      saveSelectAllList: 'saveSelectAllList',
       totalSaveData: 'totalSaveData'
     })
   }

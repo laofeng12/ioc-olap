@@ -66,7 +66,6 @@ const selectStep = {
         item.tableName = list.list.joinTable
         return item
       })
-      console.log('事实表的数据', state.SaveFactData)
     }
   },
   actions: {

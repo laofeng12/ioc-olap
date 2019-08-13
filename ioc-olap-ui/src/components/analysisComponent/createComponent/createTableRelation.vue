@@ -108,8 +108,13 @@ export default {
       // let list = this.jointResult.lookups || []
       let jointResultData = [...this.jointResultData.lookups]
       let list = jointResultData || []
-      console.log(this.jointResult, '啦啦啦啦啦')
-
+      let arr = []
+      list.map(item => {
+        if (item.id) {
+          arr.push(item)
+        }
+      })
+      console.log(arr, '啦啦啦啦啦1111')
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -120,7 +125,7 @@ export default {
       })
 
       this.clearCells()
-      list.forEach(t => {
+      arr.forEach(t => {
         this.addLinkCell(t)
       })
 
@@ -809,6 +814,8 @@ export default {
       // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
       //   this.couponList = res.data.columns
       // })
+      // 模拟数据
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       // 根据name去获取本地对应的数据
       this.saveSelectAllList.forEach((item, index) => {
         let items = JSON.parse(item)
