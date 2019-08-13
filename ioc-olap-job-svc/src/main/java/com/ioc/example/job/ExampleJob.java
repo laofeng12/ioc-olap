@@ -30,7 +30,7 @@ public class ExampleJob {
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
 
-/*    @Scheduled(cron = "${schedule.execution.waitqueue}")
+    @Scheduled(cron = "${schedule.execution.waitqueue}")
     public void cronJob() throws Exception {
         System.out.println("=====> 执行定时任务-小时 <=====");
         configureTasks(1);
@@ -46,7 +46,7 @@ public class ExampleJob {
     public void month() throws Exception {
         System.out.println("=====> 执行定时任务-月 <=====");
         configureTasks(3);
-    }*/
+    }
 
     @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
