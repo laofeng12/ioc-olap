@@ -19,8 +19,6 @@ public interface OlapCubeService {
 
 	OlapCube findTableInfo(String cubeName, Long createId);
 
-	OlapCube findByCubeName(String cubeName);
-
 	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 	
 	OlapCube get(Long id);
@@ -30,7 +28,8 @@ public interface OlapCubeService {
 	void doDelete(Long id);
 	void doRemove(String ids);
 
-	void updateFlags(String name,Integer flags);
-
     ArrayList<OlapCube> getListByUserId(Long userId);
+
+	List<OlapCube> findAll();
+
 }

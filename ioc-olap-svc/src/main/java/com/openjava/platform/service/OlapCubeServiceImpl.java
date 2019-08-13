@@ -44,15 +44,6 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 		return null;
 	}
 
-	public OlapCube findByCubeName(String cubeName ) {
-		Optional<OlapCube> o = olapCubeRepository.findByCubeName(cubeName);
-		if (o.isPresent()) {
-			OlapCube m = o.get();
-			return m;
-		}
-		return null;
-	}
-
 	public OlapCube get(Long id) {
 		Optional<OlapCube> o = olapCubeRepository.findById(id);
 		if(o.isPresent()) {
@@ -76,12 +67,14 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 			olapCubeRepository.deleteById(new Long(items[i]));
 		}
 	}
-	public void updateFlags(String name,Integer flags) {
-		olapCubeRepository.updateFlags(name,flags);
-	}
 
 	@Override
 	public ArrayList<OlapCube> getListByUserId(Long userId) {
 		return olapCubeRepository.findByCreateId(userId);
+	}
+
+	@Override
+	public List<OlapCube> findAll() {
+		return olapCubeRepository.findAll();
 	}
 }

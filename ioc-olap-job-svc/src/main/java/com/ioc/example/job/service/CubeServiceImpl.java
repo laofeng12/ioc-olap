@@ -26,10 +26,10 @@ public class CubeServiceImpl extends KylinAction implements CubeService {
         HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
     }
 
-    public ArrayList<CubeMapper> list(Integer limit, Integer offset) {
+    public ArrayList<HashMap> list(Integer limit, Integer offset) {
         String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
-        Class<ArrayList<CubeMapper>> clazz = (Class<ArrayList<CubeMapper>>) new ArrayList<CubeMapper>().getClass();
-        ArrayList<CubeMapper> result = HttpClient.get(url, config.authorization, clazz);
+        Class<ArrayList<HashMap>> clazz = (Class<ArrayList<HashMap>>) new ArrayList<HashMap>().getClass();
+        ArrayList<HashMap> result = HttpClient.get(url, config.authorization, clazz);
         return result;
     }
 }
