@@ -12,6 +12,7 @@ const advancedSet = {
       }
     ],
     saveselectIncludesData: [], // 存储已选择的包含维度
+    filterMappingData: [], // 过滤已经选择的高级组合
     mandatory_dimension_set_list: [[]], // 存储维度黑白名单
     hbase_mapping: { // 存储高级设置组合
       'column_family': [
@@ -51,7 +52,7 @@ const advancedSet = {
         case 1:
           state.aggregation_groups[slectData.index].includes = slectData.data
           state.selectDataidList[slectData.index].includesId = slectData.data
-          dispatch('SaveselectIncludesData', slectData.data)
+          // dispatch('SaveselectIncludesData', slectData.data)
           break
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data
@@ -72,6 +73,7 @@ const advancedSet = {
         case 6:
           Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
           Vue.set(state.savehetComposeDataId, slectData.index, slectData.data)
+          dispatch('FilterMapping', slectData.data)
           break
         default:
           break
@@ -200,7 +202,20 @@ const advancedSet = {
     // 存储选择的包含维度
     SaveselectIncludesData ({ state }, data) {
       state.saveselectIncludesData = data
-      console.log('获取的', state.saveselectIncludesData)
+    },
+    // 过滤掉已经选择的组合数据
+    FilterMapping ({ state, getters }, data) {
+      console.log('获取的', data)
+      getters.measureTableList.map((item, index) => {
+        data.forEach(n => {
+          if (item.name !== n) {
+            state.filterMappingData.push({
+              value: item.name, id: item.id
+            })
+          }
+        })
+      })
+      // state.filterMappingData = data
     }
     // 存储rowkeys设置
     // SaveRowkeyList ({ state }, data) {
