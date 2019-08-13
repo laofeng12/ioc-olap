@@ -96,7 +96,7 @@ export default {
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
-      this.totalSaveData.selectStepList = this.selectStepList
+      this.totalSaveData.cubeDatalaketableNew = this.selectStepList
       console.log(this.totalSaveData, '高级', this.selectStepList)
     },
     nextModel (val) {

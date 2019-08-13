@@ -52,7 +52,7 @@ const advancedSet = {
         case 1:
           state.aggregation_groups[slectData.index].includes = slectData.data
           state.selectDataidList[slectData.index].includesId = slectData.data
-          // dispatch('SaveselectIncludesData', slectData.data)
+          dispatch('SaveselectIncludesData', slectData.data)
           break
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data

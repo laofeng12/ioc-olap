@@ -43,12 +43,13 @@ export default {
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
         this.loading = true
         this.dataList[0].children = []
-        // console.log(res)
+        let orgId = res.orgId
+        console.log(res)
         /* KELIN */
         if (type && type === 1) {
-          this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => { // kelin
+          this.$store.dispatch('GetThreeList', { orgId: orgId }).then(res => { // kelin
             if (res) {
-              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
+              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, orgId: orgId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
               this.loading = false
               this.$root.eventBus.$emit('saveSelectTables')
             }

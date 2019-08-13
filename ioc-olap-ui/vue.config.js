@@ -32,7 +32,7 @@ module.exports = {
       },
       '/olapweb/olap/': {
         // target: 'http://19.104.40.36', // 麒麟测试环境
-        target: 'http://172.16.60.22:8081', // 左烨本地
+        target: 'http://172.16.60.10:8081', // 左烨本地
         // target: 'http://172.16.60.4:9090', // 沛城本地
         // pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true

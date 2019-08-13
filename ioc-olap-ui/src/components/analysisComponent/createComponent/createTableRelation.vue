@@ -105,6 +105,7 @@ export default {
   methods: {
     init () {
       this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
+      console.log(this.jointResult)
       // let list = this.jointResult.lookups || []
       let jointResultData = [...this.jointResultData.lookups]
       let list = jointResultData || []
@@ -114,7 +115,6 @@ export default {
           arr.push(item)
         }
       })
-      console.log(arr, '啦啦啦啦啦1111')
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
