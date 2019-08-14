@@ -7,7 +7,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.autoReload"
+                v-model.number="formData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -131,7 +131,7 @@ export default {
         partition_date_format: '', // 第一条数据
         partition_time_column: '',
         partition_time_format: '',
-        INTERVAL: '',
+        interval: null,
         frequencytype: 1
       },
       tableOptions: [
@@ -179,7 +179,6 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      console.log(this.formData, '=========', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)

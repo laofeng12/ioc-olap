@@ -98,15 +98,21 @@ export default {
       this.$refs.formData.clearValidate()
     },
     selectTable (val) {
-      const params = {
-        dsDataSourceId: 2,
-        tableName: val
-      }
+      // const params = {
+      //   dsDataSourceId: 2,
+      //   tableName: val
+      // }
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
-      this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
-        this.textOptions = res.data.columns
+      // this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+      //   this.textOptions = res.data.columns
+      // })
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.name === val) {
+          this.textOptions = items.data.columns
+        }
       })
     },
     submitBtn () {
@@ -143,7 +149,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList'
     })
   }
 }

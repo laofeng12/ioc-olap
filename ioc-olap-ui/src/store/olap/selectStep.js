@@ -100,6 +100,27 @@ const selectStep = {
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.treeList = []
+      state.serchTableList = []
+      state.searchType = 1
+      state.saveSelectTable = []
+      state.saveLocalSelectTable = []
+      state.selectTableTotal = []
+      state.lastClickTab = ''
+      state.saveSelctchckoutone = []
+      state.saveSelctchckouttwo = []
+      state.saveSelectFiled = []
+      state.saveSelectFiledTree = []
+      // getters.jointResultData = {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // }
+      // getters.saveSelectFiled = []
+      // getters.saveFiledNormalList = []
+    },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {

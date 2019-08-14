@@ -45,6 +45,18 @@ const advancedSet = {
     } // rowkeys设置
   },
   actions: {
+    resetList ({ state }) {
+      state.relaodFilterList = []
+      state.reloadData = {
+        autoReload: false,
+        dataMany: false,
+        partition_date_column: '',
+        partition_date_format: '',
+        partition_time_format: '',
+        INTERVAL: '',
+        frequencytype: 1
+      }
+    },
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
       // dispatch('WithidGetList', slectData.data)

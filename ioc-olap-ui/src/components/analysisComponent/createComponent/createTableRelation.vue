@@ -105,7 +105,6 @@ export default {
   methods: {
     init () {
       this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log(this.jointResult)
       // let list = this.jointResult.lookups || []
       let jointResultData = [...this.jointResultData.lookups]
       let list = jointResultData || []
@@ -224,7 +223,6 @@ export default {
       })
 
       paper.on('cell:pointermove', (e, d) => {
-        // console.log(e)
         let attrs = e.model.get('attrs')
 
         if (attrs.text && attrs.text.filed) {

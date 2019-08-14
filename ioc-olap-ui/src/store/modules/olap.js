@@ -182,7 +182,7 @@ const common = {
       },
       filterCondidion: [], // 刷新过滤设置
       timingreFresh: {
-        INTERVAL: '', // 更新频率
+        interval: '', // 更新频率
         frequencytype: '', // 更新方式
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
@@ -190,21 +190,33 @@ const common = {
       cubeDatalaketableNew: {}
     }
   },
-  mutations: {
-  },
   actions: {
-    resetList ({ state }) {
-      state.treeList = []
-      state.serchTableList = []
-      state.searchType = 1
-      state.saveSelectTable = []
-      state.saveLocalSelectTable = []
-      state.selectTableTotal = []
-      state.lastClickTab = ''
-      state.saveSelctchckoutone = []
-      state.saveSelctchckouttwo = []
-      state.saveSelectFiled = []
-      state.saveSelectFiledTree = []
+    resetList ({ actions }) {
+      // state.savemousedownData = '1111'
+      // Object.assign(getters, {
+      //   saveSelectTable: []
+      // })
+      // console.log(Object.assign(getters, {}))
+      // getters.serchTableList = []
+      // getters.treeList = []
+      // getters.serchTableList = []
+      // getters.searchType = 1
+      // getters.saveSelectTable = []
+      // getters.saveLocalSelectTable = []
+      // getters.selectTableTotal = []
+      // getters.lastClickTab = ''
+      // getters.saveSelctchckoutone = []
+      // getters.saveSelctchckouttwo = []
+      // getters.saveSelectFiled = []
+      // getters.saveSelectFiledTree = []
+      // getters.jointResultData = {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // }
+      // getters.saveSelectFiled = []
+      // getters.saveFiledNormalList = []
     },
     /*
      *建立表关系
