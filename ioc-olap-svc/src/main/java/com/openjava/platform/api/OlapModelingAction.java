@@ -80,7 +80,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
-    public ArrayList<CubeMapper> cubeList(Integer limit, Integer offset) {
+    public List<CubeMapper> cubeList(Integer limit, Integer offset) {
         return cubeAction.list(limit, offset);
     }
 
@@ -681,7 +681,7 @@ public class OlapModelingAction extends BaseAction {
             throw new APIException("网络错误！");
         }
 
-        ArrayList<CubeDescDataMapper> cube = cubeAction.desc(cubeName);
+        List<CubeDescDataMapper> cube = cubeAction.desc(cubeName);
 
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         //data分组
