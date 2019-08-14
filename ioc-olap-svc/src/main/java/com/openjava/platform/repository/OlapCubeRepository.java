@@ -24,4 +24,5 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
     @Query(value = "select t.* from OLAP_CUBE t where t.NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)
     Optional<OlapCube> findTableInfo(@Param("cubeName") String cubeName, @Param("createId") Long createId);
 
+    ArrayList<OlapCube> findByCreateIdAndFlags(Long userId, int flags);
 }

@@ -22,15 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class OlapCubeServiceImpl implements OlapCubeService {
-	
+
 	@Resource
 	private OlapCubeRepository olapCubeRepository;
-	
+
 	public Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable){
 		Page<OlapCube> pageresult = olapCubeRepository.query(params, pageable);
 		return pageresult;
 	}
-	
+
 	public List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable){
 		return olapCubeRepository.queryDataOnly(params, pageable);
 	}
@@ -53,11 +53,11 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 		System.out.println("找不到记录OlapCube："+id);
 		return null;
 	}
-	
+
 	public OlapCube doSave(OlapCube m) {
 		return olapCubeRepository.save(m);
 	}
-	
+
 	public void doDelete(Long id) {
 		olapCubeRepository.deleteById(id);
 	}
@@ -76,5 +76,10 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	@Override
 	public List<OlapCube> findAll() {
 		return olapCubeRepository.findAll();
+	}
+
+	@Override
+	public ArrayList<OlapCube> getValidListByUserId(Long userId) {
+		return olapCubeRepository.findByCreateIdAndFlags(userId,1);
 	}
 }

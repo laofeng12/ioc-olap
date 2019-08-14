@@ -125,7 +125,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@RequestMapping(value="/CubeTree",method=RequestMethod.GET)
 	public ArrayList<TreeVo> CubeTree(){
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		ArrayList<OlapCube> cubes=olapCubeService.getListByUserId(Long.parseLong(userVO.getUserId()));
+		ArrayList<OlapCube> cubes=olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
 		ArrayList<TreeVo> trees=new ArrayList<TreeVo>();
 		for (OlapCube cube : cubes){
 			TreeVo tree=new TreeVo();
