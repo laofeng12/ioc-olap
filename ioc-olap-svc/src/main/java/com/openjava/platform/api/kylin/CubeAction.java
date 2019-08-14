@@ -19,6 +19,7 @@ import org.ljdp.component.result.DataApiResponse;
 import org.ljdp.secure.sso.SsoContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -67,16 +68,14 @@ public class CubeAction extends KylinAction {
         function.setParameter(parameter);
         measire.setFunction(function);
         cube.cubeDescData.measures.add(measire);
-
-        for (MeasureMapper measure : cube.cubeDescData.measures) {
-            if (measure.function.getExpression().equals("AVG")) {
-                measure.function.setExpression("SUM");
-            }
-        }
+//
+//        for (MeasureMapper measure : cube.cubeDescData.measures) {
+//            if (measure.function.getExpression().equals("AVG")) {
+//                measure.function.setExpression("SUM");
+//            }
+//        }
         String url = config.address + "/kylin/api/cubes";
-//        cube.setProject(userVO.getUserId());
 
-        cube.setProject("learn_kylin");
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
@@ -122,7 +121,7 @@ public class CubeAction extends KylinAction {
         HashMap<String, String> hash = new HashMap<String, String>();
         hash.put("cubeName", cubeName);
         hash.put("project", projectName);
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "编译CUBE")
@@ -133,7 +132,7 @@ public class CubeAction extends KylinAction {
         hash.put("buildType", "BUILD");
         hash.put("startTime", start.getTime());
         hash.put("endTime", end.getTime());
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "刷新CUBE")
@@ -144,7 +143,7 @@ public class CubeAction extends KylinAction {
         hash.put("buildType", "REFRESH");
         hash.put("startTime", start.getTime());
         hash.put("endTime", end.getTime());
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "合并CUBE")
@@ -155,21 +154,21 @@ public class CubeAction extends KylinAction {
         hash.put("buildType", "MERGE");
         hash.put("startTime", start.getTime());
         hash.put("endTime", end.getTime());
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "禁用CUBE")
     @RequestMapping(value = "disable", method = RequestMethod.PUT)
     public void disable(String cubeName) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/disable", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, void.class);
+        HttpClient.put(url, "", config.authorization, String.class);
     }
 
     @ApiOperation(value = "启用CUBE")
     @RequestMapping(value = "enable", method = RequestMethod.PUT)
     public void enable(String cubeName) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/enable", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, void.class);
+        HttpClient.put(url, "", config.authorization, String.class);
     }
 
     @ApiOperation(value = "查询立方体数据")
@@ -199,7 +198,7 @@ public class CubeAction extends KylinAction {
     @RequestMapping(value = "delete", method = RequestMethod.DELETE)
     public void delete(String cubeName) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, void.class);
+        HttpClient.put(url, "", config.authorization, String.class);
     }
 
 }

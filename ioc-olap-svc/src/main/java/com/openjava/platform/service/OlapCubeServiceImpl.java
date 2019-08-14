@@ -43,7 +43,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 		}
 		return null;
 	}
-	
+
 	public OlapCube get(Long id) {
 		Optional<OlapCube> o = olapCubeRepository.findById(id);
 		if(o.isPresent()) {
@@ -71,5 +71,10 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	@Override
 	public ArrayList<OlapCube> getListByUserId(Long userId) {
 		return olapCubeRepository.findByCreateId(userId);
+	}
+
+	@Override
+	public List<OlapCube> findAll() {
+		return olapCubeRepository.findAll();
 	}
 }

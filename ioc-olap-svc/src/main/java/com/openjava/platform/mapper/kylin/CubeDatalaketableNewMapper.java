@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class CubeDatalaketableNewMapper {
-    public String orgId;
+    public Long orgId;
     public String orgName;
     public ArrayList<OlapDatalaketable> tableList;
 }

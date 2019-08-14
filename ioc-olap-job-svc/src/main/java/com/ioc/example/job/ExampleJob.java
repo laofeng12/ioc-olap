@@ -1,16 +1,19 @@
 package com.ioc.example.job;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ioc.example.job.service.CubeService;
+import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapTimingrefresh;
+import com.openjava.platform.mapper.kylin.CubeMapper;
+import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapTimingrefreshService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 定时任务例子
@@ -20,6 +23,9 @@ public class ExampleJob {
 
     @Resource
     private CubeService cubeService;//注入bean（例子，按需注入）
+
+    @Resource
+    private OlapCubeService olapCubeService;
 
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
@@ -40,6 +46,12 @@ public class ExampleJob {
     public void month() throws Exception {
         System.out.println("=====> 执行定时任务-月 <=====");
         configureTasks(3);
+    }
+
+    @Scheduled(cron = "${schedule.five_minute.five_minute}")
+    public void minute() throws Exception {
+        System.out.println("=====> 执行定时任务五分钟 <=====");
+        cubeListTasks(100, 0);
     }
 
 
@@ -72,6 +84,43 @@ public class ExampleJob {
                 fc.setNextExecutionTime(dateCalendar); //下一次执行执行时间
                 fc.setIsNew(false);
                 olapTimingrefreshService.doSave(fc);
+            }
+        }
+    }
+
+    private void cubeListTasks(Integer limit, Integer offset) throws Exception {
+        ArrayList<HashMap> result = cubeService.list(limit,offset);
+
+        if (result != null) {
+            //遍历列表
+            for (int i=0;i< result.size();i++) {
+                String cubeName=result.get(i).get("name").toString();
+                String status=result.get(i).get("status").toString();
+
+                List<OlapCube> m=olapCubeService.findAll();
+                if(m!=null) {
+                    for (OlapCube fc : m){
+                    //for (int j=0;i< m.size();j++) {
+                        if(fc.getName().equals(cubeName)) {
+                            if (status.equals("READY")) {
+                                if (fc.getFlags() != 1) {
+                                    Date now = new Date();
+                                    fc.setFlags(1);
+                                    fc.setUpdateTime(now);
+                                    olapCubeService.doSave(fc);
+                                }
+                            }
+                            else {
+                                if (fc.getFlags() != 0) {
+                                    Date now = new Date();
+                                    fc.setFlags(0);
+                                    fc.setUpdateTime(now);
+                                    olapCubeService.doSave(fc);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

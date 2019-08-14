@@ -20,6 +20,8 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -89,42 +91,6 @@ public class OlapModelingAction extends BaseAction {
         return jobsAction.list(jobSearchMode, limit, offset, projectName, timeFilter);
     }
 
-    @ApiOperation(value = "第一步——检测当前用户是否有Poreject")
-    @RequestMapping(value = "/ProjectList", method = RequestMethod.POST)
-    @Security(session = false)
-    public void projectList(
-            @RequestBody ProjectDescDataMapper body,
-            @RequestParam(name = "tableName") String[] tableName,
-            @RequestParam(name = "libraryName") String libraryName) {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        //拿到所有Poreject
-        List<ProjectDescDataMapper> projectList = projectAction.list();
-        projectList = (List<ProjectDescDataMapper>) projectList.stream()
-                .filter(a -> a.getName().equals(userVO.getUserId()
-                ));
-        //如果当前用户在Poreject没有数据,则在Poreject创建一条数据
-        if (projectList.size() != 0) {
-            String[] strArrayTrue = (String[]) projectList.get(0).getTables().toArray(new String[0]);
-            //对比是否存在,存在的就不要加进去了tables
-            String[] tableNameArray = minus(strArrayTrue, tableName);
-            if (tableNameArray.length != 0) {
-                HiveMapper hive = new HiveMapper();
-                hive.tableNameArr = tableNameArray;
-                hive.libraryName = libraryName;
-                hiveAction.create(hive);
-            }
-        } else {
-            projectAction.create(body);
-            if (tableName.length != 0) {
-                HiveMapper hive = new HiveMapper();
-                hive.tableNameArr = tableName;
-                hive.libraryName = libraryName;
-                hiveAction.create(hive);
-            }
-        }
-    }
-
-
     @ApiOperation(value = "第六步——获取Encoding")
     @RequestMapping(value = "/encodingList", method = RequestMethod.GET)
     @Security(session = true)
@@ -149,7 +115,6 @@ public class OlapModelingAction extends BaseAction {
         CubeDescMapper cube = body.getCube();
         Date date = new Date();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-
         //为models的name给一个唯一值
         SequenceService ss = ConcurrentSequence.getInstance();
         String modelName = String.valueOf(ss.getSequence());
@@ -158,27 +123,55 @@ public class OlapModelingAction extends BaseAction {
         cube.cubeDescData.setModel_name(modelName);
         cube.setCubeName(modelName + "_" + cubeName);
         cube.cubeDescData.setName(modelName + "_" + cubeName);
+//        cube.setProject(userVO.getUserId());
+//        models.setProject(userVO.getUserId());
+
+        cube.setProject("learn_kylin");
+        models.setProject("learn_kylin");
+
+
+        //保存前的判断
+        saveVerification(cube, models);
 
         ModelsNewMapper modelMap = new ModelsNewMapper();
         CubeDescNewMapper cubeMap = new CubeDescNewMapper();
         Map<String, Object> paramMap = new HashMap<String, Object>();
 
 
+        //拿到所有project
+        Stream<ProjectDescDataMapper> projectList = projectAction.list().stream()
+                .filter(a -> a.getName().equals(userVO.getUserId()));
+        //判断是否有该用户的project
+        if (projectList == null) {
+            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
+            projectDesc.setName(userVO.getUserId());
+            projectDesc.setDescription(userVO.getUserName());
+            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
+            override.setAuthor(userVO.getUserName());
+            projectDesc.setOverride_kylin_properties(override);
+            projectAction.create(projectDesc);
 
-//
-//        ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
-//        projectDesc.setName(userVO.getUserId());
-//        projectDesc.setDescription(userVO.getUserName());
-//
-//        OverrideKylinPropertiesMapper A=new OverrideKylinPropertiesMapper();
-//
-//        projectDesc.override_kylin_properties.setAuthor(userVO.getUserName());
-//        projectAction.create(projectDesc);
+            //把选择的hive表放入Kylin
+            List<String> tableNameList = new ArrayList<String>();
+            for (CubeDatalaketableNewMapper datalaketableNew : body.cubeDatalaketableNew) {
+                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
+                    String name = datalaketableNew.getOrgName() + "." + table.getTableName();
+                    tableNameList.add(name);
+                }
+            }
+            hiveAction.create(tableNameList, cubeName);
+        }
 
 
         if (!StringUtils.isNotBlank(body.getModels().getUuid())) {
             modelMap = modelsAction.create(models);
+            if (modelMap == null) {
+                throw new APIException("网络错误！");
+            }
             cubeMap = cubeAction.create(cube, modelName);
+            if (cubeMap == null) {
+                throw new APIException("网络错误！");
+            }
         } else {
             modelMap = modelsAction.update(models);
             cubeMap = cubeAction.update(cube, modelName);
@@ -214,6 +207,28 @@ public class OlapModelingAction extends BaseAction {
     }
 
 
+    //保存前的验证
+    public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
+        boolean bl = true;
+        //验证高级列组合是否有默认的_COUNT_
+        if (cube.cubeDescData.hbase_mapping.getColumn_family().size() == 0) {
+            throw new APIException("高级列组合为空！");
+        }
+        //验证度量是否有数据measures！
+        if (cube.cubeDescData.measures.size() == 0) {
+            throw new APIException("度量不可为空！");
+        } else {
+            String[] companyType = {"SUM", "MIN", "MAX"};
+            String[] supportType = {"smallint", "int4", "double", "smallint", "int4", "double", "tinyint", "numeric", "long8", "integer", "real", "float", "decimal(19,4)", "bigint"};
+            for (MeasureMapper measure : cube.cubeDescData.getMeasures()) {
+                if (Arrays.asList(companyType).contains(measure.getFunction().getExpression()) == true && Arrays.asList(supportType).contains(measure.getFunction().getReturntype()) == false) {
+                    throw new APIException("计算方式与字段类型不匹配！");
+                }
+            }
+        }
+    }
+
+
     @Transactional(readOnly = false)
     public boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList, List<OlapFilter> filterList, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) {
         try {
@@ -238,7 +253,7 @@ public class OlapModelingAction extends BaseAction {
                     for (OlapDatalaketable od : cdn.tableList) {
                         od.setId(ss.getSequence());
                         od.setIsNew(true);
-                        od.setCubeId(olapCube.getId());
+                        od.setCubeName(olapCube.getName());
                         olapDatalaketableService.doSave(od);
                     }
                 }
@@ -327,7 +342,8 @@ public class OlapModelingAction extends BaseAction {
     }
 
     //保存OLAP_CUBE_TABLE_COLUMN表
-    public void saveCubeTableColumn(CubeDescMapper cube, ModelsDescDataMapper modelDescData, Long cubeId, List<OlapCubeTable> dmEntity) {
+    public void saveCubeTableColumn(CubeDescMapper cube, ModelsDescDataMapper modelDescData, Long
+            cubeId, List<OlapCubeTable> dmEntity) {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         ArrayList<String> column = new ArrayList<>();
         ArrayList<LookupsMapper> lookups = modelDescData.getLookups();
@@ -427,7 +443,8 @@ public class OlapModelingAction extends BaseAction {
     }
 
     //保存OLAP_CUBE_TABLE_RELATION表
-    public List<OlapCubeTableRelation> saveCubeTableRelation(CubeDescMapper cube, ModelsMapper models, Long cubeId, List<OlapCubeTable> dmEntity) {
+    public List<OlapCubeTableRelation> saveCubeTableRelation(CubeDescMapper cube, ModelsMapper models, Long
+            cubeId, List<OlapCubeTable> dmEntity) {
         ArrayList<LookupsMapper> modelDescData = models.modelDescData.getLookups();
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         SequenceService ss = ConcurrentSequence.getInstance();
@@ -482,7 +499,8 @@ public class OlapModelingAction extends BaseAction {
     }
 
     //保存过滤
-    public List<OlapFilter> filter(CubeDescMapper cube, List<OlapFilterCondidion> filterCondidionList, Date date, OaUserVO userVO) {
+    public List<OlapFilter> filter(CubeDescMapper cube, List<OlapFilterCondidion> filterCondidionList, Date
+            date, OaUserVO userVO) {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         SequenceService ss = ConcurrentSequence.getInstance();
         Long filterId = ss.getSequence();
@@ -615,7 +633,8 @@ public class OlapModelingAction extends BaseAction {
     }
 
 
-    public void saveColumn(ArrayList<String> column, List<OlapCubeTable> dmEntity, String join, String columnType, Long cubeId) {
+    public void saveColumn(ArrayList<String> column, List<OlapCubeTable> dmEntity, String join, String
+            columnType, Long cubeId) {
         SequenceService ss = ConcurrentSequence.getInstance();
         String tableName = join.substring(0, join.indexOf("."));
         String columnName = join.substring(join.indexOf(".") + 1);
@@ -646,25 +665,44 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:查看")
     @RequestMapping(value = "/desc", method = RequestMethod.GET)
     @Security(session = false)
-    public Map<String, Object> desc(String cubeName, String models) {
+    public Map<String, Object> desc(String cubeName, String models) throws APIException {
         ModelsDescDataMapper model = modelsAction.entity(models);
+        if (model == null) {
+            throw new APIException("网络错误！");
+        }
+
         ArrayList<CubeDescDataMapper> cube = cubeAction.desc(cubeName);
-//        ArrayList<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
 
+        List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
+        //data分组
+        Map<String, List<OlapDatalaketable>> data = table.stream().collect(Collectors.groupingBy(OlapDatalaketable::getOrgName));
+        //整理数据
+        List<CubeDatalaketableNewMapper> datalaketableNewList = new ArrayList<CubeDatalaketableNewMapper>();
+        for (Map.Entry<String, List<OlapDatalaketable>> entry : data.entrySet()) {
+            CubeDatalaketableNewMapper datalaketableNew = new CubeDatalaketableNewMapper();
+            List<OlapDatalaketable> mapValue = entry.getValue();
+            if (mapValue.size() != 0) {
+                datalaketableNew.setOrgId(mapValue.get(0).getOrgId());
+                datalaketableNew.setOrgName(mapValue.get(0).getOrgName());
 
-//        //移除后端自动添加的_COUNT_
-//        for (CubeDescDataMapper cubeDescData : cube) {
-//            for (MeasureMapper measure : cubeDescData.measures) {
-//                if (measure.getName().equals("_COUNT_")) {
-//                    cubeDescData.measures.remove(measure);
-//                }
-//            }
-//        }
+                datalaketableNew.setTableList((ArrayList<OlapDatalaketable>) entry.getValue());
+                datalaketableNewList.add(datalaketableNew);
+            }
+        }
+
+        //移除后端自动添加的_COUNT_
+        for (CubeDescDataMapper cubeDescData : cube) {
+            for (MeasureMapper measure : cubeDescData.measures) {
+                if (measure.getName().equals("_COUNT_")) {
+                    cubeDescData.measures.remove(measure);
+                }
+            }
+        }
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ModesList", model);
         paramMap.put("CubeList", cube);
-//        paramMap.put("TableList", table);
+        paramMap.put("TableList", datalaketableNewList);
         return paramMap;
     }
 
@@ -788,8 +826,8 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/selectColumn", method = RequestMethod.GET)
     @Security(session = false)
     public List<String> selectColumn(String[] resourceIds) {
-        List<String> list=new ArrayList<String>();
-        for (String resourceId : resourceIds){
+        List<String> list = new ArrayList<String>();
+        for (String resourceId : resourceIds) {
             String json = "";
             switch (resourceId) {
                 case "0ff420eb-79ad-40bd-bca9-12d8cd05c60a":

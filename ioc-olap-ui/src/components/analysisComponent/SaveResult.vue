@@ -99,8 +99,7 @@ export default {
       await this.$store.dispatch('getSaveFolderListAction')
     },
     async editSave (data) {
-      // await this.$store.dispatch('getEditInstantAction', data)
-      // this.$router.replace('/instantInquiry?edit=true')
+      this.$emit('changeActive', '1', data)
     }
   }
 }

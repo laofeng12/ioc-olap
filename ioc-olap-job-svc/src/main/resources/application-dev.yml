@@ -77,6 +77,16 @@ schedule:
     day: 0/10 * * * * ?
   month:
     month: 0/20 * * * * ?
+  minute:
+    minute: 0 */1 * * * ?
+  five_minute:
+    five_minute: 0 */5 * * * ?
+
+kylin:
+  address:  http://19.104.59.1:7070
+  account:  ADMIN
+  pwd:  KYLIN
+  authorization:  Basic QURNSU46S1lMSU4=
 
 
 

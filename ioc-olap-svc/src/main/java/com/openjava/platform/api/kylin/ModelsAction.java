@@ -32,7 +32,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "获取指定项目的模型")
     @RequestMapping(value = "/entity", method = RequestMethod.GET)
-    public ModelsDescDataMapper entity(String postman) {
+    public ModelsDescDataMapper entity(String postman) throws APIException {
         String url = config.address + "/kylin/api/model/" + postman;
         Class<ModelsDescDataMapper> clazz = (Class<ModelsDescDataMapper>) new ModelsDescDataMapper().getClass();
         ModelsDescDataMapper result = HttpClient.get(url, config.authorization, clazz);
@@ -44,7 +44,7 @@ public class ModelsAction extends KylinAction {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ModelsNewMapper create(@RequestBody ModelsMapper body) throws APIException {
         String url = config.address + "/kylin/api/models";
-        body.setProject("learn_kylin");
+//        body.setProject("learn_kylin");
         HashMap hash = new HashMap();
         hash.put("modelDescData", JSON.toJSONString(body.modelDescData));
         hash.put("project", body.project);

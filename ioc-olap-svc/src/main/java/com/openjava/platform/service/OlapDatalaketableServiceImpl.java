@@ -61,7 +61,7 @@ public class OlapDatalaketableServiceImpl implements OlapDatalaketableService {
 	}
 
 	@Override
-	public ArrayList<OlapDatalaketable> getListByCubeName(String cubeName) {
+	public List<OlapDatalaketable> getListByCubeName(String cubeName) {
 		return olapDatalaketableRepository.getListByCubeName(cubeName);
 	}
 }
