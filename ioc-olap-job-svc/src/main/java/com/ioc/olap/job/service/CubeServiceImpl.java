@@ -1,9 +1,8 @@
-package com.ioc.example.job.service;
+package com.ioc.olap.job.service;
 
 import com.alibaba.fastjson.JSON;
 import com.openjava.platform.api.kylin.KylinAction;
 import com.openjava.platform.common.HttpClient;
-import com.openjava.platform.mapper.kylin.CubeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,7 @@ public class CubeServiceImpl extends KylinAction implements CubeService {
         hash.put("buildType", "BUILD");
         hash.put("startTime", start.getTime());
         hash.put("endTime", end.getTime());
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, void.class);
+        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     public ArrayList<HashMap> list(Integer limit, Integer offset) {
