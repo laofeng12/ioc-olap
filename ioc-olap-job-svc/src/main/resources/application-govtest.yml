@@ -84,11 +84,12 @@ schedule:
   day:
     day: 0 59 23 ? * *
   month:
-    month: 0 59 23 L * ?
+    month: 0 0 0 1 * ?
   minute:
     minute: 0 */1 * * * ?
   five_minute:
     five_minute: 0 */5 * * * ?
+
 
 
 

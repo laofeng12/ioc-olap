@@ -27,7 +27,7 @@ public class OlapJob {
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
 
-    @Scheduled(cron = "${schedule.execution.waitqueue}")
+    @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
         configureTasks(1);
     }
