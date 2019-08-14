@@ -39,9 +39,9 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	private Long id;
 
 	@ApiModelProperty("cubeName")
-	@Max(0L)
+	@Length(min=0, max=200)
 	@Column(name = "CUBE_NAME")
-	private String cubeId;
+	private String cubeName;
 	
 	@ApiModelProperty("库名")
 	@Length(min=0, max=200)
@@ -49,14 +49,13 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	private String orgName;
 	
 	@ApiModelProperty("库名ID")
-	@Max(0L)
 	@Column(name = "ORG_ID")
 	private Long orgId;
 	
 	@ApiModelProperty("表名称ID")
 	@Length(min=0, max=200)
 	@Column(name = "TABLE_ID")
-	private Long tableId;
+	private String tableId;
 	
 	@ApiModelProperty("表名称")
 	@Length(min=0, max=200)
@@ -66,7 +65,7 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	@ApiModelProperty("RESOURCE_ID")
 	@Length(min=0, max=200)
 	@Column(name = "RESOURCE_ID")
-	private Long resourceId;
+	private String resourceId;
 
 
 	@ApiModelProperty("库类型")
@@ -75,12 +74,11 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	private String database;
 
 	@ApiModelProperty("类型")
-	@Max(0L)
+	@Length(min=0, max=200)
 	@Column(name = "TYPE")
 	private String type;
 
 	@ApiModelProperty("FILED")
-	@Max(0L)
 	@Column(name = "FILED")
 	private Long filed;
 	
