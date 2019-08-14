@@ -1,12 +1,9 @@
-package com.ioc.example.job;
+package com.ioc.olap.job;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.ioc.example.job.service.CubeService;
+import com.ioc.olap.job.service.CubeService;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapTimingrefresh;
-import com.openjava.platform.mapper.kylin.CubeMapper;
 import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapTimingrefreshService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +16,7 @@ import java.util.*;
  * 定时任务例子
  */
 @Component
-public class ExampleJob {
+public class OlapJob {
 
     @Resource
     private CubeService cubeService;//注入bean（例子，按需注入）
@@ -39,7 +36,7 @@ public class ExampleJob {
     @Scheduled(cron = "${schedule.day.day}")
     public void day() throws Exception {
         System.out.println("=====> 执行定时任务-天 <=====");
-        configureTasks(2);
+        configureTasks(3);
     }
 
     @Scheduled(cron = "${schedule.month.month}")

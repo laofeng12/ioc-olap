@@ -1,4 +1,4 @@
-package com.ioc.example.job.service;
+package com.ioc.olap.job.service;
 
 import com.openjava.platform.mapper.kylin.CubeMapper;
 
