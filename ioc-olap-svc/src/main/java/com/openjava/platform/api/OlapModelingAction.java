@@ -121,13 +121,17 @@ public class OlapModelingAction extends BaseAction {
         String cubeName = cube.cubeDescData.getName();
         models.modelDescData.setName(modelName);
         cube.cubeDescData.setModel_name(modelName);
-        cube.setCubeName(modelName + "_" + cubeName);
-        cube.cubeDescData.setName(modelName + "_" + cubeName);
+        cube.setCubeName(cubeName);
+
 //        cube.setProject(userVO.getUserId());
 //        models.setProject(userVO.getUserId());
 
+//        cube.setProject("23333");
+//        models.setProject("233333");
+
         cube.setProject("learn_kylin");
         models.setProject("learn_kylin");
+
 
 
         //保存前的判断
@@ -138,29 +142,30 @@ public class OlapModelingAction extends BaseAction {
         Map<String, Object> paramMap = new HashMap<String, Object>();
 
 
-        //拿到所有project
-        Stream<ProjectDescDataMapper> projectList = projectAction.list().stream()
-                .filter(a -> a.getName().equals(userVO.getUserId()));
-        //判断是否有该用户的project
-        if (projectList == null) {
-            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
-            projectDesc.setName(userVO.getUserId());
-            projectDesc.setDescription(userVO.getUserName());
-            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
-            override.setAuthor(userVO.getUserName());
-            projectDesc.setOverride_kylin_properties(override);
-            projectAction.create(projectDesc);
-
-            //把选择的hive表放入Kylin
-            List<String> tableNameList = new ArrayList<String>();
-            for (CubeDatalaketableNewMapper datalaketableNew : body.cubeDatalaketableNew) {
-                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
-                    String name = datalaketableNew.getOrgName() + "." + table.getTableName();
-                    tableNameList.add(name);
-                }
-            }
-            hiveAction.create(tableNameList, cubeName);
-        }
+//        //拿到所有project
+//        List<ProjectDescDataMapper> projectDescList = projectAction.list();
+//        Optional<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName()
+//                                                .equals(userVO.getUserId())).findFirst();
+//        //判断是否有该用户的project
+//        if (projectList == null) {
+//            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
+//            projectDesc.setName(userVO.getUserId());
+//            projectDesc.setDescription(userVO.getUserName());
+//            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
+//            override.setAuthor(userVO.getUserName());
+//            projectDesc.setOverride_kylin_properties(override);
+//            projectAction.create(projectDesc);
+//
+//            //把选择的hive表放入Kylin
+//            List<String> tableNameList = new ArrayList<String>();
+//            for (CubeDatalaketableNewMapper datalaketableNew : body.cubeDatalaketableNew) {
+//                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
+//                    String name = datalaketableNew.getOrgName() + "." + table.getTableName();
+//                    tableNameList.add(name);
+//                }
+//            }
+//            hiveAction.create(tableNameList, cubeName);
+//        }
 
 
         if (!StringUtils.isNotBlank(body.getModels().getUuid())) {
@@ -209,7 +214,11 @@ public class OlapModelingAction extends BaseAction {
 
     //保存前的验证
     public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
-        boolean bl = true;
+        OlapCube olapCube = olapCubeService.findTableInfo(cube.cubeDescData.getName());
+        if (olapCube != null) {
+            throw new APIException("该立方体名称已存在！");
+        }
+
         //验证高级列组合是否有默认的_COUNT_
         if (cube.cubeDescData.hbase_mapping.getColumn_family().size() == 0) {
             throw new APIException("高级列组合为空！");
@@ -597,7 +606,8 @@ public class OlapModelingAction extends BaseAction {
         task.setCubeName(cubeDescData.getName());//立方体名称
         task.setFrequencytype(olapTimingrefresh.getFrequencytype());//频率类型
         task.setInterval(olapTimingrefresh.getInterval());//间隔
-        int interval = olapTimingrefresh.getInterval().intValue();
+//        int interval = olapTimingrefresh.getInterval().intValue();
+        int interval = task.getInterval().intValue();
 
 
         Date now = new Date();

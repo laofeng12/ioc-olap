@@ -44,6 +44,15 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 		return null;
 	}
 
+	public OlapCube findTableInfo(String cubeName) {
+		Optional<OlapCube> o = olapCubeRepository.findTableInfo(cubeName);
+		if (o.isPresent()) {
+			OlapCube m = o.get();
+			return m;
+		}
+		return null;
+	}
+
 	public OlapCube get(Long id) {
 		Optional<OlapCube> o = olapCubeRepository.findById(id);
 		if(o.isPresent()) {

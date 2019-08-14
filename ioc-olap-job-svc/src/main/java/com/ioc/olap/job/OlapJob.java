@@ -29,25 +29,21 @@ public class OlapJob {
 
     @Scheduled(cron = "${schedule.execution.waitqueue}")
     public void cronJob() throws Exception {
-        System.out.println("=====> 执行定时任务-小时 <=====");
         configureTasks(1);
     }
 
     @Scheduled(cron = "${schedule.day.day}")
     public void day() throws Exception {
-        System.out.println("=====> 执行定时任务-天 <=====");
         configureTasks(3);
     }
 
     @Scheduled(cron = "${schedule.month.month}")
     public void month() throws Exception {
-        System.out.println("=====> 执行定时任务-月 <=====");
         configureTasks(3);
     }
 
     @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
-        System.out.println("=====> 执行定时任务五分钟 <=====");
         cubeListTasks(100, 0);
     }
 
