@@ -155,7 +155,7 @@ public class OlapAnalyzeAction {
     @Security(session = true)
     public List<AnalyzeCubeVo> Cubes() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        List<OlapCube> cubes=olapCubeService.getListByUserId(Long.parseLong(userVO.getUserId()));
+        List<OlapCube> cubes=olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
         List<AnalyzeCubeVo> analyzeCubes=new ArrayList<AnalyzeCubeVo>();
         List<TreeVo> measures,dimensions;
         AnalyzeCubeVo analyzeCube;
