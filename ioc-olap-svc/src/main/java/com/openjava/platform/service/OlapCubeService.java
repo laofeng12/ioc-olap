@@ -19,6 +19,8 @@ public interface OlapCubeService {
 
 	OlapCube findTableInfo(String cubeName, Long createId);
 
+	OlapCube findTableInfo(String cubeName);
+
 	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 
 	OlapCube get(Long id);
