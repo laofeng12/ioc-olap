@@ -11,6 +11,9 @@ const setMeasure = {
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.measureTableList = []
+    },
     // 新增的table表
     MeasureTableList ({ state }, data) {
       return new Promise((resolve, reject) => {

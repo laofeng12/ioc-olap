@@ -6,6 +6,8 @@ import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapTimingrefresh;
 import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapTimingrefreshService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,24 +29,34 @@ public class OlapJob {
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
 
-    @Scheduled(cron = "${schedule.execution.waitqueue}")
+    private Logger logger=LoggerFactory.getLogger(OlapJob.class);
+
+    @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
+        logger.info("开始执行定时任务-小时");
         configureTasks(1);
+        logger.info("结束执行定时任务-小时");
     }
 
     @Scheduled(cron = "${schedule.day.day}")
     public void day() throws Exception {
+        logger.info("开始执行定时任务-天");
         configureTasks(3);
+        logger.info("结束执行定时任务-天");
     }
 
     @Scheduled(cron = "${schedule.month.month}")
     public void month() throws Exception {
+        logger.info("开始执行定时任务-月");
         configureTasks(3);
+        logger.info("结束执行定时任务-月");
     }
 
     @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
+        logger.info("开始执行定时任务-分钟");
         cubeListTasks(100, 0);
+        logger.info("结束执行定时任务-分钟");
     }
 
 

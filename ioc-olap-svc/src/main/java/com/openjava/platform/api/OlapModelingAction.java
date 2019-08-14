@@ -80,7 +80,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
-    public ArrayList<CubeMapper> cubeList(Integer limit, Integer offset) {
+    public List<CubeMapper> cubeList(Integer limit, Integer offset) {
         return cubeAction.list(limit, offset);
     }
 
@@ -126,12 +126,11 @@ public class OlapModelingAction extends BaseAction {
 //        cube.setProject(userVO.getUserId());
 //        models.setProject(userVO.getUserId());
 
-//        cube.setProject("23333");
-//        models.setProject("233333");
+        cube.setProject("23333");
+        models.setProject("233333");
 
-        cube.setProject("learn_kylin");
-        models.setProject("learn_kylin");
-
+//        cube.setProject("learn_kylin");
+//        models.setProject("learn_kylin");
 
 
         //保存前的判断
@@ -142,30 +141,41 @@ public class OlapModelingAction extends BaseAction {
         Map<String, Object> paramMap = new HashMap<String, Object>();
 
 
-//        //拿到所有project
-//        List<ProjectDescDataMapper> projectDescList = projectAction.list();
-//        Optional<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName()
-//                                                .equals(userVO.getUserId())).findFirst();
-//        //判断是否有该用户的project
-//        if (projectList == null) {
-//            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
-//            projectDesc.setName(userVO.getUserId());
-//            projectDesc.setDescription(userVO.getUserName());
-//            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
-//            override.setAuthor(userVO.getUserName());
-//            projectDesc.setOverride_kylin_properties(override);
-//            projectAction.create(projectDesc);
-//
-//            //把选择的hive表放入Kylin
-//            List<String> tableNameList = new ArrayList<String>();
-//            for (CubeDatalaketableNewMapper datalaketableNew : body.cubeDatalaketableNew) {
-//                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
-//                    String name = datalaketableNew.getOrgName() + "." + table.getTableName();
-//                    tableNameList.add(name);
-//                }
+        //拿到所有project
+        List<ProjectDescDataMapper> projectDescList = projectAction.list();
+
+        List<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName()
+                .equals(userVO.getUserId())).collect(Collectors.toList());
+
+//        int i = 0;
+//        for (ProjectDescDataMapper p : projectDescList) {
+//            if (p.getName().equals(userVO.getUserId())) {
+//                i = 1;
+//                break;
 //            }
-//            hiveAction.create(tableNameList, cubeName);
 //        }
+//
+
+        //判断是否有该用户的project
+        if (projectList == null) {
+            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
+            projectDesc.setName(userVO.getUserId());
+            projectDesc.setDescription(userVO.getUserName());
+            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
+            override.setAuthor(userVO.getUserName());
+            projectDesc.setOverride_kylin_properties(override);
+            projectAction.create(projectDesc);
+
+            //把选择的hive表放入Kylin
+            List<String> tableNameList = new ArrayList<String>();
+            for (CubeDatalaketableNewMapper datalaketableNew : body.cubeDatalaketableNew) {
+                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
+                    String name = datalaketableNew.getOrgName() + "." + table.getTableName();
+                    tableNameList.add(name);
+                }
+            }
+            hiveAction.create(tableNameList, cubeName);
+        }
 
 
         if (!StringUtils.isNotBlank(body.getModels().getUuid())) {
@@ -681,7 +691,7 @@ public class OlapModelingAction extends BaseAction {
             throw new APIException("网络错误！");
         }
 
-        ArrayList<CubeDescDataMapper> cube = cubeAction.desc(cubeName);
+        List<CubeDescDataMapper> cube = cubeAction.desc(cubeName);
 
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         //data分组

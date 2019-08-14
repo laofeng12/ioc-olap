@@ -14,7 +14,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 @Api(tags = "模型接口")
 @RestController
@@ -23,11 +25,11 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "获取所有模型接口")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ArrayList<ModelsDescDataMapper> list() {
+    public List<ModelsDescDataMapper> list() {
         String url = config.address + "/kylin/api/models";
-        Class<ArrayList<ModelsDescDataMapper>> clazz = (Class<ArrayList<ModelsDescDataMapper>>) new ArrayList<ModelsDescDataMapper>().getClass();
-        ArrayList<ModelsDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<ModelsDescDataMapper[]> claszz=ModelsDescDataMapper[].class;
+        ModelsDescDataMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
     @ApiOperation(value = "获取指定项目的模型")

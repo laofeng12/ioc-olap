@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.common.HttpClient;
+import com.openjava.platform.common.JsonUtil;
 import com.openjava.platform.common.Response;
 import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.mapper.kylin.*;
@@ -44,11 +45,11 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-    public ArrayList<CubeMapper> list(Integer limit, Integer offset) {
+    public List<CubeMapper> list(Integer limit, Integer offset) {
         String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
-        Class<ArrayList<CubeMapper>> clazz = (Class<ArrayList<CubeMapper>>) new ArrayList<CubeMapper>().getClass();
-        ArrayList<CubeMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<CubeMapper[]> claszz=CubeMapper[].class;
+        CubeMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
     @ApiOperation(value = "创建立方体")
@@ -79,8 +80,7 @@ public class CubeAction extends KylinAction {
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
-        Class<CubeDescNewMapper> clazz = (Class<CubeDescNewMapper>) new CubeDescNewMapper().getClass();
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
+        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
             //立方体不成功则删除models
             modelsAction.delete(modelName);
@@ -97,8 +97,7 @@ public class CubeAction extends KylinAction {
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
         hash.put("cubeName", cube.cubeName);
-        Class<CubeDescNewMapper> clazz = (Class<CubeDescNewMapper>) new CubeDescNewMapper().getClass();
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
+        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
             throw new APIException("网络错误!");
         }
@@ -107,11 +106,11 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "获取CUBE描述信息")
     @RequestMapping(value = "desc", method = RequestMethod.GET)
-    public ArrayList<CubeDescDataMapper> desc(String cubeName) {
+    public List<CubeDescDataMapper> desc(String cubeName) {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
-        Class<ArrayList<CubeDescDataMapper>> clazz = (Class<ArrayList<CubeDescDataMapper>>) new ArrayList<CubeDescDataMapper>().getClass();
-        ArrayList<CubeDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<CubeDescDataMapper[]> claszz=CubeDescDataMapper[].class;
+        CubeDescDataMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
     @ApiOperation(value = "克隆CUBE")

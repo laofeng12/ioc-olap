@@ -3,59 +3,6 @@ import Vue from 'vue'
 const setFiled = {
   state: {
     /* 维度 */
-    saveLeftFiled: {
-      'name': 'bb',
-      'description': '',
-      'fact_table': 'DAILY_MODULE',
-      lookups: [{
-        'table': 'DAILY_MODULE',
-        'alias': 'DAILY_MODULE',
-        'joinTable': 'KYLIN_CAL_DT',
-        'kind': 'LOOKUP',
-        'join': {
-          'type': 'inner',
-          'primary_key': [
-            'KYLIN_ACCOUNT.CAL_DT'
-          ],
-          'foreign_key': [
-            'KYLIN_CAL_DT.PART_DT1' // 衍生模式需要取到包含维度里
-          ],
-          'isCompatible': [
-            true
-          ],
-          'pk_type': [
-            'date'
-          ],
-          'fk_type': [
-            'date'
-          ]
-        }
-      },
-      {
-        'table': 'KYLIN_CAL_DT',
-        'alias': 'KYLIN_CAL_DT',
-        'joinTable': 'KYLIN_CATEGORY_GRO',
-        'kind': 'LOOKUP',
-        'join': {
-          'type': 'inner',
-          'primary_key': [
-            'KYLIN_CAL_DT.CAL_DT'
-          ],
-          'foreign_key': [
-            'KYLIN_CATEGORY_GRO.PART_DT2'
-          ],
-          'isCompatible': [
-            true
-          ],
-          'pk_type': [
-            'date'
-          ],
-          'fk_type': [
-            'date'
-          ]
-        }
-      }]
-    }, // 左侧的维度数据
     saveList: [],
     saveSelectFiled: [], // 存储已选择的维度
     saveFiledNormalList: [], // 存储正常模式下的数据
@@ -66,6 +13,15 @@ const setFiled = {
     saveNewSortList: [] // 存储最新分类后的维度
   },
   actions: {
+    resetList ({ state }) {
+      state.saveSelectFiled = []
+      state.saveFiledNormalList = []
+      state.saveFiledDerivativelList = []
+      state.dimensions = []
+      state.reloadNeedData = []
+      state.saveNewSortListstructure = []
+      state.saveNewSortList = []
+    },
     /**
      * 维度步骤
      */

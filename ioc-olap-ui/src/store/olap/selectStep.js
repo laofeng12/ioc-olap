@@ -12,20 +12,51 @@ const selectStep = {
     lateData: [],
     saveSelctchckoutone: [],
     saveSelctchckouttwo: [],
-    selectStepList: {
-      nodeId: '', // 库对应的key
-      orgId: '', // 库的id
-      orgName: '', // 库名
-      tableList: [
-        {
-          id: '', // 表id
-          name: '', // 表名称
-          dataType: '' // 表类型（数据湖/本地上传）
-        }
-      ]
-    },
+    // selectStepList: {
+    //   nodeId: '', // 库对应的key
+    //   orgId: '', // 库的id
+    //   orgName: '', // 库名
+    //   tableList: [
+    //     {
+    //       id: '', // 表id
+    //       name: '', // 表名称
+    //       dataType: '' // 表类型（数据湖/本地上传）
+    //     }
+    //   ]
+    // },
     saveSelectAllList: [], // 保存选择的表的所有字段
-    SaveFactData: [] // 事实表对应的所有字段
+    SaveFactData: [], // 事实表对应的所有字段
+    selectStepList:
+    [
+      {
+        'orgId': 2,
+        'orgName': 'KYLIN',
+        'tableList': [
+          {
+            'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998', // 表id
+            'table_name': 'KYLIN_SALES', // 表名称
+            'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+            'database': 'KYLIN',
+            'type': 1, // 表类型（数据湖/本地上传）
+            'filed': 0
+          }
+        ]
+      },
+      {
+        'orgId': 2,
+        'orgName': 'KYLIN',
+        'tableList': [
+          {
+            'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+            'table_name': 'KYLIN_SALES',
+            'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+            'database': 'KYLIN',
+            'type': 1,
+            'filed': 0
+          }
+        ]
+      }
+    ]
   },
   mutations: {
     GET_TREELIST: (state, data) => {
@@ -66,10 +97,30 @@ const selectStep = {
         item.tableName = list.list.joinTable
         return item
       })
-      console.log('事实表的数据', state.SaveFactData)
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.treeList = []
+      state.serchTableList = []
+      state.searchType = 1
+      state.saveSelectTable = []
+      state.saveLocalSelectTable = []
+      state.selectTableTotal = []
+      state.lastClickTab = ''
+      state.saveSelctchckoutone = []
+      state.saveSelctchckouttwo = []
+      state.saveSelectFiled = []
+      state.saveSelectFiledTree = []
+      // getters.jointResultData = {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // }
+      // getters.saveSelectFiled = []
+      // getters.saveFiledNormalList = []
+    },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
@@ -169,6 +220,48 @@ const selectStep = {
     changeSerachtype ({ commit, state }, val) {
       commit('CHANGE_SERACHTYPE', val)
     },
+    // 存储选择后的数据（传给后端的）
+    SelectStepList ({ state }, data) {
+      // state.selectStepList.tableList = state.saveSelectTable
+      let map = {}
+      let dest = []
+      let localData = []
+      data.map((item, i) => {
+        if (item.type === 2) {
+          localData.push({
+            orgId: item.orgId,
+            table_name: item.label,
+            type: item.type,
+            table_id: item.id
+          })
+        } else {
+          if (!map[item.database]) {
+            dest.push({
+              orgId: item.orgId,
+              orgName: item.database,
+              tableList: [item]
+            })
+            map[item.database] = item
+          } else {
+            for (var j = 0; j < dest.length; j++) {
+              var dj = dest[j]
+              if (dj.orgName === item.database) {
+                dj.tableList.push(item)
+                break
+              }
+            }
+          }
+        }
+      })
+      dest.map(res => {
+        res.tableList.map(n => {
+          n.table_name = n.label
+          n.table_id = n.id
+        })
+      })
+      state.selectStepList = dest
+      // console.log('李帆', state.selectStepList)
+    },
     // 存储数据湖的数据
     getSelectTableList ({ state, dispatch }, data) {
       // state.saveSelectTable = []
@@ -177,6 +270,7 @@ const selectStep = {
           state.saveSelectTable = state.saveSelectTable.concat({
             id: item.id,
             label: item.label,
+            orgId: item.orgId,
             resourceId: item.resourceId,
             database: item.database,
             type: state.searchType
@@ -184,28 +278,31 @@ const selectStep = {
         }
       })
       state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
-      state.selectStepList.tableList = state.saveSelectTable
+      dispatch('SelectStepList', state.saveSelectTable)
     },
     // 删除数据胡对应的数据
-    delSelectTableList ({ state }, data) {
+    delSelectTableList ({ state, dispatch }, data) {
       state.saveSelectTable.map((item, index) => {
         if (data.delData.id === item.id) {
           state.saveSelectTable.splice(index, 1)
         }
       })
-      console.log('选择的', state.saveSelectTable)
+      dispatch('SelectStepList', state.saveSelectTable)
     },
     // 存储本地上传的数据
-    getLocalSelectTableList ({ state }, data) {
+    getLocalSelectTableList ({ state, dispatch }, data) {
       state.saveLocalSelectTable = []
       data.map(item => {
         if (!item.children) {
           state.saveLocalSelectTable.push({
             id: item.id,
-            label: item.label
+            label: item.label,
+            database: 'fan',
+            type: 2
           })
         }
       })
+      dispatch('SelectStepList', state.saveLocalSelectTable)
     },
     // 设置已选择的表的总数据
     setSelectTableTotal ({ commit, state }) {
