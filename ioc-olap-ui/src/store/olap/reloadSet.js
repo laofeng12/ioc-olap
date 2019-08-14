@@ -13,6 +13,18 @@ const reloadSet = {
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.relaodFilterList = []
+      state.reloadData = {
+        autoReload: false,
+        dataMany: false,
+        partition_date_column: '',
+        partition_date_format: '',
+        partition_time_format: '',
+        INTERVAL: '',
+        frequencytype: 1
+      }
+    },
     // 新增的过滤表
     ReloadFilterTableList ({ state }, data) {
       return new Promise((resolve, reject) => {

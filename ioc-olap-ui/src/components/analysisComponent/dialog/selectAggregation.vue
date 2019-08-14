@@ -76,6 +76,7 @@ export default {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
       this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+      console.log(this.saveselectIncludesData)
       this.index = index
       this.type = type
       this.findIndex = findIndex

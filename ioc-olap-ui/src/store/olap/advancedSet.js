@@ -45,6 +45,18 @@ const advancedSet = {
     } // rowkeys设置
   },
   actions: {
+    resetList ({ state }) {
+      state.relaodFilterList = []
+      state.reloadData = {
+        autoReload: false,
+        dataMany: false,
+        partition_date_column: '',
+        partition_date_format: '',
+        partition_time_format: '',
+        INTERVAL: '',
+        frequencytype: 1
+      }
+    },
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
       // dispatch('WithidGetList', slectData.data)
@@ -52,7 +64,7 @@ const advancedSet = {
         case 1:
           state.aggregation_groups[slectData.index].includes = slectData.data
           state.selectDataidList[slectData.index].includesId = slectData.data
-          // dispatch('SaveselectIncludesData', slectData.data)
+          dispatch('SaveselectIncludesData', slectData.data)
           break
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data

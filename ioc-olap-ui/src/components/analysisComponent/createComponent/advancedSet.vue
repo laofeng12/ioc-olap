@@ -237,6 +237,9 @@ export default {
       })
     },
     nextModel (val) {
+      console.log(this.hbase_mapping.column_family)
+      if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
+      if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family.columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/completeCreate')
     },

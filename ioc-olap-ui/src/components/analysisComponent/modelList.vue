@@ -194,7 +194,7 @@ export default {
         })
         return
       }
-      this.$refs[val.type].dialog()
+      this.$refs[val.type].dialog(val.params)
     },
     closeExpands () {
       this.expands = []

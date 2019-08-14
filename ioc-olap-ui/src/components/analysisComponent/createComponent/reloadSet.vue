@@ -7,7 +7,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.autoReload"
+                v-model.number="formData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -131,7 +131,7 @@ export default {
         partition_date_format: '', // 第一条数据
         partition_time_column: '',
         partition_time_format: '',
-        INTERVAL: '',
+        interval: null,
         frequencytype: 1
       },
       tableOptions: [
@@ -179,7 +179,6 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      console.log(this.formData, '=========', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -216,11 +215,17 @@ export default {
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
-      this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-        if (res) {
-          this.textOptions = res.data.columns
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === valId[0].id) {
+          this.textOptions = items.data.columns
         }
       })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
+      //   if (res) {
+      //     this.textOptions = res.data.columns
+      //   }
+      // })
     },
     handleChange (val) {
       let idx = val.$index
@@ -254,6 +259,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
       reloadData: 'reloadData',
+      saveSelectAllList: 'saveSelectAllList',
       totalSaveData: 'totalSaveData'
     })
   }
