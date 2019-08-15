@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,7 +19,10 @@ import java.util.Optional;
  */
 public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>, OlapCubeRepositoryCustom{
 
-    ArrayList<OlapCube> findByCreateId(Long userId);
+//    ArrayList<OlapCube> findByUserId(Long userId);
+
+    @Query(value = "select t.* from OLAP_CUBE t where  t.CREATE_ID=:createId", nativeQuery = true)
+    List<OlapCube> findByUserId(@Param("createId") Long createId);
 
     ArrayList<OlapCube> findAll();
 

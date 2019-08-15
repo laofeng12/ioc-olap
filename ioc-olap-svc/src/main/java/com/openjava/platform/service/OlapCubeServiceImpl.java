@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
+import com.openjava.platform.domain.OlapTimingrefresh;
 import com.openjava.platform.query.OlapCubeDBParam;
 import com.openjava.platform.repository.OlapCubeRepository;
 import org.springframework.data.domain.Page;
@@ -78,8 +79,8 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	}
 
 	@Override
-	public ArrayList<OlapCube> getListByUserId(Long userId) {
-		return olapCubeRepository.findByCreateId(userId);
+	public List<OlapCube> findByUserId(Long createId) {
+		return olapCubeRepository.findByUserId(createId);
 	}
 
 	@Override

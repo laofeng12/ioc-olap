@@ -30,7 +30,7 @@ public interface OlapCubeService {
 	void doDelete(Long id);
 	void doRemove(String ids);
 
-    ArrayList<OlapCube> getListByUserId(Long userId);
+	List<OlapCube> findByUserId(Long createId);
 
 	List<OlapCube> findAll();
 
