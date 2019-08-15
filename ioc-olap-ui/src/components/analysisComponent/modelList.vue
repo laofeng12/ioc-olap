@@ -79,6 +79,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- <element-pagination :total="totalCount" :pageSize="pageSize" :currentPage="currentPage" @handleCurrentChange="handleCurrentChange" @handleSizeChange="handleSizeChange"></element-pagination> -->
       <rename ref="rename"></rename>
       <construct ref="construct"></construct>
       <reloads ref="reloads"></reloads>
@@ -90,10 +91,11 @@
 <script>
 import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
+import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
 export default {
   components: {
-    modelDetail, rename, construct, reloads, merge, sharedTable
+    modelDetail, rename, construct, reloads, merge, sharedTable, elementPagination
   },
   data () {
     return {
@@ -118,15 +120,20 @@ export default {
     }
   },
   mounted () {
-    const params = {
-      limit: 15,
-      offset: 0
-    }
-    getModelDataList(params).then(res => {
-      this.tableData = res
-    })
+    this.init()
   },
   methods: {
+    init () {
+      this.getLoading = true
+      const params = {
+        limit: 15,
+        offset: 0
+      }
+      getModelDataList(params).then(res => {
+        this.tableData = res
+        this.getLoading = false
+      })
+    },
     searchFetch (val) {
       console.log(val)
     },
@@ -194,10 +201,39 @@ export default {
         })
         return
       }
+      if (val.type === 'construct') {
+        if (val.params.segments.length > 0 && val.params.partitionDateColumn) {
+          this.$refs['construct'].dialog(val.params)
+        } else {
+          this.$confirm('是否构建该模型', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let parmas = {
+              cubeName: val.params.name,
+              start: 0,
+              end: 0
+            }
+            buildModeling(parmas).then(res => {
+              console.log(res)
+            })
+          })
+        }
+        return
+      }
       this.$refs[val.type].dialog(val.params)
     },
     closeExpands () {
       this.expands = []
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val
+      this.init()
+    },
+    handleSizeChange (val) {
+      this.pageSize = val
+      this.init()
     },
     handleSelectionChange () {
 

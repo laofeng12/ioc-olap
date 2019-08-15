@@ -174,7 +174,6 @@ export default {
       // debugger
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
-      console.log(this.jointResultData)
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1

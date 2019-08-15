@@ -52,8 +52,8 @@ const common = {
             // 'partition_date_column': null, // 表
             // 'partition_type': 'APPEND' // 字段
             // // 'partition_date_format': null // 日期
-          },
-          'last_modified': 0
+          }
+          // 'last_modified': 0
         }
       },
       cube: {
