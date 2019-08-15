@@ -3,6 +3,7 @@ package com.openjava.platform.api.kylin;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.openjava.platform.common.HttpClient;
+import com.openjava.platform.common.JsonUtil;
 import com.openjava.platform.common.Response;
 import com.openjava.platform.mapper.kylin.ProjectDescDataMapper;
 import com.openjava.platform.mapper.kylin.ProjectMapper;
@@ -10,8 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 @Api(tags = "项目接口")
 @RestController
@@ -20,11 +24,11 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "获取所有的project数据")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ArrayList<ProjectDescDataMapper> list() {
+    public List<ProjectDescDataMapper> list() {
         String url = config.address + "/kylin/api/projects";
-        Class<ArrayList<ProjectDescDataMapper>> clazz = (Class<ArrayList<ProjectDescDataMapper>>) new ArrayList<ProjectDescDataMapper>().getClass();
-        ArrayList<ProjectDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<ProjectDescDataMapper[]> claszz=ProjectDescDataMapper[].class;
+        ProjectDescDataMapper[] result=HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
 

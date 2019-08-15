@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.common.HttpClient;
+import com.openjava.platform.common.JsonUtil;
 import com.openjava.platform.common.Response;
 import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.mapper.kylin.*;
@@ -44,30 +45,30 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-    public ArrayList<CubeMapper> list(Integer limit, Integer offset) {
+    public List<CubeMapper> list(Integer limit, Integer offset) {
         String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
-        Class<ArrayList<CubeMapper>> clazz = (Class<ArrayList<CubeMapper>>) new ArrayList<CubeMapper>().getClass();
-        ArrayList<CubeMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<CubeMapper[]> claszz = CubeMapper[].class;
+        CubeMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
     @ApiOperation(value = "创建立方体")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public CubeDescNewMapper create(CubeDescMapper cube, String modelName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-//        //写死一组COUNT
-//        MeasureMapper measire = new MeasureMapper();
-//        measire.setName("_COUNT_");
-//        measire.setShowDim(true);
-//        FunctionMapper function = new FunctionMapper();
-//        function.setExpression("COUNT");
-//        function.setReturntype("bigint");
-//        ParameterMapper parameter = new ParameterMapper();
-//        parameter.setType("constant");
-//        parameter.setValue("1");
-//        function.setParameter(parameter);
-//        measire.setFunction(function);
-//        cube.cubeDescData.measures.add(measire);
+        //写死一组COUNT
+        MeasureMapper measire = new MeasureMapper();
+        measire.setName("_COUNT_");
+        measire.setShowDim(true);
+        FunctionMapper function = new FunctionMapper();
+        function.setExpression("COUNT");
+        function.setReturntype("bigint");
+        ParameterMapper parameter = new ParameterMapper();
+        parameter.setType("constant");
+        parameter.setValue("1");
+        function.setParameter(parameter);
+        measire.setFunction(function);
+        cube.cubeDescData.measures.add(measire);
 //
 //        for (MeasureMapper measure : cube.cubeDescData.measures) {
 //            if (measure.function.getExpression().equals("AVG")) {
@@ -79,8 +80,7 @@ public class CubeAction extends KylinAction {
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
-        Class<CubeDescNewMapper> clazz = (Class<CubeDescNewMapper>) new CubeDescNewMapper().getClass();
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
+        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
             //立方体不成功则删除models
             modelsAction.delete(modelName);
@@ -97,8 +97,7 @@ public class CubeAction extends KylinAction {
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
         hash.put("cubeName", cube.cubeName);
-        Class<CubeDescNewMapper> clazz = (Class<CubeDescNewMapper>) new CubeDescNewMapper().getClass();
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
+        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
             throw new APIException("网络错误!");
         }
@@ -107,16 +106,16 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "获取CUBE描述信息")
     @RequestMapping(value = "desc", method = RequestMethod.GET)
-    public ArrayList<CubeDescDataMapper> desc(String cubeName) {
+    public List<CubeDescDataMapper> desc(String cubeName) {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
-        Class<ArrayList<CubeDescDataMapper>> clazz = (Class<ArrayList<CubeDescDataMapper>>) new ArrayList<CubeDescDataMapper>().getClass();
-        ArrayList<CubeDescDataMapper> result = HttpClient.get(url, config.authorization, clazz);
-        return result;
+        Class<CubeDescDataMapper[]> claszz = CubeDescDataMapper[].class;
+        CubeDescDataMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
     }
 
     @ApiOperation(value = "克隆CUBE")
     @RequestMapping(value = "clone", method = RequestMethod.PUT)
-    public void clone(String cubeName, String projectName) {
+    public void clone(String cubeName, String projectName)  throws Exception {
         String url = config.address + "/kylin/api/cubes/myCube/clone";
         HashMap<String, String> hash = new HashMap<String, String>();
         hash.put("cubeName", cubeName);
@@ -126,49 +125,59 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "编译CUBE")
     @RequestMapping(value = "build", method = RequestMethod.PUT)
-    public void build(String cubeName, Date start, Date end) {
+    public void build(String cubeName, Long start, Long end) throws Exception {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
         hash.put("buildType", "BUILD");
-        hash.put("startTime", start.getTime());
-        hash.put("endTime", end.getTime());
+        hash.put("startTime", start);
+        hash.put("endTime", end);
         HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "刷新CUBE")
     @RequestMapping(value = "refresh", method = RequestMethod.PUT)
-    public void refresh(String cubeName, Date start, Date end) {
+    public void refresh(String cubeName, Long start, Long end) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
         hash.put("buildType", "REFRESH");
-        hash.put("startTime", start.getTime());
-        hash.put("endTime", end.getTime());
+        hash.put("startTime", start);
+        hash.put("endTime", end);
         HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "合并CUBE")
     @RequestMapping(value = "merge", method = RequestMethod.PUT)
-    public void merge(String cubeName, Date start, Date end) {
+    public void merge(String cubeName, Long start, Long end) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
         hash.put("buildType", "MERGE");
-        hash.put("startTime", start.getTime());
-        hash.put("endTime", end.getTime());
+        hash.put("startTime", start);
+        hash.put("endTime", end);
         HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "禁用CUBE")
     @RequestMapping(value = "disable", method = RequestMethod.PUT)
-    public void disable(String cubeName) {
-        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/disable", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, String.class);
+    public boolean disable(String cubeName) {
+        try {
+            String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/disable", config.address, cubeName);
+            HttpClient.put(url, "", config.authorization, String.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @ApiOperation(value = "启用CUBE")
     @RequestMapping(value = "enable", method = RequestMethod.PUT)
-    public void enable(String cubeName) {
-        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/enable", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, String.class);
+    public boolean enable(String cubeName) {
+        try {
+            String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/enable", config.address, cubeName);
+            HttpClient.put(url, "", config.authorization, String.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @ApiOperation(value = "查询立方体数据")

@@ -20,13 +20,13 @@ import org.springframework.data.domain.Pageable;
  */
 public interface OlapAnalyzeService {
 	Page<OlapAnalyze> query(OlapAnalyzeDBParam params, Pageable pageable);
-	
+
 	List<OlapAnalyze> queryDataOnly(OlapAnalyzeDBParam params, Pageable pageable);
-	
+
 	OlapAnalyze get(Long id);
-	
+
 	OlapAnalyze doSave(OlapAnalyze m);
-	
+
 	void doDelete(Long id);
 	void doRemove(String ids);
 
@@ -43,4 +43,8 @@ public interface OlapAnalyzeService {
 	AnyDimensionVo query(Long analyzeId, Long cubeId,String userId) throws APIException;
 
     QueryResultMapper queryDimension(Long tableId, Long columnId, Long userId,String key,Integer offeset,Integer limit) throws APIException;
+
+    AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long cubeId, List<AnalyzeAxisVo> axises, String userId) throws APIException;
+
+	AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId, String userId) throws APIException;
 }

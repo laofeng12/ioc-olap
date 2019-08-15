@@ -1,27 +1,24 @@
-package com.ioc.example.job;
+package com.ioc.olap.job;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.ioc.example.job.service.CubeService;
+import com.ioc.olap.job.service.CubeService;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapTimingrefresh;
-import com.openjava.platform.mapper.kylin.CubeMapper;
 import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapTimingrefreshService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 定时任务例子
  */
 @Component
-public class ExampleJob {
+public class OlapJob {
 
     @Resource
     private CubeService cubeService;//注入bean（例子，按需注入）
@@ -32,28 +29,34 @@ public class ExampleJob {
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
 
-/*    @Scheduled(cron = "${schedule.execution.waitqueue}")
+    private Logger logger=LoggerFactory.getLogger(OlapJob.class);
+
+    @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
-        System.out.println("=====> 执行定时任务-小时 <=====");
+        logger.info("开始执行定时任务-小时");
         configureTasks(1);
+        logger.info("结束执行定时任务-小时");
     }
 
     @Scheduled(cron = "${schedule.day.day}")
     public void day() throws Exception {
-        System.out.println("=====> 执行定时任务-天 <=====");
-        configureTasks(2);
+        logger.info("开始执行定时任务-天");
+        configureTasks(3);
+        logger.info("结束执行定时任务-天");
     }
 
     @Scheduled(cron = "${schedule.month.month}")
     public void month() throws Exception {
-        System.out.println("=====> 执行定时任务-月 <=====");
+        logger.info("开始执行定时任务-月");
         configureTasks(3);
-    }*/
+        logger.info("结束执行定时任务-月");
+    }
 
-    @Scheduled(cron = "${schedule.minute.minute}")
+    @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
-        System.out.println("=====> 执行定时任务-分钟 <=====");
-        cubeListTasks(100, 0);
+        logger.info("开始执行定时任务-分钟");
+        cubeListTasks();
+        logger.info("结束执行定时任务-分钟");
     }
 
 
@@ -90,41 +93,50 @@ public class ExampleJob {
         }
     }
 
-    private void cubeListTasks(Integer limit, Integer offset) throws Exception {
-        List<CubeMapper> result = cubeService.list(limit,offset);
+    private void cubeListTasks() throws Exception {
+        Integer limit=1000;
+        Integer offset=0;
+        ArrayList<HashMap> result=new ArrayList<HashMap>();
+        while(true){
+            ArrayList<HashMap> dateList = cubeService.list(limit,offset);
+            if(dateList.size()==0)
+            {
+                break;
+            }
+            result.addAll(dateList);
+            offset=offset+limit;
 
-        if (result != null) {
+        }
+        if (result.size()!=0) {
             //遍历列表
             for (int i=0;i< result.size();i++) {
-            //    CubeMapper data =new CubeMapper();
-           //     data =(CubeMapper) result.get(i);  //一行数据
-                //CubeMapper s=(CubeMapper) data;
-                //String cubeName=s.getName().toString();
+                String cubeName=result.get(i).get("name").toString();
+                String status=result.get(i).get("status").toString();
 
-                CubeMapper data = JSON.parseObject(JSONObject.toJSONString(result.get(0),true),CubeMapper.class);
-
-                String cubeName= data.getName();
-
-                OlapCube m=olapCubeService.findTableInfo("821319716070047_123456789",392846190550001l);
-
+                List<OlapCube> m=olapCubeService.findAll();
                 if(m!=null) {
-                    if (result.get(i).getStatus().equals("FINISHED")) {
-                        if (m.getFlags() != 1) {
-                            Date now = new Date();
-                            m.setFlags(1);
-                            m.setUpdateTime(now);
-                            olapCubeService.doSave(m);
-                        }
-                    } else {
-                        if (m.getFlags() != 0) {
-                            Date now = new Date();
-                            m.setFlags(0);
-                            m.setUpdateTime(now);
-                            olapCubeService.doSave(m);
-                            //olapCubeService.updateFlags(cm.getName(), 0);
+                    for (OlapCube fc : m){
+                    //for (int j=0;i< m.size();j++) {
+                        if(fc.getName().equals(cubeName)) {
+                            if (status.equals("READY")) {
+                                if (fc.getFlags() != 1) {
+                                    Date now = new Date();
+                                    fc.setFlags(1);
+                                    fc.setUpdateTime(now);
+                                    olapCubeService.doSave(fc);
+                                }
+                            }
+                            else {
+                                if (fc.getFlags() != 0) {
+                                    Date now = new Date();
+                                    fc.setFlags(0);
+                                    fc.setUpdateTime(now);
+                                    olapCubeService.doSave(fc);
+                                }
+                            }
                         }
                     }
-               }
+                }
             }
         }
     }

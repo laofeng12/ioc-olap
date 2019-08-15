@@ -23,6 +23,7 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
+import { throttle } from '@/utils/index'
 export default {
   components: {
     steps
@@ -92,26 +93,29 @@ export default {
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
       this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
-      this.totalSaveData.timingreFresh.INTERVAL = this.reloadData.INTERVAL
+      this.totalSaveData.timingreFresh.interval = Number(this.reloadData.INTERVAL)
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
-      this.totalSaveData.selectStepList = this.selectStepList
+      this.totalSaveData.cubeDatalaketableNew = this.selectStepList
       console.log(this.totalSaveData, '高级', this.selectStepList)
     },
     nextModel (val) {
       // this.$message.error('暂未完成')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true
-        saveolapModeldata(this.totalSaveData).then(res => {
-          if (res.CubeList) {
-            this.$message.success('保存成功~')
+        throttle(() => {
+          saveolapModeldata(this.totalSaveData).then(res => {
+            if (res.CubeList) {
+              this.$message.success('保存成功~')
+              this.completeLoading = false
+              this.$router.push('/analysisModel/Configuration')
+              this.$store.dispatch('resetList')
+            }
+          }).finally(_ => {
             this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-          }
-        }).finally(_ => {
-          this.completeLoading = false
-        })
+          })
+        }, 1000)
       } else {
         this.$message.warning('请填写模型名称~')
       }

@@ -60,6 +60,7 @@ export default {
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
       selectTableTotal: 'selectTableTotal',
+      selectStepList: 'selectStepList',
       serchTableList: 'serchTableList'
     })
   },

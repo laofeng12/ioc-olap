@@ -1,19 +1,14 @@
 package com.openjava.platform.api.kylin;
 
 import com.alibaba.fastjson.JSON;
-import com.openjava.platform.api.BaseAction;
 import com.openjava.platform.common.HttpClient;
-import com.openjava.platform.common.KylinConfig;
-import com.openjava.platform.mapper.kylin.HiveMapper;
-import com.openjava.platform.mapper.kylin.ProjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.ljdp.component.result.ApiResponse;
-import org.ljdp.component.result.BasicApiResponse;
+import org.ljdp.component.exception.APIException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,14 +25,17 @@ public class HiveAction extends KylinAction {
         return result;
     }
 
-
     @ApiOperation(value = "添加hive库的表到kylin")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public void create(@RequestBody HiveMapper body) {
-        String TableName = StringUtils.join(body.tableNameArr, ",") + ",";
-        String url = config.address + "/kylin/api/tables/" + TableName + "/" + body.libraryName;
-        HashMap hash = new HashMap();
-        hash.put("projectDescData", body.calculate);
-        HttpClient.post(url, JSON.toJSONString(hash), config.authorization, String.class);
+    public void create(List<String> tableNameList, String cubeName) throws APIException {
+        try {
+            String TableName = StringUtils.join(tableNameList, ",") + ",";
+            String url = config.address + "/kylin/api/tables/" + TableName + "/" + cubeName;
+            HashMap hash = new HashMap();
+            hash.put("calculate", true);
+            HttpClient.post(url, JSON.toJSONString(hash), config.authorization, String.class);
+        } catch (Exception e) {
+            throw new APIException("拉取表信息错误！");
+        }
     }
 }
