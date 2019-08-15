@@ -55,7 +55,7 @@ public class OlapJob {
     @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
         logger.info("开始执行定时任务-分钟");
-        cubeListTasks(100, 0);
+        cubeListTasks();
         logger.info("结束执行定时任务-分钟");
     }
 
@@ -93,10 +93,21 @@ public class OlapJob {
         }
     }
 
-    private void cubeListTasks(Integer limit, Integer offset) throws Exception {
-        ArrayList<HashMap> result = cubeService.list(limit,offset);
+    private void cubeListTasks() throws Exception {
+        Integer limit=1000;
+        Integer offset=0;
+        ArrayList<HashMap> result=new ArrayList<HashMap>();
+        while(true){
+            ArrayList<HashMap> dateList = cubeService.list(limit,offset);
+            if(dateList.size()==0)
+            {
+                break;
+            }
+            result.addAll(dateList);
+            offset=offset+limit;
 
-        if (result != null) {
+        }
+        if (result.size()!=0) {
             //遍历列表
             for (int i=0;i< result.size();i++) {
                 String cubeName=result.get(i).get("name").toString();

@@ -5,6 +5,7 @@ import com.openjava.platform.common.HttpClient;
 import com.openjava.platform.mapper.kylin.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
@@ -19,14 +20,17 @@ public class JobsAction extends KylinAction {
 
     @ApiOperation(value = "获取正在执行的作业")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public JobsMapper[] list(String jobSearchMode, Long limit, Long offset, String projectName, Long timeFilter) {
-        String url = config.address + "/kylin/api/jobs";
+    public JobsMapper[] list(Long limit, Long offset, String projectName, String cubeName) {
+        String url = config.address + "/kylin/api/jobs?";
         StringBuffer sBuffer = new StringBuffer(url);
-        sBuffer.append("?jobSearchMode=" + jobSearchMode);
+        if (StringUtils.isNotBlank(cubeName)) {
+            sBuffer.append("cubeName=" + cubeName);
+        }
+        sBuffer.append("jobSearchMode=ALL");
         sBuffer.append("&limit=" + limit);
         sBuffer.append("&offset=" + offset);
         sBuffer.append("&projectName=" + projectName);
-        sBuffer.append("&timeFilter=" + timeFilter);
+        sBuffer.append("&timeFilter=1");
         url = sBuffer.toString();
         Class<JobsMapper[]> clazz = JobsMapper[].class;
         JobsMapper[] result = HttpClient.get(url, config.authorization, clazz);
