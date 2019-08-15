@@ -219,8 +219,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@ApiOperation(value = "导出即时查询", nickname="export", notes = "报文格式：content-type=application/download")
 	@RequestMapping(value="/export",method= RequestMethod.GET)
 	@Security(session=true)
-	public void export(String sql,Integer limit, HttpServletResponse response)
-	{
+	public void export(String sql,Integer limit, HttpServletResponse response) throws Exception {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		QueryResultMapper mapper=cubeAction.query(sql,0,limit,"learn_kylin");
 		Export.dualDate(mapper,response);
