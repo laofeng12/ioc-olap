@@ -186,7 +186,7 @@ public class Export {
     }
 
     public static boolean dualAnyDimensionVoDate(AnyDimensionVo anyDimensionVo, HttpServletResponse response) throws Exception {
-        ArrayList<ArrayList<AnyDimensionCellVo>> results =anyDimensionVo.getResults();//获取到的results数据
+        List<ArrayList<AnyDimensionCellVo>> results =anyDimensionVo.getResults();//获取到的results数据
         String fileName = "olap分析数据"+System.currentTimeMillis();;
         getExportedFile(fileName,response);
 
