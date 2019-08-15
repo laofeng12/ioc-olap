@@ -46,7 +46,7 @@ const getters = {
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId,
   /* */
   saveFolderList: state => state.analysis.saveFolderList,
-  cubeId: state => state.analysis.cubeId,
+  cubeData: state => state.analysis.cubeData,
   newValueList: state => state.analysis.newValueList,
   newFilterList: state => state.analysis.newFilterList,
   newRowList: state => state.analysis.newRowList,
