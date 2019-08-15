@@ -1,30 +1,17 @@
 <template>
   <div class="con" :style="`width: ${tableBoxWidth}px; height: ${tableBoxHeight}px`">
     <div class="showCon">
-      <!--<el-table :data="tableData">-->
-        <!--<el-table-column v-for="(item, index) in theadData" :key="index" :property="`column${index+1}`"-->
-                         <!--:label="item.label" min-width="150" align="center"></el-table-column>-->
-      <!--</el-table>-->
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
-        <tr v-for="(item, index) in tableData" :key="index">
-          <td v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
-              :class="`${ (tdItem.type === 'th' || tdItem.type !== 4) && 'table-header' }`"
-              :rowspan="tdItem.rowspan" :key="`${index}-${tdIndex}`">
-            <div class="cell">
-              {{tdItem.value}}
-            </div>
-          </td>
-          <!--<td v-show="sumsData.rowSum===true">-->
-            <!--<div class="cell">-->
-              <!--{{sumRowList[index]}}-->
-            <!--</div>-->
-          <!--</td>-->
-        </tr>
-        <!--列汇总-->
-        <!--<tr v-show="sumsData.colSum===true">-->
-          <!--<td :class="{'table-body-header': index===0}" v-for="(item,index) in  sumColList" :key="index">{{item}}</td>-->
-        <!--</tr>-->
+          <tr v-for="(item, index) in tableData" :key="index">
+            <td v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
+                :class="`${ (tdItem.type === 'th' || tdItem.type !== 4) && 'table-header' } ${(tdItem.type === 4 && canClick) && 'cur-pointer'}`"
+                :rowspan="tdItem.rowspan" :key="`${index}-${tdIndex}`" @click="`${(tdItem.type === 4 && canClick) && tdClick(tdItem, canClick)}`">
+              <div class="cell">
+                {{tdItem.value}}
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -38,10 +25,9 @@ export default {
       type: Array,
       required: true
     },
-    // theadData: {
-    //   type: Array,
-    //   required: true
-    // },
+    canClick: {
+      default: false
+    },
     diffWidth: {
       type: Number,
       default: 536
@@ -62,7 +48,11 @@ export default {
     this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
     this.tableBoxHeight = document.body.offsetHeight - 141
   },
-  methods: {}
+  methods: {
+    tdClick (item, type) {
+      this.$emit('tdClick', item, type)
+    }
+  }
 }
 </script>
 
@@ -89,7 +79,13 @@ export default {
           background-color: #f4f9fb;
           font-weight: bold;
         }
+        .cur-pointer {
+          cursor: pointer;
+        }
       }
     }
+  }
+  .mar-center {
+    margin: 0 auto;
   }
 </style>

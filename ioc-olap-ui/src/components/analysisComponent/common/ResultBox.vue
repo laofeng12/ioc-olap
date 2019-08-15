@@ -26,14 +26,19 @@
                      @click="changeRowAndColFunc">
             行列转换
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleTransverseDrillDown">
+            横行下钻
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleDrillDown">
+            下钻
+          </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
           <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"
+                    :canClick="(drillDown && 'drillDown') || (transversedrillDown && 'transversedrillDown')" @tdClick="tdClick"></DynamicTable>
     </div>
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
@@ -56,6 +61,22 @@
         <el-button type="primary" @click="submitNewForm()">确 定</el-button>
       </div>
     </el-dialog>
+    <!--<el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">-->
+      <!--<div class="treeContent">-->
+        <!--<div class="box">-->
+          <!--<div class="title">维度</div>-->
+          <!--<el-tree class="tree" :data="cubeData.dimensures" show-checkbox :props="treeDefault"></el-tree>-->
+        <!--</div>-->
+        <!--<div class="box">-->
+          <!--<div class="title">指标</div>-->
+          <!--<el-tree class="tree" :data="cubeData.measures" show-checkbox :props="treeDefault"></el-tree>-->
+        <!--</div>-->
+      <!--</div>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="treeVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
     <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
       <el-table :data="shareList" max-height="250" border style="width: 100%">
         <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
@@ -128,13 +149,20 @@ export default {
           { required: true, message: '请选择文件夹', trigger: 'change' }
         ]
       },
-      showShareListVisible: false
+      showShareListVisible: false,
+      // treeVisible: false,
+      // treeDefault: {
+      //   children: 'children',
+      //   label: 'name'
+      // },
+      drillDown: false,
+      transversedrillDown: false
     }
   },
   computed: {
     ...mapGetters([
       'saveFolderList',
-      'cubeId',
+      'cubeData',
       'newValueList',
       'newFilterList',
       'newRowList',
@@ -159,7 +187,7 @@ export default {
       const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
       const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
-      this.$emit('searchFunc', list, this.cubeId)
+      this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.newRowList, cItems: this.newColList })
     },
     submitNewForm () {
       this.$refs.newForm.validate(async (valid) => {
@@ -222,6 +250,19 @@ export default {
     },
     changeRowAndColFunc () {
       this.$emit('changeRowAndColFunc')
+    },
+    toggleDrillDown () {
+      this.transversedrillDown = false
+      this.drillDown = !this.drillDown
+      this.$message.success(`已${this.drillDown ? '开启' : '关闭'}下钻`)
+    },
+    toggleTransverseDrillDown () {
+      this.drillDown = false
+      this.transversedrillDown = !this.transversedrillDown
+      this.$message.success(`已${this.transversedrillDown ? '开启' : '关闭'}横向下钻`)
+    },
+    tdClick (item, type) {
+      this.$emit('tdClick', item, type)
     }
   }
 }
@@ -246,4 +287,16 @@ export default {
       }
     }
   }
+  /*.treeContent {*/
+    /*border: 1px #ddd solid;*/
+    /*padding: 0 15px 15px 15px;*/
+    /*box-sizing: border-box;*/
+    /*max-height: 300px;*/
+    /*overflow: auto;*/
+    /*.box {*/
+      /*.title {*/
+        /*margin: 10px 0;*/
+      /*}*/
+    /*}*/
+  /*}*/
 </style>

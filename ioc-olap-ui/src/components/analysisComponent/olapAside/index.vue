@@ -334,6 +334,10 @@ export default {
     },
     editData (val) {
       this.selectCubeId = val.cubeId
+      this.rItems = []
+      this.cItems = []
+      this.nItems = []
+      this.bItems = []
       val.olapAnalyzeAxes.forEach(v => {
         switch (v.type) {
           case 1:
@@ -350,7 +354,11 @@ export default {
             break
         }
       })
-      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId)
+      const headLimit = {
+        rItems: this.rItems,
+        cItems: this.cItems
+      }
+      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId, headLimit)
     }
   },
   mounted () {
@@ -366,7 +374,7 @@ export default {
     },
     changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]
-      this.$store.dispatch('getCubeIdAction', cubeId)
+      this.$store.dispatch('getCubeDataAction', { dimensures, measures, cubeId })
       let dimensuresList = []
       let measuresList = []
       dimensures.forEach(item => {
@@ -681,7 +689,7 @@ export default {
       const newRowList = this.rItems.length > 0 ? this.rItems.map(v => Object.assign({}, v, { type: 1 })) : []
       const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
-      this.$emit('searchFunc', list, this.cubeId)
+      this.$emit('searchFunc', list, this.cubeId, { rItems: this.rItems, cItems: this.cItems })
     }
   }
 }
