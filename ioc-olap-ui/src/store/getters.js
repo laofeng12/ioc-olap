@@ -43,6 +43,7 @@ const getters = {
   savedimensionDataId: state => state.advancedSet.savedimensionDataId,
   rowkeyData: state => state.advancedSet.rowkeyData,
   engine_types: state => state.advancedSet.engine_types,
+  recordingData: state => state.advancedSet.recordingData,
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId,
   /* */
   saveFolderList: state => state.analysis.saveFolderList,
@@ -50,6 +51,8 @@ const getters = {
   newValueList: state => state.analysis.newValueList,
   newFilterList: state => state.analysis.newFilterList,
   newRowList: state => state.analysis.newRowList,
-  newColList: state => state.analysis.newColList
+  newColList: state => state.analysis.newColList,
+  /** modelList */
+  cubeObjListData: state => state.modelList.cubeObjListData
 }
 export default getters

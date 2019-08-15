@@ -33,7 +33,6 @@
 
 <script>
 import { buildModeling } from '@/api/modelList'
-import { throttle } from '@/utils/index'
 export default {
   data () {
     return {
@@ -57,7 +56,7 @@ export default {
           start: Date.parse(new Date(this.form.startTime)) / 1000,
           end: Date.parse(new Date(this.form.endTime)) / 1000
         }
-        throttle(() => {
+        this.$throttle(() => {
           buildModeling(parmas).then(res => {
             console.log(res)
           })

@@ -80,7 +80,7 @@
         </el-table-column>
       </el-table>
       <!-- <element-pagination :total="totalCount" :pageSize="pageSize" :currentPage="currentPage" @handleCurrentChange="handleCurrentChange" @handleSizeChange="handleSizeChange"></element-pagination> -->
-      <rename ref="rename"></rename>
+      <clones ref="clones"></clones>
       <construct ref="construct"></construct>
       <reloads ref="reloads"></reloads>
       <merge ref="merge"></merge>
@@ -90,12 +90,12 @@
 
 <script>
 import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling, descDataList } from '@/api/modelList'
-import { modelDetail, rename, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
+import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
 export default {
   components: {
-    modelDetail, rename, construct, reloads, merge, sharedTable, elementPagination
+    modelDetail, clones, construct, reloads, merge, sharedTable, elementPagination
   },
   data () {
     return {
@@ -152,9 +152,10 @@ export default {
       this.dialogFormVisible = false
     },
     handleCommand (val) {
+      const { type, params } = val
       this.expands = []
       let texts = ''
-      switch (val.type) {
+      switch (type) {
         case 'disableds':
           texts = '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
           break
@@ -168,42 +169,40 @@ export default {
           texts = '确定删除该模型？'
           break
       }
-      if (val.type === 'lookDetail') {
-        this.expands.push(val.params.uuid)
-        descDataList({ cubeName: val.params.name, models: val.params.model }).then(res => {
+      if (type === 'lookDetail') {
+        this.expands.push(params.uuid)
+        descDataList({ cubeName: params.name, models: params.model }).then(res => {
           if (res) {
             this.jsonData = res
-            console.log(JSON.stringify(res.ModesList.lookups), '==============')
+            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
           }
         })
         return
       }
-      if (val.type === 'disableds' || val.type === 'enable' || val.type === 'clones' || val.type === 'dels') {
-        this.$confirm(texts, {
+      if (['disableds', 'enable', 'dels'].includes(type)) {
+        return this.$confirm(texts, {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
+        }).then(async () => {
           this.getLoading = true
-          if (val.type === 'disableds') {
-            disableModeling({ cubeName: val.params.name }).then(res => {
-              res.code === 200 && (this.getLoading = false && this.$message.success('已禁用'))
-            }).finally(_ => {
-              this.getLoading = false
-            })
-          } else if (val.type === 'enable') {
-            enableModeling({ cubeName: val.params.name }).then(res => {
-              res.code === 200 && (this.getLoading = false && this.$message.success('已启用'))
-            }).finally(_ => {
-              this.getLoading = false
-            })
+          if (type === 'disableds') {
+            params.status === 'DISABLED'
+              ? this.$message.warning('该模型已禁用~')
+              : await disableModeling({ cubeName: params.name }) && this.$message.success('已禁用') && this.init()
           }
+          if (type === 'enable') {
+            if (params.segments.length < 1) return this.$message.warning('请选构建模型~')
+            params.status === 'READY'
+              ? this.$message.warning('该模型已启用~')
+              : await enableModeling({ cubeName: params.name }) && this.$message.success('已启用') && this.init()
+          }
+          this.getLoading = false
         })
-        return
       }
-      if (val.type === 'construct') {
-        if (val.params.segments.length > 0 && val.params.partitionDateColumn) {
-          this.$refs['construct'].dialog(val.params)
+      if (type === 'construct') {
+        if (params.segments.length > 0 && params.partitionDateColumn) {
+          this.$refs['construct'].dialog(params)
         } else {
           this.$confirm('是否构建该模型', {
             confirmButtonText: '确定',
@@ -211,18 +210,20 @@ export default {
             type: 'warning'
           }).then(() => {
             let parmas = {
-              cubeName: val.params.name,
+              cubeName: params.name,
               start: 0,
               end: 0
             }
-            buildModeling(parmas).then(res => {
-              console.log(res)
-            })
+            this.$throttle(() => {
+              buildModeling(parmas).then(res => {
+                console.log(res)
+              })
+            }, 1000)
           })
         }
         return
       }
-      this.$refs[val.type].dialog(val.params)
+      this.$refs[type].dialog(params)
     },
     closeExpands () {
       this.expands = []

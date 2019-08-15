@@ -46,6 +46,7 @@ export default {
   },
   methods: {
     init () {
+      // const {  }
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
@@ -66,14 +67,12 @@ export default {
        * 处理聚合小组
        */
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      console.log(this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list)
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
       this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
         let item = i.select_rule
         item.hierarchy_dims.forEach((k, idx1) => {
           if (k.length === 0) item.hierarchy_dims = []
         })
-        // if (item.hierarchy_dims.length === 1) item.hierarchy_dims = item.hierarchy_dims.join(',')
         item.joint_dims.forEach((k, idx1) => {
           if (k.length === 0) item.joint_dims = []
         })
