@@ -1,6 +1,6 @@
 <template>
   <div class="rename">
-    <el-dialog title="重命名" :visible.sync="dialogFormVisible">
+    <el-dialog title="克隆" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item>
           <el-input placeholder="请输入新名称" v-model="form.name" autocomplete="off"></el-input>
@@ -10,7 +10,7 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="handlebtn">确 定</el-button>
       </div>
-    </el-dialog>  
+    </el-dialog>
   </div>
 </template>
 
@@ -26,8 +26,10 @@ export default {
     handlebtn () {
       this.dialogFormVisible = false
     },
-    dialog () {
+    dialog (data) {
       this.dialogFormVisible = true
+      let { name } = JSON.parse(JSON.stringify(data))
+      this.form.name = `${name}_clone`
     }
   }
 }
@@ -36,4 +38,3 @@ export default {
 <style lang="stylus" scoped>
 .rename{}
 </style>
-

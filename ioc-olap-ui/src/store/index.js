@@ -9,6 +9,7 @@ import setFiled from './olap/setFiled'
 import setMeasure from './olap/setMeasure'
 import reloadSet from './olap/reloadSet'
 import advancedSet from './olap/advancedSet'
+import modelList from './olap/modelList'
 import analysis from './modules/analysis'
 // import selectStep from './olap/selectStep'
 import getters from './getters'
@@ -29,6 +30,7 @@ const store = new Vuex.Store({
     reloadSet,
     advancedSet,
     analysis,
+    modelList,
     TaskNodeStore
   },
   getters

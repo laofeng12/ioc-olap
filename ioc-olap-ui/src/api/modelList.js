@@ -71,8 +71,7 @@ export function enableModeling (params) {
 export function jobsListModeling (params) {
   return fetch({
     url: '/olap/apis/OlapModeling/jobsList',
-    method: 'post',
-    contentType: 'application/json',
+    method: 'get',
     params
   })
 }

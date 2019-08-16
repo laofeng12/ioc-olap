@@ -325,7 +325,6 @@ export default {
     },
 
     setAlias (val) {
-      // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

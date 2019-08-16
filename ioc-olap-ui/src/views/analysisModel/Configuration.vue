@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-tabs v-model="activeName">
+    <el-tabs v-model="activeName" @tab-click="tabClick">
       <el-tab-pane label="模型列表" name="1">
         <model-list></model-list>
       </el-tab-pane>
@@ -21,6 +21,13 @@ export default {
   data () {
     return {
       activeName: '1'
+    }
+  },
+  methods: {
+    tabClick (val) {
+      if (val.name === '2') {
+        this.$root.eventBus.$emit('cubObjList')
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'ch-vue-portal-layout/lib/ch-vue-portal-layout.css'
 import '@/styles/element-variables.scss'
+import { throttle } from '@/utils/index'
 import '@/permission' // permission control
 import './icons'
 import '@/styles/index.scss'
@@ -18,6 +19,7 @@ Vue.use(ElementUI)
 Vue.use(Layout)
 Vue.use(fullscreen)
 Vue.config.productionTip = false
+Vue.prototype.$throttle = throttle
 
 new Vue({
   router,
