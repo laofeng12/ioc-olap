@@ -8,9 +8,8 @@
         <el-form-item label="开始时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.startTime"
+            :disabled="isDisabled"
             type="datetime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
             placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
@@ -39,6 +38,7 @@ export default {
     return {
       dataList: {},
       form: {},
+      isDisabled: true,
       formLabelWidth: '120px',
       dialogFormVisible: false
     }
@@ -50,19 +50,16 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // console.log('时间', this.form.startTime)
-        // var date = this.form.startTime
-        // date = date.substring(0, 19)
-        // date = date.replace(/-/g, '/')
-        // var timestamp = new Date(date).getTime()
-        // console.log('转换后', timestamp)
+        this.dialogFormVisible = false
         let parmas = {
-          cubeName: this.dataList.partitionDateColumn,
+          cubeName: this.dataList.name,
           start: Date.parse(new Date(this.form.startTime)) / 1000,
           end: Date.parse(new Date(this.form.endTime)) / 1000
         }
-        buildModeling(parmas).then(res => {
-          console.log(res)
+        this.$throttle(() => {
+          buildModeling(parmas).then(res => {
+            console.log(res)
+          })
         })
         // this.$message({
         //   type: 'success',
@@ -75,6 +72,9 @@ export default {
       console.log('====', val)
       this.dataList = val
       this.dialogFormVisible = true
+      val.segments.forEach(item => {
+        this.form.startTime = item.last_build_time
+      })
     }
   }
 }

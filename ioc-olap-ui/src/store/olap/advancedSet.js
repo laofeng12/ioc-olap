@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { getArrDifference } from '@/utils/index'
 const advancedSet = {
   state: {
     aggregation_groups: [ // 存储总的数据
@@ -39,6 +40,7 @@ const advancedSet = {
     ],
     savedimensionDataId: [[]],
     savehetComposeDataId: [[]],
+    recordingData: [], // 记录已选择的
     engine_types: '2', // 构建引擎
     rowkeyData: {
       rowkey_columns: []
@@ -69,14 +71,17 @@ const advancedSet = {
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data
           state.selectDataidList[slectData.index].necessaryDataId = slectData.data
+          state.recordingData = state.recordingData.concat(slectData.data)
           break
         case 3:
           Vue.set(state.aggregation_groups[slectData.index].select_rule.hierarchy_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].levelDataId, slectData.findIndex, slectData.data)
+          state.recordingData = state.recordingData.concat(slectData.data)
           break
         case 4:
           Vue.set(state.aggregation_groups[slectData.index].select_rule.joint_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].jointDataId, slectData.findIndex, slectData.data)
+          state.recordingData = state.recordingData.concat(slectData.data)
           break
         case 5:
           Vue.set(state.mandatory_dimension_set_list, slectData.index, slectData.data)
@@ -163,28 +168,36 @@ const advancedSet = {
           })
           break
         case 2:
+          // state.recordingData = state.recordingData.concat(list.id)
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData).concat(list.id)
           state.aggregation_groups[list.index].select_rule.mandatory_dims.filter((item, index) => {
             item.id === list.id && state.aggregation_groups[list.index].necessaryData.splice(index, 1)
           })
           state.selectDataidList[list.index].necessaryDataId.map((item, index) => {
             item === list.id && state.selectDataidList[list.index].necessaryDataId.splice(index, 1)
           })
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData)
           break
         case 3:
+          // state.recordingData = state.recordingData.concat(list.id)
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData).concat(list.id)
           state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].filter((item, index) => {
             item.id === list.id && state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].splice(index, 1)
           })
           state.selectDataidList[list.index].levelDataId[list.findIndex].map((item, index) => {
             item === list.id && state.selectDataidList[list.index].levelDataId[list.findIndex].splice(index, 1)
           })
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData)
           break
         case 4:
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData).concat(list.id)
           state.aggregation_groups[list.index].select_rule.joint_dims[list.findIndex].filter((item, index) => {
             item.id === list.id && state.aggregation_groups[list.index].select_rule.joint_dims[list.findIndex].splice(index, 1)
           })
           state.selectDataidList[list.index].jointDataId[list.findIndex].map((item, index) => {
             item === list.id && state.selectDataidList[list.index].jointDataId[list.findIndex].splice(index, 1)
           })
+          state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData)
           break
         case 5:
           state.mandatory_dimension_set_list[list.findIndex].filter((item, index) => {
@@ -217,7 +230,6 @@ const advancedSet = {
     },
     // 过滤掉已经选择的组合数据
     FilterMapping ({ state, getters }, data) {
-      console.log('获取的', data)
       getters.measureTableList.map((item, index) => {
         data.forEach(n => {
           if (item.name !== n) {
@@ -228,6 +240,11 @@ const advancedSet = {
         })
       })
       // state.filterMappingData = data
+    },
+    // 设置剩余的list
+    SetrecordingData ({ state }, data) {
+      console.log('保存新的', data)
+      state.recordingData = data
     }
     // 存储rowkeys设置
     // SaveRowkeyList ({ state }, data) {

@@ -8,16 +8,17 @@
       </el-input>
     </header>
     <el-table
+        v-loading="getLoading"
         :data="tableData"
         ref="multipleTable"
         tooltip-effect="dark"
         @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
-        <el-table-column prop="apiName" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="catalogName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiPaths" label="构建状态" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiProtocols" label="构建时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiMethod" label="构建时长" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="duration" label="构建时长" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column
           label="操作"
           align="center">
@@ -42,10 +43,11 @@
 </template>
 
 <script>
-import { getApiList } from '@/api/olapModel'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
+      getLoading: false,
       like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
@@ -54,16 +56,23 @@ export default {
     }
   },
   mounted () {
-    // const params = {
-    //   size: this.pageSize,
-    //   sort: 'createtime,desc',
-    //   page: this.currentPage - 1
-    // }
-    // getApiList(params).then(res => {
-    //   this.tableData = res.rows
-    // })
+    this.init()
+  },
+  computed: {
+    ...mapGetters({
+      cubeObjListData: 'cubeObjListData'
+    })
   },
   methods: {
+    init () {
+      this.$store.dispatch('SaveCubeObjListData').then(res => {
+        this.getLoading = true
+        if (res) {
+          this.getLoading = false
+          this.tableData = res
+        }
+      })
+    },
     searchFetch (val) {
       console.log(val)
     },
