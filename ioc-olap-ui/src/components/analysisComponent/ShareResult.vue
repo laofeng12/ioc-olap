@@ -4,7 +4,7 @@
                  :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :shareList="shareList"
-                 :exportData="exportData"></ResultBox>
+                 @exportFunc="exportFile"></ResultBox>
     </div>
   </div>
 </template>
@@ -95,6 +95,9 @@ export default {
         this.$message.error('查询失败')
       }
       this.loading = false
+    },
+    exportFile () {
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
     }
   }
 }

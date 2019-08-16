@@ -3,7 +3,7 @@
     <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" @exportFunc="exportFile"
                  :shareList="shareList"></ResultBox>
     </div>
   </div>
@@ -100,6 +100,9 @@ export default {
     },
     async editSave (data) {
       this.$emit('changeActive', '1', data)
+    },
+    exportFile () {
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
     }
   }
 }

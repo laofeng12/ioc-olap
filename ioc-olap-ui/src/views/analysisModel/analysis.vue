@@ -6,18 +6,18 @@
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
                  @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
-                 @autoFunc="autoFunc" @tdClick="tdClick"></ResultBox>
+                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile"></ResultBox>
     </div>
     <el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">
-      <div class="treeContent">
+      <div class="treeContent" v-if="treeVisible">
         <div class="box">
           <div class="title">维度</div>
-          <el-tree class="tree" :data="cubeData.dimensures" show-checkbox :props="treeDefault"
+          <el-tree class="tree" :data="cubeData.dimensures" show-checkbox :props="treeDefault" default-expand-all :check-on-click-node="true"
                    @check-change="handleDimensuresChange"></el-tree>
         </div>
         <div class="box">
           <div class="title">指标</div>
-          <el-tree class="tree" :data="cubeData.measures" show-checkbox :props="treeDefault"
+          <el-tree class="tree" :data="cubeData.measures" show-checkbox :props="treeDefault" default-expand-all :check-on-click-node="true"
                    @check-change="handleMeasuresChange"></el-tree>
         </div>
       </div>
@@ -40,7 +40,9 @@ import { mapGetters } from 'vuex'
 import OlapAside from '../../components/analysisComponent/olapAside'
 import ResultBox from '../../components/analysisComponent/common/ResultBox'
 import DynamicTable from '../../components/analysisComponent/common/DynamicTable'
-import { getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi } from '../../api/olapAnalysisList'
+import {
+  getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi, olapAnalyzeExportApi
+} from '../../api/olapAnalysisList'
 
 export default {
   components: { OlapAside, ResultBox, DynamicTable },
@@ -92,14 +94,6 @@ export default {
       // 'newColList'
     ])
   },
-  // watch: {
-    // newRowList (val) {
-    //   if (this.$route.query.dataId && this.first && val.length > 0) {
-    //     this.first = false
-    //     this.getOlapAnalyzeDetails()
-    //   }
-    // }
-  // },
   mounted () {
     this.getFolderWithQuery()
     if (this.$route.query.dataId) this.getOlapAnalyzeDetails()
@@ -244,6 +238,9 @@ export default {
       this.auto = !this.auto
     },
     tdClick (data, type) {
+      this.selectDimensuresList = []
+      this.selectMeasuresList = []
+      debugger
       this.tdClickType = type
       const list = [...data.attrs.col, ...data.attrs.row]
       const obj = {
@@ -258,6 +255,7 @@ export default {
     },
     handleDimensuresChange (data, checked) {
       if (checked && data.attrs) {
+        debugger
         this.selectDimensuresList.push(data.attrs)
       } else {
         const index = this.selectDimensuresList.findIndex(v => v.columnId === data.columnId)
@@ -266,6 +264,7 @@ export default {
     },
     handleMeasuresChange (data, checked) {
       if (checked && data.attrs) {
+        debugger
         this.selectMeasuresList.push(data.attrs)
       } else {
         const index = this.selectMeasuresList.findIndex(v => v.columnId === data.columnId)
@@ -315,6 +314,11 @@ export default {
           console.error(e)
         }
       }
+    },
+    async exportFile () {
+      if (this.reqDataList.length <= 0) return this.$message.success('请先查询数据')
+      const res = await olapAnalyzeExportApi({ cubeId: this.cubeId }, this.reqDataList)
+      console.info('res', res)
     }
   }
 }

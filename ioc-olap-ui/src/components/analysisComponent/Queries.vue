@@ -28,7 +28,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :resetShow="true" :formData="formData">
+                   @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData">
         </ResultBox>
       </div>
     </div>
@@ -154,6 +154,9 @@ export default {
       this.checked = true
       this.lineNumber = '100'
       this.tableData = []
+    },
+    exportFile () {
+      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
     }
   }
 }
