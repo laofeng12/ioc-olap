@@ -99,7 +99,7 @@ public class CubeAction extends KylinAction {
         hash.put("cubeName", cube.cubeName);
         CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
-            throw new APIException("网络错误!");
+            throw new APIException(10002,"网络错误!");
         }
         return result;
     }

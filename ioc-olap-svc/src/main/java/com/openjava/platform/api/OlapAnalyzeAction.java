@@ -158,7 +158,7 @@ public class OlapAnalyzeAction {
     @Security(session=true)
     public void export(Long analyzeId, Long cubeId, HttpServletResponse response) throws Exception  {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        AnyDimensionVo dimensionVo=(AnyDimensionShareVo)olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
+        AnyDimensionVo dimensionVo=olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
         Export.dualAnyDimensionVoDate(dimensionVo,response);
     }
 
@@ -176,7 +176,7 @@ public class OlapAnalyzeAction {
     @Security(session=true)
     public void export(Long analyzeId, Long cubeId,Integer pageIndex,Integer pageSize, HttpServletResponse response) throws Exception  {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        AnyDimensionVo dimensionVo=(AnyDimensionShareVo)olapAnalyzeService.queryPaging(pageIndex,pageSize,analyzeId, cubeId, userVO.getUserId());
+        AnyDimensionVo dimensionVo=olapAnalyzeService.queryPaging(pageIndex,pageSize,analyzeId, cubeId, userVO.getUserId());
         Export.dualAnyDimensionVoDate(dimensionVo,response);
     }
 

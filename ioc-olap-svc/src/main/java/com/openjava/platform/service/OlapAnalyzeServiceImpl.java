@@ -302,7 +302,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
         QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
         if(resultMapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
@@ -487,11 +487,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
         QueryResultMapper countMapper=cubeAction.query(countSql,0,100,"learn_kylin");
         if(countMapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,"learn_kylin");
         if(mapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         Integer count=Integer.parseInt(countMapper.results.get(0).get(0));
         mapper.setTotalRecord(count);
