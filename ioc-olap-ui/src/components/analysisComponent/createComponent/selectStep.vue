@@ -42,6 +42,7 @@ export default {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$store.commit('SaveSelectAllList', this.saveSelectTable)
+      this.$store.commit('ClearTableRelation')
     },
     tabClick (val) {
       val.name === '2'

@@ -1,9 +1,9 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input v-model="like_catalogName" placeholder="请输入服务名称" clearable>
+      <el-input v-model="searchData.cubeName" placeholder="请输入服务名称" clearable>
         <template slot="append">
-          <el-button type="primary" size="small" icon="el-icon-search" @click.native="searchFetch(like_catalogName)">搜索</el-button>
+          <el-button type="primary" size="small" icon="el-icon-search" @click.native="searchFetch(searchData)">搜索</el-button>
         </template>
       </el-input>
       <el-button type="success" size="small" icon="el-icon-plus" @click="createolap">新建模型</el-button>
@@ -50,7 +50,7 @@
         <el-table-column prop="partitionDateStart" label="创建时间" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>
-               {{scope.row.partitionDateStart | formatDate}}
+               {{scope.row.create_time_utc | formatDate}}
             </div>
           </template>
         </el-table-column>
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, cloneModeling, disableModeling, enableModeling, descDataList } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
@@ -99,8 +99,10 @@ export default {
   },
   data () {
     return {
+      searchData: {
+        cubeName: ''
+      },
       getLoading: false,
-      like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
@@ -115,19 +117,20 @@ export default {
   },
   filters: {
     formatDate (time) {
-      var date = new Date(time)
-      return filterTime(date)
+      // var date = new Date(time)
+      return filterTime(time)
     }
   },
   mounted () {
     this.init()
   },
   methods: {
-    init () {
+    init (val) {
       this.getLoading = true
       const params = {
-        limit: 15,
-        offset: 0
+        limit: 50,
+        offset: 0,
+        ...val
       }
       getModelDataList(params).then(res => {
         this.tableData = res
@@ -135,6 +138,7 @@ export default {
       })
     },
     searchFetch (val) {
+      this.init(val)
       console.log(val)
     },
     createolap () {
@@ -189,13 +193,35 @@ export default {
           if (type === 'disableds') {
             params.status === 'DISABLED'
               ? this.$message.warning('该模型已禁用~')
-              : await disableModeling({ cubeName: params.name }) && this.$message.success('已禁用') && this.init()
+              : await disableModeling({ cubeName: params.name }).then(res => {
+                this.$message.success('已禁用')
+                this.init()
+              }).catch(_ => {
+                this.getLoading = false
+              })
           }
           if (type === 'enable') {
-            if (params.segments.length < 1) return this.$message.warning('请选构建模型~')
+            if (params.segments.length < 1) {
+              this.$message.warning('请先构建模型~')
+              this.getLoading = false
+              return
+            }
             params.status === 'READY'
               ? this.$message.warning('该模型已启用~')
-              : await enableModeling({ cubeName: params.name }) && this.$message.success('已启用') && this.init()
+              : await enableModeling({ cubeName: params.name }).then(res => {
+                this.$message.success('已启用')
+                this.init()
+              }).catch(_ => {
+                this.getLoading = false
+              })
+          }
+          if (type === 'dels') {
+            await deleteCubeModeling({ cubeName: params.name }).then(res => {
+              this.$message.success('删除成功~')
+              this.init()
+            }).catch(_ => {
+              this.getLoading = false
+            })
           }
           this.getLoading = false
         })
@@ -204,24 +230,22 @@ export default {
         if (params.segments.length > 0 && params.partitionDateColumn) {
           this.$refs['construct'].dialog(params)
         } else {
-          this.$confirm('是否构建该模型', {
+          return this.$confirm('是否构建该模型', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
-          }).then(() => {
-            let parmas = {
-              cubeName: params.name,
-              start: 0,
-              end: 0
-            }
-            this.$throttle(() => {
-              buildModeling(parmas).then(res => {
-                console.log(res)
-              })
-            }, 1000)
+          }).then(async () => {
+            this.getLoading = true
+            // this.$throttle(() => {
+            await buildModeling({ cubeName: params.name, start: 0, end: 0 }).then(res => {
+              this.$message.success('构建成功~')
+              this.init()
+            }).catch(_ => {
+              this.getLoading = false
+            })
+            // }, 1000)
           })
         }
-        return
       }
       this.$refs[type].dialog(params)
     },
@@ -234,6 +258,13 @@ export default {
     },
     handleSizeChange (val) {
       this.pageSize = val
+      this.init()
+    },
+    changeLoading () {
+      this.getLoading = true
+    },
+    closeChangeLoading () {
+      this.getLoading = false
       this.init()
     },
     handleSelectionChange () {

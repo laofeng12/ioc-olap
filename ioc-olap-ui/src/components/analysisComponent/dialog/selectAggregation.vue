@@ -30,7 +30,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -85,10 +84,10 @@ export default {
       // console.log('第二步选择的', this.aggregation_groups)
       // this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
       switch (type) {
-        case '1':
+        case 1:
           this.options = this.reloadNeedData
           break
-        case '6':
+        case 6:
           this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
           break
         default:

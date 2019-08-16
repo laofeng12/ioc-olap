@@ -172,10 +172,10 @@ export default {
         value: 'COUNT_DISTINCT',
         label: 'COUNT_DISTINCT '
       },
-      //  {
-      //   value: 'TOP_N',
-      //   label: 'TOP_N'
-      // },
+      {
+        value: 'AVG',
+        label: 'AVG'
+      },
       {
         value: 'EXTENDED_COLUMN',
         label: 'EXTENDED_COLUMN'
@@ -203,7 +203,7 @@ export default {
         { value: '5', label: 'TOP 5000' },
         { value: '6', label: 'TOP 10000' }
       ],
-      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal', 'bigint'],
+      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal(19,4)', 'bigint'],
       rules: {
         name: [
           { required: true, message: '请输入度量名称', trigger: 'blur' }

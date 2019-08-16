@@ -62,7 +62,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model.number="scope.row.engine_type" placeholder="请选择" @visible-change="codingType(scope.row.engine_type)">
+                  <el-select v-model.number="scope.row.columns_Type" placeholder="请选择" @visible-change="codingType(scope.row.columns_Type)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -138,6 +138,7 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
+import { getEncodingList } from '@/api/olapModel'
 import { reduceObj } from '@/utils/index'
 import { log } from 'util'
 export default {
@@ -166,28 +167,7 @@ export default {
       hetComposeData: [], // 高级组合
       encodingOption: [],
       isShardByOptions: ['true', 'false'],
-      codingTypeData: {
-        'string': ['date', 'time', 'dict'],
-        'date': ['date', 'time', 'dict'],
-        'dict': ['date', 'time', 'dict'],
-        'double': ['dict'],
-        'varchar': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
-        'number': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
-        'tinyint': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'numeric': ['dict'],
-        'integer': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'real': ['dict'],
-        'float': ['dict'],
-        'smallint': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'datetime': ['date', 'time', 'dict'],
-        'int4': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'char': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'],
-        'long8': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'time': ['date', 'time', 'dict'],
-        'decimal': ['dict'],
-        'bigint': ['boolean', 'date', 'time', 'dict', 'integer'],
-        'timestamp': ['date', 'time', 'dict']
-      },
+      codingTypeData: {},
       rowkey: {
         'rowkey_columns': [
           // {
@@ -255,11 +235,13 @@ export default {
     },
     // 选择对应的编码类型
     codingType (val) {
-      for (let item in this.codingTypeData) {
-        if (val === item) {
-          this.encodingOption = this.codingTypeData[item]
+      getEncodingList().then(res => {
+        for (let item in res.data) {
+          if (val === item) {
+            this.encodingOption = res.data[item]
+          }
         }
-      }
+      })
     },
     // 添加聚合小组
     addaAggregation () {

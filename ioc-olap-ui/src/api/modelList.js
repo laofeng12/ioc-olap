@@ -47,6 +47,7 @@ export function disableModeling (params) {
     params
   })
 }
+
 // 启用
 export function enableModeling (params) {
   return fetch({
@@ -57,15 +58,32 @@ export function enableModeling (params) {
   })
 }
 
+// 删除
+export function deleteCubeModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/deleteCube',
+    method: 'DELETE',
+    params
+  })
+}
+
+// 合并
+export function mergeCubeModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/merge',
+    method: 'PUT',
+    params
+  })
+}
+
 // 刷新
-// export function reloadModel (params) {
-//   return fetch({
-//     url: '/olap/apis/OlapModeling/cubeList',
-//     method: 'PUT',
-//     contentType: 'application/json',
-//     params
-//   })
-// }
+export function reloadModel (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/refresh',
+    method: 'PUT',
+    params
+  })
+}
 
 // 构建列表
 export function jobsListModeling (params) {

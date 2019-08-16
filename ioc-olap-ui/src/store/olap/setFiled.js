@@ -99,7 +99,6 @@ const setFiled = {
     },
     // 存储输入的显示名称
     changePushalias ({ state }, val) {
-      console.log(val, '修改文字')
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {

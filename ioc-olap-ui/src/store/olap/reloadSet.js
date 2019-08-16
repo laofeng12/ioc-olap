@@ -8,7 +8,7 @@ const reloadSet = {
       partition_date_column: '',
       partition_date_format: '',
       partition_time_format: '',
-      INTERVAL: '',
+      interval: '',
       frequencytype: 1
     }
   },
@@ -21,7 +21,7 @@ const reloadSet = {
         partition_date_column: '',
         partition_date_format: '',
         partition_time_format: '',
-        INTERVAL: '',
+        interval: '',
         frequencytype: 1
       }
     },
