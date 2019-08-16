@@ -219,7 +219,7 @@ public class Export {
 
                     int rowspan = anyDimensionCellVoD.getRowspan();
                     int colspan = anyDimensionCellVoD.getColspan();
-                    if (anyDimensionCellVoD.getType() == 1 || colspan > 1) {//行维   ||anyDimensionCellVoD.getRowspan()>1
+                    if (anyDimensionCellVoD.getType() == 1 && colspan > 1) {//行维   ||anyDimensionCellVoD.getRowspan()>1
                         for (int jj = 1; jj < colspan; jj++) {
                             addCol++;
                             cell = row.createCell(j + addCol);
@@ -228,7 +228,7 @@ public class Export {
                         }
                         sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
                     }
-                    if (anyDimensionCellVoD.getType() == 2 || rowspan > 1) {//列维   anyDimensionCellVoD 一行数据     ||anyDimensionCellVoD.getColspan()>1
+                    if (anyDimensionCellVoD.getType() == 2 && rowspan > 1) {//列维   anyDimensionCellVoD 一行数据     ||anyDimensionCellVoD.getColspan()>1
                         AnyDimensionCellVo anyDimensionCellVoLast = new AnyDimensionCellVo();//上一行数据 列维相同的数据
                         AnyDimensionCellVo anyDimensionCellVoNext = new AnyDimensionCellVo();//下一行数据 列维相同的数据
                         if (i - 1 >= 0) {
