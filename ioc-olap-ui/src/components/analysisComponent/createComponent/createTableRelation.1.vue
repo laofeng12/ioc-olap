@@ -83,12 +83,12 @@ export default {
       },
       cellLayerStyle: '',
       cellLayerData: null,
-      jointResult: {
-        name: '',
-        description: '',
-        fact_table: '',
-        lookups: []
-      },
+      // jointResult: {
+      //   name: 'joint',
+      //   description: '',
+      //   fact_table: '',
+      //   lookups: []
+      // },
       linkModal: null,
       linkModalModel: null,
       linkModalFields: []
@@ -103,63 +103,17 @@ export default {
     this.init()
   },
   methods: {
-    initJointResult(data) {
-      if(!data){
-        return this.jointResult
-      }
-
-      let lookups = []
-      let [database, factTable] = data.fact_table.split('.');
-
-      (data.lookups || []).forEach(t => {
-
-        let {primary_key, foreign_key, pk_type, fk_type, isCompatible, type} = t.join
-        let primary_key_result = [], foreign_key_result = [];
-
-        (primary_key || []).forEach((m, i) => {
-          primary_key_result.push(primary_key[i].split('.')[1])
-          foreign_key_result.push(foreign_key[i].split('.')[1])
-        })
-
-        lookups.push({
-          alias: t.alias,
-          id: t.id,
-          joinAlias: t.joinAlias,
-          joinId: t.joinId,
-          joinTable: t.joinTable,
-          kind: t.kind,
-          table: t.table,
-          join: {
-            primary_key: primary_key_result,
-            foreign_key: foreign_key_result,
-            pk_type: pk_type,
-            fk_type: fk_type,
-            isCompatible: isCompatible,
-            type: type
-          }
-        })
-
-      })
-
-      return {
-        name: database,
-        description: data.description,
-        fact_table: factTable,
-        lookups
-      }
-    },
     init () {
-
-      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
       // let list = this.jointResult.lookups || []
-      let list = this.jointResult.lookups || []
+      let jointResultData = [...this.jointResultData.lookups]
+      let list = jointResultData || []
       let arr = []
       list.map(item => {
         if (item.id) {
           arr.push(item)
         }
       })
-      
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -170,7 +124,6 @@ export default {
       })
 
       this.clearCells()
-
       arr.forEach(t => {
         this.addLinkCell(t)
       })
@@ -307,8 +260,8 @@ export default {
               model.attr(attrs)
               model.resize(attrs.text.text.length * 9, 30)
 
-              this.jointResult = this.updateModel(model.id, res.value)
-              let result = this.formatJointList(this.jointResult)
+              this.updateModel(model.id, res.value)
+              console.log(JSON.stringify(this.jointResult))
               this.$store.commit('SaveJointResult', this.jointResult)
             }
           })
@@ -341,7 +294,6 @@ export default {
 
     // 更新模块
     updateModel (id, value) {
-      let data = this.jointResult.lookups
       let linkIndex = -1
       let updateList = []
       let cells = this.graph.getCells()
@@ -367,15 +319,12 @@ export default {
 
       if (updateList.length > 0) {
         updateList.forEach(t => {
-          data[t.idx][t.field] = value
+          this.jointResult.lookups[t.idx][t.field] = value
         })
       }
-
-      return data
     },
 
     setAlias (val) {
-      // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -489,6 +438,8 @@ export default {
     },
 
     clearCells () {
+      this.jointResult.fact_table = ''
+      this.jointResult.lookups = []
       this.linkModal = null
       this.linkModalModel = null
       this.graph.clear()
@@ -506,17 +457,13 @@ export default {
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
 
-        if(item.database){
-          this.jointResult.name = item.database
-        }
-
         // 如果是主表， 就清空所有文件
         if (item.filed) {
           this.clearCells()
         }
         // 设置主表
         if (item.filed == 1 && !this.jointResult.fact_table) {
-          this.jointResult.fact_table = `${item.label}`
+          this.jointResult.fact_table = `${item.database}.${item.label}`
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
@@ -542,13 +489,13 @@ export default {
         filed: item.table === item.alias ? 1 : 0,
         id: item.id,
         label: `${item.table}`,
-        alias: item.alias
+        alias: item.joinAlias
       }
       let target = {
         filed: item.joinTable === item.alias ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
-        alias: item.joinAlias
+        alias: item.alias
       }
 
       if (!this.graph) {
@@ -591,6 +538,15 @@ export default {
       let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
+        let pk_index = primary_key[i].indexOf('.')
+        let fk_index = foreign_key[i].indexOf('.')
+
+        if (pk_index > -1) {
+          primary_key[i] = primary_key[i].slice(pk_index)
+        }
+        if (fk_index > -1) {
+          foreign_key[i] = foreign_key[i].slice(fk_index)
+        }
 
         list.push({
           primary_key: `${primary_key[i]}`,
@@ -690,8 +646,8 @@ export default {
 
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
-          primary_key.push(`${t.primary_key}`)
-          foreign_key.push(`${t.foreign_key}`)
+          primary_key.push(`${joinAlias}.${t.primary_key}`)
+          foreign_key.push(`${alias}.${t.foreign_key}`)
           pk_type.push(t.pk_type)
           fk_type.push(t.fk_type)
         }
@@ -706,53 +662,13 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
 
-      let result = this.addJointList(this.linkModal)
-      console.log(JSON.stringify(result))
-      this.$store.commit('SaveJointResult', result)
+      this.addJointList(this.linkModal)
+      console.log(JSON.stringify(this.jointResult))
+      this.$store.commit('SaveJointResult', this.jointResult)
     },
 
     getModalRelationSelected (e) {
 
-    },
-
-    formatJointList: function(data) {
-      let result = {
-        name: data.name || '',
-        description: data.description || '',
-        fact_table: `${data.name}.${data.fact_table}`,
-        lookups: []
-      };
-
-      (data.lookups || []).forEach(t => {
-        let {primary_key, foreign_key, pk_type, fk_type, isCompatible, type} = t.join
-        let primary_key_result = [], foreign_key_result = [];
-
-        (primary_key || []).forEach((m, i) => {
-          primary_key_result.push(`${t.alias}.${primary_key[i]}`)
-          foreign_key_result.push(`${t.joinAlias}.${foreign_key[i]}`)
-        })
-
-        result.lookups.push({
-          alias: t.alias,
-          id: t.id,
-          joinAlias: t.joinAlias,
-          joinId: t.joinId,
-          joinTable: t.joinTable,
-          kind: t.kind,
-          table: t.table,
-          join: {
-            primary_key: primary_key_result,
-            foreign_key: foreign_key_result,
-            pk_type: pk_type,
-            fk_type: fk_type,
-            isCompatible: isCompatible,
-            type: type
-          }
-        })
-
-      })
-
-      return result
     },
 
     addJointList: function (item) {
@@ -774,10 +690,6 @@ export default {
       } else {
         this.jointResult.lookups.push(item)
       }
-
-      let result = this.formatJointList(this.jointResult)
-
-      return result
     },
 
     clearElementLink: function (target) {
@@ -901,12 +813,11 @@ export default {
       // })
       // 模拟数据
       this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-     // debugger
-     // 根据name去获取本地对应的数据
-      // (this.saveSelectAllList || []).forEach((item, index) => {
+      // 根据name去获取本地对应的数据
+      // this.saveSelectAllList.forEach((item, index) => {
       //   let items = JSON.parse(item)
       //   if (items.resourceId === id) {
-      //     this.couponList = items.data.columns || []
+      //     this.couponList = items.data.columns
       //   }
       // })
     }
