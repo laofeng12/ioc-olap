@@ -69,7 +69,6 @@ export default {
       })
     },
     dialog (val) {
-      console.log('====', val)
       this.dataList = val
       this.dialogFormVisible = true
       val.segments.forEach(item => {

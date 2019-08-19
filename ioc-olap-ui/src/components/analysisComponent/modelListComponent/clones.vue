@@ -29,15 +29,12 @@ export default {
   },
   methods: {
     async handlebtn () {
-      this.cloneLoading = true
       this.dialogFormVisible = false
       this.$parent.changeLoading()
       await cloneModeling({ cubeNameClone: this.form.name, cubeName: this.cubeName }).then(res => {
         this.$message.success('复制成功~')
-        this.cloneLoading = false
         this.$parent.closeChangeLoading()
       }).catch(_ => {
-        this.cloneLoading = false
         this.$parent.closeChangeLoading()
       })
     },
