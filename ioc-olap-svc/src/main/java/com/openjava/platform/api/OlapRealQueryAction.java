@@ -217,7 +217,7 @@ public class OlapRealQueryAction extends BaseAction {
 	}
 
 	@ApiOperation(value = "导出即时查询", nickname="export", notes = "报文格式：content-type=application/download")
-	@RequestMapping(value="/export",method= RequestMethod.GET)
+	@RequestMapping(value="/export",method= RequestMethod.POST)
 	@Security(session=true)
 	public void export(String sql,Integer limit, HttpServletResponse response) throws Exception {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
