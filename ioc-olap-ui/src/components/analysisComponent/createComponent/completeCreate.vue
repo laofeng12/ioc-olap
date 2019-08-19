@@ -46,7 +46,6 @@ export default {
   },
   methods: {
     init () {
-      // const {  }
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
@@ -57,7 +56,6 @@ export default {
       this.formData.dimensionFiled = this.saveSelectFiled.length
       this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
-      // console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
@@ -97,9 +95,9 @@ export default {
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
-      console.log(this.totalSaveData, '高级', this.selectStepList)
     },
     nextModel (val) {
+      console.log(this.totalSaveData, '高级', this.selectStepList)
       // this.$message.error('暂未完成')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true

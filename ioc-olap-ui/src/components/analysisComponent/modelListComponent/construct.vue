@@ -51,21 +51,20 @@ export default {
         type: 'warning'
       }).then(() => {
         this.dialogFormVisible = false
+        this.$parent.changeLoading()
         let parmas = {
           cubeName: this.dataList.name,
           start: Date.parse(new Date(this.form.startTime)) / 1000,
           end: Date.parse(new Date(this.form.endTime)) / 1000
         }
-        this.$throttle(() => {
-          buildModeling(parmas).then(res => {
-            console.log(res)
+        this.$throttle(async () => {
+          await buildModeling(parmas).then(res => {
+            this.$message.success('构建成功~')
+            this.$parent.closeChangeLoading()
+          }).catch(_ => {
+            this.$parent.closeChangeLoading()
           })
         })
-        // this.$message({
-        //   type: 'success',
-        //   message: '构建成功!'
-        // })
-        // this.dialogFormVisible = false
       })
     },
     dialog (val) {

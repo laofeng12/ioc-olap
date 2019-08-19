@@ -107,7 +107,7 @@ export default {
       if (!data) {
         return this.jointResult
       }
-
+      console.log('万靓', data.fact_table)
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
       let arr = []
@@ -116,7 +116,6 @@ export default {
           arr.push(item)
         }
       })
-      console.log('===================', arr)
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = [];
@@ -154,15 +153,7 @@ export default {
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      // let list = this.jointResult.lookups || []
       let list = this.jointResult.lookups || []
-      // let arr = []
-      // list.map(item => {
-      //   if (item.id) {
-      //     arr.push(item)
-      //   }
-      // })
-
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -315,6 +306,7 @@ export default {
               this.$store.commit('SaveJointResult', this.jointResult)
             }
           })
+          console.log('设置别名后', this.jointResult)
           break
         case 'link': // 连线
           let link = new joint.shapes.standard.Link({
@@ -871,13 +863,14 @@ export default {
     },
 
     nextModel (val) {
+      console.log(this.jointResult, '李帆')
       // if (this.jointResult.lookups.length > 0) {
-      if (this.jointResult.lookups) {
-        this.$router.push('/analysisModel/createolap/setFiled')
-        this.$parent.getStepCountAdd(val)
-      } else {
-        this.$message.warning('请建立表关系~')
-      }
+      // if (this.jointResult.lookups) {
+      this.$router.push('/analysisModel/createolap/setFiled')
+      this.$parent.getStepCountAdd(val)
+      // } else {
+      //   this.$message.warning('请建立表关系~')
+      // }
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -901,15 +894,15 @@ export default {
       //   this.couponList = res.data.columns
       // })
       // 模拟数据
-      this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       // debugger
       // 根据name去获取本地对应的数据
-      // (this.saveSelectAllList || []).forEach((item, index) => {
-      //   let items = JSON.parse(item)
-      //   if (items.resourceId === id) {
-      //     this.couponList = items.data.columns || []
-      //   }
-      // })
+      (this.saveSelectAllList || []).forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.couponList = items.data.columns || []
+        }
+      })
     }
   },
   computed: {

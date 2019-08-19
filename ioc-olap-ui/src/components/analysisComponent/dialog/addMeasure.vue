@@ -253,7 +253,6 @@ export default {
       let result = this.fieldtextOption.filter((res, index) => {
         return res.label === val
       })
-      console.log(result)
       this.formData.function.returntype = result[0].dataType
       if (this.jsonType.indexOf(result[0].dataType) === -1) {
         this.$message.warning('不支持当前字段类型~')
