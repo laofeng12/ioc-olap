@@ -41,7 +41,7 @@ export default {
       if (this.selectTableTotal.length === 0) return this.$message.warning('请选择创建模型的数据源')
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/createTableRelation')
-      this.$store.commit('SaveSelectAllList', this.saveSelectTable)
+      this.$store.commit('SaveSelectAllListone', this.saveSelectTable)
       this.$store.commit('ClearTableRelation')
     },
     tabClick (val) {

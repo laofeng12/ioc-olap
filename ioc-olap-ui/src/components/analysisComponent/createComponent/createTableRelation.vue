@@ -107,7 +107,6 @@ export default {
       if (!data) {
         return this.jointResult
       }
-      console.log('万靓', data.fact_table)
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
       let arr = []
@@ -864,13 +863,13 @@ export default {
 
     nextModel (val) {
       console.log(this.jointResult, '李帆')
-      // if (this.jointResult.lookups.length > 0) {
-      // if (this.jointResult.lookups) {
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
-      // } else {
-      //   this.$message.warning('请建立表关系~')
-      // }
+      let arrId = []
+      this.jointResult.lookups.forEach((item, index) => {
+        arrId.push(item.id, item.joinId)
+      })
+      this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
