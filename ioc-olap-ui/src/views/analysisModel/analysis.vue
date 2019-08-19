@@ -27,7 +27,7 @@
       </div>
     </el-dialog>
     <el-dialog title="下钻数据展示" :visible.sync="tableVisible" width="70%">
-      <DynamicTable class="mar-center" :tableData="visibleTableData"></DynamicTable>
+      <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true"></DynamicTable>
       <div slot="footer" class="dialog-footer">
         <el-button @click="tableVisible = false">关 闭</el-button>
       </div>
@@ -84,14 +84,11 @@ export default {
       clickDataList: [],
       visibleTableData: [],
       tdClickType: ''
-      // first: true
     }
   },
   computed: {
     ...mapGetters([
       'cubeData'
-      // 'newRowList',
-      // 'newColList'
     ])
   },
   mounted () {
@@ -150,8 +147,6 @@ export default {
           }
           if (rowItem.length > 0) rowList.push(rowItem)
           colList.push(colItem)
-          // if (rowItem.length > 0) colList.push(rowItem)
-          // rowList.push(colItem)
         })
         const tableData = results.map((item, index) => {
           const addIndex = colLength - item.length
@@ -240,7 +235,6 @@ export default {
     tdClick (data, type) {
       this.selectDimensuresList = []
       this.selectMeasuresList = []
-      debugger
       this.tdClickType = type
       const list = [...data.attrs.col, ...data.attrs.row]
       const obj = {
@@ -255,7 +249,6 @@ export default {
     },
     handleDimensuresChange (data, checked) {
       if (checked && data.attrs) {
-        debugger
         this.selectDimensuresList.push(data.attrs)
       } else {
         const index = this.selectDimensuresList.findIndex(v => v.columnId === data.columnId)
@@ -264,7 +257,6 @@ export default {
     },
     handleMeasuresChange (data, checked) {
       if (checked && data.attrs) {
-        debugger
         this.selectMeasuresList.push(data.attrs)
       } else {
         const index = this.selectMeasuresList.findIndex(v => v.columnId === data.columnId)
@@ -312,13 +304,28 @@ export default {
           this.loading = false
         } catch (e) {
           console.error(e)
+          this.loading = false
         }
       }
     },
     async exportFile () {
       if (this.reqDataList.length <= 0) return this.$message.success('请先查询数据')
       const res = await olapAnalyzeExportApi({ cubeId: this.cubeId }, this.reqDataList)
-      console.info('res', res)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = 'olap分析文件'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }

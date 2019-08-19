@@ -1,5 +1,5 @@
 <template>
-  <div class="con" :style="`width: ${tableBoxWidth}px; height: ${tableBoxHeight}px`">
+  <div class="con" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; height: ${tableBoxHeight}px`">
     <div class="showCon">
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
@@ -31,10 +31,11 @@ export default {
     diffWidth: {
       type: Number,
       default: 536
+    },
+    isPop: {
+      type: Boolean,
+      default: false
     }
-    // sumsData: {
-    //   type: Object
-    // }
   },
   data () {
     return {
@@ -46,7 +47,7 @@ export default {
   watch: {},
   created () {
     this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
-    this.tableBoxHeight = document.body.offsetHeight - 141
+    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 300 : document.body.offsetHeight - 141
   },
   methods: {
     tdClick (item, type) {

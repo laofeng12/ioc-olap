@@ -109,9 +109,8 @@ export default {
         cubeId: this.fileData.attrs.cubeId
       }
       const res = await olapAnalyzeExportExistApi(data)
-      console.info('res', res)
-      const blob = new Blob([res], { type: 'application/zip', endings: 'transparent' })
-      const fileName = '文件'
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = 'olap分析文件'
       if ('download' in document.createElement('a')) {
         let link = document.createElement('a')
         link.download = fileName
