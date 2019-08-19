@@ -9,6 +9,7 @@ import com.openjava.platform.mapper.kylin.ProjectDescDataMapper;
 import com.openjava.platform.mapper.kylin.ProjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Array;
@@ -24,6 +25,7 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "获取所有的project数据")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @Security(session = true)
     public List<ProjectDescDataMapper> list() {
         String url = config.address + "/kylin/api/projects";
         Class<ProjectDescDataMapper[]> claszz=ProjectDescDataMapper[].class;
@@ -34,6 +36,7 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "创建project")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @Security(session = true)
     public void create(@RequestBody ProjectDescDataMapper body) {
         String url = config.address + "/kylin/api/projects";
         HashMap hash = new HashMap();
@@ -44,6 +47,7 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "修改project")
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @Security(session = true)
     public ProjectDescDataMapper update(@RequestBody ProjectMapper body) {
         String url = config.address + "/kylin/api/projects";
         HashMap hash = new HashMap();
@@ -56,6 +60,7 @@ public class ProjectAction extends KylinAction {
 
     @ApiOperation(value = "删除project")
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @Security(session = true)
     public void delete(@RequestParam("prj_name") String prj_name) {
         String url = config.address + "/kylin/api/projects/" + prj_name;
         HttpClient.delete(url, prj_name, config.authorization, void.class);

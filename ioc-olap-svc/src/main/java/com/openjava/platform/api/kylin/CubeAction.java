@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import jxl.write.DateTime;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.result.DataApiResponse;
+import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
+    @Security(session = true)
     public List<CubeMapper> list(Integer limit, Integer offset) {
         String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
         Class<CubeMapper[]> claszz = CubeMapper[].class;
@@ -54,6 +56,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "创建立方体")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @Security(session = true)
     public CubeDescNewMapper create(CubeDescMapper cube, String modelName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         //写死一组COUNT
@@ -91,6 +94,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "修改立方体")
     @RequestMapping(value = "update", method = RequestMethod.PUT)
+    @Security(session = true)
     public CubeDescNewMapper update(CubeDescMapper cube, String modelName) throws APIException {
         String url = config.address + "/kylin/api/cubes";
         HashMap hash = new HashMap();
@@ -106,6 +110,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "获取CUBE描述信息")
     @RequestMapping(value = "desc", method = RequestMethod.GET)
+    @Security(session = true)
     public List<CubeDescDataMapper> desc(String cubeName) {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
         Class<CubeDescDataMapper[]> claszz = CubeDescDataMapper[].class;
@@ -115,6 +120,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "克隆CUBE")
     @RequestMapping(value = "clone", method = RequestMethod.PUT)
+    @Security(session = true)
     public void clone(String cubeName, String projectName)  throws Exception {
         String url = config.address + "/kylin/api/cubes/myCube/clone";
         HashMap<String, String> hash = new HashMap<String, String>();
@@ -125,6 +131,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "编译CUBE")
     @RequestMapping(value = "build", method = RequestMethod.PUT)
+    @Security(session = true)
     public void build(String cubeName, Long start, Long end) throws Exception {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
@@ -136,6 +143,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "刷新CUBE")
     @RequestMapping(value = "refresh", method = RequestMethod.PUT)
+    @Security(session = true)
     public void refresh(String cubeName, Long start, Long end) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
@@ -147,6 +155,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "合并CUBE")
     @RequestMapping(value = "merge", method = RequestMethod.PUT)
+    @Security(session = true)
     public void merge(String cubeName, Long start, Long end) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
@@ -158,6 +167,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "禁用CUBE")
     @RequestMapping(value = "disable", method = RequestMethod.PUT)
+    @Security(session = true)
     public boolean disable(String cubeName) {
         try {
             String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/disable", config.address, cubeName);
@@ -170,6 +180,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "启用CUBE")
     @RequestMapping(value = "enable", method = RequestMethod.PUT)
+    @Security(session = true)
     public boolean enable(String cubeName) {
         try {
             String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/enable", config.address, cubeName);
@@ -182,6 +193,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "查询立方体数据")
     @RequestMapping(value = "query", method = RequestMethod.POST)
+    @Security(session = true)
     public QueryResultMapper query(String sql, Integer offset, Integer limit, String project) {
         HashMap hash = new HashMap();
         hash.put("sql", sql);
@@ -196,6 +208,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "获取立方体可查询的表与列")
     @RequestMapping(value = "/queryTableColumn", method = RequestMethod.GET)
+    @Security(session = true)
     public QueryTableColumnMapper[] queryTableColumn(String project) {
         String url = config.address + "/kylin/api/tables_and_columns?project=" + project;
         Class<QueryTableColumnMapper[]> clazz = QueryTableColumnMapper[].class;
@@ -205,6 +218,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "删除CUBE")
     @RequestMapping(value = "delete", method = RequestMethod.DELETE)
+    @Security(session = true)
     public void delete(String cubeName) {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
         HttpClient.put(url, "", config.authorization, String.class);

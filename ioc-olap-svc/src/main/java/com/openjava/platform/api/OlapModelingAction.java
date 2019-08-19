@@ -906,6 +906,13 @@ public class OlapModelingAction extends BaseAction {
         return list;
     }
 
+    @ApiOperation(value = "查看job某一步骤的详细返回数据")
+    @RequestMapping(value = "/getJobStepOut", method = RequestMethod.GET)
+    @Security(session = true)
+    public JobStepOutputMapper getJobStepOut(String jobId,String stepId) {
+        return jobsAction.output(jobId,stepId);
+    }
+
 
     //求两个数组的差集
     public static String[] minus(String[] arr1, String[] arr2) {

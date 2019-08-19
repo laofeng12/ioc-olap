@@ -8,6 +8,7 @@ import com.openjava.platform.mapper.kylin.ProjectMapper;
 import com.openjava.platform.mapper.kylin.TableStructureMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.spring.web.json.Json;
 import springfox.documentation.spring.web.json.JsonSerializer;
@@ -22,6 +23,7 @@ public class TableStructureAction extends KylinAction {
 
     @ApiOperation(value = "获取表结构信息")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @Security(session = true)
     public TableStructureMapper list() {
         String url = config.address + "/kylin/api/tables/postman/KYLIN.KYLIN_SALES";
         Class<TableStructureMapper> clazz = (Class<TableStructureMapper>) new TableStructureMapper().getClass();

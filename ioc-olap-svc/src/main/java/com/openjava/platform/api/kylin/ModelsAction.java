@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.result.ApiResponse;
 import org.ljdp.component.result.BasicApiResponse;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.PrintWriter;
@@ -25,6 +26,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "获取所有模型接口")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @Security(session = true)
     public List<ModelsDescDataMapper> list() {
         String url = config.address + "/kylin/api/models";
         Class<ModelsDescDataMapper[]> claszz=ModelsDescDataMapper[].class;
@@ -34,6 +36,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "获取指定项目的模型")
     @RequestMapping(value = "/entity", method = RequestMethod.GET)
+    @Security(session = true)
     public ModelsDescDataMapper entity(String postman) throws APIException {
         String url = config.address + "/kylin/api/model/" + postman;
         Class<ModelsDescDataMapper> clazz = (Class<ModelsDescDataMapper>) new ModelsDescDataMapper().getClass();
@@ -44,6 +47,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "新增模型")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @Security(session = true)
     public ModelsNewMapper create(@RequestBody ModelsMapper body) throws APIException {
         String url = config.address + "/kylin/api/models";
 //        body.setProject("learn_kylin");
@@ -61,6 +65,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "修改指定的模型")
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @Security(session = true)
     public ModelsNewMapper update(@RequestBody ModelsMapper body) throws APIException {
         String url = config.address + "/kylin/api/models";
         HashMap hash = new HashMap();
@@ -77,6 +82,7 @@ public class ModelsAction extends KylinAction {
 
     @ApiOperation(value = "删除指定的模型")
     @RequestMapping(value = "delete", method = RequestMethod.DELETE)
+    @Security(session = true)
     public void delete(String modelsName) {
         String url = MessageFormat.format("{0}/kylin/api/models/{1}", config.address, modelsName);
         HttpClient.delete(url, "", config.authorization, void.class);

@@ -151,10 +151,13 @@ public class Export {
     }
 
     public static void getExportedFile(String name, HttpServletResponse response) throws Exception {
-        String fileName = name + ".xlsx";
-        fileName = new String(fileName.getBytes(), "ISO8859-1");
-        response.setContentType("application/x-msdownload");//".xls"="application/vnd.ms-excel"  //application/x-msdownload
-        response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
+        String fileName = new String((name + ".xlsx").getBytes("UTF-8"), "iso-8859-1");
+        response.reset();
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName); //文件名
+        response.setContentType("application/octet-stream; charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        response.addHeader("Pargam", "no-cache");
+        response.addHeader("Cache-Control", "no-cache");
     }
 
     public static boolean dualAnyDimensionVoDate(AnyDimensionVo anyDimensionVo, HttpServletResponse response) throws Exception {
@@ -240,10 +243,9 @@ public class Export {
                             anyDimensionCellVoNext = anyDimensionCellVoLNext.get(j);//列维相同的数据
                         }
                         String lastDate = anyDimensionCellVoLast.getValue();//判断是不是第一行
-                        if (lastDate!=null){
+                        if (lastDate != null) {
                             if ((lastDate.equals(date) && (!anyDimensionCellVoD.getValue().equals(anyDimensionCellVoNext.getValue())))
-                                    || (lastDate.equals(date) && ((i + 1) == results.size())))
-                            {
+                                    || (lastDate.equals(date) && ((i + 1) == results.size()))) {
                                 int endRow = (int) overrow;
                                 Integer firstRow = endRow - rowspan + 1;
                                 sheet.addMergedRegion(new CellRangeAddress(firstRow, overrow, startcol, overcol));

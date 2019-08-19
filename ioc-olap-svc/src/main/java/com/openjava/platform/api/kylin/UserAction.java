@@ -7,6 +7,7 @@ import com.openjava.platform.mapper.kylin.UserMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import com.openjava.platform.common.HttpClient;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,7 @@ public class UserAction extends KylinAction
 {
     @ApiOperation(value = "鉴权")
     @RequestMapping(value="/authentication",method= RequestMethod.POST)
+    @Security(session = true)
     public UserMapper authentication() {
         String url=config.address+"/kylin/api/user/authentication";
         Class<HashMap<String,UserMapper>> clazz=(Class<HashMap<String,UserMapper>>)new HashMap<String,UserMapper>().getClass();
