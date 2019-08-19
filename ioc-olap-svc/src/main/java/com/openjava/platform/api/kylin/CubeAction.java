@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jxl.write.DateTime;
+import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.result.DataApiResponse;
 import org.ljdp.secure.annotation.Security;
@@ -46,9 +47,18 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-    @Security(session = true)
-    public List<CubeMapper> list(Integer limit, Integer offset) {
-        String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
+	
+	@Security(session = true)
+    public List<CubeMapper> list(String cubeName, String projectName, Integer limit, Integer offset) throws APIException {
+        String url = config.address + "/kylin/api/cubes?";
+        StringBuffer sBuffer = new StringBuffer(url);
+        if (StringUtils.isNotBlank(cubeName)) {
+            sBuffer.append("cubeName=" + cubeName + "&");
+        }
+        sBuffer.append("&limit=" + limit);
+        sBuffer.append("&offset=" + offset);
+        sBuffer.append("&projectName=" + projectName);
+        url = sBuffer.toString();
         Class<CubeMapper[]> claszz = CubeMapper[].class;
         CubeMapper[] result = HttpClient.get(url, config.authorization, claszz);
         return Arrays.asList(result);
@@ -58,26 +68,12 @@ public class CubeAction extends KylinAction {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @Security(session = true)
     public CubeDescNewMapper create(CubeDescMapper cube, String modelName) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        //写死一组COUNT
-        MeasureMapper measire = new MeasureMapper();
-        measire.setName("_COUNT_");
-        measire.setShowDim(true);
-        FunctionMapper function = new FunctionMapper();
-        function.setExpression("COUNT");
-        function.setReturntype("bigint");
-        ParameterMapper parameter = new ParameterMapper();
-        parameter.setType("constant");
-        parameter.setValue("1");
-        function.setParameter(parameter);
-        measire.setFunction(function);
-        cube.cubeDescData.measures.add(measire);
-//
-//        for (MeasureMapper measure : cube.cubeDescData.measures) {
-//            if (measure.function.getExpression().equals("AVG")) {
-//                measure.function.setExpression("SUM");
-//            }
-//        }
+        //3、avg这个kylin前端上面不显示，但是在我们的配置页面需要加上，avg这个对应kylin是sum
+        for (MeasureMapper measure : cube.cubeDescData.measures) {
+            if (measure.function.getExpression().equals("AVG")) {
+                measure.function.setExpression("SUM");
+            }
+        }
         String url = config.address + "/kylin/api/cubes";
 
         HashMap hash = new HashMap();
@@ -87,7 +83,7 @@ public class CubeAction extends KylinAction {
         if (result == null) {
             //立方体不成功则删除models
             modelsAction.delete(modelName);
-            throw new APIException("网络错误!");
+            throw new APIException(400, "网络错误!");
         }
         return result;
     }
@@ -103,7 +99,7 @@ public class CubeAction extends KylinAction {
         hash.put("cubeName", cube.cubeName);
         CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
         if (result == null) {
-            throw new APIException(10002,"网络错误!");
+            throw new APIException(400, "网络错误!");
         }
         return result;
     }
@@ -120,19 +116,19 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "克隆CUBE")
     @RequestMapping(value = "clone", method = RequestMethod.PUT)
-    @Security(session = true)
-    public void clone(String cubeName, String projectName)  throws Exception {
-        String url = config.address + "/kylin/api/cubes/myCube/clone";
+	@Security(session = true)
+    public void clone(String cubeName, String cubeNameClone, String projectName) throws APIException {
+        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/clone", config.address, cubeName);
         HashMap<String, String> hash = new HashMap<String, String>();
-        hash.put("cubeName", cubeName);
+        hash.put("cubeName", cubeNameClone);
         hash.put("project", projectName);
         HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
 
     @ApiOperation(value = "编译CUBE")
     @RequestMapping(value = "build", method = RequestMethod.PUT)
-    @Security(session = true)
-    public void build(String cubeName, Long start, Long end) throws Exception {
+	@Security(session = true)
+    public void build(String cubeName, Long start, Long end) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
         hash.put("buildType", "BUILD");
@@ -218,10 +214,10 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "删除CUBE")
     @RequestMapping(value = "delete", method = RequestMethod.DELETE)
-    @Security(session = true)
-    public void delete(String cubeName) {
+	@Security(session = true)
+    public void delete(String cubeName) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
-        HttpClient.put(url, "", config.authorization, String.class);
+        HttpClient.delete(url, "", config.authorization, String.class);
     }
 
 }

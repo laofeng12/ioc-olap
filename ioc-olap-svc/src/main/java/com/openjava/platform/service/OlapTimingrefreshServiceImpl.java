@@ -1,16 +1,21 @@
 package com.openjava.platform.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import javax.annotation.Resource;
 
+import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapAnalyze;
 import com.openjava.platform.domain.OlapFilter;
 import com.openjava.platform.domain.OlapTimingrefresh;
+import com.openjava.platform.mapper.kylin.CubeDescDataMapper;
+import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.query.OlapTimingrefreshDBParam;
 import com.openjava.platform.repository.OlapTimingrefreshRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.component.sequence.SequenceService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -74,5 +79,70 @@ public class OlapTimingrefreshServiceImpl implements OlapTimingrefreshService {
         for (int i = 0; i < items.length; i++) {
             olapTimingrefreshRepository.deleteById(new Long(items[i]));
         }
+    }
+
+    //创建定时任务
+    public void timingTasks(OlapTimingrefresh olapTimingrefresh, CubeDescMapper cube, Date date, OaUserVO userVO) {
+        CubeDescDataMapper cubeDescData = cube.getCubeDescData();
+        SequenceService ss = ConcurrentSequence.getInstance();
+        Long freshId = ss.getSequence();
+
+        //保存过滤主表
+        OlapTimingrefresh task = new OlapTimingrefresh();
+
+        //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据并修改olap_timingrefresh表数据
+        if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
+            OlapTimingrefresh olapFilter = findTableInfo(cubeDescData.getName(), Long.parseLong(userVO.getUserId()));
+            freshId = olapFilter.getId();
+
+            task.setUpdateId(Long.parseLong(userVO.getUserId()));
+            task.setUpdateName(userVO.getUserAccount());
+            task.setUpdateTime(date);
+            task.setIsNew(false);
+        } else {
+            task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+            task.setCreateName(userVO.getUserAccount());//创建人名称
+            task.setCreateTime(date);//创建时间
+            task.setIsNew(true);
+        }
+
+        task.setId(freshId);
+        task.setCubeName(cubeDescData.getName());//立方体名称
+        task.setFrequencytype(olapTimingrefresh.getFrequencytype());//频率类型
+        task.setInterval(olapTimingrefresh.getInterval());//间隔
+//        int interval = olapTimingrefresh.getInterval().intValue();
+        int interval = task.getInterval().intValue();
+
+
+        Date now = new Date();
+        //只获取年月日 时分秒自动填充为00 00 00
+        LocalDate localDate = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        Date executionTime = java.sql.Date.valueOf(localDate);
+        Calendar calendar = Calendar.getInstance();
+        //拿到当前小时并加入到年月日组成当前时间
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        calendar.setTime(executionTime);
+        calendar.add(Calendar.HOUR, hour);
+
+
+        Date finaDate = calendar.getTime();
+        task.setFinalExecutionTime(finaDate);//最后执行时间
+
+
+        //当前时间加上间隔时间算出 下一次执行时间
+        switch (olapTimingrefresh.getFrequencytype().toString()) {
+            case "1"://小时
+                calendar.add(Calendar.HOUR, interval);
+                break;
+            case "2"://天数
+                calendar.add(Calendar.DAY_OF_MONTH, +interval);
+                break;
+            default://月
+                calendar.add(Calendar.MONTH, +interval);
+                break;
+        }
+        Date nextDate = calendar.getTime();
+        task.setNextExecutionTime(nextDate);//下一次执行执行时间
+        doSave(task);
     }
 }

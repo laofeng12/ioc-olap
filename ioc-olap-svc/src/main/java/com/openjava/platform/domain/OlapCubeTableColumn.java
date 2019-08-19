@@ -39,6 +39,9 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	private String expressionFull;
 	@ApiModelProperty("列类型 HIVE基本数据类型")
 	private String columnType;
+
+	@ApiModelProperty("原类型为(AVG会转换成SUM,所以需要定义一个原类型,方便编辑的时候用到)")
+	private String primaryType;
 	
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -117,6 +120,15 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	}
 	
 
+	@Column(name = "PRIMARYTYPE")
+	public String getPrimaryType() {
+		return primaryType;
+	}
+	public void setPrimaryType(String primaryType) {
+		this.primaryType = primaryType;
+	}
+
+
 	@Column(name = "COLUMN_ALIAS")
 	public String getColumnAlias() {
 		return columnAlias;
@@ -124,7 +136,6 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	public void setColumnAlias(String columnAlias) {
 		this.columnAlias = columnAlias;
 	}
-	
 
 	@Column(name = "EXPRESSION_TYPE")
 	public String getExpressionType() {

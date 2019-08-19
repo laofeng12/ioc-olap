@@ -29,7 +29,7 @@ public class ModelsAction extends KylinAction {
     @Security(session = true)
     public List<ModelsDescDataMapper> list() {
         String url = config.address + "/kylin/api/models";
-        Class<ModelsDescDataMapper[]> claszz=ModelsDescDataMapper[].class;
+        Class<ModelsDescDataMapper[]> claszz = ModelsDescDataMapper[].class;
         ModelsDescDataMapper[] result = HttpClient.get(url, config.authorization, claszz);
         return Arrays.asList(result);
     }
@@ -57,7 +57,7 @@ public class ModelsAction extends KylinAction {
         Class<ModelsNewMapper> clazz = (Class<ModelsNewMapper>) new ModelsNewMapper().getClass();
         ModelsNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, clazz);
         if (result == null) {
-            throw new APIException("网络错误!");
+            throw new APIException(400, "网络错误!");
         }
         return result;
     }
@@ -75,7 +75,7 @@ public class ModelsAction extends KylinAction {
         Class<ModelsNewMapper> clazz = (Class<ModelsNewMapper>) new ModelsNewMapper().getClass();
         ModelsNewMapper result = HttpClient.put(url, JSON.toJSONString(hash), config.authorization, clazz);
         if (result == null) {
-            throw new APIException("网络错误!");
+            throw new APIException(400, "网络错误!");
         }
         return result;
     }
