@@ -1,9 +1,13 @@
 package com.openjava.platform.service;
 
+import java.util.Date;
 import java.util.List;
 
+import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapFilter;
+import com.openjava.platform.domain.OlapFilterCondidion;
+import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.query.OlapFilterDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

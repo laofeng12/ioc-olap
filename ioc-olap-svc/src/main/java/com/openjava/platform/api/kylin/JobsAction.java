@@ -6,6 +6,7 @@ import com.openjava.platform.mapper.kylin.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.ljdp.component.exception.APIException;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
@@ -20,11 +21,11 @@ public class JobsAction extends KylinAction {
 
     @ApiOperation(value = "获取正在执行的作业")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public JobsMapper[] list(Long limit, Long offset, String projectName, String cubeName) {
+    public JobsMapper[] list(Long limit, Long offset, String projectName, String cubeName) throws APIException {
         String url = config.address + "/kylin/api/jobs?";
         StringBuffer sBuffer = new StringBuffer(url);
         if (StringUtils.isNotBlank(cubeName)) {
-            sBuffer.append("cubeName=" + cubeName);
+            sBuffer.append("cubeName=" + cubeName + "&");
         }
         sBuffer.append("jobSearchMode=ALL");
         sBuffer.append("&limit=" + limit);
