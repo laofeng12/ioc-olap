@@ -47,7 +47,6 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-	
 	@Security(session = true)
     public List<CubeMapper> list(String cubeName, String projectName, Integer limit, Integer offset) throws APIException {
         String url = config.address + "/kylin/api/cubes?";
