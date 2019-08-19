@@ -103,18 +103,23 @@ export default {
     this.init()
   },
   methods: {
-    initJointResult(data) {
-      if(!data){
+    initJointResult (data) {
+      if (!data) {
         return this.jointResult
       }
 
       let lookups = []
-      let [database, factTable] = data.fact_table.split('.');
-
-      (data.lookups || []).forEach(t => {
-
-        let {primary_key, foreign_key, pk_type, fk_type, isCompatible, type} = t.join
-        let primary_key_result = [], foreign_key_result = [];
+      let [database, factTable] = data.fact_table.split('.')
+      let arr = []
+      data.lookups.forEach(item => {
+        if (item.id) {
+          arr.push(item)
+        }
+      })
+      console.log('===================', arr)
+      arr.forEach(t => {
+        let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
+        let primary_key_result = []; let foreign_key_result = [];
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(primary_key[i].split('.')[1])
@@ -138,7 +143,6 @@ export default {
             type: type
           }
         })
-
       })
 
       return {
@@ -149,17 +153,16 @@ export default {
       }
     },
     init () {
-
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       // let list = this.jointResult.lookups || []
       let list = this.jointResult.lookups || []
-      let arr = []
-      list.map(item => {
-        if (item.id) {
-          arr.push(item)
-        }
-      })
-      
+      // let arr = []
+      // list.map(item => {
+      //   if (item.id) {
+      //     arr.push(item)
+      //   }
+      // })
+
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -171,7 +174,7 @@ export default {
 
       this.clearCells()
 
-      arr.forEach(t => {
+      list.forEach(t => {
         this.addLinkCell(t)
       })
 
@@ -212,7 +215,7 @@ export default {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
                 filed: sourceAttrs.text.filed || 0,
-                field: '',
+                // field: '',
                 label: sourceAttrs.text.label,
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
@@ -221,7 +224,7 @@ export default {
               let targetAttrs = linkElements.target.get('attrs')
               let target = {
                 filed: targetAttrs.text.filed || 0,
-                field: '',
+                // field: '',
                 label: `${targetAttrs.text.database}.${targetAttrs.text.label}`,
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
@@ -506,7 +509,7 @@ export default {
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
 
-        if(item.database){
+        if (item.database) {
           this.jointResult.name = item.database
         }
 
@@ -591,7 +594,6 @@ export default {
       let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
-
         list.push({
           primary_key: `${primary_key[i]}`,
           foreign_key: `${foreign_key[i]}`,
@@ -715,7 +717,7 @@ export default {
 
     },
 
-    formatJointList: function(data) {
+    formatJointList: function (data) {
       let result = {
         name: data.name || '',
         description: data.description || '',
@@ -724,8 +726,8 @@ export default {
       };
 
       (data.lookups || []).forEach(t => {
-        let {primary_key, foreign_key, pk_type, fk_type, isCompatible, type} = t.join
-        let primary_key_result = [], foreign_key_result = [];
+        let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
+        let primary_key_result = []; let foreign_key_result = [];
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(`${t.alias}.${primary_key[i]}`)
@@ -749,7 +751,6 @@ export default {
             type: type
           }
         })
-
       })
 
       return result
@@ -901,8 +902,8 @@ export default {
       // })
       // 模拟数据
       this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-     // debugger
-     // 根据name去获取本地对应的数据
+      // debugger
+      // 根据name去获取本地对应的数据
       // (this.saveSelectAllList || []).forEach((item, index) => {
       //   let items = JSON.parse(item)
       //   if (items.resourceId === id) {
