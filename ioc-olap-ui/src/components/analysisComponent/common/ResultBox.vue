@@ -112,10 +112,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    exportData: {
-      type: Object,
-      default: () => ({})
-    },
     diffWidth: {
       type: Number,
       default: 536
@@ -243,7 +239,7 @@ export default {
       }
     },
     async exportTable () {
-      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
+      this.$emit('exportFunc')
     },
     showSum () {
       this.$emit('showSum')

@@ -66,3 +66,23 @@ export function getOlapAnalyzeDetailsApi (data) {
     data
   })
 }
+
+export function olapAnalyzeExportApi (params, data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/export',
+    method: 'post',
+    responseType: 'blob',
+    params,
+    data
+  })
+}
+
+export function olapAnalyzeExportExistApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/exportExist',
+    method: 'post',
+    responseType: 'blob',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}
