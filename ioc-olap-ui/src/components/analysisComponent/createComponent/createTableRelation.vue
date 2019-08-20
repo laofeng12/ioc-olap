@@ -34,7 +34,7 @@
               <!-- 设置关联 -->
               <div class="link" data-type="link"></div>
               <!-- 设置别名 -->
-              <!-- <div class="clone" data-type="clone"></div> -->
+              <div class="clone" data-type="clone"></div>
               <!-- <div class="resize" data-type="resize"></div> -->
             </div>
             <!-- 连线部分 -->
@@ -117,10 +117,10 @@ export default {
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
-        let primary_key_result = []; let foreign_key_result = [];
+        let primary_key_result = []; let foreign_key_result = []
+        let table = t.table.split('.')[1];
 
         (primary_key || []).forEach((m, i) => {
-          // console.log(t, 'lalalalla')
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
@@ -131,7 +131,7 @@ export default {
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
-          table: t.table,
+          table: table,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -152,6 +152,7 @@ export default {
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      // debugger
       let list = this.jointResult.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -303,7 +304,9 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResultLookups', this.jointResult)
-              this.$refs.linkSetting.style.display = 'none'
+
+              this.linkModal = null
+              this.linkModalModel = null
             }
           })
           console.log('设置别名后', this.jointResult)
@@ -336,11 +339,10 @@ export default {
 
     // 更新模块
     updateModel (id, value) {
-      let data = this.jointResult.lookups
+      let data = this.jointResult
       let linkIndex = -1
       let updateList = []
       let cells = this.graph.getCells()
-
       cells.forEach((t, i) => {
         if (t.isLink()) {
           linkIndex++
@@ -358,13 +360,13 @@ export default {
             })
           }
         }
-      })
+      });
 
-      if (updateList.length > 0) {
-        updateList.forEach(t => {
-          data[t.idx][t.field] = value
-        })
-      }
+      (updateList || []).forEach(t => {
+        if (data.lookups[t.idx]) {
+          data.lookups[t.idx][t.field] = value
+        }
+      })
 
       return data
     },
@@ -766,7 +768,6 @@ export default {
       } else {
         this.jointResult.lookups.push(item)
       }
-
       let result = this.formatJointList(this.jointResult)
 
       return result
@@ -862,7 +863,7 @@ export default {
     },
 
     nextModel (val) {
-        this.$router.push('/analysisModel/createolap/setFiled')
+      this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
       this.jointResult.lookups.forEach((item, index) => {
@@ -892,15 +893,15 @@ export default {
       //   this.couponList = res.data.columns
       // })
       // 模拟数据
-      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       // debugger
       // 根据name去获取本地对应的数据
-      (this.saveSelectAllList || []).forEach((item, index) => {
-        let items = JSON.parse(item)
-        if (items.resourceId === id) {
-          this.couponList = items.data.columns || []
-        }
-      })
+      // (this.saveSelectAllList || []).forEach((item, index) => {
+      //   let items = JSON.parse(item)
+      //   if (items.resourceId === id) {
+      //     this.couponList = items.data.columns || []
+      //   }
+      // })
     }
   },
   computed: {
