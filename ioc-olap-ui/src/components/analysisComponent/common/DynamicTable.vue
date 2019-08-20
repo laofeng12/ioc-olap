@@ -1,6 +1,6 @@
 <template>
-  <div class="con" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; height: ${tableBoxHeight}px`">
-    <div class="showCon">
+  <div class="con">
+    <div class="showCon" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; max-height: ${tableBoxHeight}px`">
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
           <tr v-for="(item, index) in tableData" :key="index">
@@ -14,6 +14,15 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="page dis-flex" v-if="pageData.pageSize">
+      <el-pagination class="pagination" background layout="prev, pager, next" :total="pageData.totalRows"
+                     :page-size="pageData.pageSize" @current-change="handleCurrentChange"></el-pagination>
+      <div class="row dis-flex">
+        <div>查询行数：</div>
+        <el-input class="input center-input" v-model="input" size="mini"></el-input>
+      </div>
+      <el-button type="primary" @click="sure" size="mini">确认</el-button>
     </div>
   </div>
 </template>
@@ -35,23 +44,50 @@ export default {
     isPop: {
       type: Boolean,
       default: false
+    },
+    pageData: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
     return {
       search: '',
       tableBoxWidth: 800,
-      tableBoxHeight: 700
+      tableBoxHeight: 700,
+      input: '20',
+      currentPage: 1
     }
   },
-  watch: {},
+  watch: {
+    input () {
+      this.currentPage = 1
+    }
+  },
   created () {
     this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
-    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 300 : document.body.offsetHeight - 141
+    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 300 : document.body.offsetHeight - 260
   },
   methods: {
     tdClick (item, type) {
       this.$emit('tdClick', item, type)
+    },
+    handleCurrentChange (val) {
+      if (!Number(this.input)) {
+        return this.$message.error('查询行数只能为数字')
+      } else if (Number(this.input) <= 0) {
+        return this.$message.error('查询行数最小为1')
+      }
+      this.currentPage = val
+      this.$emit('handlePage', val, this.input)
+    },
+    sure () {
+      if (!Number(this.input)) {
+        return this.$message.error('查询行数只能为数字')
+      } else if (Number(this.input) <= 0) {
+        return this.$message.error('查询行数最小为1')
+      }
+      this.$emit('handlePage', this.currentPage, this.input)
     }
   }
 }
@@ -60,9 +96,9 @@ export default {
 <style lang="scss" scoped>
   .con {
     width: 100%;
-    overflow: auto;
-    background-color: #ffffff;
     .showCon {
+      overflow: auto;
+      background-color: #ffffff;
       table {
         font-size: 14px;
         color: #606266;
@@ -82,6 +118,20 @@ export default {
         }
         .cur-pointer {
           cursor: pointer;
+        }
+      }
+    }
+    .page {
+      justify-content: center;
+      margin: 15px auto;
+      .pagination {
+        display: inline-block;
+      }
+      .row {
+        align-items: center;
+        margin: 0 25px;
+        .input {
+          width: 70px;
         }
       }
     }

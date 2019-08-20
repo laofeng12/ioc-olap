@@ -15,8 +15,8 @@
       </el-row>
     </el-aside>
     <div class="cus-right" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew"
-                 :shareList="shareList" @exportFunc="exportFile"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew" @handlePage="handlePage"
+                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData"></ResultBox>
     </div>
   </el-container>
 </template>
@@ -49,7 +49,13 @@ export default {
       tableData: [],
       loading: false,
       fileData: {},
-      shareList: []
+      shareList: [],
+      page: 1,
+      size: 20,
+      pageData: {
+        totalRows: 1,
+        pageSize: 20
+      }
     }
   },
   mounted () {
@@ -73,11 +79,17 @@ export default {
       this.fileData = fileData
       this.loading = true
       const params = {
-        analyzeId: fileData.attrs.analyzeId,
-        cubeId: fileData.attrs.cubeId
+        analyzeId: this.fileData.attrs.analyzeId,
+        cubeId: this.fileData.attrs.cubeId,
+        pageIndex: this.page,
+        pageSize: this.size
       }
       try {
-        const { results = [] } = await getQueryTableApi(params)
+        const { results = [], totalRows } = await getQueryTableApi(params)
+        this.pageData = {
+          totalRows,
+          pageSize: this.size
+        }
         const tableData = results.map(item => {
           return (
             item.map(itemTd => {
@@ -106,7 +118,9 @@ export default {
     async exportFile () {
       const data = {
         analyzeId: this.fileData.attrs.analyzeId,
-        cubeId: this.fileData.attrs.cubeId
+        cubeId: this.fileData.attrs.cubeId,
+        pageIndex: this.page,
+        pageSize: this.size
       }
       const res = await olapAnalyzeExportExistApi(data)
       const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
@@ -124,6 +138,11 @@ export default {
       } else {
         navigator.msSaveBlob(blob, fileName)
       }
+    },
+    handlePage (page, size) {
+      this.page = page
+      this.size = size
+      this.getTableById(this.fileData)
     }
   }
 }
