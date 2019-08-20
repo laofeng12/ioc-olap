@@ -37,8 +37,9 @@
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"
-                    :canClick="(drillDown && 'drillDown') || (transversedrillDown && 'transversedrillDown')" @tdClick="tdClick"></DynamicTable>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
+                    :canClick="(drillDown && 'drillDown') || (transversedrillDown && 'transversedrillDown')"
+                    @tdClick="tdClick" :pageData="pageData"></DynamicTable>
     </div>
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
@@ -61,22 +62,6 @@
         <el-button type="primary" @click="submitNewForm()">确 定</el-button>
       </div>
     </el-dialog>
-    <!--<el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">-->
-      <!--<div class="treeContent">-->
-        <!--<div class="box">-->
-          <!--<div class="title">维度</div>-->
-          <!--<el-tree class="tree" :data="cubeData.dimensures" show-checkbox :props="treeDefault"></el-tree>-->
-        <!--</div>-->
-        <!--<div class="box">-->
-          <!--<div class="title">指标</div>-->
-          <!--<el-tree class="tree" :data="cubeData.measures" show-checkbox :props="treeDefault"></el-tree>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button @click="treeVisible = false">取 消</el-button>-->
-        <!--<el-button type="primary">确 定</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
     <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
       <el-table :data="shareList" max-height="250" border style="width: 100%">
         <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
@@ -123,6 +108,10 @@ export default {
     saveFolderListByProp: {
       type: Array,
       default: () => ([])
+    },
+    pageData: {
+      type: Object,
+      default: () => ({})
     }
   },
   components: { DynamicTable },
@@ -259,6 +248,9 @@ export default {
     },
     tdClick (item, type) {
       this.$emit('tdClick', item, type)
+    },
+    handlePage (page, size) {
+      this.$emit('handlePage', page, size)
     }
   }
 }

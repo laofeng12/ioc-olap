@@ -20,7 +20,7 @@ export function getQueryShareApi () {
 
 export function getQueryTableApi (params) {
   return fetch({
-    url: '/olap/apis/olapAnalyze/query',
+    url: '/olap/apis/olapAnalyze/queryPaging',
     method: 'get',
     params
   })
@@ -43,7 +43,7 @@ export function getFilterDetailsApi (params) {
 
 export function getOlapAnalyzeApi (params, data) {
   return fetch({
-    url: '/olap/apis/olapAnalyze/query',
+    url: '/olap/apis/olapAnalyze/queryPaging',
     method: 'post',
     params,
     data
@@ -69,7 +69,7 @@ export function getOlapAnalyzeDetailsApi (data) {
 
 export function olapAnalyzeExportApi (params, data) {
   return fetch({
-    url: '/olap/apis/olapAnalyze/export',
+    url: '/olap/apis/olapAnalyze/exportPaging',
     method: 'post',
     responseType: 'blob',
     params,
@@ -79,7 +79,7 @@ export function olapAnalyzeExportApi (params, data) {
 
 export function olapAnalyzeExportExistApi (data) {
   return fetch({
-    url: '/olap/apis/olapAnalyze/exportExist',
+    url: '/olap/apis/olapAnalyze/exportPagingExist',
     method: 'post',
     responseType: 'blob',
     contentType: 'application/x-www-form-urlencoded',

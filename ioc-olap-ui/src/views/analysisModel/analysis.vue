@@ -6,7 +6,8 @@
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
                  @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
-                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile"></ResultBox>
+                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile" :pageData="pageData"
+                 @handlePage="handlePage"></ResultBox>
     </div>
     <el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">
       <div class="treeContent" v-if="treeVisible">
@@ -27,7 +28,8 @@
       </div>
     </el-dialog>
     <el-dialog title="下钻数据展示" :visible.sync="tableVisible" width="70%">
-      <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true"></DynamicTable>
+      <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true" :pageData="downPageData"
+                    @handlePage="handleDownPage"></DynamicTable>
       <div slot="footer" class="dialog-footer">
         <el-button @click="tableVisible = false">关 闭</el-button>
       </div>
@@ -66,6 +68,10 @@ export default {
       loading: false,
       saveFolderList: [],
       cubeId: '',
+      headLimit: {
+        cItems: [],
+        rItems: []
+      },
       reqDataList: [],
       showSum: false,
       showOlapAside: true,
@@ -83,7 +89,19 @@ export default {
       selectMeasuresList: [],
       clickDataList: [],
       visibleTableData: [],
-      tdClickType: ''
+      tdClickType: '',
+      page: 1,
+      size: 20,
+      pageData: {
+        totalRows: 1,
+        pageSize: 20
+      },
+      downPage: 1,
+      downSize: 20,
+      downPageData: {
+        totalRows: 1,
+        pageSize: 20
+      }
     }
   },
   computed: {
@@ -116,8 +134,17 @@ export default {
       this.loading = true
       this.cubeId = cubeId
       this.reqDataList = list
+      this.headLimit = headLimit
       try {
-        const { results = [] } = await getOlapAnalyzeApi({ cubeId }, list)
+        const { results = [], totalRows } = await getOlapAnalyzeApi({
+          cubeId,
+          pageIndex: this.page,
+          pageSize: this.size
+        }, list)
+        this.pageData = {
+          totalRows,
+          pageSize: this.size
+        }
         let rowList = []
         let colList = []
         let colLength = results[headLimit.cItems.length + 1].length
@@ -286,7 +313,15 @@ export default {
         }
       } else {
         try {
-          const { results = [] } = await getOlapAnalyzeApi({ cubeId: this.cubeId }, list)
+          const { results = [], totalRows } = await getOlapAnalyzeApi({
+            cubeId: this.cubeId,
+            pageIndex: this.downPage,
+            pageSize: this.downSize
+          }, list)
+          this.downPageData = {
+            totalRows,
+            pageSize: this.downSize
+          }
           const tableData = results.map(item => {
             return (
               item.map(itemTd => {
@@ -310,7 +345,11 @@ export default {
     },
     async exportFile () {
       if (this.reqDataList.length <= 0) return this.$message.success('请先查询数据')
-      const res = await olapAnalyzeExportApi({ cubeId: this.cubeId }, this.reqDataList)
+      const res = await olapAnalyzeExportApi({
+        cubeId: this.cubeId,
+        pageIndex: this.page,
+        pageSize: this.size
+      }, this.reqDataList)
       const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
       const fileName = 'olap分析文件'
       if ('download' in document.createElement('a')) {
@@ -326,6 +365,16 @@ export default {
       } else {
         navigator.msSaveBlob(blob, fileName)
       }
+    },
+    handlePage (page, size) {
+      this.page = page
+      this.size = size
+      this.searchFunc(this.reqDataList, this.cubeId, this.headLimit)
+    },
+    handleDownPage (page, size) {
+      this.downPage = page
+      this.downSize = size
+      this.submitTree()
     }
   }
 }
