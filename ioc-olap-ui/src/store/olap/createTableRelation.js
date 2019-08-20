@@ -36,6 +36,9 @@ const creatTableRelation = {
   mutations: {
     SaveJointResult (state, payload) {
       state.jointResultData = payload
+    },
+    SaveJointResultLookups (state, payload) {
+      state.jointResultData.lookups = payload
     }
   },
   actions: {

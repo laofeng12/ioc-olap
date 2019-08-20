@@ -2,7 +2,7 @@
   <div class="tableRelation">
     <div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">
       <fact-table></fact-table>
-      <div class="linkSetting" v-if="linkModal">
+      <div class="linkSetting" v-if="linkModal" ref="linkSetting">
         <h2 class="title">设置关联关系</h2>
         <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
           <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
@@ -34,7 +34,7 @@
               <!-- 设置关联 -->
               <div class="link" data-type="link"></div>
               <!-- 设置别名 -->
-              <div class="clone" data-type="clone"></div>
+              <!-- <div class="clone" data-type="clone"></div> -->
               <!-- <div class="resize" data-type="resize"></div> -->
             </div>
             <!-- 连线部分 -->
@@ -120,10 +120,10 @@ export default {
         let primary_key_result = []; let foreign_key_result = [];
 
         (primary_key || []).forEach((m, i) => {
+          // console.log(t, 'lalalalla')
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
-
         lookups.push({
           alias: t.alias,
           id: t.id,
@@ -302,7 +302,8 @@ export default {
 
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
-              this.$store.commit('SaveJointResult', this.jointResult)
+              this.$store.commit('SaveJointResultLookups', this.jointResult)
+              this.$refs.linkSetting.style.display = 'none'
             }
           })
           console.log('设置别名后', this.jointResult)
@@ -693,7 +694,6 @@ export default {
       this.linkModal.join.foreign_key = primary_key
       this.linkModal.join.pk_type = fk_type
       this.linkModal.join.fk_type = pk_type
-
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
       }
@@ -862,8 +862,7 @@ export default {
     },
 
     nextModel (val) {
-      console.log(this.jointResult, '李帆')
-      this.$router.push('/analysisModel/createolap/setFiled')
+        this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
       this.jointResult.lookups.forEach((item, index) => {

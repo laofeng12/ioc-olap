@@ -79,14 +79,14 @@
           tooltip-effect="dark"
           style="margin-top: 10px;">
           <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
-          <el-table-column prop="TABLENAME" label="表名称" align="center"> </el-table-column>
-          <el-table-column prop="FIELD" label="字段" align="center"> </el-table-column>
-          <el-table-column prop="PATTERN" label="过滤方式" align="center"> </el-table-column>
-          <el-table-column prop="PARAMETER" label="过滤值" align="center">
+          <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
+          <el-table-column prop="field" label="字段" align="center"> </el-table-column>
+          <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
+          <el-table-column prop="parameter" label="过滤值" align="center">
             <template slot-scope="scope">
               <div>
-                <span>{{scope.row.PARAMETER}}</span>
-                <span v-if="scope.row.PATTERN === 'BETWEED'">，{{scope.row.PARAMETERBE}}</span>
+                <span>{{scope.row.parameter}}</span>
+                <span v-if="scope.row.pattern === 'BETWEED'">，{{scope.row.parameterbe}}</span>
               </div>
             </template>
           </el-table-column>
@@ -234,7 +234,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('deleteReloadFilterTableList', val.row.id)
+        this.$store.dispatch('deleteReloadFilterTableList', val.row.ids)
         setTimeout(() => {
           this.$message.success('删除成功')
           this.tableData.splice(idx, 1)

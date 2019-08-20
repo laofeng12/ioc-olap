@@ -62,7 +62,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model.number="scope.row.columns_Type" placeholder="请选择" @visible-change="codingType(scope.row.columns_Type)">
+                  <el-select v-model.number="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -71,7 +71,8 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text" v-model="scope.row.encoding" @change="encodingIpt"></el-input>
+                  <!-- <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="isOutput"></el-input> -->
+                  <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -149,6 +150,8 @@ export default {
     return {
       autoReload: false,
       dataMany: false,
+      selectLoading: false,
+      isOutput: true, // 是否可以输出长度
       modalIndex: 0, // 记录当前点击的是哪个维度框
       levelDataIndex: 0, // 记录层级维度index
       jointDataIndex: 0, // 记录联合维度index
@@ -168,6 +171,7 @@ export default {
       encodingOption: [],
       isShardByOptions: ['true', 'false'],
       codingTypeData: {},
+      getAllcoding: {"data":{"date":["date","time","dict"],"double":["dict"],"varchar":["boolean","dict","fixed_length","fixed_length_hex","integer"],"tinyint":["boolean","date","time","dict","integer"],"numeric":["dict"],"integer":["boolean","date","time","dict","integer"],"real":["dict"],"float":["dict"],"smallint":["boolean","date","time","dict","integer"],"datetime":["date","time","dict"],"int4":["boolean","date","time","dict","integer"],"char":["boolean","dict","fixed_length","fixed_length_hex","integer"],"long8":["boolean","date","time","dict","integer"],"time":["date","time","dict"],"decimal":["dict"],"bigint":["boolean","date","time","dict","integer"],"timestamp":["date","time","dict"]},"msg":""},
       rowkey: {
         'rowkey_columns': [
           // {
@@ -186,6 +190,10 @@ export default {
   },
   methods: {
     init () {
+      // 获取对应的字段
+      getEncodingList().then(res => {
+        // this.getAllcoding = res
+      })
       // 重置高级组合
       this.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
@@ -201,8 +209,11 @@ export default {
       datas.forEach(item => {
         this.rowkeyData.rowkey_columns.push({
           column: item.value,
-          encoding: item.encoding ? item.encoding : 'dict',
-          columns_Type: item.type ? item.type : '',
+          // encoding: item.encoding ? item.encoding : '0',
+          encoding: '',
+          lengths: '',
+          code_types: item.type ? item.type : '',
+          columns_Type: 'dict',
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
@@ -219,6 +230,11 @@ export default {
       })
     },
     nextModel (val) {
+      console.log(this.aggregation_groups)
+      let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
+      let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
+      if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2 ) return this.$message.warning('至少选择两个层级维度')
+      if (joint_dimsLen > 0 && joint_dimsLen < 2 ) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
       if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family.columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
       this.$parent.getStepCountAdd(val)
@@ -236,13 +252,15 @@ export default {
     },
     // 选择对应的编码类型
     codingType (val) {
-      getEncodingList().then(res => {
-        for (let item in res.data) {
-          if (val === item) {
-            this.encodingOption = res.data[item]
-          }
+      console.log(val)
+      for (let item in this.getAllcoding.data) {
+        if (val.split('(')[0] === item) {
+          this.encodingOption = this.getAllcoding.data[item]
         }
-      })
+      }
+    },
+    codingChange (val) {
+
     },
     // 添加聚合小组
     addaAggregation () {
