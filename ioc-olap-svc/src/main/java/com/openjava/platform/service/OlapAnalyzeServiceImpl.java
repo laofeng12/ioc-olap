@@ -310,7 +310,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
         Integer axisYCount = yAxises.size(), axisXCount = xAxises.size(),begin=0,end=0;
         if(isPaging(pageIndex,pageSize)){
-            begin=(pageIndex-1)*pageIndex;
+            begin=(pageIndex-1)*pageSize;
             end=pageIndex*pageSize;
         }
         List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
@@ -319,8 +319,8 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         AnyDimensionCellVo cell;
         List<String> xTemps, yTemps, dTemps;
         Integer dataIndex=axisYCount+1;
-        ArrayList<Double> rowSummarys =new ArrayList<>();
-        ArrayList<Double> columnSummarys =new ArrayList<>();
+        List<Double> rowSummarys =new ArrayList<>();
+        List<Double> columnSummarys =new ArrayList<>();
         //定义y轴头部
         for (Integer i = 0; i < yAxises.size(); i++) {
             rowCells = new ArrayList<AnyDimensionCellVo>();
@@ -393,13 +393,34 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1,String.format("%.2f",Double.parseDouble(dTemp)), 4);
                     if(rowCells.size()>beginIndex){
                         rowCells.add(beginIndex,cell);
-                        columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        if(isPaging(pageIndex,pageSize)) {
+                            if (rowSummarys.size()-1>= begin && rowSummarys.size()-1 < end) {
+                                columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                            }
+                            else{
+                                columnSummarys.add(beginIndex-axisXCount, 0.0);
+                            }
+                        }
+                        else{
+                            columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        }
                         rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     }
                     else{
                         rowCells.add(cell);
-                        columnSummarys.add(Double.parseDouble(dTemp));
+                        if(isPaging(pageIndex,pageSize)) {
+                            if (rowSummarys.size()-1 >= begin && rowSummarys.size()-1 < end) {
+                                columnSummarys.add(Double.parseDouble(dTemp));
+                            }
+                            else{
+                                columnSummarys.add(0.0);
+                            }
+                        }
+                        else{
+                            columnSummarys.add(Double.parseDouble(dTemp));
+                        }
                         rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+
                     }
                     beginIndex++;
                 }
@@ -408,7 +429,12 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 for (String dTemp : dTemps) {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
                     rowCells.set(beginIndex, cell);
-                    if(isPaging(pageIndex,pageSize) && dataIndex-axisYCount-1>=begin && dataIndex-axisYCount-1<end){
+                    if(isPaging(pageIndex,pageSize)){
+                        if(rowSummarys.size()-1>=begin && rowSummarys.size()-1<end){
+                            columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                        }
+                    }
+                    else{
                         columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
                     }
                     rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
@@ -420,8 +446,15 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         if(isPaging(pageIndex,pageSize)){
             List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
             dataResults.addAll(results.subList(0,axisYCount+1));
-            dataResults.addAll(results.subList(begin+axisYCount+1,end+axisYCount+1));
-            anyDimensionVo.setTotalRows(results.size());
+            if(rowSummarys.size()<end){
+                dataResults.addAll(results.subList(begin+axisYCount+1,results.size()));
+                rowSummarys=rowSummarys.subList(begin,rowSummarys.size());
+            }
+            else{
+                dataResults.addAll(results.subList(begin+axisYCount+1,end+axisYCount+1));
+                rowSummarys=rowSummarys.subList(begin,end);
+            }
+            anyDimensionVo.setTotalRows(results.size()-1-axisYCount);
             results=dataResults;
         }
         Integer compareIndex =0;
