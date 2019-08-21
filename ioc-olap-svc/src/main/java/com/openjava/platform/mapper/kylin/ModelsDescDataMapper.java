@@ -37,4 +37,9 @@ public class ModelsDescDataMapper {
     public PartitionDescMapper partition_desc;
     @JSONField(name = "capacity")
     public String capacity;
+
+    @JSONField(name = "SAxis")
+    public String SAxis;
+    @JSONField(name = "YAxis")
+    public String YAxis;
 }

@@ -376,8 +376,9 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "立方体:查看")
     @RequestMapping(value = "/desc", method = RequestMethod.GET)
-    @Security(session = false)
+    @Security(session = true)
     public Map<String, Object> desc(String cubeName, String models) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         ModelsDescDataMapper model = modelsAction.entity(models);
         if (model == null) {
             throw new APIException(400, "网络错误！");
@@ -429,6 +430,18 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
+
+
+        //1、需要将前端在这保存的第二步的坐标返回出去
+
+        //根据当前用户查找存储在olapCube表里的数据
+//        List<OlapCube> cubetable = olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
+//
+//        for (ModelsDescDataMapper models : model) {
+//            models
+//
+//        }
+
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ModesList", model);
@@ -557,6 +570,22 @@ public class OlapModelingAction extends BaseAction {
         jobsAction.cancel(jobsId);
     }
 
+    @ApiOperation(value = "构建列表:暂停")
+    @RequestMapping(value = "/pauseJob", method = RequestMethod.PUT)
+    @Security(session = true)
+    public void pauseJob(String jobsId) throws APIException {
+        jobsAction.pause(jobsId);
+    }
+
+    @ApiOperation(value = "构建列表:运行")
+    @RequestMapping(value = "/resumeJob", method = RequestMethod.PUT)
+    @Security(session = true)
+    public void resumeJob(String jobsId) throws APIException {
+        jobsAction.resume(jobsId);
+    }
+
+
+
 
     @ApiOperation(value = "构建列表:删除JOB")
     @RequestMapping(value = "/deleteJob", method = RequestMethod.DELETE)
@@ -649,7 +678,7 @@ public class OlapModelingAction extends BaseAction {
                     json = "{\"resourceId\":\"a2a023c7-8e9d-4d5d-bc5e-9a3b09ce8972\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_CAL_DT\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"CAL_DT\",\"dataType\":\"date\",\"comment\":\"Date, PK\"},{\"id\":\"2\",\"name\":\"YEAR_BEG_DT\",\"dataType\":\"date\",\"comment\":\"YEAR Begin Date\"},{\"id\":\"3\",\"name\":\"QTR_BEG_DT\",\"dataType\":\"date\",\"comment\":\"Quarter Begin Date\"},{\"id\":\"4\",\"name\":\"MONTH_BEG_DT\",\"dataType\":\"date\",\"comment\":\"Month Begin Date\"},{\"id\":\"5\",\"name\":\"WEEK_BEG_DT\",\"dataType\":\"date\",\"comment\":\"Week Begin Date\"},{\"id\":\"6\",\"name\":\"AGE_FOR_YEAR_ID\",\"dataType\":\"smallint\"},{\"id\":\"7\",\"name\":\"AGE_FOR_QTR_ID\",\"dataType\":\"smallint\"},{\"id\":\"8\",\"name\":\"AGE_FOR_MONTH_ID\",\"dataType\":\"smallint\"},{\"id\":\"9\",\"name\":\"AGE_FOR_WEEK_ID\",\"dataType\":\"smallint\"},{\"id\":\"10\",\"name\":\"AGE_FOR_DT_ID\",\"dataType\":\"smallint\"},{\"id\":\"11\",\"name\":\"AGE_FOR_RTL_YEAR_ID\",\"dataType\":\"smallint\"},{\"id\":\"12\",\"name\":\"AGE_FOR_RTL_QTR_ID\",\"dataType\":\"smallint\"},{\"id\":\"13\",\"name\":\"AGE_FOR_RTL_MONTH_ID\",\"dataType\":\"smallint\"},{\"id\":\"14\",\"name\":\"AGE_FOR_RTL_WEEK_ID\",\"dataType\":\"smallint\"},{\"id\":\"15\",\"name\":\"AGE_FOR_CS_WEEK_ID\",\"dataType\":\"smallint\"},{\"id\":\"16\",\"name\":\"DAY_OF_CAL_ID\",\"dataType\":\"integer\"},{\"id\":\"17\",\"name\":\"DAY_OF_YEAR_ID\",\"dataType\":\"smallint\"},{\"id\":\"18\",\"name\":\"DAY_OF_QTR_ID\",\"dataType\":\"smallint\"},{\"id\":\"19\",\"name\":\"DAY_OF_MONTH_ID\",\"dataType\":\"smallint\"},{\"id\":\"20\",\"name\":\"DAY_OF_WEEK_ID\",\"dataType\":\"integer\"},{\"id\":\"21\",\"name\":\"WEEK_OF_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"22\",\"name\":\"WEEK_OF_CAL_ID\",\"dataType\":\"integer\"},{\"id\":\"23\",\"name\":\"MONTH_OF_QTR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"24\",\"name\":\"MONTH_OF_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"25\",\"name\":\"MONTH_OF_CAL_ID\",\"dataType\":\"smallint\"},{\"id\":\"26\",\"name\":\"QTR_OF_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"27\",\"name\":\"QTR_OF_CAL_ID\",\"dataType\":\"smallint\"},{\"id\":\"28\",\"name\":\"YEAR_OF_CAL_ID\",\"dataType\":\"smallint\"},{\"id\":\"29\",\"name\":\"YEAR_END_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"30\",\"name\":\"QTR_END_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"31\",\"name\":\"MONTH_END_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"32\",\"name\":\"WEEK_END_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"33\",\"name\":\"CAL_DT_NAME\",\"dataType\":\"varchar(256)\"},{\"id\":\"34\",\"name\":\"CAL_DT_DESC\",\"dataType\":\"varchar(256)\"},{\"id\":\"35\",\"name\":\"CAL_DT_SHORT_NAME\",\"dataType\":\"varchar(256)\"},{\"id\":\"36\",\"name\":\"YTD_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"37\",\"name\":\"QTD_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"38\",\"name\":\"MTD_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"39\",\"name\":\"WTD_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"40\",\"name\":\"SEASON_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"41\",\"name\":\"DAY_IN_YEAR_COUNT\",\"dataType\":\"smallint\"},{\"id\":\"42\",\"name\":\"DAY_IN_QTR_COUNT\",\"dataType\":\"tinyint\"},{\"id\":\"43\",\"name\":\"DAY_IN_MONTH_COUNT\",\"dataType\":\"tinyint\"},{\"id\":\"44\",\"name\":\"DAY_IN_WEEK_COUNT\",\"dataType\":\"tinyint\"},{\"id\":\"45\",\"name\":\"RTL_YEAR_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"46\",\"name\":\"RTL_QTR_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"47\",\"name\":\"RTL_MONTH_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"48\",\"name\":\"RTL_WEEK_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"49\",\"name\":\"CS_WEEK_BEG_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"50\",\"name\":\"CAL_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"51\",\"name\":\"DAY_OF_WEEK\",\"dataType\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"52\",\"name\":\"MONTH_ID\",\"dataType\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"53\",\"name\":\"PRD_DESC\",\"dataType\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"54\",\"name\":\"PRD_FLAG\",\"dataType\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"55\",\"name\":\"PRD_ID\",\"dataType\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"56\",\"name\":\"PRD_IND\",\"dataType\":\"varchar(256)\"},{\"id\":\"57\",\"name\":\"QTR_DESC\",\"dataType\":\"varchar(256)\"},{\"id\":\"58\",\"name\":\"QTR_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"59\",\"name\":\"QTR_IND\",\"dataType\":\"varchar(256)\"},{\"id\":\"60\",\"name\":\"RETAIL_WEEK\",\"dataType\":\"varchar(256)\"},{\"id\":\"61\",\"name\":\"RETAIL_YEAR\",\"dataType\":\"varchar(256)\"},{\"id\":\"62\",\"name\":\"RETAIL_START_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"63\",\"name\":\"RETAIL_WK_END_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"64\",\"name\":\"WEEK_IND\",\"dataType\":\"varchar(256)\"},{\"id\":\"65\",\"name\":\"WEEK_NUM_DESC\",\"dataType\":\"varchar(256)\"},{\"id\":\"66\",\"name\":\"WEEK_BEG_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"67\",\"name\":\"WEEK_END_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"68\",\"name\":\"WEEK_IN_YEAR_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"69\",\"name\":\"WEEK_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"70\",\"name\":\"WEEK_BEG_END_DESC_MDY\",\"dataType\":\"varchar(256)\"},{\"id\":\"71\",\"name\":\"WEEK_BEG_END_DESC_MD\",\"dataType\":\"varchar(256)\"},{\"id\":\"72\",\"name\":\"YEAR_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"73\",\"name\":\"YEAR_IND\",\"dataType\":\"varchar(256)\"},{\"id\":\"74\",\"name\":\"CAL_DT_MNS_1YEAR_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"75\",\"name\":\"CAL_DT_MNS_2YEAR_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"76\",\"name\":\"CAL_DT_MNS_1QTR_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"77\",\"name\":\"CAL_DT_MNS_2QTR_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"78\",\"name\":\"CAL_DT_MNS_1MONTH_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"79\",\"name\":\"CAL_DT_MNS_2MONTH_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"80\",\"name\":\"CAL_DT_MNS_1WEEK_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"81\",\"name\":\"CAL_DT_MNS_2WEEK_DT\",\"dataType\":\"varchar(256)\"},{\"id\":\"82\",\"name\":\"CURR_CAL_DT_MNS_1YEAR_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"83\",\"name\":\"CURR_CAL_DT_MNS_2YEAR_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"84\",\"name\":\"CURR_CAL_DT_MNS_1QTR_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"85\",\"name\":\"CURR_CAL_DT_MNS_2QTR_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"86\",\"name\":\"CURR_CAL_DT_MNS_1MONTH_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"87\",\"name\":\"CURR_CAL_DT_MNS_2MONTH_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"88\",\"name\":\"CURR_CAL_DT_MNS_1WEEK_YN_IND\",\"dataType\":\"tinyint\"},{\"id\":\"89\",\"name\":\"CURR_CAL_DT_MNS_2WEEK_YN_IND\",\"dataType\":\"tinyint\"},{\"id\":\"90\",\"name\":\"RTL_MONTH_OF_RTL_YEAR_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"91\",\"name\":\"RTL_QTR_OF_RTL_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"92\",\"name\":\"RTL_WEEK_OF_RTL_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"93\",\"name\":\"SEASON_OF_YEAR_ID\",\"dataType\":\"tinyint\"},{\"id\":\"94\",\"name\":\"YTM_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"95\",\"name\":\"YTQ_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"96\",\"name\":\"YTW_YN_ID\",\"dataType\":\"tinyint\"},{\"id\":\"97\",\"name\":\"KYLIN_CAL_DT_CRE_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"98\",\"name\":\"KYLIN_CAL_DT_CRE_USER\",\"dataType\":\"varchar(256)\"},{\"id\":\"99\",\"name\":\"KYLIN_CAL_DT_UPD_DATE\",\"dataType\":\"varchar(256)\"},{\"id\":\"100\",\"name\":\"KYLIN_CAL_DT_UPD_USER\",\"dataType\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}}";
                     break;
                 case "34ac809f-7728-423b-81af-29f931c2da39":
-                    json="{\"resourceId\":\"34ac809f-7728-423b-81af-29f931c2da39\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_COUNTRY\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"COUNTRY\",\"dataType\":\"varchar(256)\"},{\"id\":\"2\",\"name\":\"LATITUDE\",\"dataType\":\"double\"},{\"id\":\"3\",\"name\":\"LONGITUDE\",\"dataType\":\"double\"},{\"id\":\"4\",\"name\":\"NAME\",\"dataType\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}}";
+                    json = "{\"resourceId\":\"34ac809f-7728-423b-81af-29f931c2da39\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_COUNTRY\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"COUNTRY\",\"dataType\":\"varchar(256)\"},{\"id\":\"2\",\"name\":\"LATITUDE\",\"dataType\":\"double\"},{\"id\":\"3\",\"name\":\"LONGITUDE\",\"dataType\":\"double\"},{\"id\":\"4\",\"name\":\"NAME\",\"dataType\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}}";
                     break;
                 default:
                     json = "{\"resourceId\":\"e286e39e-40d7-44c2-8fa2-41b365522771\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"TRANS_ID\",\"dataType\":\"bigint\"},{\"id\":\"2\",\"name\":\"PART_DT\",\"dataType\":\"date\"},{\"id\":\"3\",\"name\":\"LSTG_FORMAT_NAME\",\"dataType\":\"varchar(256)\"},{\"id\":\"4\",\"name\":\"LEAF_CATEG_ID\",\"dataType\":\"bigint\"},{\"id\":\"5\",\"name\":\"LSTG_SITE_ID\",\"dataType\":\"integer\"},{\"id\":\"6\",\"name\":\"SLR_SEGMENT_CD\",\"dataType\":\"smallint\"},{\"id\":\"7\",\"name\":\"PRICE\",\"dataType\":\"decimal(19,4)\"},{\"id\":\"8\",\"name\":\"ITEM_COUNT\",\"dataType\":\"bigint\"},{\"id\":\"9\",\"name\":\"SELLER_ID\",\"dataType\":\"bigint\"},{\"id\":\"10\",\"name\":\"BUYER_ID\",\"dataType\":\"bigint\"},{\"id\":\"11\",\"name\":\"OPS_USER_ID\",\"dataType\":\"varchar(256)\"},{\"id\":\"12\",\"name\":\"OPS_REGION\",\"dataType\":\"varchar(256)\"}]}}";
