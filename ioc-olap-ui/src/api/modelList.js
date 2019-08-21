@@ -93,3 +93,39 @@ export function jobsListModeling (params) {
     params
   })
 }
+
+// 停止
+export function cancelJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/cancelJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 暂停
+export function pauseJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/pauseJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 运行
+export function resumeJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/resumeJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 删除
+export function deleteJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/delete',
+    method: 'DELETE',
+    params
+  })
+}
