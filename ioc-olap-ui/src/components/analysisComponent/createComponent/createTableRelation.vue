@@ -9,11 +9,11 @@
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
@@ -109,6 +109,7 @@ export default {
       }
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
+      let containers = this.$refs.containers.getBoundingClientRect()
       let arr = []
       data.lookups.forEach(item => {
         if (item.id) {
@@ -119,7 +120,7 @@ export default {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
         let table = t.table.split('.')[1];
-  
+
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
@@ -127,9 +128,13 @@ export default {
         lookups.push({
           alias: t.alias,
           id: t.id,
+          SAxis: t.SAxis,
+          YAxis: t.YAxis,
           joinAlias: t.joinAlias,
           joinId: t.joinId,
           joinTable: t.joinTable,
+          joinSAxis: t.joinSAxis,
+          joinYAxis: t.joinYAxis,
           kind: t.kind,
           table: table,
           join: {
@@ -152,7 +157,7 @@ export default {
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      //debugger
+      // debugger
       let list = this.jointResult.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -203,7 +208,6 @@ export default {
               this.linkModal = data
               this.linkModalModel = e.model
               this.linkModalFields = fields
-
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
@@ -365,7 +369,7 @@ export default {
       });
 
       (updateList || []).forEach(t => {
-        if(data.lookups[t.idx]){
+        if (data.lookups[t.idx]) {
           data.lookups[t.idx][t.field] = value
         }
       })
@@ -538,17 +542,25 @@ export default {
 
     addLinkCell (item) {
       let factTable = this.jointResult.fact_table
-      let source = {
+      let target = {
         filed: item.table === factTable ? 1 : 0,
         id: item.id,
         label: item.table,
-        alias: item.alias
+        alias: item.alias,
+        position: {
+          x: item.SAxis,
+          y: item.YAxis
+        }
       }
-      let target = {
+      let source = {
         filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
-        alias: item.joinAlias
+        alias: item.joinAlias,
+        position: {
+          x: item.joinSAxis,
+          y: item.joinYAxis
+        }
       }
 
       if (!this.graph) {
@@ -705,21 +717,45 @@ export default {
 
     },
 
+    getElementPosition () {
+      let eles = this.graph.getElements() || []
+      let parentOffset = this.$refs.containers.getBoundingClientRect()
+      let result = {}
+
+      for (let i = 0; i < eles.length; i++) {
+        let ele = eles[i]
+        let attrs = ele.get('attrs')
+        let pos = ele.get('position')
+        let text = attrs.text.label + attrs.text.alias
+        if (ele.attributes.type !== 'standard.Link' && !result[text]) {
+          result[text] = {
+            x: pos.x,
+            y: pos.y
+          }
+        }
+      }
+
+      return result
+    },
+
     formatJointList: function (data) {
+      let posList = this.getElementPosition() || {}
+      let factText = data.fact_table + data.fact_table
       let result = {
         name: data.name || '',
         description: data.description || '',
+        SAxis: (posList[factText] && posList[factText].x) || 0,
+        YAxis: (posList[factText] && posList[factText].y) || 0,
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
-      
       (data.lookups || []).forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = [];
 
         (primary_key || []).forEach((m, i) => {
-          primary_key_result.push(`${t.alias}.${primary_key[i]}`)
-          foreign_key_result.push(`${t.joinAlias}.${foreign_key[i]}`)
+          primary_key_result.push(`${t.joinAlias}.${primary_key[i]}`)
+          foreign_key_result.push(`${t.alias}.${foreign_key[i]}`)
         })
 
         result.lookups.push({
@@ -730,6 +766,10 @@ export default {
           joinTable: t.joinTable,
           kind: t.kind,
           table: `${data.name}.${t.table}`,
+          SAxis: posList[t.table + t.alias].x || 0,
+          YAxis: posList[t.table + t.alias].y || 0,
+          joinSAxis: posList[t.joinTable + t.joinAlias].x || 0,
+          joinYAxis: posList[t.joinTable + t.joinAlias].y || 0,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -858,7 +898,7 @@ export default {
     },
 
     nextModel (val) {
-        this.$router.push('/analysisModel/createolap/setFiled')
+      this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
       this.jointResult.lookups.forEach((item, index) => {

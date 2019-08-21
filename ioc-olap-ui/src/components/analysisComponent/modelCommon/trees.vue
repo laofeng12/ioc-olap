@@ -230,7 +230,7 @@ export default {
     this.$root.eventBus.$off('saveSelectTables')
   },
   created () {
-    this.fetchTreeList(this.lastClickTab)
+    // this.fetchTreeList(this.lastClickTab)
     this.$nextTick(function () {
       this.$refs.tree.setCurrentKey(this.lastClickTab)
     })
