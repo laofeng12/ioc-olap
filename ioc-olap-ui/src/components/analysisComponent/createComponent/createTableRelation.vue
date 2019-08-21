@@ -107,14 +107,15 @@ export default {
       if (!data) {
         return this.jointResult
       }
-      let lookups = []
-      let [database, factTable] = data.fact_table.split('.')
       let arr = []
-      data.lookups.forEach(item => {
+      let lookups = []
+      data.lookups && data.lookups.forEach(item => {
         if (item.id) {
           arr.push(item)
         }
       })
+      console.log(arr)
+      let [database, factTable] = data.fact_table ? data.fact_table.split('.') : ''
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
@@ -131,10 +132,12 @@ export default {
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
-          table: table,
+          table: t.table,
           join: {
-            primary_key: primary_key_result,
-            foreign_key: foreign_key_result,
+            primary_key: foreign_key_result,
+            foreign_key: primary_key_result,
+            // primary_key: primary_key_result,
+            // foreign_key: foreign_key_result,
             pk_type: pk_type,
             fk_type: fk_type,
             isCompatible: isCompatible,
@@ -142,16 +145,17 @@ export default {
           }
         })
       })
-
+      console.log('lookups=====', factTable)
       return {
         name: database,
-        description: data.description,
+        description: arr.description,
         fact_table: factTable,
         lookups
       }
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      console.log('huoqude', this.jointResult)
       // debugger
       let list = this.jointResult.lookups || []
       this.graph = new joint.dia.Graph()
@@ -303,13 +307,12 @@ export default {
 
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
-              this.$store.commit('SaveJointResultLookups', this.jointResult)
+              this.$store.commit('SaveJointResult', this.jointResult)
 
               this.linkModal = null
               this.linkModalModel = null
             }
           })
-          console.log('设置别名后', this.jointResult)
           break
         case 'link': // 连线
           let link = new joint.shapes.standard.Link({
@@ -863,6 +866,7 @@ export default {
     },
 
     nextModel (val) {
+      console.log(this.jointResultData, '获取')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
@@ -893,15 +897,15 @@ export default {
       //   this.couponList = res.data.columns
       // })
       // 模拟数据
-      this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       // debugger
       // 根据name去获取本地对应的数据
-      // (this.saveSelectAllList || []).forEach((item, index) => {
-      //   let items = JSON.parse(item)
-      //   if (items.resourceId === id) {
-      //     this.couponList = items.data.columns || []
-      //   }
-      // })
+      (this.saveSelectAllList || []).forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.couponList = items.data.columns || []
+        }
+      })
     }
   },
   computed: {

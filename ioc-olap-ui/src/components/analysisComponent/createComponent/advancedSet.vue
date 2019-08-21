@@ -171,7 +171,7 @@ export default {
       encodingOption: [],
       isShardByOptions: ['true', 'false'],
       codingTypeData: {},
-      getAllcoding: {"data":{"date":["date","time","dict"],"double":["dict"],"varchar":["boolean","dict","fixed_length","fixed_length_hex","integer"],"tinyint":["boolean","date","time","dict","integer"],"numeric":["dict"],"integer":["boolean","date","time","dict","integer"],"real":["dict"],"float":["dict"],"smallint":["boolean","date","time","dict","integer"],"datetime":["date","time","dict"],"int4":["boolean","date","time","dict","integer"],"char":["boolean","dict","fixed_length","fixed_length_hex","integer"],"long8":["boolean","date","time","dict","integer"],"time":["date","time","dict"],"decimal":["dict"],"bigint":["boolean","date","time","dict","integer"],"timestamp":["date","time","dict"]},"msg":""},
+      getAllcoding: { 'data': { 'date': ['date', 'time', 'dict'], 'double': ['dict'], 'varchar': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'], 'tinyint': ['boolean', 'date', 'time', 'dict', 'integer'], 'numeric': ['dict'], 'integer': ['boolean', 'date', 'time', 'dict', 'integer'], 'real': ['dict'], 'float': ['dict'], 'smallint': ['boolean', 'date', 'time', 'dict', 'integer'], 'datetime': ['date', 'time', 'dict'], 'int4': ['boolean', 'date', 'time', 'dict', 'integer'], 'char': ['boolean', 'dict', 'fixed_length', 'fixed_length_hex', 'integer'], 'long8': ['boolean', 'date', 'time', 'dict', 'integer'], 'time': ['date', 'time', 'dict'], 'decimal': ['dict'], 'bigint': ['boolean', 'date', 'time', 'dict', 'integer'], 'timestamp': ['date', 'time', 'dict'] }, 'msg': '' },
       rowkey: {
         'rowkey_columns': [
           // {
@@ -206,8 +206,9 @@ export default {
       })
       this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
-      datas.forEach(item => {
-        this.rowkeyData.rowkey_columns.push({
+      let arr = []
+      datas.map(item => {
+        arr.push({
           column: item.value,
           // encoding: item.encoding ? item.encoding : '0',
           encoding: '',
@@ -217,10 +218,11 @@ export default {
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
+        return arr
       })
-      console.log(this.rowkeyData.rowkey_columns)
       // debugger
-      this.rowkeyData.rowkey_columns = reduceObj(this.rowkeyData.rowkey_columns, 'column')
+      this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
+      console.log(this.rowkeyData.rowkey_columns)
     },
     resortAggregation () {
       this.aggregation_groups.forEach(item => {
@@ -230,11 +232,10 @@ export default {
       })
     },
     nextModel (val) {
-      console.log(this.aggregation_groups)
       let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
       let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
-      if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2 ) return this.$message.warning('至少选择两个层级维度')
-      if (joint_dimsLen > 0 && joint_dimsLen < 2 ) return this.$message.warning('至少选择两联合级维度')
+      if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
+      if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
       if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family.columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
       this.$parent.getStepCountAdd(val)

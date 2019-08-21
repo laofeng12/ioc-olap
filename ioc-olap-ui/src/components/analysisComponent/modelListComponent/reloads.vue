@@ -6,17 +6,8 @@
           {{form.partitionDateColumn}}
         </el-form-item>
         <el-form-item label="刷新区间" :label-width="formLabelWidth">
-          <!-- <el-date-picker
-            v-model="form.value"
-            type="datetimerange"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :default-time="['12:00:00']">
-          </el-date-picker> -->
-          <el-select>
-            <el-select v-model="form.interval" placeholder="请选择刷新区间">
-              <!-- <el-option v-for="item in intervalData" :key="item" :label="item" :value="item"></el-option> -->
-            </el-select>            
+          <el-select v-model="form.interval" placeholder="请选择刷新区间">
+            <el-option v-for="(item, index) in intervalOption" :key="index" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -33,6 +24,7 @@
 
 <script>
 import { reloadModel } from '@/api/modelList'
+import { filterTime, reduceObj } from '@/utils/index'
 export default {
   data () {
     return {
@@ -41,6 +33,7 @@ export default {
       },
       isReload: false,
       intervalData: '',
+      intervalOption: [],
       formLabelWidth: '120px',
       dialogFormVisible: false
     }
@@ -53,18 +46,25 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        let result = this.intervalOption.filter(res => {
+          return res.id === this.form.interval
+        })
         this.dialogFormVisible = false
+        if (result[0].status === 'NEW') return this.$message.warning('已经是最新数据~')
         this.$parent.changeLoading()
         let parmas = {
-          cubeName: this.form.partitionDateColumn
-          // start: Date.parse(new Date(this.form.value[0])) / 1000,
-          // end: Date.parse(new Date(this.form.value[1])) / 1000
+          // cubeName: this.form.partitionDateColumn,
+          buildType: result[0].status,
+          startTime: result[0].startTime,
+          endTime: result[0].endTime
         }
         this.$throttle(async () => {
           await reloadModel(parmas).then(res => {
-            this.$message.success('合并成功~')
+            this.$message.success('刷新成功~')
             this.$parent.closeChangeLoading()
           }).catch(_ => {
+            this.$parent.closeChangeLoading()
+          }).finally(_ => {
             this.$parent.closeChangeLoading()
           })
         })
@@ -72,17 +72,19 @@ export default {
     },
     dialog (val) {
       this.dialogFormVisible = true
-      this.isReload = val.segments.length > 0 ? true : false
+      console.log(val)
+      this.isReload = val.segments.length > 0
       this.form.partitionDateColumn = val.partitionDateColumn
-      let arr = []
       val.segments.map(item => {
-        arr.push({
-          date_range_end: item.date_range_end,
-          date_range_start: item.date_range_start,
-          status: item.status
+        this.intervalOption.push({
+          value: `${filterTime(item.date_range_start)}-${filterTime(item.date_range_end)}`,
+          status: item.status,
+          id: item.uuid,
+          startTime: item.date_range_start,
+          endTime: item.date_range_end
         })
       })
-      console.log(arr)
+      this.intervalOption = reduceObj(this.intervalOption, 'id')
     }
   }
 }

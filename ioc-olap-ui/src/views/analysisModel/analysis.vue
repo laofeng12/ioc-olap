@@ -132,6 +132,8 @@ export default {
     },
     async searchFunc (list, cubeId, headLimit = { cItems: [], rItems: [] }) {
       this.loading = true
+      this.realTableData = []
+      this.tableData = []
       this.cubeId = cubeId
       this.reqDataList = list
       this.headLimit = headLimit
@@ -183,7 +185,6 @@ export default {
                 return { colspan: 1, rowspan: 1, value: '-', type: 'td', attrs: null }
               } else {
                 if (itemTd.type === 4) {
-                  // let attrs = { row: [], col: [] }
                   let col = []
                   let row = []
                   rowList.forEach(itemList => {
@@ -194,7 +195,7 @@ export default {
                     })
                   })
                   colList[index].forEach(value => {
-                    return headLimit.rItems.map(v => {
+                    headLimit.rItems.forEach(v => {
                       if (value.name === v.columnName) {
                         row.push(Object.assign({}, v, { selectValues: value.filter }))
                       }
