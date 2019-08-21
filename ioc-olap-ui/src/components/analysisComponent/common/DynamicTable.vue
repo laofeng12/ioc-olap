@@ -15,7 +15,7 @@
         </tbody>
       </table>
     </div>
-    <div class="page dis-flex" v-if="pageData.pageSize">
+    <div class="page dis-flex" v-if="pageData.pageSize && tableData.length > 0">
       <el-pagination class="pagination" background layout="prev, pager, next" :total="pageData.totalRows"
                      :page-size="pageData.pageSize" @current-change="handleCurrentChange"></el-pagination>
       <div class="row dis-flex">
