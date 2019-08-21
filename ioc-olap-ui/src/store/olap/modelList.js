@@ -11,6 +11,10 @@ const modelList = {
 
   },
   actions: {
+    resetList ({ state }) {
+      state.modelListData = []
+      state.cubeObjListData = []
+    },
     SavemodelListData ({ state }, data) {
       return new Promise((resolve, reject) => {
         const data = getModelDataList(state.params)

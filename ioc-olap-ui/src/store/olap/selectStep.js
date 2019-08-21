@@ -274,7 +274,6 @@ const selectStep = {
         })
       })
       state.selectStepList = dest
-      // console.log('李帆', state.selectStepList)
     },
     // 存储数据湖的数据
     getSelectTableList ({ state, dispatch }, data) {

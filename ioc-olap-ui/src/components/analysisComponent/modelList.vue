@@ -67,7 +67,7 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item>
+                  <!-- <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item> -->
                   <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
