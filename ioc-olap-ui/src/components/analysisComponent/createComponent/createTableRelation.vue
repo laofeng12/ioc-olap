@@ -9,11 +9,11 @@
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
@@ -107,20 +107,19 @@ export default {
       if (!data) {
         return this.jointResult
       }
-      let arr = []
       let lookups = []
-      data.lookups && data.lookups.forEach(item => {
+      let [database, factTable] = data.fact_table.split('.')
+      let arr = []
+      data.lookups.forEach(item => {
         if (item.id) {
           arr.push(item)
         }
       })
-      console.log(arr)
-      let [database, factTable] = data.fact_table ? data.fact_table.split('.') : ''
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
         let table = t.table.split('.')[1];
-
+  
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
@@ -132,7 +131,7 @@ export default {
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
-          table: t.table,
+          table: table,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -143,18 +142,17 @@ export default {
           }
         })
       })
-      console.log('lookups=====', factTable)
+
       return {
         name: database,
-        description: arr.description,
+        description: data.description,
         fact_table: factTable,
         lookups
       }
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      console.log('huoqude', this.jointResult)
-      // debugger
+      //debugger
       let list = this.jointResult.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
@@ -192,6 +190,7 @@ export default {
         if (this.isClick) {
           // 如果连线
           if (e.model.isLink()) {
+            let factTable = this.jointResult.fact_table
             let data = e.model.get('attrs').data
             let linkElements = this.getLinkElements(e.model)
             let linkModal = null
@@ -204,10 +203,11 @@ export default {
               this.linkModal = data
               this.linkModalModel = e.model
               this.linkModalFields = fields
+
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
-                filed: sourceAttrs.text.filed || 0,
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 // field: '',
                 label: sourceAttrs.text.label,
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
@@ -216,20 +216,20 @@ export default {
 
               let targetAttrs = linkElements.target.get('attrs')
               let target = {
-                filed: targetAttrs.text.filed || 0,
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 // field: '',
-                label: `${targetAttrs.text.database}.${targetAttrs.text.label}`,
+                label: `${targetAttrs.text.label}`,
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
 
               linkModal = {
-                'joinTable': source.label || '',
-                'alias': target.alias || '',
-                'id': source.id || '',
-                'table': target.label || '',
-                'joinAlias': source.alias || '',
+                'joinTable': target.label || '',
+                'joinAlias': target.alias || '',
                 'joinId': target.id || '',
+                'alias': source.alias || '',
+                'id': source.id || '',
+                'table': source.label || '',
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
@@ -305,12 +305,13 @@ export default {
 
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
-              this.$store.commit('SaveJointResult', this.jointResult)
+              this.$store.commit('SaveJointResultLookups', this.jointResult)
 
               this.linkModal = null
               this.linkModalModel = null
             }
           })
+          console.log('设置别名后', this.jointResult)
           break
         case 'link': // 连线
           let link = new joint.shapes.standard.Link({
@@ -364,7 +365,7 @@ export default {
       });
 
       (updateList || []).forEach(t => {
-        if (data.lookups[t.idx]) {
+        if(data.lookups[t.idx]){
           data.lookups[t.idx][t.field] = value
         }
       })
@@ -536,14 +537,15 @@ export default {
     },
 
     addLinkCell (item) {
+      let factTable = this.jointResult.fact_table
       let source = {
-        filed: item.table === item.alias ? 1 : 0,
+        filed: item.table === factTable ? 1 : 0,
         id: item.id,
-        label: `${item.table}`,
+        label: item.table,
         alias: item.alias
       }
       let target = {
-        filed: item.joinTable === item.alias ? 1 : 0,
+        filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
         alias: item.joinAlias
@@ -615,17 +617,10 @@ export default {
     removeField (index) {
       if (this.linkModalFields.length > 1) {
         this.linkModalFields.splice(index, 1)
-        this.updateFields(this.linkModalFields)
+        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       }
 
-      this.linkModalFields = [...this.linkModalFields, ...field]
-    },
-
-    removeField (index) {
-      if (this.linkModalFields.length > 1) {
-        this.linkModalFields.splice(index, 1)
-        this.updateFields(this.linkModalFields)
-      }
+      // this.linkModalFields = [...this.linkModalFields, ...field]
     },
 
     getModalRelationSelected (e) {
@@ -693,15 +688,14 @@ export default {
           fk_type.push(t.fk_type)
         }
       })
-      this.linkModal.join.primary_key = foreign_key
-      this.linkModal.join.foreign_key = primary_key
-      this.linkModal.join.pk_type = fk_type
-      this.linkModal.join.fk_type = pk_type
+      this.linkModal.join.primary_key = primary_key
+      this.linkModal.join.foreign_key = foreign_key
+      this.linkModal.join.pk_type = pk_type
+      this.linkModal.join.fk_type = fk_type
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
       }
       this.linkModalModel.attr('data', this.linkModal)
-
       let result = this.addJointList(this.linkModal)
       console.log(JSON.stringify(result))
       this.$store.commit('SaveJointResult', result)
@@ -718,7 +712,7 @@ export default {
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
-
+      
       (data.lookups || []).forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = [];
@@ -735,7 +729,7 @@ export default {
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
-          table: t.table,
+          table: `${data.name}.${t.table}`,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -864,8 +858,7 @@ export default {
     },
 
     nextModel (val) {
-      console.log(this.jointResultData, '获取')
-      this.$router.push('/analysisModel/createolap/setFiled')
+        this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
       this.jointResult.lookups.forEach((item, index) => {
