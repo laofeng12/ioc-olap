@@ -134,10 +134,8 @@ export default {
           kind: t.kind,
           table: t.table,
           join: {
-            primary_key: foreign_key_result,
-            foreign_key: primary_key_result,
-            // primary_key: primary_key_result,
-            // foreign_key: foreign_key_result,
+            primary_key: primary_key_result,
+            foreign_key: foreign_key_result,
             pk_type: pk_type,
             fk_type: fk_type,
             isCompatible: isCompatible,
