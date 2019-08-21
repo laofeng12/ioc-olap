@@ -4,7 +4,7 @@
                  :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
     <div class="content" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" :shareList="shareList"
-                 :exportData="exportData"></ResultBox>
+                 @exportFunc="exportFile"></ResultBox>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
 
 import ResultBox from '@/components/analysisComponent/common/ResultBox'
 import FolderAside from '@/components/analysisComponent/common/FolderAside'
-import { getQueryShareApi } from '../../api/instantInquiry'
+import { getQueryShareApi, exportExcelApi, searchOlapByIdApi } from '../../api/instantInquiry'
 
 export default {
   components: { ResultBox, FolderAside },
@@ -95,6 +95,24 @@ export default {
         this.$message.error('查询失败')
       }
       this.loading = false
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }

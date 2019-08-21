@@ -26,14 +26,20 @@
                      @click="changeRowAndColFunc">
             行列转换
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">横行下钻</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'">上钻</el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleTransverseDrillDown">
+            横行下钻
+          </el-button>
+          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleDrillDown">
+            下钻
+          </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
           <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth"></DynamicTable>
+      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
+                    :canClick="(drillDown && 'drillDown') || (transversedrillDown && 'transversedrillDown')"
+                    @tdClick="tdClick" :pageData="pageData"></DynamicTable>
     </div>
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
@@ -91,10 +97,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    exportData: {
-      type: Object,
-      default: () => ({})
-    },
     diffWidth: {
       type: Number,
       default: 536
@@ -106,6 +108,10 @@ export default {
     saveFolderListByProp: {
       type: Array,
       default: () => ([])
+    },
+    pageData: {
+      type: Object,
+      default: () => ({})
     }
   },
   components: { DynamicTable },
@@ -128,13 +134,20 @@ export default {
           { required: true, message: '请选择文件夹', trigger: 'change' }
         ]
       },
-      showShareListVisible: false
+      showShareListVisible: false,
+      // treeVisible: false,
+      // treeDefault: {
+      //   children: 'children',
+      //   label: 'name'
+      // },
+      drillDown: false,
+      transversedrillDown: false
     }
   },
   computed: {
     ...mapGetters([
       'saveFolderList',
-      'cubeId',
+      'cubeData',
       'newValueList',
       'newFilterList',
       'newRowList',
@@ -159,7 +172,7 @@ export default {
       const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
       const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
-      this.$emit('searchFunc', list, this.cubeId)
+      this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.newRowList, cItems: this.newColList })
     },
     submitNewForm () {
       this.$refs.newForm.validate(async (valid) => {
@@ -215,13 +228,29 @@ export default {
       }
     },
     async exportTable () {
-      window.open(`http://${window.location.host}/olapweb/olap/apis/olapRealQuery/export?sql=${this.exportData.sql}&limit=${this.exportData.limit}`)
+      this.$emit('exportFunc')
     },
     showSum () {
       this.$emit('showSum')
     },
     changeRowAndColFunc () {
       this.$emit('changeRowAndColFunc')
+    },
+    toggleDrillDown () {
+      this.transversedrillDown = false
+      this.drillDown = !this.drillDown
+      this.$message.success(`已${this.drillDown ? '开启' : '关闭'}下钻`)
+    },
+    toggleTransverseDrillDown () {
+      this.drillDown = false
+      this.transversedrillDown = !this.transversedrillDown
+      this.$message.success(`已${this.transversedrillDown ? '开启' : '关闭'}横向下钻`)
+    },
+    tdClick (item, type) {
+      this.$emit('tdClick', item, type)
+    },
+    handlePage (page, size) {
+      this.$emit('handlePage', page, size)
     }
   }
 }
@@ -246,4 +275,16 @@ export default {
       }
     }
   }
+  /*.treeContent {*/
+    /*border: 1px #ddd solid;*/
+    /*padding: 0 15px 15px 15px;*/
+    /*box-sizing: border-box;*/
+    /*max-height: 300px;*/
+    /*overflow: auto;*/
+    /*.box {*/
+      /*.title {*/
+        /*margin: 10px 0;*/
+      /*}*/
+    /*}*/
+  /*}*/
 </style>

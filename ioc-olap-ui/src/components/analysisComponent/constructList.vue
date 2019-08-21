@@ -8,16 +8,35 @@
       </el-input>
     </header>
     <el-table
+        v-loading="getLoading"
         :data="tableData"
         ref="multipleTable"
         tooltip-effect="dark"
         @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
-        <el-table-column prop="apiName" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="catalogName" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiPaths" label="构建状态" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiProtocols" label="构建时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="apiMethod" label="构建时长" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              <el-progress :percentage="70"></el-progress>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              {{scope.row.exec_end_time | formatDate}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="duration" label="构建时长" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              {{Conversion(scope.row.duration)}}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           label="操作"
           align="center">
@@ -26,7 +45,7 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">查看日志</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'log', params: scope.row}">查看日志</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">暂停</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">停止</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">诊断</el-dropdown-item>
@@ -38,40 +57,82 @@
           </template>
         </el-table-column>
       </el-table>
+    <el-dialog title="选择共享" :visible.sync="logListVisible">
+      <div class="logListBox dis-flex">
+        <el-steps direction="vertical" :active="1">
+          <el-step title="详细123" slot-scope></el-step>
+          <el-step title="步骤 2"></el-step>
+          <el-step title="步骤 3" description="这是一段很长很长很长的描述性文字"></el-step>
+        </el-steps>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="logListVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getApiList } from '@/api/olapModel'
+import { mapGetters } from 'vuex'
+import { filterTime } from '@/utils/index'
 export default {
   data () {
     return {
+      getLoading: false,
       like_catalogName: '',
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
-      tableData: []
+      tableData: [],
+      logListVisible: false
+    }
+  },
+  filters: {
+    formatDate (time) {
+      return filterTime(time)
     }
   },
   mounted () {
-    // const params = {
-    //   size: this.pageSize,
-    //   sort: 'createtime,desc',
-    //   page: this.currentPage - 1
-    // }
-    // getApiList(params).then(res => {
-    //   this.tableData = res.rows
-    // })
+    this.init()
+  },
+  computed: {
+    ...mapGetters({
+      cubeObjListData: 'cubeObjListData'
+    })
   },
   methods: {
+    init () {
+      this.$store.dispatch('SaveCubeObjListData').then(res => {
+        this.getLoading = true
+        if (res) {
+          this.getLoading = false
+          this.tableData = res
+        }
+      })
+    },
     searchFetch (val) {
       console.log(val)
     },
-    handleCommand () {
-
+    handleCommand (dropData) {
+      switch (dropData.type) {
+        case 'log':
+          return this.showLogList(dropData)
+      }
+    },
+    showLogList (dropData) {
+      this.logListVisible = true
     },
     handleSelectionChange () {
 
+    },
+    Conversion (second) {
+      var days = Math.floor(second / 86400)
+      var hours = Math.floor((second % 86400) / 3600)
+      var minutes = Math.floor(((second % 86400) % 3600) / 60)
+      var seconds = Math.floor(((second % 86400) % 3600) % 60)
+      // var duration = days + '天' + hours + '小时' + minutes + '分' + seconds + '秒'
+      var duration = minutes + '分' + seconds + '秒'
+      return duration
     }
   }
 }
@@ -89,6 +150,21 @@ export default {
     }
     >>>.el-button{
       float right
+    }
+  }
+  >>>.el-progress-bar{
+    height 20px!important
+    line-height 20px
+    .el-progress-bar__outer{
+      height 20px!important
+      line-height 20px
+      border-radius 0
+      .el-progress-bar__inner{
+        border-radius 0
+      }
+    }
+    .el-progress__text{
+      font-size 13px
     }
   }
 }

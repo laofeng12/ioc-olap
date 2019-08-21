@@ -3,9 +3,11 @@ package com.openjava.platform.service;
 import java.util.Date;
 import java.util.List;
 
+import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapAnalyze;
 import com.openjava.platform.domain.OlapFilter;
 import com.openjava.platform.domain.OlapTimingrefresh;
+import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.query.OlapTimingrefreshDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,4 +33,6 @@ public interface OlapTimingrefreshService {
 	
 	void doDelete(Long id);
 	void doRemove(String ids);
+
+	void timingTasks(OlapTimingrefresh olapTimingrefresh, CubeDescMapper cube, Date date, OaUserVO userVO);
 }

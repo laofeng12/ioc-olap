@@ -3,7 +3,7 @@ import { getFolderWithQueryApi } from '../../api/instantInquiry'
 export const analysis = {
   state: {
     saveFolderList: [],
-    cubeId: '',
+    cubeData: {},
     newValueList: [],
     newFilterList: [],
     newRowList: [],
@@ -14,8 +14,8 @@ export const analysis = {
     GET_SAVE_FOLDER_LIST: (state, saveFolderList) => {
       state.saveFolderList = saveFolderList
     },
-    GET_CUBE_ID: (state, cubeId) => {
-      state.cubeId = cubeId
+    GET_CUBE_DATA: (state, cubeData) => {
+      state.cubeData = cubeData
     },
     GET_NEW_VALUE_LIST: (state, newValueList) => {
       state.newValueList = newValueList
@@ -36,8 +36,8 @@ export const analysis = {
       const res = await getFolderWithQueryApi()
       commit('GET_SAVE_FOLDER_LIST', res)
     },
-    getCubeIdAction ({ commit }, cubeId) {
-      commit('GET_CUBE_ID', cubeId)
+    getCubeDataAction ({ commit }, cubeData) {
+      commit('GET_CUBE_DATA', cubeData)
     },
     getNewValueListAction ({ commit }, list) {
       commit('GET_NEW_VALUE_LIST', list)

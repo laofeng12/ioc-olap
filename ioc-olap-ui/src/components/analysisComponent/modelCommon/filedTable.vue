@@ -52,6 +52,7 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
+      // console.log(this.jointResultData, '获取')
       this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
@@ -63,22 +64,21 @@ export default {
       let factData = {
         alias: this.dataList.fact_table,
         joinId: this.ids,
+        table: '',
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          primary_key: this.primary_key
+          foreign_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups]
       this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
-      console.log(this.jointResultData, '表库', this.titleData)
       // 初始化已选择的表
       setTimeout(() => {
         this.changeLi(this.dataList.lookups[0], 0)
         this.current = 0
       }, 300)
       // 接收设置表关系的数据
-      // this.dataList = this.selectTableTotal
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
         setTimeout(() => {
@@ -115,20 +115,8 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      // this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
-      //   res.data.columns.map((n, i) => {
-      //     n.mode = n.mode ? n.mode : '2'
-      //     n.derived = n.name
-      //     n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
-      //     n.id = `${item.alias}${i}`
-      //     n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
-      //   })
-      //   // 存储选择对应的表
-      //   // this.$root.eventBus.$emit('filedTable', res.data.columns)
-      // })
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
       // 存储事实表的所有字段
-      console.log(this.saveSelectAllList)
       if (index === 0) {
         this.saveSelectAllList.map((item, index) => {
           let items = JSON.parse(item)

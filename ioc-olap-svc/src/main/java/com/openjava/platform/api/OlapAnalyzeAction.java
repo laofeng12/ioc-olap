@@ -83,7 +83,7 @@ public class OlapAnalyzeAction {
         AnyDimensionShareVo shareVo=new AnyDimensionShareVo();
         AnyDimensionVo dimensionVo=olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
         MyBeanUtils.copyPropertiesNotBlank(shareVo, dimensionVo);
-        List<ShareUserDto> shareList=olapShareService.getList("RealQuery", String.valueOf(analyzeId), Long.valueOf(userVO.getUserId()));
+        List<ShareUserDto> shareList=olapShareService.getList("Analyze", String.valueOf(analyzeId), Long.valueOf(userVO.getUserId()));
         shareVo.setShareList(shareList);
         return shareVo;
     }
@@ -94,6 +94,27 @@ public class OlapAnalyzeAction {
     public AnyDimensionVo query(Long cubeId, @RequestBody List<AnalyzeAxisVo> axises) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapAnalyzeService.query(cubeId, axises, userVO.getUserId());
+    }
+
+    @ApiOperation(value = "查询已构建好的OLAP分析分页数据")
+    @RequestMapping(value = "/queryPaging", method = RequestMethod.GET)
+    @Security(session = true)
+    public AnyDimensionShareVo queryPaging(Long analyzeId, Long cubeId,Integer pageIndex,Integer pageSize) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        AnyDimensionShareVo shareVo=new AnyDimensionShareVo();
+        AnyDimensionVo dimensionVo=olapAnalyzeService.queryPaging(pageIndex,pageSize,analyzeId, cubeId, userVO.getUserId());
+        MyBeanUtils.copyPropertiesNotBlank(shareVo, dimensionVo);
+        List<ShareUserDto> shareList=olapShareService.getList("Analyze", String.valueOf(analyzeId), Long.valueOf(userVO.getUserId()));
+        shareVo.setShareList(shareList);
+        return shareVo;
+    }
+
+    @ApiOperation(value = "查询未构建好的OLAP分析分页数据")
+    @RequestMapping(value = "/queryPaging", method = RequestMethod.POST)
+    @Security(session = true)
+    public AnyDimensionVo queryPaging(Long cubeId,Integer pageIndex,Integer pageSize, @RequestBody List<AnalyzeAxisVo> axises) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        return olapAnalyzeService.queryPaging(pageIndex,pageSize,cubeId, axises, userVO.getUserId());
     }
 
     @ApiOperation(value = "保存OLAP分析接口")
@@ -132,21 +153,39 @@ public class OlapAnalyzeAction {
         return olapAnalyzeService.getVo(id);
     }
 
-    @ApiOperation(value = "导出已保存的数据", nickname="exportWitholapAnalyze", notes = "报文格式：content-type=application/download")
+    @ApiOperation(value = "导出已保存的数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value="/exportExist",method= RequestMethod.POST)
     @Security(session=true)
     public void export(Long analyzeId, Long cubeId, HttpServletResponse response) throws Exception  {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        AnyDimensionVo dimensionVo=(AnyDimensionShareVo)olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
+        AnyDimensionVo dimensionVo=olapAnalyzeService.query(analyzeId, cubeId, userVO.getUserId());
         Export.dualAnyDimensionVoDate(dimensionVo,response);
     }
 
-    @ApiOperation(value = "直接导出数据", nickname="exportWitholapAnalyze", notes = "报文格式：content-type=application/download")
+    @ApiOperation(value = "直接导出数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value="/export",method= RequestMethod.POST)
     @Security(session=true)
     public void export(Long cubeId, @RequestBody List<AnalyzeAxisVo> axises,HttpServletResponse response) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         AnyDimensionVo dimensionVo=olapAnalyzeService.query(cubeId, axises, userVO.getUserId());
+        Export.dualAnyDimensionVoDate(dimensionVo,response);
+    }
+
+    @ApiOperation(value = "导出已保存的分页数据", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value="/exportPagingExist",method= RequestMethod.POST)
+    @Security(session=true)
+    public void export(Long analyzeId, Long cubeId,Integer pageIndex,Integer pageSize, HttpServletResponse response) throws Exception  {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        AnyDimensionVo dimensionVo=olapAnalyzeService.queryPaging(pageIndex,pageSize,analyzeId, cubeId, userVO.getUserId());
+        Export.dualAnyDimensionVoDate(dimensionVo,response);
+    }
+
+    @ApiOperation(value = "直接导出分页数据", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value="/exportPaging",method= RequestMethod.POST)
+    @Security(session=true)
+    public void export(Long cubeId,Integer pageIndex,Integer pageSize, @RequestBody List<AnalyzeAxisVo> axises,HttpServletResponse response) throws Exception {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        AnyDimensionVo dimensionVo=olapAnalyzeService.queryPaging(pageIndex,pageSize,cubeId, axises, userVO.getUserId());
         Export.dualAnyDimensionVoDate(dimensionVo,response);
     }
 

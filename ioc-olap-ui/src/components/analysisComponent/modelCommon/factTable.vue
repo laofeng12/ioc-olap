@@ -84,6 +84,7 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.current = index
@@ -95,8 +96,10 @@ export default {
       }
     },
     dragLi (item) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
+          console.log('名字====', item)
           this.$parent.dragTable(item)
         }
       } else {

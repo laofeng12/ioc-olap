@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public class AnyDimensionVo {
-    private Integer totalRows;
-    private Integer totalColumns;
-    private ArrayList<ArrayList<AnyDimensionCellVo>> results;
+    private List<ArrayList<AnyDimensionCellVo>> results;
     private String cube;
     private Integer affectedRowCount;
     private boolean isException;
@@ -19,4 +18,5 @@ public class AnyDimensionVo {
     private Integer duration;
     private Integer totalScanCount;
     private Integer totalScanBytes;
+    private Integer totalRows;
 }

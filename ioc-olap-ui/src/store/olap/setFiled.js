@@ -99,7 +99,6 @@ const setFiled = {
     },
     // 存储输入的显示名称
     changePushalias ({ state }, val) {
-      console.log(val, '修改文字')
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -150,17 +149,29 @@ const setFiled = {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
+      // console.log(resultVal, '啦啦啦啦', getters.jointResultData.lookups)
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
-            datas.push({
-              id: n.id,
-              type: n.dataType,
-              value: item.join.foreign_key.join(',')
-            })
+            if (item.join.foreign_key.length > 1) {
+              item.join.foreign_key.forEach(res => {
+                datas = datas.concat({
+                  id: n.id,
+                  type: n.dataType,
+                  value: res
+                })
+              })
+            } else {
+              datas.push({
+                id: n.id,
+                type: n.dataType,
+                value: item.join.foreign_key.join(',')
+              })
+            }
           }
         })
       })
+      console.log(datas, '衍生对应的数据')
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {

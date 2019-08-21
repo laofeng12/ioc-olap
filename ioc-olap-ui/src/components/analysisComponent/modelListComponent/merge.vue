@@ -2,12 +2,14 @@
   <div class="rename">
     <el-dialog title="合并模型块" :visible.sync="dialogFormVisible">
       <el-form :model="form">
-        <el-form-item label="日期字段" :label-width="formLabelWidth">
-          {{11111111111}}
-        </el-form-item>
+        <!-- <el-form-item label="日期字段" :label-width="formLabelWidth">
+          {{dataList.partitionDateColumn}}
+        </el-form-item> -->
         <el-form-item label="合并开始区间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.startTime"
+            format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetime"
             placeholder="请选择构建时间区间">
           </el-date-picker>
@@ -15,6 +17,8 @@
         <el-form-item label="合并结束区间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.endTime"
+            format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetime"
             placeholder="请选择构建时间区间">
           </el-date-picker>
@@ -29,6 +33,7 @@
 </template>
 
 <script>
+import { mergeCubeModeling } from '@/api/modelList'
 export default {
   data () {
     return {
@@ -44,14 +49,25 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '合并成功!'
-        })
         this.dialogFormVisible = false
+        this.$parent.changeLoading()
+        let parmas = {
+          cubeName: this.dataList.name,
+          start: Date.parse(new Date(this.form.startTime)) / 1000,
+          end: Date.parse(new Date(this.form.endTime)) / 1000
+        }
+        this.$throttle(async () => {
+          await mergeCubeModeling(parmas).then(res => {
+            this.$message.success('合并成功~')
+            this.$parent.closeChangeLoading()
+          }).catch(_ => {
+            this.$parent.closeChangeLoading()
+          })
+        })
       })
     },
-    dialog () {
+    dialog (val) {
+      this.dataList = val
       this.dialogFormVisible = true
     }
   }

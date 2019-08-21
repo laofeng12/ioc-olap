@@ -291,32 +291,36 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
 
     @Override
     public AnyDimensionVo query(Long cubeId, List<AnalyzeAxisVo> axises, String userId) throws APIException {
-        return query(cubeId, axises, userId, null);
+        return query(cubeId, axises, userId, null,0,0);
     }
 
-    private AnyDimensionVo query(Long cubeId, List<AnalyzeAxisVo> axises, String userId, String sql) throws APIException {
+    private AnyDimensionVo query(Long cubeId, List<AnalyzeAxisVo> axises, String userId, String sql,Integer pageIndex,Integer pageSize) throws APIException {
         AnyDimensionVo anyDimensionVo = new AnyDimensionVo();
-        ArrayList<ArrayList<AnyDimensionCellVo>> results = new ArrayList<ArrayList<AnyDimensionCellVo>>();
+        List<ArrayList<AnyDimensionCellVo>> results = new ArrayList<ArrayList<AnyDimensionCellVo>>();
         if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
         QueryResultMapper resultMapper = cubeAction.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
         if(resultMapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
         List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
-        Integer axisYCount = yAxises.size(), axisXCount = xAxises.size();
+        Integer axisYCount = yAxises.size(), axisXCount = xAxises.size(),begin=0,end=0;
+        if(isPaging(pageIndex,pageSize)){
+            begin=(pageIndex-1)*pageSize;
+            end=pageIndex*pageSize;
+        }
         List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
         String axisXData, axisYData, cellId;
         ArrayList<AnyDimensionCellVo> rowCells;
         AnyDimensionCellVo cell;
         List<String> xTemps, yTemps, dTemps;
         Integer dataIndex=axisYCount+1;
-        ArrayList<Double> rowSummarys =new ArrayList<>();
-        ArrayList<Double> columnSummarys =new ArrayList<>();
+        List<Double> rowSummarys =new ArrayList<>();
+        List<Double> columnSummarys =new ArrayList<>();
         //定义y轴头部
         for (Integer i = 0; i < yAxises.size(); i++) {
             rowCells = new ArrayList<AnyDimensionCellVo>();
@@ -389,13 +393,34 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1,String.format("%.2f",Double.parseDouble(dTemp)), 4);
                     if(rowCells.size()>beginIndex){
                         rowCells.add(beginIndex,cell);
-                        columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        if(isPaging(pageIndex,pageSize)) {
+                            if (rowSummarys.size()-1>= begin && rowSummarys.size()-1 < end) {
+                                columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                            }
+                            else{
+                                columnSummarys.add(beginIndex-axisXCount, 0.0);
+                            }
+                        }
+                        else{
+                            columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                        }
                         rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     }
                     else{
                         rowCells.add(cell);
-                        columnSummarys.add(Double.parseDouble(dTemp));
+                        if(isPaging(pageIndex,pageSize)) {
+                            if (rowSummarys.size()-1 >= begin && rowSummarys.size()-1 < end) {
+                                columnSummarys.add(Double.parseDouble(dTemp));
+                            }
+                            else{
+                                columnSummarys.add(0.0);
+                            }
+                        }
+                        else{
+                            columnSummarys.add(Double.parseDouble(dTemp));
+                        }
                         rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+
                     }
                     beginIndex++;
                 }
@@ -404,13 +429,34 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 for (String dTemp : dTemps) {
                     cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
                     rowCells.set(beginIndex, cell);
-                    columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                    if(isPaging(pageIndex,pageSize)){
+                        if(rowSummarys.size()-1>=begin && rowSummarys.size()-1<end){
+                            columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                        }
+                    }
+                    else{
+                        columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                    }
                     rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
                     beginIndex++;
                 }
             }
         }
 
+        if(isPaging(pageIndex,pageSize)){
+            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
+            dataResults.addAll(results.subList(0,axisYCount+1));
+            if(rowSummarys.size()<end){
+                dataResults.addAll(results.subList(begin+axisYCount+1,results.size()));
+                rowSummarys=rowSummarys.subList(begin,rowSummarys.size());
+            }
+            else{
+                dataResults.addAll(results.subList(begin+axisYCount+1,end+axisYCount+1));
+                rowSummarys=rowSummarys.subList(begin,end);
+            }
+            anyDimensionVo.setTotalRows(results.size()-1-axisYCount);
+            results=dataResults;
+        }
         Integer compareIndex =0;
         rowCells = new ArrayList<AnyDimensionCellVo>();
         rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
@@ -449,7 +495,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Override
     public AnyDimensionVo query(Long analyzeId, Long cubeId, String userId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql());
+        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql(),0,0);
     }
 
     @Override
@@ -474,15 +520,26 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         String countSql=MessageFormat.format("select count(*) from ({0})M",sql);
         QueryResultMapper countMapper=cubeAction.query(countSql,0,100,"learn_kylin");
         if(countMapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         QueryResultMapper mapper=cubeAction.query(sql,offeset,limit,"learn_kylin");
         if(mapper==null){
-            throw new APIException("网络错误！");
+            throw new APIException(10002,"网络错误！");
         }
         Integer count=Integer.parseInt(countMapper.results.get(0).get(0));
         mapper.setTotalRecord(count);
         return mapper;
+    }
+
+    @Override
+    public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long cubeId, List<AnalyzeAxisVo> axises, String userId) throws APIException {
+        return query(cubeId, axises, userId, null,pageIndex,pageSize);
+    }
+
+    @Override
+    public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId, String userId) throws APIException {
+        AnalyzeVo analyzeVo = getVo(analyzeId);
+        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql(),pageIndex,pageSize);
     }
 
     private boolean isStringType(String columnType){
@@ -499,5 +556,12 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 return true;
             }
         }
+    }
+
+    private boolean isPaging(Integer pageIndex,Integer pageSize){
+        if(pageIndex>0 && pageSize>0){
+            return true;
+        }
+        return false;
     }
 }

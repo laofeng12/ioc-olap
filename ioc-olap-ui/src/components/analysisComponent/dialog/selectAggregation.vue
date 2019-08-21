@@ -13,11 +13,14 @@
         <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 5">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else>
-          <el-checkbox-button v-for="(item, index) in saveselectIncludesData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
+          <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -39,6 +42,7 @@ export default {
   },
   data () {
     return {
+      optionData: [],
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
@@ -53,7 +57,7 @@ export default {
     }
   },
   mounted () {
-    console.log(this.saveselectIncludesData)
+    // console.log(this.saveselectIncludesData)
   },
   methods: {
     closeBtn () {
@@ -72,11 +76,30 @@ export default {
       }
       this.$store.dispatch('SaveAggregationWD', slectData)
     },
+    getArrDifference (arr1, arr2) {
+      return arr1.concat(arr2).filter(function (v, i, arr) {
+        return arr.indexOf(v) === arr.lastIndexOf(v)
+      })
+    },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
-      this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
-      console.log(this.saveselectIncludesData)
+      // console.log('第二步选择的', this.aggregation_groups)
+      // this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+      switch (type) {
+        case 1:
+          this.options = this.reloadNeedData
+          break
+        case 5:
+          this.options = this.reloadNeedData
+          break
+        case 6:
+          this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+          break
+        default:
+          let arrD = [...new Set(this.recordingData)]
+          this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+      }
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -110,6 +133,8 @@ export default {
   computed: {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
+      recordingData: 'recordingData',
+      aggregation_groups: 'aggregation_groups',
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId',

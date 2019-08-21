@@ -1,15 +1,19 @@
 package com.openjava.platform.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import javax.annotation.Resource;
 
+import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
+import com.openjava.platform.domain.OlapTimingrefresh;
+import com.openjava.platform.mapper.kylin.CubeDescDataMapper;
+import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.query.OlapCubeDBParam;
 import com.openjava.platform.repository.OlapCubeRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.component.sequence.SequenceService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -78,8 +82,8 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	}
 
 	@Override
-	public ArrayList<OlapCube> getListByUserId(Long userId) {
-		return olapCubeRepository.findByCreateId(userId);
+	public List<OlapCube> findByUserId(Long createId) {
+		return olapCubeRepository.findByUserId(createId);
 	}
 
 	@Override
@@ -90,5 +94,35 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	@Override
 	public ArrayList<OlapCube> getValidListByUserId(Long userId) {
 		return olapCubeRepository.findByCreateIdAndFlags(userId,1);
+	}
+
+	//保存OLAP_CUBE表
+	public OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO) {
+		CubeDescDataMapper cubeDescData = cube.getCubeDescData();
+		SequenceService ss = ConcurrentSequence.getInstance();
+		Long cubeId = ss.getSequence();
+
+		//根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据
+		if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
+			OlapCube olapCube = findTableInfo(cubeDescData.getName(), Long.parseLong(userVO.getUserId()));
+			olapCube.setName(cubeDescData.getName());
+			olapCube.setRemark(cubeDescData.getDescription());
+			olapCube.setUpdateId(Long.parseLong(userVO.getUserId()));
+			olapCube.setUpdateName(userVO.getUserAccount());
+			olapCube.setUpdateTime(date);
+			olapCube.setIsNew(false);
+			return olapCube;
+		} else {
+			OlapCube olapCube = new OlapCube();
+			olapCube.setName(cubeDescData.getName());
+			olapCube.setRemark(cubeDescData.getDescription());
+			olapCube.setCubeId(cubeId);
+			olapCube.setCreateTime(date);
+			olapCube.setCreateId(Long.parseLong(userVO.getUserId()));
+			olapCube.setCreateName(userVO.getUserAccount());
+			olapCube.setFlags(0);
+			olapCube.setIsNew(true);
+			return olapCube;
+		}
 	}
 }

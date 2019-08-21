@@ -56,7 +56,6 @@ export default {
       this.formData.dimensionFiled = this.saveSelectFiled.length
       this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
-      // console.log(this.totalSaveData.models.modelDescData.dimensions, '=====', this.dimensions)
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
@@ -66,14 +65,12 @@ export default {
        * 处理聚合小组
        */
       this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      console.log(this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list)
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
       this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
         let item = i.select_rule
         item.hierarchy_dims.forEach((k, idx1) => {
           if (k.length === 0) item.hierarchy_dims = []
         })
-        // if (item.hierarchy_dims.length === 1) item.hierarchy_dims = item.hierarchy_dims.join(',')
         item.joint_dims.forEach((k, idx1) => {
           if (k.length === 0) item.joint_dims = []
         })
@@ -89,6 +86,7 @@ export default {
           item.columns[0].measure_refs.push('_COUNT_')
         }
       })
+      // this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs = [...new Set(this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs)]
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
@@ -98,21 +96,23 @@ export default {
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
-      console.log(this.totalSaveData, '高级', this.selectStepList)
+      // 过滤rowkey
+      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
+        let leh = res.lengths ? `:${res.lengths}` : ''
+        res.encoding = `${res.columns_Type}${leh}`
+      })
     },
     nextModel (val) {
-      // this.$message.error('暂未完成')
+      console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true
-        throttle(() => {
-          saveolapModeldata(this.totalSaveData).then(res => {
-            if (res.CubeList) {
-              this.$message.success('保存成功~')
-              this.completeLoading = false
-              this.$router.push('/analysisModel/Configuration')
-              this.$store.dispatch('resetList')
-            }
-          }).finally(_ => {
+        throttle(async () => {
+          await saveolapModeldata(this.totalSaveData).then(_ => {
+            this.$message.success('保存成功~')
+            this.completeLoading = false
+            this.$router.push('/analysisModel/Configuration')
+            this.$store.dispatch('resetList')
+          }).catch(_ => {
             this.completeLoading = false
           })
         }, 1000)

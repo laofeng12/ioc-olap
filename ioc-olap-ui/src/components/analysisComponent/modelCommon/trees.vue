@@ -6,11 +6,12 @@
       :data="treeList"
         ref="tree"
         v-loading="treeLoading"
+        auto-expand-parent
         :expand-on-click-node="false"
         node-key="id"
         @node-expand="nodeExpand"
-        :highlight-current="showTree"
         @node-click="getCurrents"
+        highlight-current
         :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
@@ -95,6 +96,8 @@ export default {
         })
         this.treeList = res
       })
+      // console.log('最后一次点击的', this.lastClickTab)
+      // this.$refs.tree.setCurrentKey(this.lastClickTab)
     },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
@@ -153,7 +156,9 @@ export default {
         // this.fetchResourceInfo(data)
       }
       // kelin
-      this.fetchResourceList(data, node.parent.key)
+      console.log('点击的', node)
+      let lastId = node.parent.label ? node.parent.key : node.key
+      this.fetchResourceList(data, lastId)
       // 保存数据到store
       this.$store.dispatch('SaveSelectData', data)
     },
@@ -226,6 +231,9 @@ export default {
   },
   created () {
     this.fetchTreeList(this.lastClickTab)
+    this.$nextTick(function () {
+      this.$refs.tree.setCurrentKey(this.lastClickTab)
+    })
   }
 }
 </script>

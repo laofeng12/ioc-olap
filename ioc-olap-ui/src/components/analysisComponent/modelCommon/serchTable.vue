@@ -44,7 +44,6 @@ export default {
         this.loading = true
         this.dataList[0].children = []
         let orgId = res.orgId
-        console.log(res)
         /* KELIN */
         if (type && type === 1) {
           this.$store.dispatch('GetThreeList', { orgId: orgId }).then(res => { // kelin
@@ -210,13 +209,14 @@ export default {
 .serchTable{
   width 230px
   float left
-  padding 0 25px
+  padding 0 5px
+  overflow auto
   border-right 1px solid #f0f0f0
-  height calc(100vh - 100px)
+  height 98%
   .trees{
-    height calc(100vh - 300px)
-    overflow-y auto
-    width 200px
+    // height calc(100vh - 300px)
+    // overflow-y auto
+    width 250px
   }
   >>>.el-radio{
     display block

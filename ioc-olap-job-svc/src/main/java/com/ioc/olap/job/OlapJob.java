@@ -41,7 +41,7 @@ public class OlapJob {
     @Scheduled(cron = "${schedule.day.day}")
     public void day() throws Exception {
         logger.info("开始执行定时任务-天");
-        configureTasks(3);
+        configureTasks(2);
         logger.info("结束执行定时任务-天");
     }
 
@@ -54,9 +54,10 @@ public class OlapJob {
 
     @Scheduled(cron = "${schedule.five_minute.five_minute}")
     public void minute() throws Exception {
-        logger.info("开始执行定时任务-分钟");
-        cubeListTasks(100, 0);
-        logger.info("结束执行定时任务-分钟");
+        logger.info("开始执行定时任务五分钟");
+        cubeListTasks();
+        //Thread.sleep(90*1000);
+        logger.info("结束执行定时任务五分钟");
     }
 
 
@@ -66,8 +67,12 @@ public class OlapJob {
 
             //执行bui
             for (OlapTimingrefresh fc : timingreFresh) {
-                cubeService.build(fc.getCubeName(), fc.getFinalExecutionTime(), fc.getNextExecutionTime());
-
+                try {
+                    cubeService.build(fc.getCubeName(), fc.getFinalExecutionTime(), fc.getNextExecutionTime());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    continue;
+                }
                 Date nextDate = fc.getNextExecutionTime();
                 int interval = fc.getInterval().intValue();
 
@@ -85,6 +90,8 @@ public class OlapJob {
                         break;
                 }
                 Date dateCalendar = calendar.getTime();
+                Date now = new Date();
+                fc.setUpdateTime(now);
                 fc.setFinalExecutionTime(nextDate);  //最后执行时间
                 fc.setNextExecutionTime(dateCalendar); //下一次执行执行时间
                 fc.setIsNew(false);
@@ -93,10 +100,21 @@ public class OlapJob {
         }
     }
 
-    private void cubeListTasks(Integer limit, Integer offset) throws Exception {
-        ArrayList<HashMap> result = cubeService.list(limit,offset);
+    private void cubeListTasks() throws Exception {
+        Integer limit=1000;
+        Integer offset=0;
+        ArrayList<HashMap> result=new ArrayList<HashMap>();
+        while(true){
+            ArrayList<HashMap> dateList = cubeService.list(limit,offset);
+            if(dateList.size()==0)
+            {
+                break;
+            }
+            result.addAll(dateList);
+            offset=offset+limit;
 
-        if (result != null) {
+        }
+        if (result.size()!=0) {
             //遍历列表
             for (int i=0;i< result.size();i++) {
                 String cubeName=result.get(i).get("name").toString();

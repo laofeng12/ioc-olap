@@ -297,7 +297,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'cubeId'
+      'cubeData'
     ])
   },
   watch: {
@@ -334,6 +334,10 @@ export default {
     },
     editData (val) {
       this.selectCubeId = val.cubeId
+      this.rItems = []
+      this.cItems = []
+      this.nItems = []
+      this.bItems = []
       val.olapAnalyzeAxes.forEach(v => {
         switch (v.type) {
           case 1:
@@ -350,7 +354,11 @@ export default {
             break
         }
       })
-      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId)
+      const headLimit = {
+        rItems: this.rItems,
+        cItems: this.cItems
+      }
+      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId, headLimit)
     }
   },
   mounted () {
@@ -366,7 +374,7 @@ export default {
     },
     changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]
-      this.$store.dispatch('getCubeIdAction', cubeId)
+      this.$store.dispatch('getCubeDataAction', { dimensures, measures, cubeId })
       let dimensuresList = []
       let measuresList = []
       dimensures.forEach(item => {
@@ -384,53 +392,9 @@ export default {
       this.dimensuresList = dimensuresList
       this.measuresList = measuresList
     },
-    // 选择文件夹名称
-    // getFileName (fileValue) {
-    //   if (fileValue === '1') {
-    //     // this.dashBoardForm.fileName = ''
-    //     this.dialogFormVisible = true
-    //   }
-    // },
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          // this.dashBoardForm.fileName = this.ruleForm.name
-          // this.dialogFormVisible = false
-        } else {
-          return false
-        }
-      })
-    },
-    // 添加数据集/自助报表
-    // addDataSet () {
-    //   this.dialogDataSet = true
-    // },
-    // 删除数据集
-    // delDataSet () {
-    //   this.$confirm('确定删除“引用数据集名称”吗？其相关字段维度将一起删除！', '删除数据集', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     this.$message({
-    //       type: 'success',
-    //       message: '删除成功!'
-    //     })
-    //   }).catch(() => {
-    //     this.$message({
-    //       type: 'info',
-    //       message: '已取消删除'
-    //     })
-    //   })
-    // },
-    // 数据集选择当前行列
-    chooseRow (row) {
-      console.log(row)
-    },
     // 删除维度行
     delRow (index) {
       this.rItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.rItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -438,7 +402,6 @@ export default {
     // 删除维度列
     delCol (index) {
       this.cItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.cItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -446,7 +409,6 @@ export default {
     // 删除数值
     delVal (index) {
       this.nItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.nItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -454,7 +416,6 @@ export default {
     // 删除筛选器
     delFiter (index) {
       this.bItems.splice(index, 1)
-      console.log('筛选器deleted:', JSON.stringify(this.bItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -681,7 +642,7 @@ export default {
       const newRowList = this.rItems.length > 0 ? this.rItems.map(v => Object.assign({}, v, { type: 1 })) : []
       const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
-      this.$emit('searchFunc', list, this.cubeId)
+      this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.rItems, cItems: this.cItems })
     }
   }
 }
