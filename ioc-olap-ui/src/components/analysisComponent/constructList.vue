@@ -18,9 +18,11 @@
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>
-              <el-progress :percentage="70"></el-progress>
-            </div>
+            <div v-if="scope.row.job_status === 'FINISHED'" style="color:green;">成功</div>
+            <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
+            <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
+            <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
+            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)"><el-progress :percentage="70"></el-progress></div>
           </template>
         </el-table-column>
         <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
@@ -45,12 +47,11 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.uuid}">查看日志</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'pauseJob', params: scope.row.uuid}">暂停</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'cancelJob', params: scope.row.uuid}">停止</el-dropdown-item>
-                  <!-- <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">诊断</el-dropdown-item> -->
-                  <el-dropdown-item :command="{type: 'resumeJob', params: scope.row.uuid}">运行</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'delete', params: scope.row.uuid}">删除</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">查看日志</el-dropdown-item>
+                  <el-dropdown-item v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)" :command="{type: 'pauseJob', params: scope.row}">暂停</el-dropdown-item>
+                  <el-dropdown-item v-if="['PENDING', 'RUNNING', 'ERROR'].includes(scope.row.job_status)" :command="{type: 'cancelJob', params: scope.row}">停止</el-dropdown-item>
+                  <el-dropdown-item v-if="['STOPPED', 'DISCARDED', 'ERROR'].includes(scope.row.job_status)" :command="{type: 'resumeJob', params: scope.row}">运行</el-dropdown-item>
+                  <el-dropdown-item v-if="['DISCARDED', 'FINISHED'].includes(scope.row.job_status)" :command="{type: 'delete', params: scope.row}">删除</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -129,7 +130,8 @@ export default {
       }).then(async () => {
         this.getLoading = true
         let list = {
-          jobsId: params
+          jobsId: params.uuid
+          // cubeName: params.related_cube
         }
         if (type === 'pauseJob') {
           await pauseJobListModeling(list).then(res => {
@@ -165,9 +167,6 @@ export default {
         }
         this.getLoading = false
       })
-    },
-    handleSelectionChange () {
-
     },
     Conversion (second) {
       var days = Math.floor(second / 86400)

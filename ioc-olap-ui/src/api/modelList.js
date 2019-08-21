@@ -124,7 +124,7 @@ export function resumeJobListModeling (params) {
 // 删除
 export function deleteJobListModeling (params) {
   return fetch({
-    url: '/olap/apis/OlapModeling/delete',
+    url: '/olap/apis/OlapModeling/deleteJob',
     method: 'DELETE',
     params
   })
