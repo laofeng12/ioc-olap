@@ -17,4 +17,9 @@ public class LookupsMapper {
     public String joinTable;
     @JSONField(name = "join")
     public JoinMapper join;
+
+    @JSONField(name = "SAxis")
+    public String SAxis;
+    @JSONField(name = "YAxis")
+    public String YAxis;
 }
