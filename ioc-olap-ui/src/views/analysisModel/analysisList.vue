@@ -8,7 +8,7 @@
                          :menuListLoading="myLoading" @clickItem="getTableById" @getAnalysisList="getFolderWithQuery"></FolderAside>
           </el-tab-pane>
           <el-tab-pane label="分享" name="share">
-            <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap"
+            <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap" :showDo="false"
                          :menuListLoading="shareLoading" @clickItem="getTableById" :needNewFolder="false"></FolderAside>
           </el-tab-pane>
         </el-tabs>

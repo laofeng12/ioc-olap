@@ -45,7 +45,7 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">查看日志</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'log', params: scope.row}">查看日志</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row.apiId}">暂停</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">停止</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'flowControlModal', params: scope.row}">诊断</el-dropdown-item>
@@ -57,6 +57,18 @@
           </template>
         </el-table-column>
       </el-table>
+    <el-dialog title="选择共享" :visible.sync="logListVisible">
+      <div class="logListBox dis-flex">
+        <el-steps direction="vertical" :active="1">
+          <el-step title="详细123" slot-scope></el-step>
+          <el-step title="步骤 2"></el-step>
+          <el-step title="步骤 3" description="这是一段很长很长很长的描述性文字"></el-step>
+        </el-steps>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="logListVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -71,7 +83,8 @@ export default {
       pageSize: 20,
       currentPage: 1,
       totalCount: 1,
-      tableData: []
+      tableData: [],
+      logListVisible: false
     }
   },
   filters: {
@@ -100,8 +113,14 @@ export default {
     searchFetch (val) {
       console.log(val)
     },
-    handleCommand () {
-
+    handleCommand (dropData) {
+      switch (dropData.type) {
+        case 'log':
+          return this.showLogList(dropData)
+      }
+    },
+    showLogList (dropData) {
+      this.logListVisible = true
     },
     handleSelectionChange () {
 
