@@ -52,6 +52,7 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
+      console.log(this.jointResultData, '获取')
       this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)

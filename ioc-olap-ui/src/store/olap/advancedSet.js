@@ -49,15 +49,35 @@ const advancedSet = {
   actions: {
     resetList ({ state }) {
       state.relaodFilterList = []
-      state.reloadData = {
-        autoReload: false,
-        dataMany: false,
-        partition_date_column: '',
-        partition_date_format: '',
-        partition_time_format: '',
-        INTERVAL: '',
-        frequencytype: 1
+      state.aggregation_groups = [
+        {
+          includes: [],
+          select_rule: {
+            mandatory_dims: [],
+            hierarchy_dims: [[]],
+            joint_dims: [[]]
+          }
+        }
+      ]
+      state.saveselectIncludesData = []
+      state.filterMappingData = []
+      state.mandatory_dimension_set_list = [[]]
+      state.hbase_mapping = {
+        column_family: []
       }
+      state.NewDataList = []
+      state.selectDataidList = [
+        {
+          includesId: [],
+          necessaryDataId: [],
+          levelDataId: [[]],
+          jointDataId: [[]]
+        }
+      ]
+      state.savedimensionDataId = [[]]
+      state.savehetComposeDataId = [[]]
+      state.recordingData = []
+      state.engine_types = '2'
     },
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {

@@ -13,6 +13,9 @@
         <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 5">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
@@ -30,7 +33,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -85,10 +87,13 @@ export default {
       // console.log('第二步选择的', this.aggregation_groups)
       // this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
       switch (type) {
-        case '1':
+        case 1:
           this.options = this.reloadNeedData
           break
-        case '6':
+        case 5:
+          this.options = this.reloadNeedData
+          break
+        case 6:
           this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
           break
         default:

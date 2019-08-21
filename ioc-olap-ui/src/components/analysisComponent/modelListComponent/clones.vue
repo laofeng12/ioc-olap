@@ -1,6 +1,6 @@
 <template>
   <div class="rename">
-    <el-dialog title="克隆" :visible.sync="dialogFormVisible">
+    <el-dialog title="克隆" :visible.sync="dialogFormVisible" v-loading="cloneLoading">
       <el-form :model="form">
         <el-form-item>
           <el-input placeholder="请输入新名称" v-model="form.name" autocomplete="off"></el-input>
@@ -15,20 +15,33 @@
 </template>
 
 <script>
+import { cloneModeling } from '@/api/modelList'
 export default {
   data () {
     return {
-      form: {},
+      cloneLoading: false,
+      cubeName: '',
+      form: {
+        name: ''
+      },
       dialogFormVisible: false
     }
   },
   methods: {
-    handlebtn () {
+    async handlebtn () {
       this.dialogFormVisible = false
+      this.$parent.changeLoading()
+      await cloneModeling({ cubeNameClone: this.form.name, cubeName: this.cubeName }).then(res => {
+        this.$message.success('复制成功~')
+        this.$parent.closeChangeLoading()
+      }).catch(_ => {
+        this.$parent.closeChangeLoading()
+      })
     },
     dialog (data) {
       this.dialogFormVisible = true
       let { name } = JSON.parse(JSON.stringify(data))
+      this.cubeName = name
       this.form.name = `${name}_clone`
     }
   }

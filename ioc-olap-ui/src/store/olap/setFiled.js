@@ -99,7 +99,6 @@ const setFiled = {
     },
     // 存储输入的显示名称
     changePushalias ({ state }, val) {
-      console.log(val, '修改文字')
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -170,7 +169,8 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      // state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      state.reloadNeedData = reduceObj([...nomrlData], 'value')
       console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)

@@ -84,9 +84,15 @@ const selectStep = {
       state.saveSelctchckouttwo = val
     },
     // 存储所有选择的表对应的字段
-    SaveSelectAllList (state, val) {
+    SaveSelectAllListone (state, val) {
       let columId = val.map(item => { return item.resourceId })
       getselectColumn(columId).then(res => {
+        state.saveSelectAllList = res
+      })
+    },
+    SaveSelectAllListtwo (state, val) {
+      // let columId = val.map(item => { return item.resourceId })
+      getselectColumn(val).then(res => {
         state.saveSelectAllList = res
       })
     },
@@ -97,6 +103,14 @@ const selectStep = {
         item.tableName = list.list.joinTable
         return item
       })
+    },
+    ClearTableRelation (getters) {
+      getters.jointResultData = {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      }
     }
   },
   actions: {

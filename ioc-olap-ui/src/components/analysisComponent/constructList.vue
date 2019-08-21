@@ -16,9 +16,27 @@
         style="width: 100%;margin-top: 10px;">
         <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="duration" label="构建时长" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              <el-progress :percentage="70"></el-progress>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              {{scope.row.exec_end_time | formatDate}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="duration" label="构建时长" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+              {{Conversion(scope.row.duration)}}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           label="操作"
           align="center">
@@ -44,6 +62,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { filterTime } from '@/utils/index'
 export default {
   data () {
     return {
@@ -53,6 +72,11 @@ export default {
       currentPage: 1,
       totalCount: 1,
       tableData: []
+    }
+  },
+  filters: {
+    formatDate (time) {
+      return filterTime(time)
     }
   },
   mounted () {
@@ -81,6 +105,15 @@ export default {
     },
     handleSelectionChange () {
 
+    },
+    Conversion (second) {
+      var days = Math.floor(second / 86400)
+      var hours = Math.floor((second % 86400) / 3600)
+      var minutes = Math.floor(((second % 86400) % 3600) / 60)
+      var seconds = Math.floor(((second % 86400) % 3600) % 60)
+      // var duration = days + '天' + hours + '小时' + minutes + '分' + seconds + '秒'
+      var duration = minutes + '分' + seconds + '秒'
+      return duration
     }
   }
 }
@@ -98,6 +131,21 @@ export default {
     }
     >>>.el-button{
       float right
+    }
+  }
+  >>>.el-progress-bar{
+    height 20px!important
+    line-height 20px
+    .el-progress-bar__outer{
+      height 20px!important
+      line-height 20px
+      border-radius 0
+      .el-progress-bar__inner{
+        border-radius 0
+      }
+    }
+    .el-progress__text{
+      font-size 13px
     }
   }
 }
