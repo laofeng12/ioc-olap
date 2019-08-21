@@ -5,10 +5,9 @@ const modelList = {
     modelListData: [],
     cubeObjListData: [],
     params: {
-      limit: 15,
+      limit: 40,
       offset: 0
     }
-
   },
   actions: {
     resetList ({ state }) {
@@ -23,7 +22,11 @@ const modelList = {
     },
     SaveCubeObjListData ({ state }, data) {
       return new Promise((resolve, reject) => {
-        const datas = jobsListModeling(state.params)
+        let list = {
+          ...state.params,
+          ...data
+        }
+        const datas = jobsListModeling(list)
         state.cubeObjListData = datas
         resolve(datas)
       })
