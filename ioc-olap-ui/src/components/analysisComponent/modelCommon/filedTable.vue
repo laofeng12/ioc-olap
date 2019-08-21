@@ -52,7 +52,7 @@ export default {
   methods: {
     init () {
       // this.dataList = this.saveLeftFiled // 静态数据
-      console.log(this.jointResultData, '获取')
+      // console.log(this.jointResultData, '获取')
       this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
@@ -64,9 +64,10 @@ export default {
       let factData = {
         alias: this.dataList.fact_table,
         joinId: this.ids,
+        table: '',
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          primary_key: this.primary_key
+          foreign_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups]
@@ -78,7 +79,6 @@ export default {
         this.current = 0
       }, 300)
       // 接收设置表关系的数据
-      // this.dataList = this.selectTableTotal
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
         setTimeout(() => {

@@ -57,7 +57,7 @@ export default {
     }
   },
   mounted () {
-    console.log(this.saveselectIncludesData)
+    // console.log(this.saveselectIncludesData)
   },
   methods: {
     closeBtn () {
