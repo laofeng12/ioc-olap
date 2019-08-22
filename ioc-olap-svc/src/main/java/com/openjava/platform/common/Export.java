@@ -221,14 +221,13 @@ public class Export {
 
                             int rowspan = anyDimensionCellVoD.getRowspan();
                             int colspan = anyDimensionCellVoD.getColspan();
+
                             //列头加粗
                             if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5) {
+                                cellStyle.setAlignment(HorizontalAlignment.CENTER);
                                 font.setFontName("黑体");
                                 //font.setBold(true);//粗体显示
                                 cellStyle.setFont(font);
-                                if(colspan > 1||rowspan > 1) {
-                                    cellStyle.setAlignment(HorizontalAlignment.CENTER);
-                                }
                                 cell.setCellStyle(cellStyle);
                             }
 
