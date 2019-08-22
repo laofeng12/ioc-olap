@@ -160,11 +160,11 @@ export default {
       }
     },
     nextModel (val) {
+      console.log(this.saveSelectFiled, '====获取的')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
-      // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
       //   flag = item.filed === '1' ? 0 : 1
       // })

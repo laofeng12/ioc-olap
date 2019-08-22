@@ -828,10 +828,8 @@ export default {
             ele.remove()
             // 删除对应存储的数据
             this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-              return item.id !== ele.attributes.attrs.data.id
+              return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
             })
-            this.$store.commit('removeJointResult', target.id)
-            console.log('删除后', this.jointResultData)
           }
         } else {
           if (ele.id === target.id) {
@@ -910,6 +908,7 @@ export default {
     },
 
     nextModel (val) {
+      if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
@@ -917,7 +916,6 @@ export default {
         arrId.push(item.id, item.joinId)
       })
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
-      console.log(arrId)
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')

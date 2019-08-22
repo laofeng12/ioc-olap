@@ -56,7 +56,6 @@
             :data="rowkeyData.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
-            @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
             <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
             <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
@@ -222,7 +221,6 @@ export default {
       })
       // debugger
       this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
-      console.log(this.rowkeyData.rowkey_columns)
     },
     resortAggregation () {
       this.aggregation_groups.forEach(item => {
@@ -244,9 +242,6 @@ export default {
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/reloadSet')
-    },
-    handleSelectionChange (val) {
-
     },
     changeEngine (val) {
       this.$store.dispatch('SetEngine', val)

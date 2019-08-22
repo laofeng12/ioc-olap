@@ -28,7 +28,6 @@ const getters = {
   saveNewSortList: state => state.setFiled.saveNewSortList,
   saveNewSortListstructure: state => state.setFiled.saveNewSortListstructure,
   reloadNeedData: state => state.setFiled.reloadNeedData,
-  saveLeftFiled: state => state.setFiled.saveLeftFiled,
   dimensions: state => state.setFiled.dimensions,
   /* */
   measureTableList: state => state.setMeasure.measureTableList,

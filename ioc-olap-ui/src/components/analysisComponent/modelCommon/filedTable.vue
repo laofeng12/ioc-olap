@@ -51,7 +51,6 @@ export default {
   },
   methods: {
     init () {
-      // this.dataList = this.saveLeftFiled // 静态数据
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
@@ -169,7 +168,6 @@ export default {
       saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',
-      saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),
     getFeact () {
