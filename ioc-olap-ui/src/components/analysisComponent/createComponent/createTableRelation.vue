@@ -10,12 +10,12 @@
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
-          </el-select>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
+          </el-select>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
@@ -228,12 +228,12 @@ export default {
               }
 
               linkModal = {
-                'joinTable': target.label || '',
-                'joinAlias': target.alias || '',
-                'joinId': target.id || '',
-                'alias': source.alias || '',
-                'id': source.id || '',
-                'table': source.label || '',
+                'joinTable': source.label || '',
+                'joinAlias': source.alias || '',
+                'joinId': source.id || '',
+                'alias': target.alias || '',
+                'id': target.id || '',
+                'table': target.label || '',
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
@@ -309,7 +309,7 @@ export default {
 
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
-              this.$store.commit('SaveJointResultLookups', this.jointResult)
+              this.$store.commit('SaveJointResult', result)
 
               this.linkModal = null
               this.linkModalModel = null
@@ -351,19 +351,24 @@ export default {
       let cells = this.graph.getCells()
       cells.forEach((t, i) => {
         if (t.isLink()) {
+          let item = t.get('attrs').data
           linkIndex++
 
-          if (t.get('source').id === id) {
-            updateList.push({
-              idx: linkIndex,
-              field: 'joinAlias'
-            })
-          }
           if (t.get('target').id === id) {
             updateList.push({
               idx: linkIndex,
               field: 'alias'
             })
+            item.alias = value
+            t.attr('data', item)
+          }
+          if (t.get('source').id === id) {
+            updateList.push({
+              idx: linkIndex,
+              field: 'joinAlias'
+            })
+            item.joinAlias = value
+            t.attr('data', item)
           }
         }
       });
@@ -373,7 +378,6 @@ export default {
           data.lookups[t.idx][t.field] = value
         }
       })
-
       return data
     },
 
@@ -542,16 +546,6 @@ export default {
 
     addLinkCell (item) {
       let factTable = this.jointResult.fact_table
-      let target = {
-        filed: item.table === factTable ? 1 : 0,
-        id: item.id,
-        label: item.table,
-        alias: item.alias,
-        position: {
-          x: item.SAxis,
-          y: item.YAxis
-        }
-      }
       let source = {
         filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
@@ -560,6 +554,16 @@ export default {
         position: {
           x: item.joinSAxis,
           y: item.joinYAxis
+        }
+      }
+      let target = {
+        filed: item.table === factTable ? 1 : 0,
+        id: item.id,
+        label: item.table,
+        alias: item.alias,
+        position: {
+          x: item.SAxis,
+          y: item.YAxis
         }
       }
 
@@ -751,11 +755,13 @@ export default {
       };
       (data.lookups || []).forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
-        let primary_key_result = []; let foreign_key_result = [];
+        let primary_key_result = []; let foreign_key_result = []
+        let pos = posList[t.table + t.alias] || {}
+        let joinPos = posList[t.joinTable + t.joinAlias] || {};
 
         (primary_key || []).forEach((m, i) => {
-          primary_key_result.push(`${t.joinAlias}.${primary_key[i]}`)
-          foreign_key_result.push(`${t.alias}.${foreign_key[i]}`)
+          primary_key_result.push(`${t.alias}.${primary_key[i]}`)
+          foreign_key_result.push(`${t.joinAlias}.${foreign_key[i]}`)
         })
 
         result.lookups.push({
@@ -766,10 +772,10 @@ export default {
           joinTable: t.joinTable,
           kind: t.kind,
           table: `${data.name}.${t.table}`,
-          SAxis: posList[t.table + t.alias].x || 0,
-          YAxis: posList[t.table + t.alias].y || 0,
-          joinSAxis: posList[t.joinTable + t.joinAlias].x || 0,
-          joinYAxis: posList[t.joinTable + t.joinAlias].y || 0,
+          SAxis: pos.x || 0,
+          YAxis: pos.y || 0,
+          joinSAxis: joinPos.x || 0,
+          joinYAxis: joinPos.y || 0,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -928,15 +934,15 @@ export default {
       //   this.couponList = res.data.columns
       // })
       // 模拟数据
-      this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       // debugger
       // 根据name去获取本地对应的数据
-      // (this.saveSelectAllList || []).forEach((item, index) => {
-      //   let items = JSON.parse(item)
-      //   if (items.resourceId === id) {
-      //     this.couponList = items.data.columns || []
-      //   }
-      // })
+      (this.saveSelectAllList || []).forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.couponList = items.data.columns || []
+        }
+      })
     }
   },
   computed: {

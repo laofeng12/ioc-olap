@@ -136,16 +136,16 @@ export default {
         offset: 0,
         ...val
       }
-      // getModelDataList(params).then(res => {
-      //   this.tableData = res
-      //   this.getLoading = false
-      // })
-      // await getModelDataList(params).then(res => {
-      //   this.tableData = res
-      //   this.getLoading = false
-      // }).catch(_ => {
-      //   this.getLoading = false
-      // })
+      getModelDataList(params).then(res => {
+        this.tableData = res
+        this.getLoading = false
+      })
+      await getModelDataList(params).then(res => {
+        this.tableData = res
+        this.getLoading = false
+      }).catch(_ => {
+        this.getLoading = false
+      })
     },
     searchFetch (val) {
       this.init(val)
