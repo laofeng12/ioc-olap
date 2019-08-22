@@ -90,6 +90,17 @@ public class OlapModelingAction extends BaseAction {
 
         //根据当前用户ID去筛选出属于他的数据
         List<CubeMapper> cubeList = cubeAction.list(cubeName, projectName, limit, offset);
+        //查询出分享的数据
+        List<OlapCube> shareList = olapCubeService.getOlapShareByShareUserId(userVO.getUserId());
+
+        for (OlapCube o : shareList) {
+            //找到分享的数据并加入数据里
+            Optional<CubeMapper> cubeEntity = cubeList.stream().filter(p -> p.getName().equals(o.getName())).findFirst();
+            if (cubeEntity.isPresent()) {
+                cubeEntity.get().setModelSource("共享");
+                cubeList.add(cubeEntity.get());
+            }
+        }
 //        //为了及时更新olap分析olap_cube表里的flags状态,所以需要根据查询出来的数据去做对比
 //        List<OlapCube> olapCubes = olapCubeService.findByUserId(Long.parseLong(userVO.getUserId()));
 //        for (CubeMapper cube : cubeList) {
@@ -383,10 +394,26 @@ public class OlapModelingAction extends BaseAction {
         if (model == null) {
             throw new APIException(400, "网络错误！");
         }
-
         List<CubeDescDataMapper> cube = (cubeAction.desc(cubeName));
-
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
+
+
+        //1、需要将前端在这保存的第二步的坐标返回出去
+        //根据当前用户查找存储在olapCube表里的数据
+        List<OlapCubeTable> cubetable = olapCubeTableService.findByTable(cubeName);
+        for (LookupsMapper l : model.lookups) {
+            String tableName = l.getTable().substring(l.getTable().indexOf(".") + 1);
+            Optional<OlapCubeTable> cubeEntity = cubetable.stream().filter(p -> p.getTableName().equals(tableName)).findFirst();
+
+            if (cubeEntity.get().getIsDict() == 1) {
+                model.setSAxis(l.getSAxis());
+                model.setYAxis(l.getYAxis());
+            } else {
+                l.setSAxis(l.getSAxis());
+                l.setYAxis(l.getYAxis());
+            }
+        }
+
         //data分组
         Map<String, List<OlapDatalaketable>> data = table.stream().collect(Collectors.groupingBy(OlapDatalaketable::getOrgName));
         //整理用户第一步点击选择的表
@@ -432,17 +459,6 @@ public class OlapModelingAction extends BaseAction {
         }
 
 
-        //1、需要将前端在这保存的第二步的坐标返回出去
-
-        //根据当前用户查找存储在olapCube表里的数据
-//        List<OlapCube> cubetable = olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
-//
-//        for (ModelsDescDataMapper models : model) {
-//            models
-//
-//        }
-
-
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ModesList", model);
         paramMap.put("CubeList", cube);
@@ -478,8 +494,8 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:刷新")
     @RequestMapping(value = "/refresh", method = RequestMethod.PUT)
     @Security(session = true)
-    public void refresh(String cubeName, Long start, Long end) throws Exception {
-        cubeAction.refresh(cubeName, start, end);
+    public void refresh(String cubeName, Long startTime, Long endTime) throws Exception {
+        cubeAction.refresh(cubeName, startTime, endTime);
     }
 
 
@@ -573,7 +589,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "构建列表:暂停")
     @RequestMapping(value = "/pauseJob", method = RequestMethod.PUT)
     @Security(session = true)
-    public void pauseJob(String jobsId) throws APIException {
+    public void pauseJob(String cubeName, String jobsId) throws APIException {
         jobsAction.pause(jobsId);
     }
 
@@ -585,12 +601,11 @@ public class OlapModelingAction extends BaseAction {
     }
 
 
-
-
     @ApiOperation(value = "构建列表:删除JOB")
     @RequestMapping(value = "/deleteJob", method = RequestMethod.DELETE)
     @Security(session = true)
-    public void deleteJob(String jobsId) {
+    public void deleteJob(String jobsId) throws APIException {
+//        jobsAction.cancel(jobsId);
         jobsAction.delete(jobsId);
     }
 

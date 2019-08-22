@@ -53,7 +53,7 @@ export default {
         if (result[0].status === 'NEW') return this.$message.warning('已经是最新数据~')
         this.$parent.changeLoading()
         let parmas = {
-          // cubeName: this.form.partitionDateColumn,
+          cubeName: this.form.partitionDateColumn,
           buildType: result[0].status,
           startTime: result[0].startTime,
           endTime: result[0].endTime
