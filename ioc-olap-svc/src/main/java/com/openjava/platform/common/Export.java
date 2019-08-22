@@ -7,6 +7,7 @@ import com.openjava.platform.vo.AnyDimensionVo;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.util.StringUtils;
@@ -200,6 +201,7 @@ public class Export {
                 row = sheet.createRow(i - startNo);
                 ArrayList<AnyDimensionCellVo> anyDimensionCellVoL = results.get(i);//  获取这一行数据
                 CellStyle cellStyle = workbook.createCellStyle();
+                CellStyle datacellStyle = workbook.createCellStyle();
                 Font font = workbook.createFont();
                 Integer colAdd=0;//增加的X轴的值
                 Integer dataNo=0;// 遍历取的列值
@@ -215,31 +217,42 @@ public class Export {
                         if(anyDimensionCellVoD!=null) {
                             String date = anyDimensionCellVoD.getValue();
                             if (null == date || "null".equals(date) || "".equals(date)) {
-                                cell.setCellValue("");//单元格写入数据
+                                cell.setCellValue("-");//单元格写入数据
                             } else
                                 cell.setCellValue(date);//单元格写入数据
 
                             int rowspan = anyDimensionCellVoD.getRowspan();
                             int colspan = anyDimensionCellVoD.getColspan();
 
+
                             //列头加粗
-                            if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5) {
+                            if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5)
+                            {
                                 cellStyle.setAlignment(HorizontalAlignment.CENTER);
-                                font.setFontName("黑体");
-                                //font.setBold(true);//粗体显示
+                                font.setFontName("宋体");
+                                font.setBold(true);//粗体显示
                                 cellStyle.setFont(font);
                                 cell.setCellStyle(cellStyle);
+                             }else{
+                                datacellStyle.setAlignment(HorizontalAlignment.CENTER);
+                                font.setFontName("宋体");
+                                cellStyle.setFont(font);
+                                cell.setCellStyle(datacellStyle);
                             }
+
 
                             if(colspan > 1||rowspan > 1)
                             {
                                 overrow = startrow+rowspan-1;//合并单元格-最后一列
                                 overcol = startcol+colspan-1;//合并单元格-最后一行
                                 sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
+
+                                cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);//垂直
+                                cell.setCellStyle(cellStyle);
                             }
                         }
                         else{
-                            cell.setCellValue("");//单元格写入数据
+                            cell.setCellValue("-");//单元格写入数据
                         }
                     }
                     else {
