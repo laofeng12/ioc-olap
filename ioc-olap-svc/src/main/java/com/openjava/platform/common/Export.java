@@ -198,47 +198,53 @@ public class Export {
             // 写入各条记录,每条记录对应excel表中的一行
             for (int i = startNo; i < endNo; i++) {
                 row = sheet.createRow(i - startNo);
-                ArrayList<AnyDimensionCellVo> anyDimensionCellVoL = results.get(i);//一行数据
-                int addCol = 0;
-                int endrow = 0;
+                ArrayList<AnyDimensionCellVo> anyDimensionCellVoL = results.get(i);//  获取这一行数据
                 CellStyle cellStyle = workbook.createCellStyle();
                 Font font = workbook.createFont();
-                for (int j = 0; j < anyDimensionCellVoL.size(); j++) {//anyDimensionCellVoL.size()   ****************************
-                    if(j==anyDimensionCellVoL.size()-1)
-                    {
-                        String oo="";
-                    }
-                    Integer startrow = i - startNo;
-                    Integer overrow = i - startNo;
-                    Integer startcol = j + addCol;
-                    Integer overcol = j;
-                    cell = row.createCell(j + addCol);
-                    AnyDimensionCellVo anyDimensionCellVoD = anyDimensionCellVoL.get(j);
-                    if(anyDimensionCellVoD!=null) {
-                        String date = anyDimensionCellVoD.getValue();
-                        if (null == date || "null".equals(date) || "".equals(date)) {
-                            cell.setCellValue("");//单元格写入数据
-                        } else
-                            cell.setCellValue(date);//单元格写入数据
-                        if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5) {
-                            cellStyle.setAlignment(HorizontalAlignment.CENTER);
-                            font.setFontName("黑体");
-                            //font.setBold(true);//粗体显示
-                            cellStyle.setFont(font);
-                            cell.setCellStyle(cellStyle);
-                        }
+                Integer colAdd=0;//增加的X轴的值
+                Integer dataNo=0;// 遍历取的列值
+                for (int j = 0; j < (anyDimensionCellVoL.size()+colAdd); j++) {
+                    Integer startrow = i;//合并单元格-起始列
+                    Integer overrow = i;//合并单元格-最后一列
+                    Integer startcol = j;//合并单元格-起始行
+                    Integer overcol = j;//合并单元格-行
+                    if (!isMergedRegion(sheet, (int) startrow, (int) startcol)) {
+                        dataNo=(j-colAdd);
+                        cell = row.createCell(j);
+                        AnyDimensionCellVo anyDimensionCellVoD = anyDimensionCellVoL.get(dataNo);
+                        if(anyDimensionCellVoD!=null) {
+                            String date = anyDimensionCellVoD.getValue();
+                            if (null == date || "null".equals(date) || "".equals(date)) {
+                                cell.setCellValue("");//单元格写入数据
+                            } else
+                                cell.setCellValue(date);//单元格写入数据
 
-                        int rowspan = anyDimensionCellVoD.getRowspan();
-                        int colspan = anyDimensionCellVoD.getColspan();
-                        if(colspan > 1||rowspan > 1)
-                        {
-                            overrow = startrow+rowspan-1;
-                            overcol = startcol+colspan-1;
-                            sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
+                            int rowspan = anyDimensionCellVoD.getRowspan();
+                            int colspan = anyDimensionCellVoD.getColspan();
+                            //列头加粗
+                            if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5) {
+                                font.setFontName("黑体");
+                                //font.setBold(true);//粗体显示
+                                cellStyle.setFont(font);
+                                if(colspan > 1||rowspan > 1) {
+                                    cellStyle.setAlignment(HorizontalAlignment.CENTER);
+                                }
+                                cell.setCellStyle(cellStyle);
+                            }
+
+                            if(colspan > 1||rowspan > 1)
+                            {
+                                overrow = startrow+rowspan-1;//合并单元格-最后一列
+                                overcol = startcol+colspan-1;//合并单元格-最后一行
+                                sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
+                            }
+                        }
+                        else{
+                            cell.setCellValue("");//单元格写入数据
                         }
                     }
-                    else{
-                        cell.setCellValue("");//单元格写入数据
+                    else {
+                        colAdd++;
                     }
                 }
             }
@@ -249,4 +255,20 @@ public class Export {
         return true;
     }
 
+    private static boolean isMergedRegion(SXSSFSheet sheet,int row ,int column) {
+        int sheetMergeCount = sheet.getNumMergedRegions();
+        for (int i = 0; i < sheetMergeCount; i++) {
+            CellRangeAddress range = sheet.getMergedRegion(i);
+            int firstColumn = range.getFirstColumn();
+            int lastColumn = range.getLastColumn();
+            int firstRow = range.getFirstRow();
+            int lastRow = range.getLastRow();
+            if(row >= firstRow && row <= lastRow){
+                if(column >= firstColumn && column <= lastColumn){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
