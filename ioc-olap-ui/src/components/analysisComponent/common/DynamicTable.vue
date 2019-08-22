@@ -66,7 +66,7 @@ export default {
   },
   created () {
     this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
-    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 300 : document.body.offsetHeight - 260
+    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 320 : document.body.offsetHeight - 300
   },
   methods: {
     tdClick (item, type) {

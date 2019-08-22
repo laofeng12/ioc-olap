@@ -129,3 +129,11 @@ export function deleteJobListModeling (params) {
     params
   })
 }
+
+export function getLogDetailsApi (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/getJobStepOut',
+    method: 'get',
+    params
+  })
+}
