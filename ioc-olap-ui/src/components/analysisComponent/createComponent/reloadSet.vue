@@ -78,7 +78,7 @@
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>

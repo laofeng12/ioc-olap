@@ -280,7 +280,6 @@ export default {
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('保存成功~')
-              // this.resetData()
               this.$refs.formData.clearValidate()
             }
           })
@@ -289,7 +288,6 @@ export default {
       })
     },
     dialog (data) {
-      console.log(this.saveSelectAllList)
       this.dialogFormVisible = true
       this.fieldtextOption = []
       this.SaveFactData.map(item => {
@@ -365,7 +363,8 @@ export default {
       this.formData.answers.splice(index, 1)
     },
     addtext () {
-      this.formData.answers.push({ index: 1, answertext: '' })
+      let idx = this.formData.answers.length + 1
+      this.formData.answers.push({ index: idx, answertext: '' })
     }
   }
 }

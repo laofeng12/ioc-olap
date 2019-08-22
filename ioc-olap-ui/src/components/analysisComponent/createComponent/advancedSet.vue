@@ -58,6 +58,7 @@
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
             style="margin-top: 10px;">
+            <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
             <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
@@ -210,7 +211,6 @@ export default {
       datas.map(item => {
         arr.push({
           column: item.value,
-          // encoding: item.encoding ? item.encoding : '0',
           encoding: '',
           lengths: '',
           code_types: item.type ? item.type : '',

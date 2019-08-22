@@ -826,6 +826,12 @@ export default {
         if (ele.attributes.type === 'standard.Link') {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
             ele.remove()
+            // 删除对应存储的数据
+            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+              return item.id !== ele.attributes.attrs.data.id
+            })
+            this.$store.commit('removeJointResult', target.id)
+            console.log('删除后', this.jointResultData)
           }
         } else {
           if (ele.id === target.id) {
@@ -911,6 +917,7 @@ export default {
         arrId.push(item.id, item.joinId)
       })
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
+      console.log(arrId)
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -921,15 +928,10 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      // if (this.prevId === id) {
-      //   console.log('已经请求过了~')
-      // } else {
       //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
       //     // this.couponList = res.data
       //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       //   })
-      // }
-      // this.prevId = id
       // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
       //   this.couponList = res.data.columns
       // })
@@ -953,7 +955,7 @@ export default {
     })
   },
   beforeDestroy () {
-    this.$root.eventBus.$off('openDefaultTree')
+    // this.$root.eventBus.$off('openDefaultTree')
   }
 }
 </script>
