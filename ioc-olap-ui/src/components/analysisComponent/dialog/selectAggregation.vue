@@ -20,7 +20,8 @@
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else>
-          <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
+          <!-- <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
+          <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -97,8 +98,10 @@ export default {
           this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
           break
         default:
-          let arrD = [...new Set(this.recordingData)]
-          this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+          this.options = this.saveselectIncludesData
+          // 递减的功能（选择过后下面的就没法选择）
+          //  let arrD = [...new Set(this.recordingData)]
+          //  this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
       }
       this.index = index
       this.type = type

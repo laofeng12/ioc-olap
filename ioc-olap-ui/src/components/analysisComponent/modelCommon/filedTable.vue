@@ -56,13 +56,13 @@ export default {
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
-          this.ids = item.id
+          this.ids = item.joinId
           this.primary_key = item.join.foreign_key
         }
       })
       let factData = {
         alias: this.dataList.fact_table,
-        joinId: this.ids,
+        id: this.ids,
         table: '',
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
@@ -119,7 +119,7 @@ export default {
       if (index === 0) {
         this.saveSelectAllList.map((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === this.dataList.lookups[0].joinId) {
+          if (items.resourceId === this.dataList.lookups[0].id) {
             let list = {
               data: items.data.columns,
               list: this.dataList.lookups[0]

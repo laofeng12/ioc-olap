@@ -262,6 +262,7 @@ export default {
     selectType (val) {
       if (val === 'constant') {
         this.formData.function.parameter.value = 1
+        this.formData.function.returntype = 'bigint'
         this.isDisabledtext = true
       } else {
         this.formData.function.parameter.value = ''
@@ -288,6 +289,7 @@ export default {
       })
     },
     dialog (data) {
+      console.log(this.saveSelectAllList)
       this.dialogFormVisible = true
       this.fieldtextOption = []
       this.SaveFactData.map(item => {
@@ -341,14 +343,16 @@ export default {
           this.formData.function.returntype = 'bigint'
           this.isDisabledtype = true
           this.isDisabledtext = true
-          // delete this.formData.function.returntype
-          // delete this.formData.function.parameter.value
           break
         case 'PERCENTILE':
           this.formData.function.parameter.type = 'column'
           this.formData.function.parameter.value = ''
           this.isDisabledtype = true
           this.isDisabledtext = false
+          break
+        case 'COUNT_DISTINCT':
+          this.formData.function.parameter.value = 1
+          this.isDisabledtext = true
           break
         default:
           this.isDisabledtype = false

@@ -25,6 +25,7 @@ const selectStep = {
     //   ]
     // },
     saveSelectAllList: [], // 保存选择的表的所有字段
+    saveSelectAllListFiled: [], // 保存连表后对应的所有字段
     SaveFactData: [], // 事实表对应的所有字段
     selectStepList:
     [
@@ -93,7 +94,7 @@ const selectStep = {
     SaveSelectAllListtwo (state, val) {
       // let columId = val.map(item => { return item.resourceId })
       getselectColumn(val).then(res => {
-        state.saveSelectAllList = res
+        state.saveSelectAllListFiled = res
       })
     },
     // 存储事实表对应的字段

@@ -121,9 +121,9 @@ export default {
         //   }
         // })
         // 获取本地的数据
-        this.saveSelectAllList.forEach((item, index) => {
+        this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === data.joinId) {
+          if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
@@ -215,7 +215,7 @@ export default {
       saveList: 'saveList',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
-      saveSelectAllList: 'saveSelectAllList'
+      saveSelectAllListFiled: 'saveSelectAllListFiled'
     })
   },
   beforeDestroy () {

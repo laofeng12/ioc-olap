@@ -110,8 +110,8 @@ export default {
           await saveolapModeldata(this.totalSaveData).then(_ => {
             this.$message.success('保存成功~')
             this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
+            // this.$router.push('/analysisModel/Configuration')
+            // this.$store.dispatch('resetList')
           }).catch(_ => {
             this.completeLoading = false
           })
