@@ -57,16 +57,57 @@
           </template>
         </el-table-column>
       </el-table>
-    <el-dialog title="选择共享" :visible.sync="logListVisible">
+    <el-dialog title="查看日志" :visible.sync="logListVisible">
       <div class="logListBox dis-flex">
-        <el-steps direction="vertical" :active="1">
-          <el-step title="详细123" slot-scope></el-step>
-          <el-step title="步骤 2"></el-step>
-          <el-step title="步骤 3" description="这是一段很长很长很长的描述性文字"></el-step>
-        </el-steps>
+        <el-timeline>
+          <el-timeline-item icon="el-icon-star-off" type="primary" size="large" timestamp="详细信息" placement="top">
+            <table border='1' cellpadding="0" cellspacing="0">
+              <tbody>
+                <tr>
+                  <td class="title">工作名称</td>
+                  <td class="text">{{logData.name}}</td>
+                </tr>
+                <tr>
+                  <td class="title">职位ID</td>
+                  <td class="text">{{logData.uuid}}</td>
+                </tr>
+                <tr>
+                  <td class="title">状态</td>
+                  <td class="text">{{logData.job_status}}</td>
+                </tr>
+                <tr>
+                  <td class="title">持续时间</td>
+                  <td class="text">{{Conversion(logData.duration)}}</td>
+                </tr>
+                <tr>
+                  <td class="title">MapReduce等待</td>
+                  <td class="text">{{Conversion(logData.exec_interrupt_time)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </el-timeline-item>
+          <el-timeline-item v-for="(item, index) in steps" :key="index" :icon="item.icon" placement="top"
+            type="primary" :color="item.color" size="large" :timestamp="Translate(item.exec_start_time)">
+            <div class="info">
+              <div><span class="c-blue">#{{index + 1}}步骤名称：</span>{{item.name}}</div>
+              <div><span class="c-blue">数据大小：</span>{{Number(item.info.hdfs_bytes_written) / 1000}}kb</div>
+              <div><span class="c-blue">持续时间：</span>{{Conversion(item.exec_end_time - item.exec_start_time)}}</div>
+              <div><span class="c-blue">等待：</span>{{item.exec_wait_time || 0}}秒</div>
+            </div>
+            <el-button type="text" @click="showLogDetails(logData.uuid, item.id)">查看日志</el-button>
+          </el-timeline-item>
+        </el-timeline>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="logListVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="日志详情" :visible.sync="logDetailsVisible">
+      <div class="logDetails">
+        <div class="pre" v-html="logDetails"></div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="logDetailsVisible = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -75,6 +116,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { filterTime } from '@/utils/index'
+import { getLogDetailsApi } from '@/api/modelList'
 export default {
   data () {
     return {
@@ -84,7 +126,11 @@ export default {
       currentPage: 1,
       totalCount: 1,
       tableData: [],
-      logListVisible: false
+      logListVisible: false,
+      logDetailsVisible: false,
+      steps: [],
+      logData: {},
+      logDetails: ''
     }
   },
   filters: {
@@ -116,11 +162,25 @@ export default {
     handleCommand (dropData) {
       switch (dropData.type) {
         case 'log':
-          return this.showLogList(dropData)
+          this.logData = dropData.params
+          const steps = dropData.params.steps && dropData.params.steps.map(v => {
+            const data = Object.assign({}, v, {
+              color: '#00a65b',
+              icon: 'el-icon-check'
+            })
+            return data
+          })
+          this.steps = steps
+          this.logListVisible = true
+          return false
       }
     },
-    showLogList (dropData) {
-      this.logListVisible = true
+    async showLogDetails (jobId, stepId) {
+      this.logListVisible = false
+      const params = { jobId, stepId }
+      const { cmd_output } = await getLogDetailsApi(params)
+      this.logDetails = cmd_output
+      this.logDetailsVisible = true
     },
     handleSelectionChange () {
 
@@ -133,6 +193,9 @@ export default {
       // var duration = days + '天' + hours + '小时' + minutes + '分' + seconds + '秒'
       var duration = minutes + '分' + seconds + '秒'
       return duration
+    },
+    Translate (time) {
+      return filterTime(time)
     }
   }
 }
@@ -165,6 +228,38 @@ export default {
     }
     .el-progress__text{
       font-size 13px
+    }
+  }
+  .logListBox {
+    max-height 300px
+    overflow auto
+    padding-left 5px
+    box-sizing border-box
+    table {
+      font-size 14px
+      color #606266
+      border 1px solid #e0ebf7
+      border-collapse collapse
+      table-layout fixed
+      word-break break-all
+      text-align center
+      td {
+        min-width 150px
+        height 40px
+      }
+    }
+    .c-blue {
+      color: #1877f1
+    }
+  }
+  .logDetails {
+    max-height 300px
+    overflow auto
+    padding 10px
+    box-sizing border-box
+    border 1px #ddd solid
+    .pre {
+      white-space pre-wrap
     }
   }
 }
