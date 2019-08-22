@@ -47,14 +47,14 @@ public class JobsAction extends KylinAction {
     public JobsMapper delete(String jobsId) {
         String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/drop", config.address, jobsId);
         Class<JobsMapper> clazz = (Class<JobsMapper>) new JobsMapper().getClass();
-        JobsMapper result = HttpClient.get(url, config.authorization, clazz);
+        JobsMapper result = HttpClient.delete(url, "", config.authorization, clazz);
         return result;
     }
 
 
     @ApiOperation(value = "运行")
     @RequestMapping(value = "/resume", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = false)
     public void resume(String jobsId) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/resume", config.address, jobsId);
         HttpClient.put(url, "{}", config.authorization, String.class);
@@ -62,7 +62,7 @@ public class JobsAction extends KylinAction {
 
     @ApiOperation(value = "暂停")
     @RequestMapping(value = "/pause", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = false)
     public void pause(String jobsId) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/pause", config.address, jobsId);
         HttpClient.put(url, "", config.authorization, String.class);
@@ -79,8 +79,8 @@ public class JobsAction extends KylinAction {
     @ApiOperation(value = "获取构建某一个节点的详细日志")
     @RequestMapping(value = "/output", method = RequestMethod.GET)
     @Security(session = true)
-    public JobStepOutputMapper output(String jobsId,String stepId) {
-        String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/steps/{2}/output", config.address, jobsId,stepId);
+    public JobStepOutputMapper output(String jobsId, String stepId) {
+        String url = MessageFormat.format("{0}/kylin/api/jobs/{1}/steps/{2}/output", config.address, jobsId, stepId);
         JobStepOutputMapper result = HttpClient.get(url, config.authorization, JobStepOutputMapper.class);
         return result;
     }
