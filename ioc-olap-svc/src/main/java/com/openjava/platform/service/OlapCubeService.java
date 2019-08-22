@@ -7,6 +7,7 @@ import java.util.List;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
+import com.openjava.platform.domain.OlapShare;
 import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.query.OlapCubeDBParam;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ public interface OlapCubeService {
 	OlapCube findTableInfo(String cubeName, Long createId);
 
 	OlapCube findTableInfo(String cubeName);
+
+	List<OlapCube> getOlapShareByShareUserId(String shareUserId);
 
 	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 

@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
+import com.openjava.platform.domain.OlapShare;
 import com.openjava.platform.domain.OlapTimingrefresh;
 import com.openjava.platform.mapper.kylin.CubeDescDataMapper;
 import com.openjava.platform.mapper.kylin.CubeDescMapper;
@@ -74,6 +75,11 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	public void doDelete(Long id) {
 		olapCubeRepository.deleteById(id);
 	}
+
+	public List<OlapCube> getOlapShareByShareUserId(String shareUserId) {
+		return olapCubeRepository.getOlapShareByShareUserId(shareUserId);
+	}
+
 	public void doRemove(String ids) {
 		String[] items = ids.split(",");
 		for (int i = 0; i < items.length; i++) {

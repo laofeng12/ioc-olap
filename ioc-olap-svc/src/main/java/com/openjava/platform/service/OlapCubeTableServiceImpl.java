@@ -74,6 +74,9 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
         return olapCubeTableRepository.findByCubeId(cubeId);
     }
 
+    public ArrayList<OlapCubeTable> findByTable(String cubeName){
+        return olapCubeTableRepository.findByTable(cubeName);
+    }
 
     //保存OLAP_CUBE_TABLE表
     public List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId) {

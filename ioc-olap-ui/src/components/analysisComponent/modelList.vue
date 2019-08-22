@@ -54,7 +54,13 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="partitionDateColumn" label="模型来源" align="center" show-overflow-tooltip> </el-table-column>
+        <el-table-column label="模型来源" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div>
+               {{scope.row.modelSource ? '共享' : '自建'}}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           label="操作"
           align="center">
