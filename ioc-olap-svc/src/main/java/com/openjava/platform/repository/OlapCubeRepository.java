@@ -2,6 +2,7 @@ package com.openjava.platform.repository;
 
 import com.openjava.platform.domain.OlapCube;
 import com.openjava.platform.domain.OlapCubeTable;
+import com.openjava.platform.domain.OlapShare;
 import com.openjava.platform.domain.OlapTimingrefresh;
 import org.ljdp.core.spring.data.DynamicJpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,4 +34,8 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
 
     @Query(value = "select t.* from OLAP_CUBE t where t.NAME=:cubeName", nativeQuery = true)
     Optional<OlapCube> findTableInfo(@Param("cubeName") String cubeName);
+
+
+    @Query(value = "select c.* from OLAP_CUBE c left join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId and c.ID is not null", nativeQuery = true)
+    List<OlapCube> getOlapShareByShareUserId(@Param("shareUserId") String shareUserId);
 }

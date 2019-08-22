@@ -191,32 +191,16 @@ const common = {
     }
   },
   actions: {
-    resetList ({ actions }) {
-      // state.savemousedownData = '1111'
-      // Object.assign(getters, {
-      //   saveSelectTable: []
-      // })
-      // console.log(Object.assign(getters, {}))
-      // getters.serchTableList = []
-      // getters.treeList = []
-      // getters.serchTableList = []
-      // getters.searchType = 1
-      // getters.saveSelectTable = []
-      // getters.saveLocalSelectTable = []
-      // getters.selectTableTotal = []
-      // getters.lastClickTab = ''
-      // getters.saveSelctchckoutone = []
-      // getters.saveSelctchckouttwo = []
-      // getters.saveSelectFiled = []
-      // getters.saveSelectFiledTree = []
-      // getters.jointResultData = {
-      //   name: 'joint',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
-      // }
-      // getters.saveSelectFiled = []
-      // getters.saveFiledNormalList = []
+    resetList ({ state }) {
+      state.totalSaveData.filterCondidion = []
+      state.totalSaveData.timingreFresh = {
+        interval: '',
+        frequencytype: '',
+        autoReload: false,
+        dataMany: false
+      }
+      state.totalSaveData.cubeDatalaketableNew = {}
+      state.totalSaveData.cube.cubeDescData.name = ''
     },
     /*
      *建立表关系

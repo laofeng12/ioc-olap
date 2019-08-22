@@ -126,14 +126,6 @@ const selectStep = {
       state.saveSelctchckouttwo = []
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
-      // getters.jointResultData = {
-      //   name: 'joint',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
-      // }
-      // getters.saveSelectFiled = []
-      // getters.saveFiledNormalList = []
     },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
@@ -274,7 +266,6 @@ const selectStep = {
         })
       })
       state.selectStepList = dest
-      // console.log('李帆', state.selectStepList)
     },
     // 存储数据湖的数据
     getSelectTableList ({ state, dispatch }, data) {

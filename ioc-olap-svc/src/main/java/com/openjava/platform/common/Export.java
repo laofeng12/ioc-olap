@@ -4,6 +4,8 @@ import com.openjava.platform.mapper.kylin.ColumnMetaMapper;
 import com.openjava.platform.mapper.kylin.QueryResultMapper;
 import com.openjava.platform.vo.AnyDimensionCellVo;
 import com.openjava.platform.vo.AnyDimensionVo;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.poi.xssf.streaming.*;
 
 public class Export {
     public static void dualDate(QueryResultMapper queryResult, HttpServletResponse response) throws Exception {
@@ -169,7 +172,7 @@ public class Export {
         Integer sheetSize = results.size();
 
         // 产生工作薄对象
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        SXSSFWorkbook workbook = new SXSSFWorkbook();
         if (sheetSize >= 65536) {
             sheetSize = 65536;
         }
@@ -177,7 +180,7 @@ public class Export {
 
         for (int index = 0; index < sheetNo; index++) {
             // 产生工作表对象
-            XSSFSheet sheet = workbook.createSheet();
+            SXSSFSheet sheet = workbook.createSheet();
             // 设置工作表的名称.
             workbook.setSheetName(index, sheetName + (index + 1));
             //默认宽度
@@ -185,9 +188,9 @@ public class Export {
             //默认高度
             //sheet.setDefaultRowHeight((short) 15);
             // 产生一行
-            XSSFRow row = sheet.createRow(0);
+            SXSSFRow row = sheet.createRow(0);
             // 产生单元格
-            XSSFCell cell;
+            SXSSFCell cell;
 
             int startNo = index * sheetSize;
             int endNo = Math.min(startNo + sheetSize, results.size());
@@ -195,62 +198,52 @@ public class Export {
             // 写入各条记录,每条记录对应excel表中的一行
             for (int i = startNo; i < endNo; i++) {
                 row = sheet.createRow(i - startNo);
-                ArrayList<AnyDimensionCellVo> anyDimensionCellVoL = results.get(i);//一行数据
-                int addCol = 0;
-                int endrow = 0;
-                for (int j = 0; j < anyDimensionCellVoL.size(); j++) {
-                    XSSFCellStyle cellStyle = workbook.createCellStyle();
-                    XSSFFont font = workbook.createFont();
-                    Integer startrow = i - startNo;
-                    Integer overrow = i - startNo;
-                    Integer startcol = j + addCol;
-                    Integer overcol = j;
-                    cell = row.createCell(j + addCol);
-                    AnyDimensionCellVo anyDimensionCellVoD = anyDimensionCellVoL.get(j);
-                    String date = anyDimensionCellVoD.getValue();
-                    if (null == date || "null".equals(date) || "".equals(date)) {
-                        cell.setCellValue("");//单元格写入数据
-                    } else
-                        cell.setCellValue(date);//单元格写入数据
-                    if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3) {
-                        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-                        font.setFontName("黑体");
-                        //font.setBold(true);//粗体显示
-                        cellStyle.setFont(font);
-                        cell.setCellStyle(cellStyle);
-                    }
+                ArrayList<AnyDimensionCellVo> anyDimensionCellVoL = results.get(i);//  获取这一行数据
+                CellStyle cellStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                Integer colAdd=0;//增加的X轴的值
+                Integer dataNo=0;// 遍历取的列值
+                for (int j = 0; j < (anyDimensionCellVoL.size()+colAdd); j++) {
+                    Integer startrow = i;//合并单元格-起始列
+                    Integer overrow = i;//合并单元格-最后一列
+                    Integer startcol = j;//合并单元格-起始行
+                    Integer overcol = j;//合并单元格-行
+                    if (!isMergedRegion(sheet, (int) startrow, (int) startcol)) {
+                        dataNo=(j-colAdd);
+                        cell = row.createCell(j);
+                        AnyDimensionCellVo anyDimensionCellVoD = anyDimensionCellVoL.get(dataNo);
+                        if(anyDimensionCellVoD!=null) {
+                            String date = anyDimensionCellVoD.getValue();
+                            if (null == date || "null".equals(date) || "".equals(date)) {
+                                cell.setCellValue("");//单元格写入数据
+                            } else
+                                cell.setCellValue(date);//单元格写入数据
 
-                    int rowspan = anyDimensionCellVoD.getRowspan();
-                    int colspan = anyDimensionCellVoD.getColspan();
-                    if ( colspan > 1) {//行维   ||anyDimensionCellVoD.getRowspan()>1   anyDimensionCellVoD.getType() == 2 &&
-                        for (int jj = 1; jj < colspan; jj++) {
-                            addCol++;
-                            cell = row.createCell(j + addCol);
-                            cell.setCellValue("");//单元格写入数据
-                            overcol = j + addCol;
-                        }
-                        sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
-                    }
-                    if ( rowspan > 1) {//列维   anyDimensionCellVoD 一行数据     ||anyDimensionCellVoD.getColspan()>1    anyDimensionCellVoD.getType() == 1 &&
-                        AnyDimensionCellVo anyDimensionCellVoLast = new AnyDimensionCellVo();//上一行数据 列维相同的数据
-                        AnyDimensionCellVo anyDimensionCellVoNext = new AnyDimensionCellVo();//下一行数据 列维相同的数据
-                        if (i - 1 >= 0) {
-                            ArrayList<AnyDimensionCellVo> anyDimensionCellVoLLast = results.get(i - 1);//上一行数据
-                            anyDimensionCellVoLast = anyDimensionCellVoLLast.get(j);//列维相同的数据
-                        }
-                        if (i + 1 < results.size()) {
-                            ArrayList<AnyDimensionCellVo> anyDimensionCellVoLNext = results.get(i + 1);//下一行数据
-                            anyDimensionCellVoNext = anyDimensionCellVoLNext.get(j);//列维相同的数据
-                        }
-                        String lastDate = anyDimensionCellVoLast.getValue();//判断是不是第一行
-                        if (lastDate != null) {
-                            if ((lastDate.equals(date) && (!anyDimensionCellVoD.getValue().equals(anyDimensionCellVoNext.getValue())))
-                                    || (lastDate.equals(date) && ((i + 1) == results.size()))) {
-                                int endRow = (int) overrow;
-                                Integer firstRow = endRow - rowspan + 1;
-                                sheet.addMergedRegion(new CellRangeAddress(firstRow, overrow, startcol, overcol));
+                            int rowspan = anyDimensionCellVoD.getRowspan();
+                            int colspan = anyDimensionCellVoD.getColspan();
+
+                            //列头加粗
+                            if (anyDimensionCellVoD.getType() == 1 || anyDimensionCellVoD.getType() == 2 || anyDimensionCellVoD.getType() == 3|| anyDimensionCellVoD.getType() == 5) {
+                                cellStyle.setAlignment(HorizontalAlignment.CENTER);
+                                font.setFontName("黑体");
+                                //font.setBold(true);//粗体显示
+                                cellStyle.setFont(font);
+                                cell.setCellStyle(cellStyle);
+                            }
+
+                            if(colspan > 1||rowspan > 1)
+                            {
+                                overrow = startrow+rowspan-1;//合并单元格-最后一列
+                                overcol = startcol+colspan-1;//合并单元格-最后一行
+                                sheet.addMergedRegion(new CellRangeAddress(startrow, overrow, startcol, overcol));
                             }
                         }
+                        else{
+                            cell.setCellValue("");//单元格写入数据
+                        }
+                    }
+                    else {
+                        colAdd++;
                     }
                 }
             }
@@ -261,4 +254,20 @@ public class Export {
         return true;
     }
 
+    private static boolean isMergedRegion(SXSSFSheet sheet,int row ,int column) {
+        int sheetMergeCount = sheet.getNumMergedRegions();
+        for (int i = 0; i < sheetMergeCount; i++) {
+            CellRangeAddress range = sheet.getMergedRegion(i);
+            int firstColumn = range.getFirstColumn();
+            int lastColumn = range.getLastColumn();
+            int firstRow = range.getFirstRow();
+            int lastRow = range.getLastRow();
+            if(row >= firstRow && row <= lastRow){
+                if(column >= firstColumn && column <= lastColumn){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

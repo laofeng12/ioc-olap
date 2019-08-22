@@ -461,14 +461,14 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         rowCells = new ArrayList<AnyDimensionCellVo>();
         rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
         for (Double columnSummary :columnSummarys){
-            rowCells.add(new AnyDimensionCellVo("",1,1, String.format("%.2f",columnSummary),4) );
+            rowCells.add(new AnyDimensionCellVo("",1,1, String.format("%.2f",columnSummary),5) );
         }
         results.add(rowCells);
         rowSummarys.add(columnSummarys.stream().collect(Collectors.summingDouble(Double::doubleValue)));
         results.get(0).add(new AnyDimensionCellVo("",1,axisYCount+1,"汇总",5));
         //合并X轴
         for (Integer i=axisYCount+1;i<results.size();i++){
-            results.get(i).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(i-axisYCount-1)),4));
+            results.get(i).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(i-axisYCount-1)),5));
             for (Integer j=i+1;j<results.size();j++){
                 if(results.get(i).get(0).getId().equals(results.get(j).get(0).getId())){
                     for (Integer k=0;k<axisXCount;k++){
@@ -485,7 +485,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 else{
                     i=j;
                 }
-                results.get(j).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(j-axisYCount-1)),4));
+                results.get(j).add(new AnyDimensionCellVo("",1,1,String.format("%.2f",rowSummarys.get(j-axisYCount-1)),5));
             }
         }
         anyDimensionVo.setResults(results);

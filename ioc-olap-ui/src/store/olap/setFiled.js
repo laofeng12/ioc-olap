@@ -1,5 +1,4 @@
 import { filterArr, filterArrData, reduceObj, reduceJson } from '@/utils/index'
-import Vue from 'vue'
 const setFiled = {
   state: {
     /* 维度 */
@@ -115,7 +114,6 @@ const setFiled = {
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
-      // console.log(state.saveSelectFiled, 'val====', val)
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -149,17 +147,29 @@ const setFiled = {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
+      // console.log(resultVal, '啦啦啦啦', getters.jointResultData.lookups)
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
-            datas.push({
-              id: n.id,
-              type: n.dataType,
-              value: item.join.foreign_key.join(',')
-            })
+            if (item.join.foreign_key.length > 1) {
+              item.join.foreign_key.forEach(res => {
+                datas = datas.concat({
+                  id: n.id,
+                  type: n.dataType,
+                  value: res
+                })
+              })
+            } else {
+              datas.push({
+                id: n.id,
+                type: n.dataType,
+                value: item.join.foreign_key.join(',')
+              })
+            }
           }
         })
       })
+      // console.log(datas, '衍生对应的数据')
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {
@@ -169,9 +179,8 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      // state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      state.reloadNeedData = reduceObj([...nomrlData], 'value')
-      console.log('啦啦啦啦', state.reloadNeedData)
+      state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      // console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {

@@ -29,9 +29,9 @@ service.interceptors.request.use(
       config.data = qs.stringify(config.data)
     }
     // DELETE
-    if (config.method.toLowerCase() === 'delete') {
-      config.params = JSON.stringify(config.params)
-    }
+    // if (config.method.toLowerCase() === 'delete') {
+    //   config.params = qs.stringify(config.params)
+    // }
     return config
   },
   error => {

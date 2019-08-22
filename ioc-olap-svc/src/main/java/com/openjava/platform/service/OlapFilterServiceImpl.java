@@ -113,7 +113,7 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 			OlapFilterCondidion filterCondion = new OlapFilterCondidion();
 			filterCondion.setId(ss.getSequence());
 			filterCondion.setFilterId(filterId);            //过滤表ID
-			filterCondion.setTablename(fc.getTablename());  //表名称
+			filterCondion.setTableName(fc.getTableName());  //表名称
 			filterCondion.setField(fc.getField());          //表字段
 			filterCondion.setPattern(fc.getPattern());      //过滤方式
 			filterCondion.setParameter(fc.getParameter());  //过滤值
@@ -121,7 +121,7 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 			if (fc.getPattern().equals("BETWEEN")) {
 				filterCondion.setParameterbe(fc.getParameterbe());  //ETWEEN过滤值
 
-				filterSql += "select * from " + fc.getTablename() + "" +
+				filterSql += "select * from " + fc.getTableName() + "" +
 						" where " + fc.getField() + " " +
 						"   " + fc.getPattern() + "" +
 						"   '" + fc.getParameter() + "' " +
@@ -130,7 +130,7 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 						",";
 
 			} else {
-				filterSql += "select * from " + fc.getTablename() + "" +
+				filterSql += "select * from " + fc.getTableName() + "" +
 						" where " + fc.getField() + " " +
 						"   " + fc.getPattern() + " " +
 						"   '" + fc.getParameter() + "' " +

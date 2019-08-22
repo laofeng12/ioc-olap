@@ -31,4 +31,5 @@ public class CubeMapper {
     public Integer size_kb;
     public Integer input_records_count;
     public Integer input_records_size;
+    public String modelSource;
 }
