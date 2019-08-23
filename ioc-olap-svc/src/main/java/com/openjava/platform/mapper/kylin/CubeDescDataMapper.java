@@ -33,4 +33,10 @@ public class CubeDescDataMapper {
     public String storage_type;
     public String columns_Type;
     public HashMap override_kylin_properties;
+
+    public CubeDescDataMapper(){
+        override_kylin_properties=new HashMap();
+        override_kylin_properties.put("kylin.cube.aggrgroup.is-mandatory-only-valid","true");
+        override_kylin_properties.put("kylin.cube.aggrgroup.max-combination",Integer.MAX_VALUE);
+    }
 }

@@ -150,7 +150,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "第七步——完成创建")
     @RequestMapping(value = "/createModeling", method = RequestMethod.POST)
-    @Security(session = false)
+    @Security(session = true)
     public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws APIException {
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
