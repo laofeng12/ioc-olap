@@ -7,9 +7,11 @@ import com.openjava.platform.api.kylin.*;
 import com.openjava.platform.domain.*;
 import com.openjava.platform.mapper.kylin.*;
 import com.openjava.platform.service.*;
+import com.sun.org.apache.bcel.internal.generic.DREM;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.ljdp.component.exception.APIException;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -164,7 +167,7 @@ public class OlapModelingAction extends BaseAction {
         SequenceService ss = ConcurrentSequence.getInstance();
         String modelName = String.valueOf(ss.getSequence());
         String cubeName = cube.cubeDescData.getName();
-        ArrayList<DimensionsMapper> dimensions = models.modelDescData.getDimensions();
+
 
         models.modelDescData.setName(modelName);
         cube.cubeDescData.setModel_name(modelName);
@@ -173,15 +176,62 @@ public class OlapModelingAction extends BaseAction {
         models.setProject(userVO.getUserId());
 
 
-//        //循环拿到dimensions里的衍生模式反推 models选择的维度字段
-//        for (DimensionsMapper d:dimensions){
-//
-//
-//        }
+        ArrayList<DimensionsMapper> dimensionsList = new ArrayList<>();
+        //1、循环拿到dimensions里的衍生模式反推 models选择的维度字段
+        //2、通过table名称分组
+        Map<String, List<DimensionMapper>> dimensions = cube.cubeDescData.getDimensions().stream().filter(p -> p.getDerived() != null)
+                .collect(Collectors.groupingBy(DimensionMapper::getTable));
+        //3、循环写入models的dimensions表里
+        for (Map.Entry<String, List<DimensionMapper>> entry : dimensions.entrySet()) {
+            DimensionsMapper dimensionsEntity = new DimensionsMapper();
+            //取到column列
+            List<DimensionMapper> dimValue = entry.getValue();
+            ArrayList<String> columnsList = new ArrayList<String>();
+            for (DimensionMapper derived : dimValue) {
+                columnsList.addAll(derived.getDerived());
+            }
+            dimensionsEntity.setColumns(columnsList);
+            dimensionsEntity.setTable(entry.getKey());
+
+            dimensionsList.add(dimensionsEntity);
+        }
+
+        //1、循环拿到rowkey_columns里的衍生模式反推 models选择的维度字段
+        ArrayList<RowkeyColumnMapper> rowkeyList = cube.getCubeDescData().rowkey.getRowkey_columns();
+        for (RowkeyColumnMapper r : rowkeyList) {
+            DimensionsMapper dimensionsEntity = new DimensionsMapper();
+            String tableName = r.getColumn().substring(0, r.getColumn().indexOf("."));
+            String columnName = r.getColumn().substring(r.getColumn().indexOf(".") + 1);
+            ArrayList list = new ArrayList(Arrays.asList(columnName.split(",")));
+            //去查找现在已经存在的table名称,并添加进去,如果不存在则添加
+            Optional<DimensionsMapper> oDimensions = dimensionsList.stream().filter(c -> c.getTable().equals(tableName)).findFirst();
+            if (oDimensions.isPresent()) {
+                ArrayList<String> columns = oDimensions.get().getColumns();
+                columns.add(columnName);
+                oDimensions.get().setColumns(columns);
+            } else {
+                dimensionsEntity.setColumns(list);
+                dimensionsEntity.setTable(tableName);
+                dimensionsList.add(dimensionsEntity);
+            }
+        }
+        models.modelDescData.setDimensions(dimensionsList);
 
 
-            //保存前的判断
-            saveVerification(cube, models);
+        //循环拿到cube的measures放入models的measure
+        ArrayList<MeasureMapper> measures = cube.getCubeDescData().getMeasures();
+        String metrics = "";
+//        measures.forEach(a -> a.function.parameter.getValue());
+        for (MeasureMapper m : measures) {
+            metrics += m.function.parameter.getValue() + ",";
+        }
+        metrics.substring(0, metrics.length() - 1);
+        ArrayList metricsList = new ArrayList(Arrays.asList(metrics.split(",")));
+        models.setMetrics(metricsList);
+
+
+        //保存前的判断
+        saveVerification(cube, models);
         //拿到所有project
         List<ProjectDescDataMapper> projectDescList = projectAction.list();
         Optional<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName().equals(userVO.getUserId())).findFirst();

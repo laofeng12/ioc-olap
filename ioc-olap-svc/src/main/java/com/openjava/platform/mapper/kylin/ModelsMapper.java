@@ -4,6 +4,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+
 @Getter
 @Setter
 public class ModelsMapper {
@@ -17,6 +19,8 @@ public class ModelsMapper {
     public boolean successful;
     @JSONField(name = "message")
     public String message;
+    @JSONField(name = "metrics")
+    public ArrayList<String> metrics;
     @JSONField(name = "project")
     public String project;
     @JSONField(name = "ccInCheck")
