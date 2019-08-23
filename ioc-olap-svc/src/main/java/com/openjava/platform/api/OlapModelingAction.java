@@ -219,14 +219,10 @@ public class OlapModelingAction extends BaseAction {
 
 
         //循环拿到cube的measures放入models的measure
-        ArrayList<MeasureMapper> measures = cube.getCubeDescData().getMeasures();
-        String metrics = "";
-//        measures.forEach(a -> a.function.parameter.getValue());
-        for (MeasureMapper m : measures) {
-            metrics += m.function.parameter.getValue() + ",";
-        }
-        metrics.substring(0, metrics.length() - 1);
-        ArrayList metricsList = new ArrayList(Arrays.asList(metrics.split(",")));
+        ArrayList<String> metricsList=new ArrayList();
+        cube.getCubeDescData().getMeasures().forEach(p->{
+            metricsList.add(p.function.parameter.getValue());
+        });
         models.setMetrics(metricsList);
 
 
