@@ -10,16 +10,16 @@
             </el-checkbox-group>
           </div>
         </div> -->
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1" size="mini">
           <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5">
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5" size="mini">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6">
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6" size="mini">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-else>
+        <el-checkbox-group ref="group" v-model="selctCheckData" size="mini" v-else>
           <!-- <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
           <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
         </el-checkbox-group>

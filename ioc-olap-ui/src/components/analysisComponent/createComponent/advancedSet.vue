@@ -15,20 +15,22 @@
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
-                <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>{{n}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>
+                  <h6>{{n}}</h6>
+                </el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r" @click="getTotalModal(index, 2)">
-                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable>{{n}}</el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable><h6>{{n}}</h6></el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
               <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div @click="getTotalModal(index, 3, i)">
-                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable>{{n}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
@@ -40,7 +42,7 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable>{{x}}</el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -92,7 +94,7 @@
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
-                <el-tag @close.stop="lastrmTag(5, x, i)" v-for="(x, y) in n" :key="y" closable>{{x}}</el-tag>
+                <el-tag @close.stop="lastrmTag(5, x, i)" v-for="(x, y) in n" :key="y" closable><h6>{{x}}</h6></el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removedimensionData(i)"></i>
@@ -115,7 +117,7 @@
           <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
             <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
-                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable>{{x}}</el-tag>
+                <el-tag @close.stop="lastrmTag(6, x, i)" v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable><h6>{{x}}</h6></el-tag>
               </div>
               <p>
                 <i class="el-icon-remove" @click="removehetComposeData(i)"></i>
@@ -206,7 +208,6 @@ export default {
       })
       this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
-      console.log(datas)
       let arr = []
       datas.map(item => {
         arr.push({
@@ -395,6 +396,12 @@ export default {
           i{
             float right!important
             margin-top 8px
+          }
+          h6{
+            text-overflow: ellipsis;
+            float left
+            width: 90%;
+            overflow: hidden;
           }
         }
         .adds{
