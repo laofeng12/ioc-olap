@@ -242,7 +242,7 @@ export default {
       }
     },
     async showLogDetails (jobId, stepId) {
-      this.logListVisible = false
+      // this.logListVisible = false
       const params = { jobId, stepId }
       const { cmd_output } = await getLogDetailsApi(params)
       this.logDetails = cmd_output

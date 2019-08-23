@@ -6,7 +6,7 @@
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
                  @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
-                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile" :pageData="pageData"
+                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile" :pageData="pageData" :page="page"
                  @handlePage="handlePage"></ResultBox>
     </div>
     <el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">
@@ -29,7 +29,7 @@
     </el-dialog>
     <el-dialog title="下钻数据展示" :visible.sync="tableVisible" width="70%">
       <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true" :pageData="downPageData"
-                    @handlePage="handleDownPage"></DynamicTable>
+                    @handlePage="handleDownPage" :page="page"></DynamicTable>
       <div slot="footer" class="dialog-footer">
         <el-button @click="tableVisible = false">关 闭</el-button>
       </div>
@@ -219,8 +219,6 @@ export default {
         })
         this.realTableData = tableData
         this.tableData = delSumTable
-        // this.shareList = shareList
-        // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -249,6 +247,16 @@ export default {
     },
     reset () {
       this.showOlapAside = false
+      this.realTableData = []
+      this.tableData = []
+      this.pageData = {
+        totalRows: 1,
+        pageSize: 20
+      }
+      this.downPageData = {
+        totalRows: 1,
+        pageSize: 20
+      }
       setTimeout(() => this.showOlapAside = true, 0)
     },
     showSumFunc () {
@@ -352,7 +360,7 @@ export default {
         pageSize: this.size
       }, this.reqDataList)
       const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
-      const fileName = 'olap分析文件'
+      const fileName = 'olap分析文件.xlsx'
       if ('download' in document.createElement('a')) {
         let link = document.createElement('a')
         link.download = fileName
