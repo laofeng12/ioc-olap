@@ -65,8 +65,7 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      dimensions: []
+      tableData: []
     }
   },
   mounted () {
@@ -160,8 +159,10 @@ export default {
       }
     },
     nextModel (val) {
-      console.log(this.saveSelectFiled, '====获取的')
+      console.log(this.dimensions, '====获取的')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      this.saveSelectFiled.forEach(item => {
+      })
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
@@ -213,6 +214,7 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
+      dimensions: 'dimensions',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'

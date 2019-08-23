@@ -11,7 +11,7 @@
           </div>
         </div> -->
         <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
-          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+          <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>

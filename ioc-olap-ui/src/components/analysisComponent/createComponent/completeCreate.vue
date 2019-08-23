@@ -78,6 +78,7 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
+      console.log('检查', this.dimensions)
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
@@ -106,16 +107,15 @@ export default {
       this.saveSelectAllListFiled.map((item, index) => {
         let data = JSON.parse(item)
         this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
-          if (data.resourceId === n.joinId) {
+          if (data.resourceId === n.id) {
             dest.push({
               table: n.alias,
-              columns: []
+              columns: data.data.columns.map(res => {
+                return res.name
+              })
             })
           }
         })
-      })
-      this.saveSelectAllListFiled.map((item, index) => {
-        let data = JSON.parse(item)
         if (this.jointResultData.fact_table.substring(this.jointResultData.fact_table.indexOf('.') + 1) === data.name) {
           dest.push({
             table: data.name,
@@ -124,9 +124,6 @@ export default {
             })
           })
         }
-        data.data.columns.forEach(res => {
-          dest[index].columns.push(res.name)
-        })
         return dest
       })
       console.log('最终的', dest)

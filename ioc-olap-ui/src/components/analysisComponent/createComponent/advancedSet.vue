@@ -206,6 +206,7 @@ export default {
       })
       this.formData.engine_typeTit = String(this.engine_types)
       let datas = [...this.reloadNeedData]
+      console.log(datas)
       let arr = []
       datas.map(item => {
         arr.push({

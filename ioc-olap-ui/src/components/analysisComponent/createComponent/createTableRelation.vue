@@ -915,6 +915,7 @@ export default {
       this.jointResult.lookups.forEach((item, index) => {
         arrId.push(item.id, item.joinId)
       })
+      console.log('对应的id', [...new Set(arrId)])
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {
