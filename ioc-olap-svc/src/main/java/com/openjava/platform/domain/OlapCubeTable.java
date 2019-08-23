@@ -41,6 +41,10 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     private String SAxis;
     @ApiModelProperty("Y轴")
     private String YAxis;
+    @ApiModelProperty("joinS轴")
+    private String joinSAxis;
+    @ApiModelProperty("joinY轴")
+    private String joinYAxis;
 
 
     @Transient
@@ -159,4 +163,14 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public void setYAxis(String YAxis) {
         this.YAxis = YAxis;
     }
+
+
+    @Column(name = "JOIN_SAXIS")
+    public String getJoinSAxis() { return joinSAxis; }
+    public void setJoinSAxis(String joinSAxis) { this.joinSAxis = joinSAxis; }
+
+
+    @Column(name = "JOIN_YAXIS")
+    public String getJoinYAxis() { return joinYAxis; }
+    public void setJoinYAxis(String joinYAxis) { this.joinYAxis = joinYAxis; }
 }

@@ -42,4 +42,8 @@ public class ModelsDescDataMapper {
     public String SAxis;
     @JSONField(name = "YAxis")
     public String YAxis;
+    @JSONField(name = "joinSAxis")
+    public String joinSAxis;
+    @JSONField(name = "joinYAxis")
+    public String joinYAxis;
 }

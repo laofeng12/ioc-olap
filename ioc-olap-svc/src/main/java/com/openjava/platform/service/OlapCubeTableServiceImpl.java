@@ -74,7 +74,7 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
         return olapCubeTableRepository.findByCubeId(cubeId);
     }
 
-    public ArrayList<OlapCubeTable> findByTable(String cubeName){
+    public ArrayList<OlapCubeTable> findByTable(String cubeName) {
         return olapCubeTableRepository.findByTable(cubeName);
     }
 
@@ -104,6 +104,8 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
         cubeTableFact.setDatabaseName(libraryNameFact);//数据库名称
         cubeTableFact.setSAxis(modelDescData.getSAxis());//S轴
         cubeTableFact.setYAxis(modelDescData.getYAxis());//Y轴
+        cubeTableFact.setSAxis(modelDescData.getJoinSAxis());//joinS轴
+        cubeTableFact.setYAxis(modelDescData.getJoinYAxis());//joinY轴
         cubeTableFact.setIsNew(true);
         cubeTablesList.add(cubeTableFact);
 
