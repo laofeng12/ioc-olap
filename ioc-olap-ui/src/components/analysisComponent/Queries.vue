@@ -158,7 +158,7 @@ export default {
     async exportFile () {
       const res = await exportExcelApi(this.exportData)
       const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
-      const fileName = '即席查询文件'
+      const fileName = '即席查询文件.xlsx'
       if ('download' in document.createElement('a')) {
         let link = document.createElement('a')
         link.download = fileName

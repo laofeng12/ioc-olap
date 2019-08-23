@@ -16,7 +16,7 @@
     </el-aside>
     <div class="cus-right" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew" @handlePage="handlePage"
-                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData"></ResultBox>
+                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
     </div>
   </el-container>
 </template>
@@ -124,7 +124,7 @@ export default {
       }
       const res = await olapAnalyzeExportExistApi(data)
       const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
-      const fileName = 'olap分析文件'
+      const fileName = 'olap分析文件.xlsx'
       if ('download' in document.createElement('a')) {
         let link = document.createElement('a')
         link.download = fileName
