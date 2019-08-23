@@ -21,7 +21,7 @@
           </el-select>
         </el-form-item>
         <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
-          <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
+          <el-checkbox label="显示所有字段" v-model="checkedAll" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
@@ -152,6 +152,7 @@ export default {
         },
         answers: []
       },
+      checkedAll: false,
       isNew: 1,
       formLabelWidth: '100px',
       dialogFormVisible: false,
@@ -225,6 +226,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       SaveFactData: 'SaveFactData',
+      jointResultData: 'jointResultData',
       saveSelectAllList: 'saveSelectAllList'
     })
   },
@@ -281,6 +283,7 @@ export default {
             if (res) {
               this.$message.success('保存成功~')
               this.$refs.formData.clearValidate()
+              this.checkedAll = false
             }
           })
           this.$parent.init()
@@ -313,12 +316,16 @@ export default {
       this.saveSelectAllList.forEach((item, index) => {
         let findData = []
         let items = JSON.parse(item)
-        items.data.columns.forEach((n, i) => {
-          findData.push({
-            name: items.name + '.' + n.name,
-            id: n.id,
-            dataType: n.dataType
-          })
+        this.jointResultData.lookups.forEach((n, i) => {
+          if (items.resourceId === n.id) {
+            items.data.columns.forEach((k, i) => {
+              findData.push({
+                name: n.alias + '.' + k.name,
+                id: k.id,
+                dataType: k.dataType
+              })
+            })
+          }
         })
         AllData = AllData.concat(findData)
       })
@@ -349,7 +356,8 @@ export default {
           this.isDisabledtext = false
           break
         case 'COUNT_DISTINCT':
-          this.formData.function.parameter.value = 1
+          this.formData.function.parameter.value = ''
+          this.isDisabledtext = true
           this.isDisabledtext = true
           break
         default:

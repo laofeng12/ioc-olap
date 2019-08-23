@@ -56,7 +56,7 @@
           </template>
         </el-form-item>
         <div v-if="formData.partition_type">
-        <!-- <el-form-item label="日期字段表" class="datarowmore">
+        <el-form-item label="日期字段表" class="datarowmore">
           <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
@@ -65,7 +65,7 @@
           <el-select v-model="formData.data2b" placeholder="请选择日期字段">
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.id"></el-option>
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="日期格式">
           <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
