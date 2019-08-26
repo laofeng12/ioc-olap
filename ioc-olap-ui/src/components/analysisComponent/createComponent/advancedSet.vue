@@ -232,14 +232,21 @@ export default {
       })
     },
     nextModel (val) {
+      if (this.judgeSuccess()) {
+        return
+      }
+      this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/completeCreate')
+    },
+    judgeSuccess () {
+      console.log(this.measureTableList.length, '====')
       let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
       let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
       if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
       if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
       if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/analysisModel/createolap/completeCreate')
+      if (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length !== this.measureTableList.length) return this.$message.warning('请选择所有的高级列组合~')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -340,6 +347,7 @@ export default {
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
       engine_types: 'engine_types',
+      measureTableList: 'measureTableList',
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合
       rowkeyData: 'rowkeyData' // rowkeys

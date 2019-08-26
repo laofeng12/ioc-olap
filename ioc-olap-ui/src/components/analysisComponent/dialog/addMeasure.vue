@@ -281,7 +281,7 @@ export default {
           this.formData['showDim'] = true
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
-              this.$message.success('保存成功~')
+              this.$message.success('设置成功~')
               this.$refs.formData.clearValidate()
               this.checkedAll = false
             }

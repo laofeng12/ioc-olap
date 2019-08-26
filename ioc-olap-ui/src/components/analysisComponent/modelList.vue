@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
@@ -185,12 +185,7 @@ export default {
       }
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
-        descDataList({ cubeName: params.name, models: params.model }).then(res => {
-          if (res) {
-            this.jsonData = res
-            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
-          }
-        })
+        this.jsonData = { cubeName: params.name, models: params.model }
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {

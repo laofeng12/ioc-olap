@@ -78,7 +78,6 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
-      console.log('检查', this.dimensions)
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
@@ -126,7 +125,7 @@ export default {
         }
         return dest
       })
-      console.log('最终的', dest)
+      // console.log('最终的', dest)
       this.totalSaveData.models.modelDescData.dimensions = dest
     },
     nextModel (val) {
