@@ -49,18 +49,8 @@ export default {
       dialogFormVisible: false,
       tableData: [],
       typeOptions: [],
-      tableOptions: [
-        // { label: 'a' },
-        // { label: 'b' },
-        // { label: 'c' }
-      ],
-      textOptions: [
-        // { comment: 'aaa', columnName: 'aaa' },
-        // { comment: 'bbb', columnName: 'bbb' },
-        // { comment: 'vccc', columnName: 'vccc' },
-        // { comment: 'vvvv', columnName: 'vvvv' },
-        // { comment: 'bbbbb', columnName: 'bbbbb' }
-      ],
+      tableOptions: [],
+      textOptions: [],
       filterOptions: [
         { value: '0', label: '=' },
         { value: '1', label: '<>' },
