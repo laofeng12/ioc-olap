@@ -346,117 +346,139 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             //写入X轴
             if (!axisXDatas.contains(axisXData)) {
                 rowCells = new ArrayList<AnyDimensionCellVo>();
-                for (Integer i=0;i<xTemps.size();i++){
-                    cellId = String.join("-", xTemps.subList(0, i + 1));
-                    rowCells.add(new AnyDimensionCellVo(cellId, 1, 1, xTemps.get(i), 1));
-                }
-                for (Integer i=0;i<axisYDatas.size()*measureAxises.size();i++){
-                    rowCells.add(null);
-                }
-                results.add(rowCells);
-                axisXDatas.add(axisXData);
-                rowSummarys.add(0.0);
+                writeXData(results, measureAxises, axisXDatas, axisYDatas, axisXData, rowCells, xTemps, rowSummarys);
                 dataIndex++;
             }
             if (!axisYDatas.contains(axisYData)) {
                 axisYDatas.add(axisYData);
                 axisYDatas.sort(Comparator.comparing(String::trim));
                 //写入Y轴
-                for (Integer i = 0; i < yTemps.size(); i++) {
-                    cellId = String.join("-", yTemps.subList(0, i + 1));
-                    cell = getCell(results.get(i), cellId, 1);
-                    if (cell == null) {
-                        cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
-                        results.get(i).add(cell);
-                        results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
-                    } else {
-                        cell.setColspan(cell.getColspan() + measureAxises.size());
-                    }
-                }
+                writeYData(results, measureAxises, yTemps);
 
                 // 写入度量轴
-                for (AnalyzeAxisVo measure : measureAxises) {
-                    cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
-                    results.get(axisYCount).add(cell);
-                }
+                writeMData(results, measureAxises, axisYCount);
 
-                Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
-                for (String dTemp : dTemps) {
-                    for (Integer i=axisYCount+1;i<dataIndex-1;i++){
-                        if(results.get(i).size()>beginIndex){
-                            results.get(i).add(beginIndex,null);
-                        }
-                        else{
-                            results.get(i).add(null);
-                        }
-                    }
-                    cell = new AnyDimensionCellVo(axisYData, 1, 1,String.format("%.2f",Double.parseDouble(dTemp)), 4);
-                    if(rowCells.size()>beginIndex){
-                        rowCells.add(beginIndex,cell);
-                        if(isPaging(pageIndex,pageSize)) {
-                            if (rowSummarys.size()-1>= begin && rowSummarys.size()-1 < end) {
-                                columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
-                            }
-                            else{
-                                columnSummarys.add(beginIndex-axisXCount, 0.0);
-                            }
-                        }
-                        else{
-                            columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
-                        }
-                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
-                    }
-                    else{
-                        rowCells.add(cell);
-                        if(isPaging(pageIndex,pageSize)) {
-                            if (rowSummarys.size()-1 >= begin && rowSummarys.size()-1 < end) {
-                                columnSummarys.add(Double.parseDouble(dTemp));
-                            }
-                            else{
-                                columnSummarys.add(0.0);
-                            }
-                        }
-                        else{
-                            columnSummarys.add(Double.parseDouble(dTemp));
-                        }
-                        rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
-
-                    }
-                    beginIndex++;
-                }
+                // 写入数据轴
+                writeNewData(pageIndex, pageSize, results, measureAxises, axisYCount, axisXCount, begin, end, axisYDatas, axisYData, rowCells, dTemps, dataIndex, rowSummarys, columnSummarys);
             } else {
-                Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
-                for (String dTemp : dTemps) {
-                    cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
-                    rowCells.set(beginIndex, cell);
-                    if(isPaging(pageIndex,pageSize)){
-                        if(rowSummarys.size()-1>=begin && rowSummarys.size()-1<end){
-                            columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
-                        }
-                    }
-                    else{
-                        columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
-                    }
-                    rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
-                    beginIndex++;
-                }
+                // 写入数据轴
+                writeExistData(pageIndex, pageSize, measureAxises, axisXCount, begin, end, axisYDatas, axisYData, rowCells, dTemps, rowSummarys, columnSummarys);
             }
         }
+        // 数据分页
+        makeDataPaging(pageIndex,pageSize,begin,end,axisYCount,results,rowSummarys,anyDimensionVo);
+        // 行列汇总
+        rowAndColumnSummary(anyDimensionVo, results, axisYCount, axisXCount, rowSummarys, columnSummarys);
+        return anyDimensionVo;
+    }
 
-        if(isPaging(pageIndex,pageSize)){
-            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
-            dataResults.addAll(results.subList(0,axisYCount+1));
-            if(rowSummarys.size()<end){
-                dataResults.addAll(results.subList(begin+axisYCount+1,results.size()));
-                rowSummarys=rowSummarys.subList(begin,rowSummarys.size());
+    private void writeExistData(Integer pageIndex, Integer pageSize, List<AnalyzeAxisVo> measureAxises, Integer axisXCount, Integer begin, Integer end, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, List<Double> rowSummarys, List<Double> columnSummarys) {
+        AnyDimensionCellVo cell;
+        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        for (String dTemp : dTemps) {
+            cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
+            rowCells.set(beginIndex, cell);
+            if(isPaging(pageIndex,pageSize)){
+                if(rowSummarys.size()-1>=begin && rowSummarys.size()-1<end){
+                    columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
+                }
             }
             else{
-                dataResults.addAll(results.subList(begin+axisYCount+1,end+axisYCount+1));
-                rowSummarys=rowSummarys.subList(begin,end);
+                columnSummarys.set(beginIndex-axisXCount, columnSummarys.get(beginIndex-axisXCount)+Double.parseDouble(dTemp));
             }
-            anyDimensionVo.setTotalRows(results.size()-1-axisYCount);
-            results=dataResults;
+            rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+            beginIndex++;
         }
+    }
+
+    private void writeNewData(Integer pageIndex, Integer pageSize, List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount, Integer axisXCount, Integer begin, Integer end, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, Integer dataIndex, List<Double> rowSummarys, List<Double> columnSummarys) {
+        AnyDimensionCellVo cell;
+        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        for (String dTemp : dTemps) {
+            for (Integer i=axisYCount+1;i<dataIndex-1;i++){
+                if(results.get(i).size()>beginIndex){
+                    results.get(i).add(beginIndex,null);
+                }
+                else{
+                    results.get(i).add(null);
+                }
+            }
+            cell = new AnyDimensionCellVo(axisYData, 1, 1,String.format("%.2f",Double.parseDouble(dTemp)), 4);
+            if(rowCells.size()>beginIndex){
+                rowCells.add(beginIndex,cell);
+                if(isPaging(pageIndex,pageSize)) {
+                    if (rowSummarys.size()-1>= begin && rowSummarys.size()-1 < end) {
+                        columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                    }
+                    else{
+                        columnSummarys.add(beginIndex-axisXCount, 0.0);
+                    }
+                }
+                else{
+                    columnSummarys.add(beginIndex-axisXCount, Double.parseDouble(dTemp));
+                }
+                rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+            }
+            else{
+                rowCells.add(cell);
+                if(isPaging(pageIndex,pageSize)) {
+                    if (rowSummarys.size()-1 >= begin && rowSummarys.size()-1 < end) {
+                        columnSummarys.add(Double.parseDouble(dTemp));
+                    }
+                    else{
+                        columnSummarys.add(0.0);
+                    }
+                }
+                else{
+                    columnSummarys.add(Double.parseDouble(dTemp));
+                }
+                rowSummarys.set(rowSummarys.size()-1,rowSummarys.get(rowSummarys.size()-1)+Double.parseDouble(dTemp));
+
+            }
+            beginIndex++;
+        }
+    }
+
+    private void writeMData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount) {
+        AnyDimensionCellVo cell;
+        for (AnalyzeAxisVo measure : measureAxises) {
+            cell = new AnyDimensionCellVo("", 1, 1, measure.getColumnChName(), 3);
+            results.get(axisYCount).add(cell);
+        }
+    }
+
+    private void writeYData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, List<String> yTemps) {
+        String cellId;
+        AnyDimensionCellVo cell;
+        for (Integer i = 0; i < yTemps.size(); i++) {
+            cellId = String.join("-", yTemps.subList(0, i + 1));
+            cell = getCell(results.get(i), cellId, 1);
+            if (cell == null) {
+                cell = new AnyDimensionCellVo(cellId, measureAxises.size(), 1, yTemps.get(i), 2);
+                results.get(i).add(cell);
+                results.get(i).sort(Comparator.comparing(AnyDimensionCellVo::getId));
+            } else {
+                cell.setColspan(cell.getColspan() + measureAxises.size());
+            }
+        }
+    }
+
+    private void writeXData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, List<String> axisXDatas, List<String> axisYDatas, String axisXData, ArrayList<AnyDimensionCellVo> rowCells, List<String> xTemps, List<Double> rowSummarys) {
+        String cellId;
+        for (Integer i = 0; i<xTemps.size(); i++){
+            cellId = String.join("-", xTemps.subList(0, i + 1));
+            rowCells.add(new AnyDimensionCellVo(cellId, 1, 1, xTemps.get(i), 1));
+        }
+        for (Integer i=0;i<axisYDatas.size()*measureAxises.size();i++){
+            rowCells.add(null);
+        }
+        results.add(rowCells);
+        axisXDatas.add(axisXData);
+        rowSummarys.add(0.0);
+    }
+
+    private void rowAndColumnSummary(AnyDimensionVo anyDimensionVo, List<ArrayList<AnyDimensionCellVo>> results, Integer axisYCount, Integer axisXCount, List<Double> rowSummarys, List<Double> columnSummarys) {
+        ArrayList<AnyDimensionCellVo> rowCells;
         Integer compareIndex =0;
         rowCells = new ArrayList<AnyDimensionCellVo>();
         rowCells.add(new AnyDimensionCellVo("",axisXCount,1,"汇总",5));
@@ -489,7 +511,24 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         anyDimensionVo.setResults(results);
-        return anyDimensionVo;
+    }
+
+    private void makeDataPaging(Integer pageIndex,Integer pageSize,Integer begin,Integer end,Integer axisYCount,
+                                List<ArrayList<AnyDimensionCellVo>> results,List<Double> rowSummarys,AnyDimensionVo anyDimensionVo){
+        if(isPaging(pageIndex,pageSize)){
+            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
+            dataResults.addAll(results.subList(0,axisYCount+1));
+            if(rowSummarys.size()<end){
+                dataResults.addAll(results.subList(begin+axisYCount+1,results.size()));
+                rowSummarys=rowSummarys.subList(begin,rowSummarys.size());
+            }
+            else{
+                dataResults.addAll(results.subList(begin+axisYCount+1,end+axisYCount+1));
+                rowSummarys=rowSummarys.subList(begin,end);
+            }
+            anyDimensionVo.setTotalRows(results.size()-1-axisYCount);
+            results=dataResults;
+        }
     }
 
     @Override
