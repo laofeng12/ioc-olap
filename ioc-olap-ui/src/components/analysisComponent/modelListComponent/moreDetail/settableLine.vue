@@ -80,11 +80,11 @@ export default {
       return val
     },
     initJointResult (data) {
-      console.log(data)
       if (!data) {
         return this.jointResult
       }
       let lookups = []
+      let factTable = this.jsonData.ModesList.fact_table
       data.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
@@ -119,6 +119,7 @@ export default {
 
       return {
         description: data.description,
+        fact_table: factTable,
         lookups
       }
     },
@@ -126,9 +127,8 @@ export default {
       // this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jsonData.ModesList.lookups)))
       // debugger
-      console.log('获取的', this.jointResult)
-      // let list = this.jointResult.lookups || []
-      let list = this.jsonData.ModesList.lookups || []
+      let list = this.jointResult.lookups || []
+      // let list = this.jsonData.ModesList.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -508,7 +508,7 @@ export default {
 .setline{
   height calc(100vh - 150px)
   position relative
-  oveeflow auto
+  // overflow auto
   padding-bottom 100px
   .containers{
     position absolute
@@ -545,7 +545,7 @@ export default {
   right 0
   width 250px
   padding-top 10px
-  // height auto
+  height 100%
   // padding-bottom 100px
   overflow auto
   text-align left

@@ -86,16 +86,6 @@ export default {
       // 接收设置表关系的数据
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
-        console.log(this.titleData, '=======', this.saveSelectFiled)
-        // setTimeout(() => {
-        //   this.titleData.forEach((item, index) => {
-        //     this.saveSelectFiled.forEach((n, i) => {
-        //       if (item === n.tableName) {
-        //         this.dataList.lookups[index]['isActive'] = 1
-        //       }
-        //     })
-        //   })
-        // }, 300)
         this.getActiveChange()
       })
       this.getActiveChange()

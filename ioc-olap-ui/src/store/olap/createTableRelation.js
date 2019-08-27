@@ -39,9 +39,6 @@ const creatTableRelation = {
     },
     SaveJointResultLookups (state, payload) {
       state.jointResultData.lookups = payload
-    },
-    removeJointResult (state, payload) {
-
     }
   },
   actions: {

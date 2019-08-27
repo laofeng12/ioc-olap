@@ -65,7 +65,7 @@ export default {
 <style lang="stylus" scoped>
 .modelDetail{
   width 100%
-  overflow hidden
+  // overflow hidden
   .tabHead_item{
     height 25px
     margin 0 auto
@@ -150,6 +150,7 @@ export default {
   }
   .content_box{
     height 300px
+    overflow auto
   }
   >>>.el-button{
     margin-left 50%
