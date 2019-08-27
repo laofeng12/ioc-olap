@@ -17,7 +17,6 @@
          class="statusDiv"
         tooltip-effect="dark"
         @row-click="clickTable"
-        @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
         <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
@@ -73,7 +72,6 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
-                  <!-- <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item> -->
                   <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
@@ -95,7 +93,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
@@ -131,7 +129,7 @@ export default {
     this.init()
   },
   methods: {
-    init (val) {
+    async init (val) {
       this.getLoading = true
       const params = {
         limit: 50,
@@ -140,6 +138,12 @@ export default {
       }
       getModelDataList(params).then(res => {
         this.tableData = res
+        this.getLoading = false
+      })
+      await getModelDataList(params).then(res => {
+        this.tableData = res
+        this.getLoading = false
+      }).catch(_ => {
         this.getLoading = false
       })
     },
@@ -181,12 +185,7 @@ export default {
       }
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
-        descDataList({ cubeName: params.name, models: params.model }).then(res => {
-          if (res) {
-            this.jsonData = res
-            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
-          }
-        })
+        this.jsonData = { cubeName: params.name, models: params.model }
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {
@@ -272,9 +271,6 @@ export default {
     closeChangeLoading () {
       this.getLoading = false
       this.init()
-    },
-    handleSelectionChange () {
-
     }
   }
 }

@@ -67,7 +67,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.name,
+        name: list.item.titName,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledNormalList, 'id')
@@ -84,7 +84,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.name,
+        name: list.item.titName,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledDerivativelList, 'id')
@@ -97,7 +97,7 @@ const setFiled = {
       })
     },
     // 存储输入的显示名称
-    changePushalias ({ state }, val) {
+    changePushalias ({ state, dispatch }, val) {
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -111,6 +111,7 @@ const setFiled = {
           }
         }
       })
+      dispatch('SaveFiledData')
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
@@ -192,18 +193,16 @@ const setFiled = {
           if (String(item.mode) === '1') {
             state.dimensions.push({
               table: item.tableName,
-              column: item.name,
-              // columnType: item.dataType,
+              column: item.titName,
               column_type: item.dataType,
-              name: item.name ? item.name : item.name
+              name: item.name
             })
           } else {
             state.dimensions.push({
               table: item.tableName,
-              // columnType: item.dataType,
               column_type: item.dataType,
-              derived: item.mode === '1' ? null : item.name.split(','),
-              name: item.name ? item.name : item.name
+              derived: item.mode === '1' ? null : item.titName.split(','),
+              name: item.name
             })
           }
         }, 300)

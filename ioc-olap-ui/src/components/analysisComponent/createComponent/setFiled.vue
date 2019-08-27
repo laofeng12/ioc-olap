@@ -65,8 +65,7 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      dimensions: []
+      tableData: []
     }
   },
   mounted () {
@@ -121,9 +120,9 @@ export default {
         //   }
         // })
         // 获取本地的数据
-        this.saveSelectAllList.forEach((item, index) => {
+        this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === data.joinId) {
+          if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
@@ -160,11 +159,13 @@ export default {
       }
     },
     nextModel (val) {
+      console.log(this.dimensions, '====获取的')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      this.saveSelectFiled.forEach(item => {
+      })
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
-      // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
       //   flag = item.filed === '1' ? 0 : 1
       // })
@@ -213,9 +214,10 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
+      dimensions: 'dimensions',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
-      saveSelectAllList: 'saveSelectAllList'
+      saveSelectAllListFiled: 'saveSelectAllListFiled'
     })
   },
   beforeDestroy () {

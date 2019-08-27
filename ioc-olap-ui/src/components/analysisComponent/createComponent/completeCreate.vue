@@ -78,7 +78,6 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
-      this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
@@ -86,7 +85,6 @@ export default {
           item.columns[0].measure_refs.push('_COUNT_')
         }
       })
-      // this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs = [...new Set(this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs)]
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
@@ -101,6 +99,34 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
+      // models放入所有选择的表字段
+      // this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
+      console.log(this.totalSaveData.models.modelDescData.lookups, '李帆', this.saveSelectAllListFiled)
+      let dest = []
+      this.saveSelectAllListFiled.map((item, index) => {
+        let data = JSON.parse(item)
+        this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
+          if (data.resourceId === n.id) {
+            dest.push({
+              table: n.alias,
+              columns: data.data.columns.map(res => {
+                return res.name
+              })
+            })
+          }
+        })
+        if (this.jointResultData.fact_table.substring(this.jointResultData.fact_table.indexOf('.') + 1) === data.name) {
+          dest.push({
+            table: data.name,
+            columns: data.data.columns.map(res => {
+              return res.name
+            })
+          })
+        }
+        return dest
+      })
+      // console.log('最终的', dest)
+      this.totalSaveData.models.modelDescData.dimensions = dest
     },
     nextModel (val) {
       console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
@@ -110,8 +136,8 @@ export default {
           await saveolapModeldata(this.totalSaveData).then(_ => {
             this.$message.success('保存成功~')
             this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
+            // this.$router.push('/analysisModel/Configuration')
+            // this.$store.dispatch('resetList')
           }).catch(_ => {
             this.completeLoading = false
           })
@@ -133,6 +159,7 @@ export default {
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
+      saveSelectAllListFiled: 'saveSelectAllListFiled', // 建表后对应的所有字段
       engine_types: 'engine_types', // 构建引擎
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合

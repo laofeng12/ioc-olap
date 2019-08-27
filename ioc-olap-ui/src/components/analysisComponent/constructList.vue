@@ -12,7 +12,6 @@
         :data="tableData"
         ref="multipleTable"
         tooltip-effect="dark"
-        @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
         <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
