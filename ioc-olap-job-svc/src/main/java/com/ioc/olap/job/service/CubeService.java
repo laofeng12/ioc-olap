@@ -1,7 +1,5 @@
 package com.ioc.olap.job.service;
 
-import com.openjava.platform.mapper.kylin.CubeMapper;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

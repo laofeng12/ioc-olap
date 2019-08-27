@@ -2,10 +2,10 @@ package com.ioc.olap.job;
 
 
 import com.ioc.olap.job.service.CubeService;
-import com.openjava.platform.domain.OlapCube;
-import com.openjava.platform.domain.OlapTimingrefresh;
-import com.openjava.platform.service.OlapCubeService;
-import com.openjava.platform.service.OlapTimingrefreshService;
+import com.openjava.olap.domain.OlapCube;
+import com.openjava.olap.domain.OlapTimingrefresh;
+import com.openjava.olap.service.OlapCubeService;
+import com.openjava.olap.service.OlapTimingrefreshService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
