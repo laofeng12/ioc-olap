@@ -3,9 +3,9 @@
     <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{formData.factName}}</el-form-item>
-       <el-form-item label="维度表">{{formData.dimensionName}}</el-form-item>
-       <el-form-item label="维度字段">{{formData.dimensionFiled}}</el-form-item>
-       <el-form-item label="度量字段">{{formData.measureFiled}}</el-form-item>
+       <el-form-item label="维度表">{{formData.dimensionLength}}</el-form-item>
+       <el-form-item label="维度字段">{{formData.dimensionFiledLength}}</el-form-item>
+       <el-form-item label="度量字段">{{formData.measureFiledLength}}</el-form-item>
        <el-form-item label="构建引擎">{{formData.engine}}</el-form-item>
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
@@ -33,9 +33,9 @@ export default {
       completeLoading: false,
       formData: {
         factName: '',
-        dimensionName: '',
-        dimensionFiled: '',
-        measureFiled: '',
+        dimensionLength: '',
+        dimensionFiledLength: '',
+        measureFiledLength: '',
         engine: ''
         // description: '123123'
       }
@@ -52,9 +52,9 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionName = this.jointResultData.lookups.length
-      this.formData.dimensionFiled = this.saveSelectFiled.length
-      this.formData.measureFiled = this.measureTableList.length
+      this.formData.dimensionLength = this.jointResultData.lookups.length
+      this.formData.dimensionFiledLength = this.saveSelectFiled.length
+      this.formData.measureFiledLength = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
@@ -94,6 +94,9 @@ export default {
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
+      this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
+      this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
+      this.totalSaveData.measureFiledLength = this.measureTableList.length
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
@@ -101,7 +104,7 @@ export default {
       })
       // models放入所有选择的表字段
       // this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
-      console.log(this.totalSaveData.models.modelDescData.lookups, '李帆', this.saveSelectAllListFiled)
+      console.log(this.rowkeyData, '李帆', this.saveSelectAllListFiled)
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
         let data = JSON.parse(item)
@@ -128,6 +131,8 @@ export default {
       // console.log('最终的', dest)
       this.totalSaveData.models.modelDescData.dimensions = dest
     },
+    // 处理 dimensions（选择维度）
+
     nextModel (val) {
       console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {
@@ -136,8 +141,8 @@ export default {
           await saveolapModeldata(this.totalSaveData).then(_ => {
             this.$message.success('保存成功~')
             this.completeLoading = false
-            // this.$router.push('/analysisModel/Configuration')
-            // this.$store.dispatch('resetList')
+            this.$router.push('/analysisModel/Configuration')
+            this.$store.dispatch('resetList')
           }).catch(_ => {
             this.completeLoading = false
           })

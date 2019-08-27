@@ -187,7 +187,10 @@ const common = {
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       },
-      cubeDatalaketableNew: {}
+      cubeDatalaketableNew: {},
+      dimensionLength: '',
+      dimensionFiledLength: '',
+      measureFiledLength: ''
     }
   },
   actions: {
