@@ -653,11 +653,11 @@ export default {
       let fk_type = this.linkModalFields[index].fk_type
 
       if (index >= 0 && primary_key && pk_type) {
-        // if (fk_type && pk_type && pk_type != fk_type) {
-        //   this.$message.warning('请选择类型一致的字段')
-        //   primary_key = ''
-        //   pk_type = ''
-        // }
+        if (fk_type && pk_type && pk_type != fk_type) {
+          this.$message.warning('请选择类型一致的字段')
+          primary_key = ''
+          pk_type = ''
+        }
 
         this.linkModalFields[index].primary_key = primary_key
         this.linkModalFields[index].pk_type = pk_type
@@ -678,11 +678,11 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        // if (fk_type && pk_type && pk_type != fk_type) {
-        //   this.$message.warning('请选择类型一致的字段')
-        //   foreign_key = ''
-        //   fk_type = ''
-        // }
+        if (fk_type && pk_type && pk_type != fk_type) {
+          this.$message.warning('请选择类型一致的字段')
+          foreign_key = ''
+          fk_type = ''
+        }
 
         this.linkModalFields[index].foreign_key = foreign_key
         this.linkModalFields[index].fk_type = fk_type

@@ -19,15 +19,20 @@
     </div>
     <div>
       <span>构建引擎</span>
-      <span>{{list.data5}}</span>
+      <span>{{list.engine_type === '1' ? 'MapReduce' : 'Spark' }}</span>
     </div>
     <h4>描述信息</h4>
-    <el-input style="margin-top:20px;" type="textarea" v-model="list.setDetail" disabled placeholder=""></el-input>
+    <el-input style="margin-top:20px;" type="textarea" v-model="list.description" disabled placeholder=""></el-input>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
+  },
   data () {
     return {
       list: {
@@ -38,6 +43,15 @@ export default {
         data4: 'lalalalla',
         data5: 'lalalalla'
       }
+    }
+  },
+  mounted () {
+    this.init()
+  },
+  methods: {
+    init () {
+      let { engine_type, description } = this.jsonData.CubeList[0]
+      this.list = this.jsonData.CubeList[0]
     }
   }
 }

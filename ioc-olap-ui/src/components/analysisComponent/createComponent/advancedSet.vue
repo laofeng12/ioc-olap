@@ -246,7 +246,7 @@ export default {
       if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
       if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
-      if (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length !== this.measureTableList.length) return this.$message.warning('请选择所有的高级列组合~')
+      // if (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length - this.measureTableList.length <= 1) return this.$message.warning('请选择所有的高级列组合~')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
