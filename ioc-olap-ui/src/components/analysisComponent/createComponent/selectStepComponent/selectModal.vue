@@ -36,12 +36,17 @@ export default {
     },
     dialog (val, data) {
       this.dialogFormVisible = true
-      this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
+      // this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
+      this.tableData = this.selectTableTotal.filter(res => {
+        return res.label
+      })
+      console.log(this.tableData, '1')
     }
   },
   computed: {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
+      selectTableTotal: 'selectTableTotal',
       saveLocalSelectTable: 'saveLocalSelectTable'
     })
   }

@@ -13,20 +13,20 @@
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r">
-                <el-tag type="" v-for="(n, i) in item.includes" :key="i" closable><h6>{{n}}</h6></el-tag>
+                <el-tag type="" v-for="(n, i) in item.includes" :key="i"><h6>{{n}}</h6></el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r">
-                <el-tag type="" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable><h6>{{n}}</h6></el-tag>
+                <el-tag type="" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i"><h6>{{n}}</h6></el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
               <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div>
-                  <el-tag v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
+                  <el-tag v-for="(n, q) in itemData" :key="q"><h6>{{n}}</h6></el-tag>
                 </div>
               </div>
             </div>
@@ -34,7 +34,7 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div>
-                  <el-tag v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
+                  <el-tag v-for="(x, y) in jsonData" :key="y"><h6>{{x}}</h6></el-tag>
                 </div>
               </div>
             </div>
@@ -49,7 +49,7 @@
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in list.mandatory_dimension_set_list" :key="i">
               <div>
-                <el-tag v-for="(x, y) in n" :key="y" closable><h6>{{x}}</h6></el-tag>
+                <el-tag v-for="(x, y) in n" :key="y"><h6>{{x}}</h6></el-tag>
               </div>
             </div>
           </div>
@@ -62,7 +62,7 @@
           <div class="listSet__box hetCompose__box" v-if="list.hbase_mapping">
             <div class="adds" v-for="(n, i) in list.hbase_mapping.column_family" :key="i">
               <div>
-                <el-tag v-for="(x, y) in n.columns[0].measure_refs" :key="y" closable><h6>{{x}}</h6></el-tag>
+                <el-tag v-for="(x, y) in n.columns[0].measure_refs" :key="y"><h6>{{x}}</h6></el-tag>
               </div>
             </div>
           </div>
@@ -110,8 +110,9 @@ export default {
     init () {
       if (this.jsonData) {
         let { aggregation_groups, rowkey, hbase_mapping, mandatory_dimension_set_list, engine_type } = this.jsonData.CubeList[0]
-        if (mandatory_dimension_set_list.length < 1) mandatory_dimension_set_list = [{}]
         this.list = this.jsonData.CubeList[0]
+        if (mandatory_dimension_set_list.length < 1) this.list.mandatory_dimension_set_list = [[]]
+        console.log(this.list)
       }
     }
   }
@@ -154,7 +155,6 @@ export default {
           border 1px solid #cccccc
           flex 1
           padding 25px
-          cursor pointer
         }
         >>>.el-tag{
           width 31%

@@ -1,7 +1,6 @@
 const common = {
   state: {
     /* 建立表关系 */
-    savemousedownData: [], // 存储已拖拽的数据
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
@@ -205,13 +204,6 @@ const common = {
       state.totalSaveData.cubeDatalaketableNew = {}
       state.totalSaveData.cube.cubeDescData.name = ''
     },
-    /*
-     *建立表关系
-     */
-    // 存储已拖拽到画布的表
-    SaveMousedownData ({ state }, data) {
-      state.savemousedownData.push(data)
-    },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
       getters.selectTableTotal.forEach((item, index) => {
@@ -219,9 +211,20 @@ const common = {
       })
       // dispatch('setSelectTableTotal')
     },
-    // 存储选择的库以及表
-    Savelibrary ({ state }) {
-
+    // 获取编辑的数据
+    SaveModelAllList ({ getters }, data) {
+      console.log('所有的数据', data, getters.selectTableTotal)
+      // 赋值已选择的表
+      data.TableList.map(item => {
+        item.tableList.map(res => {
+          getters.selectTableTotal.push({ label: res.table_name })
+          if (res.type === '1') {
+            getters.saveSelectTable.push(res)
+            getters.saveSelctchckoutone.push({ id: res.resourceId })
+          }
+        })
+      })
+      console.log('数据湖', getters.saveSelectTable)
     }
   }
 }

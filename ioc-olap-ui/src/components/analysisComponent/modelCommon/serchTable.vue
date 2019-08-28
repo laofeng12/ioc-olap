@@ -54,9 +54,8 @@ export default {
             }
           })
         // if (type && type === 1) {
-        //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+        //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
-        //       console.log(res, '=====')
         //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
         //       this.$root.eventBus.$emit('saveSelectTables')
@@ -89,6 +88,7 @@ export default {
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
+        console.log('已选的复选框', this.saveSelctchckoutone)
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
         if (this.$store.state.selectStep.searchType === 1) {
@@ -114,11 +114,11 @@ export default {
         //   let datas = []
         //   let columnData = res.data.column // 子段说明
         //   res.data.column.forEach(item => {
-        //     datas.push(item.columnAlias)
+        //     datas.push(item.id)
         //   })
         //   let obj = {
         //     params: {
-        //       'columnList': datas,
+        //       'columnIdList': datas,
         //       'page': 0,
         //       'size': 0
         //     },

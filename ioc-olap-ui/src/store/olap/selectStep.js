@@ -12,18 +12,6 @@ const selectStep = {
     lateData: [],
     saveSelctchckoutone: [],
     saveSelctchckouttwo: [],
-    // selectStepList: {
-    //   nodeId: '', // 库对应的key
-    //   orgId: '', // 库的id
-    //   orgName: '', // 库名
-    //   tableList: [
-    //     {
-    //       id: '', // 表id
-    //       name: '', // 表名称
-    //       dataType: '' // 表类型（数据湖/本地上传）
-    //     }
-    //   ]
-    // },
     saveSelectAllList: [], // 保存选择的表的所有字段
     saveSelectAllListFiled: [], // 保存连表后对应的所有字段
     SaveFactData: [], // 事实表对应的所有字段
@@ -76,7 +64,7 @@ const selectStep = {
       state.searchType = val
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
-      state.selectTableTotal = val
+      state.selectTableTotal = val.filter(item => { return item.label })
     },
     SAVESELECT_ONE: (state, val) => {
       state.saveSelctchckoutone = state.saveSelctchckoutone.concat(val)
@@ -288,12 +276,14 @@ const selectStep = {
     },
     // 删除数据胡对应的数据
     delSelectTableList ({ state, dispatch }, data) {
+      console.log('删除的', data)
       state.saveSelectTable.map((item, index) => {
         if (data.delData.id === item.id) {
           state.saveSelectTable.splice(index, 1)
         }
       })
       dispatch('SelectStepList', state.saveSelectTable)
+      console.log(state.saveSelectTable)
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state, dispatch }, data) {

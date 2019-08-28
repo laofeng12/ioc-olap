@@ -148,7 +148,6 @@ export default {
     },
     searchFetch (val) {
       this.init(val)
-      console.log(val)
     },
     createolap () {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -250,6 +249,14 @@ export default {
             // }, 1000)
           })
         }
+      }
+      if (type === 'lookUserModal') {
+        return this.$router.push({
+          path: '/analysisModel/createolap/selectStep',
+          query: {
+            cubeName: params.name, models: params.model
+          }
+        })
       }
       this.$refs[type].dialog(params)
     },
