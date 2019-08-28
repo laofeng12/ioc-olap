@@ -46,9 +46,9 @@ import java.util.Set;
 				"org.ljdp.support.**.service",
 				"org.ljdp.support.**.controller",
 				"com.openjava.**.service",
-				"com.openjava.platform.api.**",
-				"com.openjava.platform.common",
-				"com.openjava.platform.service",
+                "com.openjava.olap.api.**",
+                "com.openjava.olap.common",
+                "com.openjava.olap.service",
 				"com.openjava.**.component",
 				"com.openjava.aop",
 				"com.openjava.job",
@@ -61,7 +61,7 @@ import java.util.Set;
 @EnableCaching
 @EnableScheduling
 public class JobApplication {
-	
+
 	//============缓存配置 spring boot 1.0=================
 	/*@Bean("cacheManager")
 	public CacheManager cacheManager(RedisTemplate<String, Object> redisTemplate) {
@@ -97,35 +97,35 @@ public class JobApplication {
 	            .build();
 	    return cacheManager;
 	}
-	
+
 	//==============会话认证=====================
 	@Bean
 	public SessionValidator sessionValidator() {
 		return new RedisSessionVaidator();
 //		return new EhcacheSessionValidator();
 	}
-	
+
 	@Bean
 	public LmAuthorityPersistent authorityPersistent() {
 		return new LmAuthorityPersistent();
 	}
-	
+
 	//============LJDP相关配置=======================
 	@Bean("db.SessionFactoryRouter")
 	public JPASessionFactoryRouter sessionFactoryRouter() {
 		return new JPASessionFactoryRouter();
 	}
-	
+
 	@Bean("web.UserProvider")
 	public CloudUserProvider lmUserProvider() {
 		return new CloudUserProvider();
 	}
-	
+
 	@Bean
 	public JobBootRunner JobBootRunner() {
 		return new JobBootRunner();
 	}
-	
+
 	@Bean
 	public SpringContext springContext() {
 		return SpringContext.getEmbedInstance();

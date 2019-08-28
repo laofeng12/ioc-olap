@@ -99,7 +99,6 @@ export default {
       item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
-          console.log('名字====', item)
           this.$parent.dragTable(item)
         }
       } else {

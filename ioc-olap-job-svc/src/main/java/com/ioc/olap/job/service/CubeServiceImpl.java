@@ -1,8 +1,8 @@
 package com.ioc.olap.job.service;
 
 import com.alibaba.fastjson.JSON;
-import com.openjava.platform.api.kylin.KylinAction;
-import com.openjava.platform.common.HttpClient;
+import com.openjava.olap.api.kylin.KylinAction;
+import com.openjava.olap.common.HttpClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

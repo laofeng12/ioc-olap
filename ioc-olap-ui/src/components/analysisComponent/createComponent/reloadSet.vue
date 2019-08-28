@@ -78,7 +78,7 @@
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
@@ -179,6 +179,7 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
+      console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -189,13 +190,6 @@ export default {
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/setMeasure')
-    },
-    verification () {
-      this.$refs.formData.validate((valid) => {
-        if (valid) {
-
-        }
-      })
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
