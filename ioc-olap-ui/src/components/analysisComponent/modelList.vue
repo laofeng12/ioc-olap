@@ -149,7 +149,6 @@ export default {
     },
     searchFetch (val) {
       this.init(val)
-      console.log(val)
     },
     createolap () {
       this.$router.push('/analysisModel/createolap/selectStep')
