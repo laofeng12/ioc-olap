@@ -1,6 +1,6 @@
 <template>
   <div class="selectStep">
-    <div class="containers">
+    <div class="containers" v-loading="isLoading">
         <el-tabs v-model="activeName" type="border-card" @tab-click="tabClick">
           <el-tab-pane label="数据湖" name="1">
             <data-lake></data-lake>
@@ -23,6 +23,7 @@ import dataLake from '@/components/analysisComponent/createComponent/selectStepC
 import localUpload from '@/components/analysisComponent/createComponent/selectStepComponent/localUpload'
 import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/analysisComponent/modelCommon/steps'
+import { descDataList } from '@/api/modelList'
 import { mapGetters } from 'vuex'
 export default {
   components: {
@@ -30,10 +31,19 @@ export default {
   },
   data () {
     return {
+      isLoading: false,
       activeName: '1'
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+      this.selectTableTotal = this.selectTableTotal.filter(res => {
+        return res.label
+      })
+    },
     changes (val) {
       this.$refs.dialog.dialog()
     },

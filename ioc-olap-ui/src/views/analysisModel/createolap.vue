@@ -10,7 +10,7 @@
       </el-form>
     </header>
     <head-box :selectId="selectStep"></head-box>
-    <div>
+    <div v-loading="isLoading">
       <transition name="fade-transform" mode="out-in">
         <router-view></router-view>
       </transition>
@@ -22,11 +22,13 @@
 import headBox from '@/components/analysisComponent/modelCommon/head'
 import { mapGetters } from 'vuex'
 import { isChineseChar } from '@/utils/validate'
+import { descDataList } from '@/api/modelList'
 export default {
   components: { headBox },
   data () {
     return {
       selectStep: 1,
+      isLoading: false,
       value: '',
       rules: {
         'cube.cubeDescData.name': [
@@ -35,7 +37,26 @@ export default {
       }
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+      if (this.$route.query.cubeName) {
+        console.log('来了', this.$route.query)
+        this.isLoading = true
+        let { cubeName, models } = this.$route.query
+        const params = {
+          cubeName, models
+        }
+        descDataList(params).then(res => {
+          if (res.CubeList) {
+            this.isLoading = false
+            this.$store.dispatch('SaveModelAllList', res)
+          }
+        })
+      }
+    },
     getStepCountAdd (val) {
       this.selectStep += 1
     },

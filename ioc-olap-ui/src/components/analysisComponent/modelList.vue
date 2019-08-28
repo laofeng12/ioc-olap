@@ -251,6 +251,14 @@ export default {
           })
         }
       }
+      if (type === 'lookUserModal') {
+        return this.$router.push({
+          path: '/analysisModel/createolap/selectStep',
+          query: {
+            cubeName: params.name, models: params.model
+          }
+        })
+      }
       this.$refs[type].dialog(params)
     },
     closeExpands () {
