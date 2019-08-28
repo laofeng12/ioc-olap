@@ -73,6 +73,7 @@ export default {
   },
   methods: {
     init () {
+      console.log('获取的啊', this.saveNewSortListstructure)
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (data, code) => {
@@ -120,6 +121,7 @@ export default {
         //   }
         // })
         // 获取本地的数据
+        console.log(this.saveSelectAllListFiled)
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
@@ -215,6 +217,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
       dimensions: 'dimensions',
+      saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'

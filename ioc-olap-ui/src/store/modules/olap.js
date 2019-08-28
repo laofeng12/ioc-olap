@@ -1,5 +1,7 @@
 const common = {
   state: {
+    ModelAllList: [], // 所有的数据集合
+    modelSelectData: [],
     /* 建立表关系 */
     totalSaveData: { // 总数据
       models: {
@@ -212,19 +214,26 @@ const common = {
       // dispatch('setSelectTableTotal')
     },
     // 获取编辑的数据
-    SaveModelAllList ({ getters }, data) {
-      console.log('所有的数据', data, getters.selectTableTotal)
-      // 赋值已选择的表
+    SaveModelAllList ({ getters, state, dispatch }, data) {
+      state.ModelAllList = data
+      // 赋值第一步已选择的表
+      console.log(data, '编辑需要的数据')
       data.TableList.map(item => {
         item.tableList.map(res => {
-          getters.selectTableTotal.push({ label: res.table_name })
-          if (res.type === '1') {
-            getters.saveSelectTable.push(res)
-            getters.saveSelctchckoutone.push({ id: res.resourceId })
-          }
+          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
+          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
         })
       })
-      console.log('数据湖', getters.saveSelectTable)
+      // 赋值第二步模型的表
+      getters.jointResultData.lookups = data.ModesList.lookups
+      getters.jointResultData.fact_table = data.ModesList.fact_table
+      console.log('表的数据', getters.jointResultData.lookups)
+      // 赋值第三步
+      data.ModesList.dimensions.map(res => {
+        getters.saveNewSortListstructure.push(res)
+      })
+      console.log('已选维度', data.ModesList.dimensions, '============', getters.saveNewSortListstructure)
+      // getters.saveNewSortListstructure = data.ModesList.dimensions
     }
   }
 }

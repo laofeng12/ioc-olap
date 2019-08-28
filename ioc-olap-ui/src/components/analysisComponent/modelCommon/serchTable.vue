@@ -21,6 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   data () {
     return {
@@ -88,14 +89,14 @@ export default {
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
-        console.log('已选的复选框', this.saveSelctchckoutone)
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
-        if (this.$store.state.selectStep.searchType === 1) {
-          this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
-        } else {
-          this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
-        }
+        // if (this.$store.state.selectStep.searchType === 1) {
+        //   this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
+        // } else {
+        //   this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
+        // }
+        this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
         setTimeout(() => {
           this.defaultKey = [...new Set(this.defaultKey)]
         }, 500)
@@ -185,6 +186,7 @@ export default {
     ...mapGetters({
       treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
+      selectTableTotal: 'selectTableTotal',
       saveSelctchckoutone: 'saveSelctchckoutone',
       saveSelctchckouttwo: 'saveSelctchckouttwo',
       serchTableList: 'serchTableList',

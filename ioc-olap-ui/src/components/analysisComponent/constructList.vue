@@ -18,7 +18,7 @@
         <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.job_status === 'FINISHED'" style="color:green;">成功</div>
-            <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
+            <div v-if="scope.row.job_status === 'STOPPED'" style="color:block;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
             <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
@@ -118,9 +118,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling } from '@/api/modelList'
+import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling , getLogDetailsApi } from '@/api/modelList'
 import { filterTime } from '@/utils/index'
-import { getLogDetailsApi } from '@/api/modelList'
+
 export default {
   data () {
     return {

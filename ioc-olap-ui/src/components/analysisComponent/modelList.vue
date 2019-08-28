@@ -142,7 +142,7 @@ export default {
         this.tableData = [...this.tableData, ...res]
       } else {
         this.moreShow = false
-        this.$message.success('已加载所有数据')
+        // this.$message.success('已加载所有数据')
       }
       this.getLoading = false
     },
@@ -283,7 +283,7 @@ export default {
     },
     moreData () {
       this.offset += 15
-      this.init ()
+      this.init()
     }
   }
 }
