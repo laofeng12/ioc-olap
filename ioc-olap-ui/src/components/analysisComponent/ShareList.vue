@@ -56,7 +56,7 @@
         </el-table-column>
         <el-table-column label="模型来源" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>自建</div>
+            <div>共享</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -136,7 +136,7 @@ export default {
       const params = {
         limit: 15,
         offset: this.offset,
-        dateType: 1,
+        dateType: 0,
         ...val
       }
       const res = await getModelDataList(params)
