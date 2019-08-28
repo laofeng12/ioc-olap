@@ -21,7 +21,9 @@
             <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
-            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)"><el-progress :percentage="70"></el-progress></div>
+            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
+              <el-progress :percentage="scope.row.progress"></el-progress>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
@@ -57,6 +59,7 @@
           </template>
         </el-table-column>
       </el-table>
+    <div class="more" v-if="moreShow && tableData.length > 0" @click="moreData">更多数据</div>
     <el-dialog title="查看日志" :visible.sync="logListVisible">
       <div class="logListBox dis-flex">
         <el-timeline>
@@ -134,7 +137,9 @@ export default {
       logDetailsVisible: false,
       steps: [],
       logData: {},
-      logDetails: ''
+      logDetails: '',
+      offset: 0,
+      moreShow: true
     }
   },
   filters: {
@@ -151,14 +156,22 @@ export default {
     })
   },
   methods: {
-    init (val) {
-      this.$store.dispatch('SaveCubeObjListData', val).then(res => {
-        this.getLoading = true
-        if (res) {
-          this.getLoading = false
-          this.tableData = res
-        }
-      })
+    async init (val) {
+      console.info(val)
+      const params = {
+        limit: 15,
+        offset: this.offset,
+        ...val
+      }
+      this.getLoading = true
+      const res = await this.$store.dispatch('SaveCubeObjListData', params)
+      if (res.length > 0) {
+        this.tableData = [...this.tableData, ...res]
+      } else {
+        this.moreShow = false
+        this.$message.success('已加载所有数据')
+      }
+      this.getLoading = false
     },
     searchFetch (val) {
       this.getLoading = true
@@ -258,6 +271,10 @@ export default {
     },
     Translate (time) {
       return filterTime(time)
+    },
+    moreData () {
+      this.offset += 15
+      this.init()
     }
   }
 }
@@ -323,6 +340,15 @@ export default {
     .pre {
       white-space pre-wrap
     }
+  }
+  .more {
+    height 40px
+    line-height 40px
+    background-color #409EFF
+    color #ffffff
+    margin-top 30px
+    text-align center
+    cursor pointer
   }
 }
 </style>

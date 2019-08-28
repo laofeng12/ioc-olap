@@ -17,6 +17,7 @@
          class="statusDiv"
         tooltip-effect="dark"
         @row-click="clickTable"
+        @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
         <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
@@ -55,7 +56,7 @@
         </el-table-column>
         <el-table-column label="模型来源" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>自建</div>
+            <div>共享</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -70,6 +71,7 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
+                  <!-- <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item> -->
                   <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
@@ -91,7 +93,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
@@ -134,7 +136,7 @@ export default {
       const params = {
         limit: 15,
         offset: this.offset,
-        dateType: 1,
+        dateType: 0,
         ...val
       }
       const res = await getModelDataList(params)
@@ -184,7 +186,12 @@ export default {
       }
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
-        this.jsonData = { cubeName: params.name, models: params.model }
+        descDataList({ cubeName: params.name, models: params.model }).then(res => {
+          if (res) {
+            this.jsonData = res
+            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
+          }
+        })
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {
