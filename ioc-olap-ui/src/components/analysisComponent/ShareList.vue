@@ -76,15 +76,15 @@
         </el-table-column>
       </el-table>
     <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
-    <el-dialog title="查看共享人" :visible.sync="shareVisible">
-      <div class="shareBox dis-flex" v-loading="shareLoading">
+    <!--<el-dialog title="查看共享人" :visible.sync="shareVisible">-->
+      <!--<div class="shareBox dis-flex" v-loading="shareLoading">-->
 
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="shareVisible = false">取 消</el-button>
-        <el-button type="primary" @click="share">确 定</el-button>
-      </div>
-    </el-dialog>
+      <!--</div>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="shareVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="share">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -114,9 +114,9 @@ export default {
       tableData: [],
       jsonData: {},
       offset: 0,
-      moreShow: true,
-      shareVisible: false,
-      shareLoading: false
+      moreShow: true
+    //   shareVisible: false,
+    //   shareLoading: false
     }
   },
   filters: {
