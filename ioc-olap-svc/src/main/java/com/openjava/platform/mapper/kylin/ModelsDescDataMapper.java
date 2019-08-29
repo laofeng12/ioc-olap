@@ -37,13 +37,18 @@ public class ModelsDescDataMapper {
     public PartitionDescMapper partition_desc;
     @JSONField(name = "capacity")
     public String capacity;
-
     @JSONField(name = "SAxis")
-    public String SAxis;
+    public Long SAxis;
     @JSONField(name = "YAxis")
-    public String YAxis;
+    public Long YAxis;
     @JSONField(name = "joinSAxis")
-    public String joinSAxis;
+    public Long joinSAxis;
     @JSONField(name = "joinYAxis")
-    public String joinYAxis;
+    public Long joinYAxis;
+    @JSONField(name = "joinAlias")
+    public Long joinAlias;
+    @JSONField(name = "joinId")
+    public Long joinId;
+    @JSONField(name = "joinTable")
+    public Long joinTable;
 }

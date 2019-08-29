@@ -38,14 +38,23 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     @ApiModelProperty("是否新增")
     private Boolean isNew;
     @ApiModelProperty("S轴")
-    private String SAxis;
+    private Long SAxis;
     @ApiModelProperty("Y轴")
-    private String YAxis;
+    private Long YAxis;
     @ApiModelProperty("joinS轴")
-    private String joinSAxis;
+    private Long joinSAxis;
     @ApiModelProperty("joinY轴")
-    private String joinYAxis;
+    private Long joinYAxis;
 
+    @ApiModelProperty("别名")
+    private String joinAlias;
+    @ApiModelProperty("id")
+    private String joinId;
+    @ApiModelProperty("表名称")
+    private String joinTable;
+
+    @ApiModelProperty("前端要存的id")
+    private String tableId;
 
     @Transient
     @JsonIgnore
@@ -71,7 +80,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public Boolean getIsNew() {
         return isNew;
     }
-
     public void setIsNew(Boolean isNew) {
         this.isNew = isNew;
     }
@@ -81,7 +89,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public Long getCubeTableId() {
         return cubeTableId;
     }
-
     public void setCubeTableId(Long id) {
         this.cubeTableId = id;
     }
@@ -91,7 +98,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -101,7 +107,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public Long getCubeId() {
         return cubeId;
     }
-
     public void setCubeId(Long cubeId) {
         this.cubeId = cubeId;
     }
@@ -111,7 +116,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public String getTableName() {
         return tableName;
     }
-
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
@@ -121,7 +125,6 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public String getTableAlias() {
         return tableAlias;
     }
-
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
     }
@@ -141,36 +144,66 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     public String getDatabaseName() {
         return databaseName;
     }
-
     public void setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
     }
 
     @Column(name = "S_AXIS")
-    public String getSAxis() {
+    public Long getSAxis() {
         return SAxis;
     }
-
-    public void setSAxis(String SAxis) {
+    public void setSAxis(Long SAxis) {
         this.SAxis = SAxis;
     }
 
     @Column(name = "Y_AXIS")
-    public String getYAxis() {
+    public Long getYAxis() {
         return YAxis;
     }
-
-    public void setYAxis(String YAxis) {
+    public void setYAxis(Long YAxis) {
         this.YAxis = YAxis;
     }
 
 
     @Column(name = "JOIN_SAXIS")
-    public String getJoinSAxis() { return joinSAxis; }
-    public void setJoinSAxis(String joinSAxis) { this.joinSAxis = joinSAxis; }
+    public Long getJoinSAxis() { return joinSAxis; }
+    public void setJoinSAxis(Long joinSAxis) { this.joinSAxis = joinSAxis; }
 
 
     @Column(name = "JOIN_YAXIS")
-    public String getJoinYAxis() { return joinYAxis; }
-    public void setJoinYAxis(String joinYAxis) { this.joinYAxis = joinYAxis; }
+    public Long getJoinYAxis() { return joinYAxis; }
+    public void setJoinYAxis(Long joinYAxis) { this.joinYAxis = joinYAxis; }
+
+
+    @Column(name = "JOINALIAS")
+    public String getJoinAlias() {
+        return joinAlias;
+    }
+    public void setJoinAlias(String joinAlias) {
+        this.joinAlias = joinAlias;
+    }
+
+    @Column(name = "JOINID")
+    public String getJoinId() {
+        return joinId;
+    }
+    public void setJoinId(String joinId) {
+        this.joinId = joinId;
+    }
+
+    @Column(name = "JOINTABLE")
+    public String getJoinTable() {
+        return joinTable;
+    }
+    public void setJoinTable(String joinTable) {
+        this.joinTable = joinTable;
+    }
+
+    @Column(name = "TABLEID")
+    public String getTableId() {
+        return tableId;
+    }
+    public void setTableId(String tableId) {
+        this.tableId = tableId;
+    }
 }

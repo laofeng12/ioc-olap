@@ -8,6 +8,7 @@ import com.openjava.platform.service.OlapCubeService;
 import com.openjava.platform.service.OlapShareService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,17 +28,25 @@ public class OlapShareAction {
 
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @Security(session=true)
-    public void save(Long[] userIds, String sourceType, Long sourceId) {
+    @Security(session = true)
+    public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        olapShareService.save(userIds,sourceType,sourceId,Long.parseLong(userVO.getUserId()),userVO.getUserName());
+        if (StringUtils.isNotBlank(cubeName)) {
+            olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName(), cubeName);
+        } else {
+            olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName());
+        }
     }
 
     @ApiOperation(value = "读取共享")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
-    @Security(session=true)
-    public List<ShareUserDto> get(String sourceType, String sourceId) {
+    @Security(session = true)
+    public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        return olapShareService.getList(sourceType,sourceId,Long.parseLong(userVO.getUserId()));
+        if (StringUtils.isNotBlank(cubeName)) {
+            return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()), cubeName);
+        } else {
+            return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()));
+        }
     }
 }

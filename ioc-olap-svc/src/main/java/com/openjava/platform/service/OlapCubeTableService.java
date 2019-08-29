@@ -6,6 +6,7 @@ import java.util.List;
 import com.openjava.platform.domain.OlapCubeTable;
 import com.openjava.platform.domain.OlapCubeTableRelation;
 import com.openjava.platform.domain.OlapShare;
+import com.openjava.platform.mapper.kylin.CubeDatalaketableNewMapper;
 import com.openjava.platform.mapper.kylin.CubeDescMapper;
 import com.openjava.platform.mapper.kylin.ModelsMapper;
 import com.openjava.platform.query.OlapCubeTableDBParam;
@@ -38,5 +39,5 @@ public interface OlapCubeTableService {
 
     ArrayList<OlapCubeTable> findByTable(String cubeName);
 
-    List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId);
+    List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId, List<CubeDatalaketableNewMapper>  cubeDatalaketableNew);
 }

@@ -15,33 +15,34 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * 文件夹表业务层接口
- * @author xiepc
  *
+ * @author xiepc
  */
 public interface OlapCubeService {
-	Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable);
+    Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable);
 
-	OlapCube findTableInfo(String cubeName, Long createId);
+    OlapCube findTableInfo(String cubeName, Long createId);
 
-	OlapCube findTableInfo(String cubeName);
+    OlapCube findTableInfo(String cubeName);
 
-	List<OlapCube> getOlapShareByShareUserId(String shareUserId);
+    List<OlapCube> getOlapShareByShareUserId(String shareUserId);
 
-	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
+    List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 
-	OlapCube get(Long id);
+    OlapCube get(Long id);
 
-	OlapCube doSave(OlapCube m);
+    OlapCube doSave(OlapCube m);
 
-	void doDelete(Long id);
-	void doRemove(String ids);
+    void doDelete(Long id);
 
-	List<OlapCube> findByUserId(Long createId);
+    void doRemove(String ids);
 
-	List<OlapCube> findAll();
+    List<OlapCube> findByUserId(Long createId);
+
+    List<OlapCube> findAll();
 
     ArrayList<OlapCube> getValidListByUserId(Long userId);
 
-	//保存OLAP_CUBE表
-	OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO);
+    //保存OLAP_CUBE表
+    OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength);
 }

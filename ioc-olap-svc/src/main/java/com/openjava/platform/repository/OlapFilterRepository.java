@@ -17,6 +17,6 @@ import java.util.Optional;
  */
 public interface OlapFilterRepository extends DynamicJpaRepository<OlapFilter, Long>, OlapFilterRepositoryCustom{
 
-    @Query(value = "select t.* from OLAP_FILTER t where t.CUBE_NAME=:cubeName and t.CREATE_ID=:createId)", nativeQuery = true)
+    @Query(value = "select t.* from OLAP_FILTER t where t.CUBE_NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)
     Optional<OlapFilter> findTableInfo(@Param("cubeName") String cubeName, @Param("createId") Long createId);
 }

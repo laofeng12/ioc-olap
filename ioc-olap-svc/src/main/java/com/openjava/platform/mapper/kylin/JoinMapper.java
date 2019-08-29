@@ -4,6 +4,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class JoinMapper {
@@ -14,9 +16,9 @@ public class JoinMapper {
     @JSONField(name = "foreign_key")
     public String[] foreign_key;
     @JSONField(name = "isCompatible")
-    public String[] isCompatible;
+    public List<String> isCompatible;
     @JSONField(name = "pk_type")
-    public String[] pk_type;
+    public List<String> pk_type;
     @JSONField(name = "fk_type")
-    public String[] fk_type;
+    public List<String> fk_type;
 }

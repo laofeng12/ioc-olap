@@ -107,7 +107,7 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 					.filter(p -> p.getTableAlias().equals(lm.getAlias())).findFirst();
 
 			Optional<OlapCubeTable> joinTableId = dmEntity.stream()
-					.filter(p -> p.getTableAlias().equals(lm.getJoinTable())).findFirst();
+					.filter(p -> p.getTableAlias().equals(lm.getJoinAlias())).findFirst();
 
 			Relation.setId(ss.getSequence());
 			Relation.setTableId(joinTableId.get().getId()); //源表id

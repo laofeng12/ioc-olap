@@ -15,15 +15,22 @@ public class LookupsMapper {
     public String alias;
     @JSONField(name = "joinTable")
     public String joinTable;
+    @JSONField(name = "joinAlias")
+    public String joinAlias;
+    @JSONField(name = "joinId")
+    public String joinId;
     @JSONField(name = "join")
     public JoinMapper join;
 
     @JSONField(name = "SAxis")
-    public String SAxis;
+    public Long SAxis;
     @JSONField(name = "YAxis")
-    public String YAxis;
+    public Long YAxis;
     @JSONField(name = "joinSAxis")
-    public String joinSAxis;
+    public Long joinSAxis;
     @JSONField(name = "joinYAxis")
-    public String joinYAxis;
+    public Long joinYAxis;
+
+    @JSONField(name = "id")
+    public String id;
 }
