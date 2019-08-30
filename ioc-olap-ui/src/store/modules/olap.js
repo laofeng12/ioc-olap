@@ -60,6 +60,7 @@ const common = {
       cube: {
         'cubeDescData': {
           'name': '',
+          'uuid': '',
           'model_name': '',
           'engine_type': 2,
           'description': '',
@@ -214,7 +215,7 @@ const common = {
       // dispatch('setSelectTableTotal')
     },
     // 获取编辑的数据
-    SaveModelAllList ({ getters, state, dispatch }, data) {
+    SaveModelAllList ({ getters, store, state, dispatch }, data) {
       state.ModelAllList = data
       // 赋值第一步已选择的表
       console.log(data, '编辑需要的数据')
@@ -232,8 +233,52 @@ const common = {
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)
       })
-      console.log('已选维度', data.ModesList.dimensions, '============', getters.saveNewSortListstructure)
-      // getters.saveNewSortListstructure = data.ModesList.dimensions
+      data.CubeList[0].dimensions.map((res, i) => {
+        getters.saveSelectFiled.push({
+          titName: res.name,
+          name: res.column ? res.column : res.name,
+          dataType: res.column_type,
+          tableName: res.table,
+          id: res.id,
+          mode: res.derived ? '2' : '1'
+        })
+      })
+      dispatch('SaveSelectFiled', getters.saveSelectFiled)
+      // 赋值第四步
+      data.CubeList[0].measures.map(item => {
+        getters.measureTableList.push(item)
+      })
+      // 赋值第五步
+      getters.reloadData.frequencytype = data.timingreFresh.frequencytype
+      getters.reloadData.autoReload = !!data.timingreFresh.interval
+      getters.reloadData.interval = Number(data.timingreFresh.interval)
+      getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
+      let result = data.ModesList.partition_desc.partition_date_column
+      getters.reloadData.data1a = result.split('.')[0]
+      getters.reloadData.data1b = result.split('.')[1]
+      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+      getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+
+      // 赋值第六步
+      data.CubeList[0].aggregation_groups.map((item, index) => {
+        getters.aggregation_groups[index].includes = item.includes
+        getters.aggregation_groups[index].select_rule = item.select_rule
+        getters.selectDataidList[index].includesId = item.includes
+        getters.selectDataidList[index].necessaryDataId = item.select_rule.mandatory_dims
+        getters.selectDataidList[index].levelDataId = item.select_rule.hierarchy_dims
+        getters.selectDataidList[index].jointDataId = item.select_rule.joint_dims
+      })
+      // hbase_mapping  mandatory_dimension_set_list
+      data.CubeList[0].hbase_mapping.column_family.map((item, index) => {
+        getters.hbase_mapping.column_family[index] = item
+        getters.savehetComposeDataId[index] = item
+      })
+      state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
+      state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
+      state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
+      console.log(getters)
+      state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
+      console.log('第六步===', getters.hbase_mapping)
     }
   }
 }

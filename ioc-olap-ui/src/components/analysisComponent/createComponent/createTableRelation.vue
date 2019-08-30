@@ -110,7 +110,6 @@ export default {
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
       let containers = this.$refs.containers.getBoundingClientRect()
-      console.log('我是第二步', data)
       let arr = []
       data.lookups.forEach(item => {
         // if (item.id) {

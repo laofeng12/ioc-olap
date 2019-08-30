@@ -18,7 +18,7 @@
         <el-form-item label="更新频率" v-if="formData.autoReload">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.INTERVAL"></el-input>
+              <el-input type="text" v-model="formData.interval"></el-input>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -134,18 +134,8 @@ export default {
         interval: null,
         frequencytype: 1
       },
-      tableOptions: [
-        // { label: 'a' },
-        // { label: 'b' },
-        // { label: 'c' }
-      ],
-      textOptions: [
-        // { comment: 'aaa', columnName: 'aaa' },
-        // { comment: 'bbb', columnName: 'bbb' },
-        // { comment: 'vccc', columnName: 'vccc' },
-        // { comment: 'vvvv', columnName: 'vvvv' },
-        // { comment: 'bbbbb', columnName: 'bbbbb' }
-      ],
+      tableOptions: [],
+      textOptions: [],
       formatOptions: [
         { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
         { id: 2, value: 'yyyy-MM-dd' },
@@ -179,7 +169,7 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
+      // console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)

@@ -2,7 +2,7 @@
   <div class="completeCreate">
     <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
-       <el-form-item label="事实表">{{formData.factName}}</el-form-item>
+       <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{formData.dimensionLength}}</el-form-item>
        <el-form-item label="维度字段">{{formData.dimensionFiledLength}}</el-form-item>
        <el-form-item label="度量字段">{{formData.measureFiledLength}}</el-form-item>
@@ -87,7 +87,6 @@ export default {
       })
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
-      this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
       this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
       this.totalSaveData.timingreFresh.interval = Number(this.reloadData.INTERVAL)
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype

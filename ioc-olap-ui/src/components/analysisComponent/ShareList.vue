@@ -144,7 +144,7 @@ export default {
         this.tableData = [...this.tableData, ...res]
       } else {
         this.moreShow = false
-        this.$message.success('已加载所有数据')
+        // this.$message.success('已加载所有数据')
       }
       this.getLoading = false
     },
@@ -183,16 +183,6 @@ export default {
         case 'dels':
           texts = '确定删除该模型？'
           break
-      }
-      if (type === 'lookDetail') {
-        this.expands.push(params.uuid)
-        descDataList({ cubeName: params.name, models: params.model }).then(res => {
-          if (res) {
-            this.jsonData = res
-            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
-          }
-        })
-        return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {
         return this.$confirm(texts, {
@@ -283,7 +273,7 @@ export default {
     },
     moreData () {
       this.offset += 15
-      this.init ()
+      this.init()
     }
   }
 }

@@ -188,7 +188,6 @@ const advancedSet = {
           })
           break
         case 2:
-          // state.recordingData = state.recordingData.concat(list.id)
           state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData).concat(list.id)
           state.aggregation_groups[list.index].select_rule.mandatory_dims.filter((item, index) => {
             item.id === list.id && state.aggregation_groups[list.index].necessaryData.splice(index, 1)
@@ -199,7 +198,6 @@ const advancedSet = {
           state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData)
           break
         case 3:
-          // state.recordingData = state.recordingData.concat(list.id)
           state.recordingData = getArrDifference(state.saveselectIncludesData, state.recordingData).concat(list.id)
           state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].filter((item, index) => {
             item.id === list.id && state.aggregation_groups[list.index].select_rule.hierarchy_dims[list.findIndex].splice(index, 1)

@@ -118,7 +118,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling , getLogDetailsApi } from '@/api/modelList'
+import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling, getLogDetailsApi } from '@/api/modelList'
 import { filterTime } from '@/utils/index'
 
 export default {
@@ -169,7 +169,7 @@ export default {
         this.tableData = [...this.tableData, ...res]
       } else {
         this.moreShow = false
-        this.$message.success('已加载所有数据')
+        // this.$message.success('已加载所有数据')
       }
       this.getLoading = false
     },

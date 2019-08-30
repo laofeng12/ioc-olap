@@ -100,8 +100,8 @@ export default {
         default:
           // this.options = this.saveselectIncludesData
           // 递减的功能（选择过后下面的就没法选择）
-           let arrD = [...new Set(this.recordingData)]
-           this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+          let arrD = [...new Set(this.recordingData)]
+          this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
           break
       }
       this.index = index

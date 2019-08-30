@@ -73,7 +73,6 @@ export default {
   },
   methods: {
     init () {
-      console.log('获取的啊', this.saveNewSortListstructure)
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (data, code) => {
@@ -121,7 +120,7 @@ export default {
         //   }
         // })
         // 获取本地的数据
-        console.log(this.saveSelectAllListFiled)
+        console.log('洗净选择的数据', this.saveSelectFiled)
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
@@ -161,7 +160,6 @@ export default {
       }
     },
     nextModel (val) {
-      console.log(this.dimensions, '====获取的')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       this.saveSelectFiled.forEach(item => {
       })
@@ -197,7 +195,7 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
     // 输入框监听
