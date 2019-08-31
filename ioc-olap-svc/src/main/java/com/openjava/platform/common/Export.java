@@ -239,11 +239,15 @@ public class Export {
                             ArrayList<AnyDimensionCellVo> anyDimensionCellVoLNext = results.get(i + 1);//下一行数据
                             anyDimensionCellVoNext = anyDimensionCellVoLNext.get(j);//列维相同的数据
                         }
-                        String lastDate = anyDimensionCellVoLast.getValue();
-                        if ((lastDate.equals(date) && (!anyDimensionCellVoD.getValue().equals(anyDimensionCellVoNext.getValue()))) || (lastDate.equals(date) && ((i + 1) == results.size()))) {
-                            int endRow = (int) overrow;
-                            Integer firstRow = endRow - rowspan + 1;
-                            sheet.addMergedRegion(new CellRangeAddress(firstRow, overrow, startcol, overcol));
+                        String lastDate = anyDimensionCellVoLast.getValue();//判断是不是第一行
+                        if (lastDate!=null){
+                            if ((lastDate.equals(date) && (!anyDimensionCellVoD.getValue().equals(anyDimensionCellVoNext.getValue())))
+                                    || (lastDate.equals(date) && ((i + 1) == results.size())))
+                            {
+                                int endRow = (int) overrow;
+                                Integer firstRow = endRow - rowspan + 1;
+                                sheet.addMergedRegion(new CellRangeAddress(firstRow, overrow, startcol, overcol));
+                            }
                         }
                     }
                 }
