@@ -1,7 +1,8 @@
 const common = {
   state: {
+    ModelAllList: [], // 所有的数据集合
+    modelSelectData: [],
     /* 建立表关系 */
-    savemousedownData: [], // 存储已拖拽的数据
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
@@ -52,13 +53,14 @@ const common = {
             // 'partition_date_column': null, // 表
             // 'partition_type': 'APPEND' // 字段
             // // 'partition_date_format': null // 日期
-          },
-          'last_modified': 0
+          }
+          // 'last_modified': 0
         }
       },
       cube: {
         'cubeDescData': {
           'name': '',
+          'uuid': '',
           'model_name': '',
           'engine_type': 2,
           'description': '',
@@ -182,36 +184,28 @@ const common = {
       },
       filterCondidion: [], // 刷新过滤设置
       timingreFresh: {
-        INTERVAL: '', // 更新频率
+        interval: '', // 更新频率
         frequencytype: '', // 更新方式
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       },
-      selectStepList: {}
+      cubeDatalaketableNew: {},
+      dimensionLength: '',
+      dimensionFiledLength: '',
+      measureFiledLength: ''
     }
-  },
-  mutations: {
   },
   actions: {
     resetList ({ state }) {
-      state.treeList = []
-      state.serchTableList = []
-      state.searchType = 1
-      state.saveSelectTable = []
-      state.saveLocalSelectTable = []
-      state.selectTableTotal = []
-      state.lastClickTab = ''
-      state.saveSelctchckoutone = []
-      state.saveSelctchckouttwo = []
-      state.saveSelectFiled = []
-      state.saveSelectFiledTree = []
-    },
-    /*
-     *建立表关系
-     */
-    // 存储已拖拽到画布的表
-    SaveMousedownData ({ state }, data) {
-      state.savemousedownData.push(data)
+      state.totalSaveData.filterCondidion = []
+      state.totalSaveData.timingreFresh = {
+        interval: '',
+        frequencytype: '',
+        autoReload: false,
+        dataMany: false
+      }
+      state.totalSaveData.cubeDatalaketableNew = {}
+      state.totalSaveData.cube.cubeDescData.name = ''
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
@@ -220,9 +214,71 @@ const common = {
       })
       // dispatch('setSelectTableTotal')
     },
-    // 存储选择的库以及表
-    Savelibrary ({ state }) {
+    // 获取编辑的数据
+    SaveModelAllList ({ getters, store, state, dispatch }, data) {
+      state.ModelAllList = data
+      // 赋值第一步已选择的表
+      console.log(data, '编辑需要的数据')
+      data.TableList.map(item => {
+        item.tableList.map(res => {
+          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
+          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
+        })
+      })
+      // 赋值第二步模型的表
+      getters.jointResultData.lookups = data.ModesList.lookups
+      getters.jointResultData.fact_table = data.ModesList.fact_table
+      console.log('表的数据', getters.jointResultData.lookups)
+      // 赋值第三步
+      data.ModesList.dimensions.map(res => {
+        getters.saveNewSortListstructure.push(res)
+      })
+      data.CubeList[0].dimensions.map((res, i) => {
+        getters.saveSelectFiled.push({
+          titName: res.name,
+          name: res.column ? res.column : res.name,
+          dataType: res.column_type,
+          tableName: res.table,
+          id: res.id,
+          mode: res.derived ? '2' : '1'
+        })
+      })
+      dispatch('SaveSelectFiled', getters.saveSelectFiled)
+      // 赋值第四步
+      data.CubeList[0].measures.map(item => {
+        getters.measureTableList.push(item)
+      })
+      // 赋值第五步
+      getters.reloadData.frequencytype = data.timingreFresh.frequencytype
+      getters.reloadData.autoReload = !!data.timingreFresh.interval
+      getters.reloadData.interval = Number(data.timingreFresh.interval)
+      getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
+      let result = data.ModesList.partition_desc.partition_date_column
+      getters.reloadData.data1a = result.split('.')[0]
+      getters.reloadData.data1b = result.split('.')[1]
+      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+      getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
 
+      // 赋值第六步
+      data.CubeList[0].aggregation_groups.map((item, index) => {
+        getters.aggregation_groups[index].includes = item.includes
+        getters.aggregation_groups[index].select_rule = item.select_rule
+        getters.selectDataidList[index].includesId = item.includes
+        getters.selectDataidList[index].necessaryDataId = item.select_rule.mandatory_dims
+        getters.selectDataidList[index].levelDataId = item.select_rule.hierarchy_dims
+        getters.selectDataidList[index].jointDataId = item.select_rule.joint_dims
+      })
+      // hbase_mapping  mandatory_dimension_set_list
+      data.CubeList[0].hbase_mapping.column_family.map((item, index) => {
+        getters.hbase_mapping.column_family[index] = item
+        getters.savehetComposeDataId[index] = item
+      })
+      state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
+      state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
+      state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
+      console.log(getters)
+      state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
+      console.log('第六步===', getters.hbase_mapping)
     }
   }
 }

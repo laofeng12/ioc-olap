@@ -171,7 +171,7 @@ export default {
   methods: {
     clickTreeItem (data, node, self) {
       let that = this
-      if (node.parent.parent || this.vueType === 'shareResult') {
+      if (node.parent.parent || this.vueType === 'shareResult' || this.vueType === 'shareOlap') {
         // 子节点才进入
         that.sheetTitle = data.name
         that.sheetDataId = data.id

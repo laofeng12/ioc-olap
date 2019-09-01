@@ -2,7 +2,7 @@
   <div class="tableRelation">
     <div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">
       <fact-table></fact-table>
-      <div class="linkSetting" v-if="linkModal">
+      <div class="linkSetting" v-if="linkModal" ref="linkSetting">
         <h2 class="title">设置关联关系</h2>
         <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
           <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
@@ -10,12 +10,12 @@
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
-          </el-select>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
+          </el-select>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
@@ -83,16 +83,16 @@ export default {
       },
       cellLayerStyle: '',
       cellLayerData: null,
-      // jointResult: {
-      //   name: 'joint',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
-      // },
+      jointResult: {
+        name: '',
+        description: '',
+        fact_table: '',
+        lookups: []
+      },
       linkModal: null,
       linkModalModel: null,
-      linkModalFields: [],
-      jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DS_DATALAKE_TABLE', 'lookups': [{ 'table': 'DS_DATALAKE_TABLE', 'alias': 'DS_DATALAKE_TABLE', 'joinTable': 'test_juan', 'joinAlias': 'aaa', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['DLT_ID'], 'foreign_key': ['Id'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }, { 'table': 'test_juan', 'alias': 'aaa', 'joinTable': 'Test_zlj', 'joinAlias': 'Test_zlj', 'kind': 'LOOKUP', 'join': { 'type': '左连接', 'primary_key': ['Id'], 'foreign_key': ['ID'], 'isCompatible': [true], 'pk_type': ['number'], 'fk_type': ['number'] } }] }
+      linkModalFields: []
+      // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DEFAULT.KYLIN_CAL_DT', 'lookups': [{ 'joinTable': 'KYLIN_CAL_DT', 'alias': 'KYLIN_CATEGORY_GROUPINGS', 'id': '0ff420eb-79ad-40bd-bca9-12d8cd05c60a', 'table': 'DEFAULT.KYLIN_CATEGORY_GROUPINGS', 'joinAlias': 'KYLIN_CAL_DT', 'joinId': '952d11b5-69d9-45d1-92af-227489485e3f', 'kind': 'LOOKUP', 'join': { 'type': 'left', 'primary_key': ['KYLIN_CATEGORY_GROUPINGS.LEAF_CATEG_ID'], 'foreign_key': ['KYLIN_CAL_DT.CAL_DT'], 'isCompatible': [true], 'pk_type': ['bigint'], 'fk_type': ['date'] } }] }
 
     }
   },
@@ -102,15 +102,63 @@ export default {
     // this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
   },
-  watch: {
-  },
   methods: {
+    initJointResult (data) {
+      if (!data) {
+        return this.jointResult
+      }
+      let lookups = []
+      let [database, factTable] = data.fact_table.split('.')
+      let containers = this.$refs.containers.getBoundingClientRect()
+      let arr = []
+      data.lookups.forEach(item => {
+        // if (item.id) {
+        arr.push(item)
+        // }
+      })
+      arr.forEach(t => {
+        let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
+        let primary_key_result = []; let foreign_key_result = []
+        let table = t.table.split('.')[1];
+
+        (primary_key || []).forEach((m, i) => {
+          primary_key_result.push(primary_key[i].split('.')[1])
+          foreign_key_result.push(foreign_key[i].split('.')[1])
+        })
+        lookups.push({
+          alias: t.alias,
+          id: t.id,
+          SAxis: t.SAxis,
+          YAxis: t.YAxis,
+          joinAlias: t.joinAlias,
+          joinId: t.joinId,
+          joinTable: t.joinTable,
+          joinSAxis: t.joinSAxis,
+          joinYAxis: t.joinYAxis,
+          kind: t.kind,
+          table: table,
+          join: {
+            primary_key: primary_key_result,
+            foreign_key: foreign_key_result,
+            pk_type: pk_type,
+            fk_type: fk_type,
+            isCompatible: isCompatible,
+            type: type
+          }
+        })
+      })
+
+      return {
+        name: database,
+        description: data.description,
+        fact_table: factTable,
+        lookups
+      }
+    },
     init () {
-      // this.jointResult = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log(this.jointResult.lookups, '啦啦啦啦啦')
+      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      // debugger
       let list = this.jointResult.lookups || []
-      // let jointResultData = [...this.jointResultData.lookups]
-      // let list = jointResultData || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -120,8 +168,11 @@ export default {
         gridSize: 1
       })
 
-      // this.clearCells()
-      list.forEach(t => this.addLinkCell)
+      this.clearCells()
+
+      list.forEach(t => {
+        this.addLinkCell(t)
+      })
 
       this.bindEvent(paper)
     },
@@ -144,6 +195,7 @@ export default {
         if (this.isClick) {
           // 如果连线
           if (e.model.isLink()) {
+            let factTable = this.jointResult.fact_table
             let data = e.model.get('attrs').data
             let linkElements = this.getLinkElements(e.model)
             let linkModal = null
@@ -159,8 +211,8 @@ export default {
             } else if (linkElements.source && linkElements.target) {
               let sourceAttrs = linkElements.source.get('attrs')
               let source = {
-                filed: sourceAttrs.text.filed || 0,
-                field: '',
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
+                // field: '',
                 label: sourceAttrs.text.label,
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
@@ -168,20 +220,20 @@ export default {
 
               let targetAttrs = linkElements.target.get('attrs')
               let target = {
-                filed: targetAttrs.text.filed || 0,
-                field: '',
-                label: `${targetAttrs.text.database}.${targetAttrs.text.label}`,
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
+                // field: '',
+                label: `${targetAttrs.text.label}`,
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
 
               linkModal = {
                 'joinTable': source.label || '',
-                'alias': target.alias || '',
-                'id': source.id || '',
-                'table': target.label || '',
                 'joinAlias': source.alias || '',
-                'joinId': target.id || '',
+                'joinId': source.id || '',
+                'alias': target.alias || '',
+                'id': target.id || '',
+                'table': target.label || '',
                 'kind': 'LOOKUP',
                 'join': {
                   'type': '', // inner
@@ -218,7 +270,6 @@ export default {
       })
 
       paper.on('cell:pointermove', (e, d) => {
-        // console.log(e)
         let attrs = e.model.get('attrs')
 
         if (attrs.text && attrs.text.filed) {
@@ -256,11 +307,15 @@ export default {
               model.attr(attrs)
               model.resize(attrs.text.text.length * 9, 30)
 
-              this.updateModel(model.id, res.value)
-              console.log(JSON.stringify(this.jointResult))
-              this.$store.commit('SaveJointResult', this.jointResult)
+              this.jointResult = this.updateModel(model.id, res.value)
+              let result = this.formatJointList(this.jointResult)
+              this.$store.commit('SaveJointResult', result)
+
+              this.linkModal = null
+              this.linkModalModel = null
             }
           })
+          console.log('设置别名后', this.jointResult)
           break
         case 'link': // 连线
           let link = new joint.shapes.standard.Link({
@@ -290,34 +345,40 @@ export default {
 
     // 更新模块
     updateModel (id, value) {
+      let data = this.jointResult
       let linkIndex = -1
       let updateList = []
       let cells = this.graph.getCells()
-
       cells.forEach((t, i) => {
         if (t.isLink()) {
+          let item = t.get('attrs').data
           linkIndex++
 
-          if (t.get('source').id === id) {
-            updateList.push({
-              idx: linkIndex,
-              field: 'joinAlias'
-            })
-          }
           if (t.get('target').id === id) {
             updateList.push({
               idx: linkIndex,
               field: 'alias'
             })
+            item.alias = value
+            t.attr('data', item)
+          }
+          if (t.get('source').id === id) {
+            updateList.push({
+              idx: linkIndex,
+              field: 'joinAlias'
+            })
+            item.joinAlias = value
+            t.attr('data', item)
           }
         }
-      })
+      });
 
-      if (updateList.length > 0) {
-        updateList.forEach(t => {
-          this.jointResult.lookups[t.idx][t.field] = value
-        })
-      }
+      (updateList || []).forEach(t => {
+        if (data.lookups[t.idx]) {
+          data.lookups[t.idx][t.field] = value
+        }
+      })
+      return data
     },
 
     setAlias (val) {
@@ -435,8 +496,6 @@ export default {
     },
 
     clearCells () {
-      this.jointResult.fact_table = ''
-      this.jointResult.lookups = []
       this.linkModal = null
       this.linkModalModel = null
       this.graph.clear()
@@ -454,13 +513,17 @@ export default {
       if (isAdd) {
         let fillColor = item.filed ? '#59AFF9' : '#009688'
 
+        if (item.database) {
+          this.jointResult.name = item.database
+        }
+
         // 如果是主表， 就清空所有文件
         if (item.filed) {
           this.clearCells()
         }
         // 设置主表
         if (item.filed == 1 && !this.jointResult.fact_table) {
-          this.jointResult.fact_table = `${item.database}.${item.label}`
+          this.jointResult.fact_table = `${item.label}`
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
@@ -482,17 +545,26 @@ export default {
     },
 
     addLinkCell (item) {
+      let factTable = this.jointResult.fact_table
       let source = {
-        filed: item.table === item.alias ? 1 : 0,
-        id: item.id,
-        label: `${item.table}`,
-        alias: item.joinAlias
-      }
-      let target = {
-        filed: item.joinTable === item.alias ? 1 : 0,
+        filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
-        alias: item.alias
+        alias: item.joinAlias,
+        position: {
+          x: item.joinSAxis,
+          y: item.joinYAxis
+        }
+      }
+      let target = {
+        filed: item.table === factTable ? 1 : 0,
+        id: item.id,
+        label: item.table,
+        alias: item.alias,
+        position: {
+          x: item.SAxis,
+          y: item.YAxis
+        }
       }
 
       if (!this.graph) {
@@ -535,16 +607,6 @@ export default {
       let fk_type = join.fk_type || []
 
       primary_key.forEach((t, i) => {
-        let pk_index = primary_key[i].indexOf('.')
-        let fk_index = foreign_key[i].indexOf('.')
-
-        if (pk_index > -1) {
-          primary_key[i] = primary_key[i].slice(pk_index)
-        }
-        if (fk_index > -1) {
-          foreign_key[i] = foreign_key[i].slice(fk_index)
-        }
-
         list.push({
           primary_key: `${primary_key[i]}`,
           foreign_key: `${foreign_key[i]}`,
@@ -571,17 +633,10 @@ export default {
     removeField (index) {
       if (this.linkModalFields.length > 1) {
         this.linkModalFields.splice(index, 1)
-        this.updateFields(this.linkModalFields)
+        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       }
 
-      this.linkModalFields = [...this.linkModalFields, ...field]
-    },
-
-    removeField (index) {
-      if (this.linkModalFields.length > 1) {
-        this.linkModalFields.splice(index, 1)
-        this.updateFields(this.linkModalFields)
-      }
+      // this.linkModalFields = [...this.linkModalFields, ...field]
     },
 
     getModalRelationSelected (e) {
@@ -598,11 +653,11 @@ export default {
       let fk_type = this.linkModalFields[index].fk_type
 
       if (index >= 0 && primary_key && pk_type) {
-        // if (fk_type && pk_type && pk_type != fk_type) {
-        //   this.$message.warning('请选择类型一致的字段')
-        //   primary_key = ''
-        //   pk_type = ''
-        // }
+        if (fk_type && pk_type && pk_type != fk_type) {
+          this.$message.warning('请选择类型一致的字段')
+          primary_key = ''
+          pk_type = ''
+        }
 
         this.linkModalFields[index].primary_key = primary_key
         this.linkModalFields[index].pk_type = pk_type
@@ -623,11 +678,11 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        // if (fk_type && pk_type && pk_type != fk_type) {
-        //   this.$message.warning('请选择类型一致的字段')
-        //   foreign_key = ''
-        //   fk_type = ''
-        // }
+        if (fk_type && pk_type && pk_type != fk_type) {
+          this.$message.warning('请选择类型一致的字段')
+          foreign_key = ''
+          fk_type = ''
+        }
 
         this.linkModalFields[index].foreign_key = foreign_key
         this.linkModalFields[index].fk_type = fk_type
@@ -643,29 +698,96 @@ export default {
 
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
-          primary_key.push(`${joinAlias}.${t.primary_key}`)
-          foreign_key.push(`${alias}.${t.foreign_key}`)
+          primary_key.push(`${t.primary_key}`)
+          foreign_key.push(`${t.foreign_key}`)
           pk_type.push(t.pk_type)
           fk_type.push(t.fk_type)
         }
       })
-      this.linkModal.join.primary_key = foreign_key
-      this.linkModal.join.foreign_key = primary_key
-      this.linkModal.join.pk_type = fk_type
-      this.linkModal.join.fk_type = pk_type
-
+      this.linkModal.join.primary_key = primary_key
+      this.linkModal.join.foreign_key = foreign_key
+      this.linkModal.join.pk_type = pk_type
+      this.linkModal.join.fk_type = fk_type
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
       }
       this.linkModalModel.attr('data', this.linkModal)
-
-      this.addJointList(this.linkModal)
-      console.log(JSON.stringify(this.jointResult))
-      this.$store.commit('SaveJointResult', this.jointResult)
+      let result = this.addJointList(this.linkModal)
+      console.log(JSON.stringify(result))
+      this.$store.commit('SaveJointResult', result)
     },
 
     getModalRelationSelected (e) {
 
+    },
+
+    getElementPosition () {
+      let eles = this.graph.getElements() || []
+      let parentOffset = this.$refs.containers.getBoundingClientRect()
+      let result = {}
+
+      for (let i = 0; i < eles.length; i++) {
+        let ele = eles[i]
+        let attrs = ele.get('attrs')
+        let pos = ele.get('position')
+        let text = attrs.text.label + attrs.text.alias
+        if (ele.attributes.type !== 'standard.Link' && !result[text]) {
+          result[text] = {
+            x: pos.x,
+            y: pos.y
+          }
+        }
+      }
+
+      return result
+    },
+
+    formatJointList: function (data) {
+      let posList = this.getElementPosition() || {}
+      let factText = data.fact_table + data.fact_table
+      let result = {
+        name: data.name || '',
+        description: data.description || '',
+        SAxis: (posList[factText] && posList[factText].x) || 0,
+        YAxis: (posList[factText] && posList[factText].y) || 0,
+        fact_table: `${data.name}.${data.fact_table}`,
+        lookups: []
+      };
+      (data.lookups || []).forEach(t => {
+        let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
+        let primary_key_result = []; let foreign_key_result = []
+        let pos = posList[t.table + t.alias] || {}
+        let joinPos = posList[t.joinTable + t.joinAlias] || {};
+
+        (primary_key || []).forEach((m, i) => {
+          primary_key_result.push(`${t.alias}.${primary_key[i]}`)
+          foreign_key_result.push(`${t.joinAlias}.${foreign_key[i]}`)
+        })
+
+        result.lookups.push({
+          alias: t.alias,
+          id: t.id,
+          joinAlias: t.joinAlias,
+          joinId: t.joinId,
+          joinTable: t.joinTable,
+          kind: t.kind,
+          table: `${data.name}.${t.table}`,
+          SAxis: pos.x || 0,
+          YAxis: pos.y || 0,
+          joinSAxis: joinPos.x || 0,
+          joinYAxis: joinPos.y || 0,
+          join: {
+            primary_key: primary_key_result,
+            foreign_key: foreign_key_result,
+            pk_type: pk_type,
+            fk_type: fk_type,
+            isCompatible: isCompatible,
+            type: type
+          }
+        })
+      })
+
+      return result
     },
 
     addJointList: function (item) {
@@ -687,6 +809,9 @@ export default {
       } else {
         this.jointResult.lookups.push(item)
       }
+      let result = this.formatJointList(this.jointResult)
+
+      return result
     },
 
     clearElementLink: function (target) {
@@ -701,6 +826,10 @@ export default {
         if (ele.attributes.type === 'standard.Link') {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
             ele.remove()
+            // 删除对应存储的数据
+            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+              return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
+            })
           }
         } else {
           if (ele.id === target.id) {
@@ -779,12 +908,14 @@ export default {
     },
 
     nextModel (val) {
-      if (this.jointResult.lookups.length > 0) {
-        this.$router.push('/analysisModel/createolap/setFiled')
-        this.$parent.getStepCountAdd(val)
-      } else {
-        this.$message.warning('请建立表关系~')
-      }
+      if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      this.$router.push('/analysisModel/createolap/setFiled')
+      this.$parent.getStepCountAdd(val)
+      let arrId = []
+      this.jointResult.lookups.forEach((item, index) => {
+        arrId.push(item.id, item.joinId)
+      })
+      this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -795,29 +926,34 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      // if (this.prevId === id) {
-      //   console.log('已经请求过了~')
-      // } else {
       //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
       //     // this.couponList = res.data
       //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
       //   })
-      // }
-      // this.prevId = id
-      this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
-        this.couponList = res.data.columns
-      // console.log(this.couponList)
+      // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
+      //   this.couponList = res.data.columns
+      // })
+      // 模拟数据
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      // debugger
+      // 根据name去获取本地对应的数据
+      (this.saveSelectAllList || []).forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.couponList = items.data.columns || []
+        }
       })
     }
   },
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
       jointResultData: 'jointResultData'
     })
   },
   beforeDestroy () {
-    this.$root.eventBus.$off('openDefaultTree')
+    // this.$root.eventBus.$off('openDefaultTree')
   }
 }
 </script>

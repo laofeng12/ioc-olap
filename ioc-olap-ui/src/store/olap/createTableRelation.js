@@ -31,15 +31,25 @@ const creatTableRelation = {
         //   }
         // }
       ]
-    },
-    testAAA: '123'
+    }
   },
   mutations: {
     SaveJointResult (state, payload) {
       state.jointResultData = payload
+    },
+    SaveJointResultLookups (state, payload) {
+      state.jointResultData.lookups = payload
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.jointResultData = {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      }
+    }
     // SaveJointResult ({ commit }, data) {
     //   commit('SAVE_JOINT_RESULT', data)
     //   // state.jointResult = data

@@ -20,18 +20,6 @@
               </div>
             </shirink-pannel>
 
-            <!--数据集/自助报表-->
-            <!--<shirink-pannel name="数据集/自助报表" :isHasAdd="true" @addClick="addDataSet()">-->
-              <!--<div slot="content">-->
-                <!--<div class="no-dataset" v-if="dataSetData.length === 0">请选择数据集/自助报表</div>-->
-                <!--<ul class="has-dataset" v-else>-->
-                  <!--<li class="data-list" v-for=" (item, index) in dataSetData" :key="index"><span><i-->
-                    <!--class="el-icon-tickets"></i>{{item.name}}</span><i class="close el-icon-close"-->
-                                                                       <!--@click="delDataSet()"></i></li>-->
-                <!--</ul>-->
-              <!--</div>-->
-            <!--</shirink-pannel>-->
-
             <!--维度-->
             <shirink-pannel name="维度">
               <div class="data-set" slot="content">
@@ -98,21 +86,21 @@
                   <header>维度(X轴)：</header>
                   <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动数据到此处</div>
                   <filter-temp v-for="(item,index) in rItems" :name="item.columnChName" :key="index" :index="index"
-                               :items="rItems" :showEdit="false" @deleteIndex="delRow">
+                               :items="rItems" :showEdit="false" @deleteIndex="delRow" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawColClass">
                   <header>维度(Y轴)：</header>
                   <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动数据到此处</div>
                   <filter-temp v-for="(item,index) in cItems" :name="item.columnChName" :key="index" :index="index"
-                               :items="cItems" :showEdit="false" @deleteIndex="delCol">
+                               :items="cItems" :showEdit="false" @deleteIndex="delCol" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawValClass">
                   <header>数值：</header>
                   <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动数据到此处</div>
                   <filter-temp v-for="(item,index) in nItems" :name="item.columnChName" :key="index" :index="index"
-                               :items="nItems" :showEdit="false" @deleteIndex="delVal">
+                               :items="nItems" :showEdit="false" @deleteIndex="delVal" class="filtered">
                   </filter-temp>
                 </ul>
               </div>
@@ -124,7 +112,7 @@
                 <ul class="has-dataset filtrate-list filtrateClass" id="filtrate">
                   <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动数据到此处</div>
                   <filter-temp v-else v-for="(item,index) in bItems" :name="item.columnChName" :key="index" :index="index"
-                               :items="bItems" @editClick="editF(item, index)" @deleteIndex="delFiter">
+                               :items="bItems" @editClick="editF(item, index)" @deleteIndex="delFiter" class="filtered">
                   </filter-temp>
                 </ul>
               </div>
@@ -193,8 +181,6 @@ import { mapGetters } from 'vuex'
 import ShirinkPannel from '@/components/analysisComponent/olapAside/ShirinkPannel'
 import ElementPagination from '@/components/analysisComponent/olapAside/ElementPagination'
 import FilterTemp from '@/components/BITemp/FilterTemp'
-// import RowTemp from '@/components/BITemp/RowTemp'
-// import StatementTable from '@/components/BITemp/StatementTable'
 import FiltrateDialog from '@/components/FiltrateDialogBywzh'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
@@ -211,6 +197,10 @@ export default {
     auto: {
       type: Boolean,
       default: false
+    },
+    editData: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
@@ -239,8 +229,6 @@ export default {
       dashBoardForm: {
         searchKey: '',
         measureSearch: '',
-        // statementName: '',
-        // fileName: '',
         name: ''
       },
       tableData: [
@@ -268,13 +256,6 @@ export default {
           { required: true, message: '请输入文件夹名称', trigger: 'blur' },
           { min: 1, max: 20, message: '文件夹名称不能超过20个字，请重新输入', trigger: 'blur' }
         ]
-        // fileName: [
-        //   { required: true, message: '请选择报表存放文件夹', trigger: 'change' }
-        // ],
-        // statementName: [
-        //   { required: true, message: '请输入自助报表名称', trigger: 'blur' },
-        //   { min: 1, max: 20, message: '自助报表名称为1～20个字，请重新输入', trigger: 'blur' }
-        // ]
       },
       filterPageIndex: 1,
       totalPage: 0,
@@ -293,7 +274,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'cubeId'
+      'cubeData'
     ])
   },
   watch: {
@@ -326,8 +307,51 @@ export default {
       if (val) this.handleShrinkSearch(val, 'measureSearch')
     },
     selectCubeId (val) {
+      this.changeCubeId(val)
+    },
+    editData (val) {
+      this.selectCubeId = val.cubeId
+      this.rItems = []
+      this.cItems = []
+      this.nItems = []
+      this.bItems = []
+      val.olapAnalyzeAxes.forEach(v => {
+        switch (v.type) {
+          case 1:
+            this.rItems.push(v)
+            break
+          case 2:
+            this.cItems.push(v)
+            break
+          case 3:
+            this.nItems.push(v)
+            break
+          case 4:
+            this.bItems.push(v)
+            break
+        }
+      })
+      const headLimit = {
+        rItems: this.rItems,
+        cItems: this.cItems
+      }
+      this.$emit('searchFunc', val.olapAnalyzeAxes, val.cubeId, headLimit)
+    }
+  },
+  mounted () {
+    this.limitHeight = document.body.offsetHeight - 123
+    this.setSortTable()
+    this.getCubes()
+  },
+  methods: {
+    async getCubes () {
+      const menuList = await getCubesApi()
+      this.menuList = menuList
+      this.changeCubeId(this.selectCubeId)
+    },
+    changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]
-      this.$store.dispatch('getCubeIdAction', cubeId)
+      this.$store.dispatch('getCubeDataAction', { dimensures, measures, cubeId })
       let dimensuresList = []
       let measuresList = []
       dimensures.forEach(item => {
@@ -344,65 +368,10 @@ export default {
       })
       this.dimensuresList = dimensuresList
       this.measuresList = measuresList
-    }
-  },
-  mounted () {
-    this.limitHeight = document.body.offsetHeight - 123
-    this.setSortTable()
-    this.getCubes()
-  },
-  methods: {
-    async getCubes () {
-      const menuList = await getCubesApi()
-      this.menuList = menuList
-    },
-    // 选择文件夹名称
-    // getFileName (fileValue) {
-    //   if (fileValue === '1') {
-    //     // this.dashBoardForm.fileName = ''
-    //     this.dialogFormVisible = true
-    //   }
-    // },
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          // this.dashBoardForm.fileName = this.ruleForm.name
-          // this.dialogFormVisible = false
-        } else {
-          return false
-        }
-      })
-    },
-    // 添加数据集/自助报表
-    // addDataSet () {
-    //   this.dialogDataSet = true
-    // },
-    // 删除数据集
-    // delDataSet () {
-    //   this.$confirm('确定删除“引用数据集名称”吗？其相关字段维度将一起删除！', '删除数据集', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     this.$message({
-    //       type: 'success',
-    //       message: '删除成功!'
-    //     })
-    //   }).catch(() => {
-    //     this.$message({
-    //       type: 'info',
-    //       message: '已取消删除'
-    //     })
-    //   })
-    // },
-    // 数据集选择当前行列
-    chooseRow (row) {
-      console.log(row)
     },
     // 删除维度行
     delRow (index) {
       this.rItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.rItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -410,7 +379,6 @@ export default {
     // 删除维度列
     delCol (index) {
       this.cItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.cItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -418,7 +386,6 @@ export default {
     // 删除数值
     delVal (index) {
       this.nItems.splice(index, 1)
-      console.log('deleted:', JSON.stringify(this.nItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -426,7 +393,6 @@ export default {
     // 删除筛选器
     delFiter (index) {
       this.bItems.splice(index, 1)
-      console.log('筛选器deleted:', JSON.stringify(this.bItems))
       setTimeout(() => {
         this.setSortTableOther()
       }, 0)
@@ -454,7 +420,7 @@ export default {
         }
         this.filterSelectList = item.selectValues ? item.selectValues.split(',') : []
         this.filterSelectCheckList = []
-        this.showFilterSelectList = []
+        this.showFilterSelectList = item.selectValues ? item.selectValues.split(',') : []
         this.isException = item.isInclude === 0 ? 0 : 1
       }
       const params = {
@@ -480,6 +446,7 @@ export default {
       arr && arr.forEach(item => {
         Sortable.create(item, {
           group: 'shared', // set both lists to same group
+          filter: '.filtered',
           animation: 150,
           onAdd: function (evt) {
             evt.item.remove()
@@ -653,7 +620,7 @@ export default {
       const newRowList = this.rItems.length > 0 ? this.rItems.map(v => Object.assign({}, v, { type: 1 })) : []
       const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
-      this.$emit('searchFunc', list, this.cubeId)
+      this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.rItems, cItems: this.cItems })
     }
   }
 }
@@ -801,7 +768,7 @@ export default {
         margin-top: 10px;
       }
       .dimen-list {
-        cursor: move;
+        /*cursor: move;*/
       }
       .left-list {
         display: block;

@@ -7,7 +7,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.autoReload"
+                v-model.number="formData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -18,7 +18,7 @@
         <el-form-item label="更新频率" v-if="formData.autoReload">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.INTERVAL"></el-input>
+              <el-input type="text" v-model="formData.interval"></el-input>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -78,15 +78,15 @@
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
-          <el-table-column prop="TABLENAME" label="表名称" align="center"> </el-table-column>
-          <el-table-column prop="FIELD" label="字段" align="center"> </el-table-column>
-          <el-table-column prop="PATTERN" label="过滤方式" align="center"> </el-table-column>
-          <el-table-column prop="PARAMETER" label="过滤值" align="center">
+          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+          <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
+          <el-table-column prop="field" label="字段" align="center"> </el-table-column>
+          <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
+          <el-table-column prop="parameter" label="过滤值" align="center">
             <template slot-scope="scope">
               <div>
-                <span>{{scope.row.PARAMETER}}</span>
-                <span v-if="scope.row.PATTERN === 'BETWEED'">，{{scope.row.PARAMETERBE}}</span>
+                <span>{{scope.row.parameter}}</span>
+                <span v-if="scope.row.pattern === 'BETWEED'">，{{scope.row.parameterbe}}</span>
               </div>
             </template>
           </el-table-column>
@@ -131,21 +131,11 @@ export default {
         partition_date_format: '', // 第一条数据
         partition_time_column: '',
         partition_time_format: '',
-        INTERVAL: '',
+        interval: null,
         frequencytype: 1
       },
-      tableOptions: [
-        // { label: 'a' },
-        // { label: 'b' },
-        // { label: 'c' }
-      ],
-      textOptions: [
-        // { comment: 'aaa', columnName: 'aaa' },
-        // { comment: 'bbb', columnName: 'bbb' },
-        // { comment: 'vccc', columnName: 'vccc' },
-        // { comment: 'vvvv', columnName: 'vvvv' },
-        // { comment: 'bbbbb', columnName: 'bbbbb' }
-      ],
+      tableOptions: [],
+      textOptions: [],
       formatOptions: [
         { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
         { id: 2, value: 'yyyy-MM-dd' },
@@ -179,7 +169,7 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      console.log(this.formData, '=========', this.totalSaveData.models.modelDescData.partition_desc)
+      // console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -190,13 +180,6 @@ export default {
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/setMeasure')
-    },
-    verification () {
-      this.$refs.formData.validate((valid) => {
-        if (valid) {
-
-        }
-      })
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
@@ -216,11 +199,17 @@ export default {
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
       // })
-      this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-        if (res) {
-          this.textOptions = res.data.columns
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === valId[0].id) {
+          this.textOptions = items.data.columns
         }
       })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
+      //   if (res) {
+      //     this.textOptions = res.data.columns
+      //   }
+      // })
     },
     handleChange (val) {
       let idx = val.$index
@@ -229,7 +218,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('deleteReloadFilterTableList', val.row.id)
+        this.$store.dispatch('deleteReloadFilterTableList', val.row.ids)
         setTimeout(() => {
           this.$message.success('删除成功')
           this.tableData.splice(idx, 1)
@@ -254,6 +243,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
       reloadData: 'reloadData',
+      saveSelectAllList: 'saveSelectAllList',
       totalSaveData: 'totalSaveData'
     })
   }

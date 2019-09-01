@@ -51,45 +51,52 @@ export default {
   },
   methods: {
     init () {
-      // this.dataList = this.saveLeftFiled // 静态数据
-      this.dataList = this.jointResultData
+      /**
+       * 1、深拷贝拿到第二步建表生成的数据 this.jointResultData
+       * 2、遍历数据拿到对应的别名（左侧菜单需要展示别名）
+       *
+       */
+      this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
+        // 取出事实表对应的id以及foreign_key
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
-          this.ids = item.id
+          this.ids = item.joinId
           this.primary_key = item.join.foreign_key
         }
       })
+      // 创建一条事实表的数据push到集合里
       let factData = {
         alias: this.dataList.fact_table,
-        joinId: this.ids,
+        id: this.ids,
+        table: '',
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
-          primary_key: this.primary_key
+          foreign_key: this.primary_key
         }
       }
-      this.dataList.lookups = [factData, ...this.dataList.lookups]
-      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
+      this.dataList.lookups = [factData, ...this.dataList.lookups] // 组合数据
+      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])] // 组合事实表的别名跟普通表的别名
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
-      console.log(this.jointResultData, '表库', this.titleData)
       // 初始化已选择的表
       setTimeout(() => {
         this.changeLi(this.dataList.lookups[0], 0)
         this.current = 0
       }, 300)
       // 接收设置表关系的数据
-      // this.dataList = this.selectTableTotal
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
-        setTimeout(() => {
-          this.titleData.forEach((item, index) => {
-            this.saveSelectFiled.forEach((n, i) => {
-              if (item === n.tableName) {
-                this.dataList.lookups[index]['isActive'] = 1
-              }
-            })
-          })
-        }, 300)
+        this.getActiveChange()
+      })
+      this.getActiveChange()
+    },
+    getActiveChange () {
+      this.titleData.forEach((item, index) => {
+        this.saveSelectFiled.forEach((n, i) => {
+          if (item === n.tableName) {
+            this.dataList.lookups[index]['isActive'] = 1
+          }
+        })
       })
     },
     cahngges (val) {
@@ -115,19 +122,21 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      // this.$store.dispatch('GetResourceInfo', { resourceId: item.joinId }).then(res => {
-      //   res.data.columns.map((n, i) => {
-      //     n.mode = n.mode ? n.mode : '2'
-      //     n.derived = n.name
-      //     n.tableName = item.alias ? item.alias.substring(item.alias.indexOf('.') + 1) : ''
-      //     n.id = `${item.alias}${i}`
-      //     n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
-      //   })
-      //   // 存储选择对应的表
-      //   // this.$root.eventBus.$emit('filedTable', res.data.columns)
-      // })
+      console.log(item, '====', this.dataList.fact_table)
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
-
+      // 存储事实表的所有字段
+      if (index === 0) {
+        this.saveSelectAllList.map((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === this.dataList.lookups[0].id) {
+            let list = {
+              data: items.data.columns,
+              list: this.dataList.lookups[0]
+            }
+            this.$store.commit('SaveFactData', list)
+          }
+        })
+      }
       // ------------------------- 数据湖
       // this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
       //   let datas = []
@@ -166,9 +175,9 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',
-      saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),
     getFeact () {

@@ -1,35 +1,53 @@
 <template>
   <div class="dis-flex" v-loading="loading">
-    <OlapAside v-if="showOlapAside" :changeRowAndCol="changeRowAndCol" :auto="auto"></OlapAside>
+    <OlapAside v-if="showOlapAside" :changeRowAndCol="changeRowAndCol" :auto="auto" :editData="editData"
+               @searchFunc="searchFunc"></OlapAside>
     <div class="olapTable">
-      <!--<div class="top">-->
-        <!--<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" :inline="true">-->
-          <!--<el-form-item class="form-item" label="文件夹" prop="folder">-->
-            <!--<el-select v-model="ruleForm.folder" placeholder="请选择文件夹">-->
-              <!--<el-option label="文件夹1" value="1"></el-option>-->
-              <!--<el-option label="文件夹2" value="2"></el-option>-->
-            <!--</el-select>-->
-          <!--</el-form-item>-->
-          <!--<el-form-item class="form-item" label="文件名称" prop="name">-->
-            <!--<el-input v-model="ruleForm.name" placeholder="请输入文件名称"></el-input>-->
-          <!--</el-form-item>-->
-        <!--</el-form>-->
-      <!--</div>-->
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
-                 @reset="reset" @showSum="showSumFunc"
-                 @changeRowAndColFunc="changeRowAndColFunc" @autoFunc="autoFunc"></ResultBox>
+                 @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
+                 @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile" :pageData="pageData" :page="page"
+                 @handlePage="handlePage"></ResultBox>
     </div>
+    <el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">
+      <div class="treeContent" v-if="treeVisible">
+        <div class="box">
+          <div class="title">维度</div>
+          <el-tree class="tree" :data="cubeData.dimensures" show-checkbox :props="treeDefault" default-expand-all :check-on-click-node="true"
+                   @check-change="handleDimensuresChange"></el-tree>
+        </div>
+        <div class="box">
+          <div class="title">指标</div>
+          <el-tree class="tree" :data="cubeData.measures" show-checkbox :props="treeDefault" default-expand-all :check-on-click-node="true"
+                   @check-change="handleMeasuresChange"></el-tree>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="treeVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitTree">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="下钻数据展示" :visible.sync="tableVisible" width="70%">
+      <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true" :pageData="downPageData"
+                    @handlePage="handleDownPage" :page="page"></DynamicTable>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="tableVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import OlapAside from '../../components/analysisComponent/olapAside'
 import ResultBox from '../../components/analysisComponent/common/ResultBox'
-import { getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi } from '../../api/olapAnalysisList'
+import DynamicTable from '../../components/analysisComponent/common/DynamicTable'
+import {
+  getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi, olapAnalyzeExportApi
+} from '../../api/olapAnalysisList'
 
 export default {
-  components: { OlapAside, ResultBox },
+  components: { OlapAside, ResultBox, DynamicTable },
   data () {
     return {
       ruleForm: {
@@ -50,15 +68,49 @@ export default {
       loading: false,
       saveFolderList: [],
       cubeId: '',
+      headLimit: {
+        cItems: [],
+        rItems: []
+      },
       reqDataList: [],
       showSum: false,
       showOlapAside: true,
       changeRowAndCol: false,
-      auto: false
+      auto: false,
+      editData: {},
+      formData: {},
+      treeVisible: false,
+      tableVisible: false,
+      treeDefault: {
+        children: 'children',
+        label: 'name'
+      },
+      selectDimensuresList: [],
+      selectMeasuresList: [],
+      clickDataList: [],
+      visibleTableData: [],
+      tdClickType: '',
+      page: 1,
+      size: 20,
+      pageData: {
+        totalRows: 1,
+        pageSize: 20
+      },
+      downPage: 1,
+      downSize: 20,
+      downPageData: {
+        totalRows: 1,
+        pageSize: 20
+      }
     }
   },
-  watch: {},
+  computed: {
+    ...mapGetters([
+      'cubeData'
+    ])
+  },
   mounted () {
+    this.getFolderWithQuery()
     if (this.$route.query.dataId) this.getOlapAnalyzeDetails()
   },
   methods: {
@@ -67,26 +119,90 @@ export default {
       this.saveFolderList = res
     },
     async getOlapAnalyzeDetails () {
-      const res = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
-      console.info(res)
-      // const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign({}, v, { type: 3 })) : []
-      // const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign({}, v, { type: 4 })) : []
-      // const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
-      // const newColList = this.newColList.length > 0 ? this.newColList.map(v => Object.assign({}, v, { type: 2 })) : []
-      // const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
+      const { olapAnalyzeAxes, name, cubeId, flags, folderId } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
+      this.editData = {
+        olapAnalyzeAxes,
+        cubeId,
+        flags
+      }
+      this.formData = {
+        folder: folderId.toString(),
+        resultName: name
+      }
     },
-    async searchFunc (list, cubeId) {
+    async searchFunc (list, cubeId, headLimit = { cItems: [], rItems: [] }) {
       this.loading = true
+      this.realTableData = []
+      this.tableData = []
       this.cubeId = cubeId
       this.reqDataList = list
+      this.headLimit = headLimit
       try {
-        const { results = [] } = await getOlapAnalyzeApi({ cubeId }, list)
-        const tableData = results.map(item => {
-          return (
-            item.map(itemTd => {
-              if (!itemTd) {
-                return { colspan: 1, rowspan: 1, value: '-', type: 'td' }
+        const { results = [], totalRows } = await getOlapAnalyzeApi({
+          cubeId,
+          pageIndex: this.page,
+          pageSize: this.size
+        }, list)
+        this.pageData = {
+          totalRows,
+          pageSize: this.size
+        }
+        let rowList = []
+        let colList = []
+        let colLength = results[headLimit.cItems.length + 1].length
+        results.forEach((item, index) => {
+          const rowItem = []
+          const colItem = []
+          if (index < headLimit.cItems.length) {
+            item.forEach((v, i) => {
+              if (i !== 0) {
+                for (let j = 0; j < v.colspan; j++) {
+                  rowItem.push({ name: item[0].value, filter: v.value })
+                }
               } else {
+                for (let j = 0; j < v.colspan; j++) {
+                  rowItem.push({})
+                }
+              }
+            })
+          } else if (headLimit.cItems.length < index) {
+            item.forEach((v, i) => {
+              if (i < headLimit.rItems.length) {
+                for (let j = 0; j < v.rowspan; j++) {
+                  colItem.push({ name: results[headLimit.cItems.length][i].value, filter: v.value })
+                }
+              }
+            })
+          }
+          if (rowItem.length > 0) rowList.push(rowItem)
+          colList.push(colItem)
+        })
+        const tableData = results.map((item, index) => {
+          const addIndex = colLength - item.length
+          return (
+            item.map((itemTd, indexTd) => {
+              if (!itemTd) {
+                return { colspan: 1, rowspan: 1, value: '-', type: 'td', attrs: null }
+              } else {
+                if (itemTd.type === 4) {
+                  let col = []
+                  let row = []
+                  rowList.forEach(itemList => {
+                    headLimit.cItems.forEach(v => {
+                      if (itemList[indexTd + addIndex].name === v.columnName) {
+                        col.push(Object.assign({}, v, { selectValues: itemList[indexTd + addIndex].filter }))
+                      }
+                    })
+                  })
+                  colList[index].forEach(value => {
+                    headLimit.rItems.forEach(v => {
+                      if (value.name === v.columnName) {
+                        row.push(Object.assign({}, v, { selectValues: value.filter }))
+                      }
+                    })
+                  })
+                  Object.assign(itemTd, { attrs: { col, row } })
+                }
                 return itemTd
               }
             })
@@ -103,8 +219,6 @@ export default {
         })
         this.realTableData = tableData
         this.tableData = delSumTable
-        // this.shareList = shareList
-        // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -133,6 +247,16 @@ export default {
     },
     reset () {
       this.showOlapAside = false
+      this.realTableData = []
+      this.tableData = []
+      this.pageData = {
+        totalRows: 1,
+        pageSize: 20
+      }
+      this.downPageData = {
+        totalRows: 1,
+        pageSize: 20
+      }
       setTimeout(() => this.showOlapAside = true, 0)
     },
     showSumFunc () {
@@ -143,6 +267,123 @@ export default {
     },
     autoFunc () {
       this.auto = !this.auto
+    },
+    tdClick (data, type) {
+      this.selectDimensuresList = []
+      this.selectMeasuresList = []
+      this.tdClickType = type
+      const list = [...data.attrs.col, ...data.attrs.row]
+      const obj = {
+        type: 4,
+        isInclude: 1
+      }
+      const clickDataList = list.map(v => {
+        return Object.assign({}, v, obj)
+      })
+      this.clickDataList = clickDataList
+      this.treeVisible = true
+    },
+    handleDimensuresChange (data, checked) {
+      if (checked && data.attrs) {
+        this.selectDimensuresList.push(data.attrs)
+      } else {
+        const index = this.selectDimensuresList.findIndex(v => v.columnId === data.columnId)
+        this.selectDimensuresList.slice(index, 1)
+      }
+    },
+    handleMeasuresChange (data, checked) {
+      if (checked && data.attrs) {
+        this.selectMeasuresList.push(data.attrs)
+      } else {
+        const index = this.selectMeasuresList.findIndex(v => v.columnId === data.columnId)
+        this.selectMeasuresList.slice(index, 1)
+      }
+    },
+    async submitTree () {
+      if (this.selectDimensuresList.length <= 0) return this.$message.error('请选择维度')
+      if (this.selectMeasuresList.length <= 0) return this.$message.error('请选择指标')
+      this.treeVisible = false
+      this.loading = true
+      const row = this.selectDimensuresList.map(v => {
+        return Object.assign({}, v, { type: 1 })
+      })
+      const col = this.selectMeasuresList.map(v => {
+        return Object.assign({}, v, { type: 3 })
+      })
+      const list = [...row, ...col, ...this.clickDataList]
+      if (this.tdClickType === 'transversedrillDown') {
+        this.$store.dispatch('getNewValueListAction', [])
+        this.$store.dispatch('getNewFilterListAction', [])
+        this.$store.dispatch('getNewRowListAction', [])
+        await this.$store.dispatch('getNewColListAction', [])
+        this.editData = {
+          olapAnalyzeAxes: list,
+          cubeId: this.cubeId
+        }
+      } else {
+        try {
+          const { results = [], totalRows } = await getOlapAnalyzeApi({
+            cubeId: this.cubeId,
+            pageIndex: this.downPage,
+            pageSize: this.downSize
+          }, list)
+          this.downPageData = {
+            totalRows,
+            pageSize: this.downSize
+          }
+          const tableData = results.map(item => {
+            return (
+              item.map(itemTd => {
+                if (!itemTd) {
+                  return { colspan: 1, rowspan: 1, value: '-', type: 'td', attrs: null }
+                } else {
+                  return itemTd
+                }
+              })
+            )
+          })
+          this.$message.success('下钻查询成功')
+          this.visibleTableData = tableData
+          this.tableVisible = true
+          this.loading = false
+        } catch (e) {
+          console.error(e)
+          this.loading = false
+        }
+      }
+    },
+    async exportFile () {
+      if (this.reqDataList.length <= 0) return this.$message.success('请先查询数据')
+      const res = await olapAnalyzeExportApi({
+        cubeId: this.cubeId,
+        pageIndex: this.page,
+        pageSize: this.size
+      }, this.reqDataList)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = 'olap分析文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
+    },
+    handlePage (page, size) {
+      this.page = page
+      this.size = size
+      this.searchFunc(this.reqDataList, this.cubeId, this.headLimit)
+    },
+    handleDownPage (page, size) {
+      this.downPage = page
+      this.downSize = size
+      this.submitTree()
     }
   }
 }
@@ -153,6 +394,18 @@ export default {
       .form-item {
         width: 300px;
         margin-right: 30px;
+      }
+    }
+  }
+  .treeContent {
+    border: 1px #ddd solid;
+    padding: 0 15px 15px 15px;
+    box-sizing: border-box;
+    max-height: 300px;
+    overflow: auto;
+    .box {
+      .title {
+        margin: 10px 0;
       }
     }
   }

@@ -6,7 +6,7 @@
        <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
-         <span v-if="item.filed === 1">事实表</span>
+         <span v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
         </li>
      </ul>
      <div v-else>暂无数据</div>
@@ -24,6 +24,7 @@ export default {
   data () {
     return {
       factTable: null,
+      fact_tableName: '',
       value: '',
       current: '',
       dataList: []
@@ -66,6 +67,8 @@ export default {
   },
   methods: {
     init () {
+      console.log(this.selectTableTotal, '=====', this.jointResultData.fact_table)
+      this.fact_tableName = this.jointResultData.fact_table.split('.')[1]
       this.dataList = [...this.selectTableTotal] || []
       this.checkFactFile()
     },
@@ -84,23 +87,23 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.current = index
           this.$parent.clickTable(item)
         }
       } else {
-        // alert('请先设置事实表')
         this.$message.warning('请先设置事实表')
       }
     },
     dragLi (item) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.$parent.dragTable(item)
         }
       } else {
-        // alert('请先设置事实表')
         this.$message.warning('请先设置事实表')
       }
     }
@@ -108,6 +111,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      jointResultData: 'jointResultData',
       savemousedownData: 'savemousedownData'
     })
   }

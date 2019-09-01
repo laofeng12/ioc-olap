@@ -47,6 +47,7 @@ export function disableModeling (params) {
     params
   })
 }
+
 // 启用
 export function enableModeling (params) {
   return fetch({
@@ -57,22 +58,82 @@ export function enableModeling (params) {
   })
 }
 
+// 删除
+export function deleteCubeModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/deleteCube',
+    method: 'DELETE',
+    params
+  })
+}
+
+// 合并
+export function mergeCubeModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/merge',
+    method: 'PUT',
+    params
+  })
+}
+
 // 刷新
-// export function reloadModel (params) {
-//   return fetch({
-//     url: '/olap/apis/OlapModeling/cubeList',
-//     method: 'PUT',
-//     contentType: 'application/json',
-//     params
-//   })
-// }
+export function reloadModel (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/refresh',
+    method: 'PUT',
+    params
+  })
+}
 
 // 构建列表
 export function jobsListModeling (params) {
   return fetch({
     url: '/olap/apis/OlapModeling/jobsList',
-    method: 'post',
-    contentType: 'application/json',
+    method: 'get',
+    params
+  })
+}
+
+// 停止
+export function cancelJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/cancelJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 暂停
+export function pauseJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/pauseJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 运行
+export function resumeJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/resumeJob',
+    method: 'PUT',
+    params
+  })
+}
+
+// 删除
+export function deleteJobListModeling (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/deleteJob',
+    method: 'DELETE',
+    params
+  })
+}
+
+export function getLogDetailsApi (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/getJobStepOut',
+    method: 'get',
     params
   })
 }

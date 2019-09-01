@@ -1,61 +1,7 @@
 import { filterArr, filterArrData, reduceObj, reduceJson } from '@/utils/index'
-import Vue from 'vue'
 const setFiled = {
   state: {
     /* 维度 */
-    saveLeftFiled: {
-      'name': 'bb',
-      'description': '',
-      'fact_table': 'DAILY_MODULE',
-      lookups: [{
-        'table': 'DAILY_MODULE',
-        'alias': 'DAILY_MODULE',
-        'joinTable': 'KYLIN_CAL_DT',
-        'kind': 'LOOKUP',
-        'join': {
-          'type': 'inner',
-          'primary_key': [
-            'KYLIN_ACCOUNT.CAL_DT'
-          ],
-          'foreign_key': [
-            'KYLIN_CAL_DT.PART_DT1' // 衍生模式需要取到包含维度里
-          ],
-          'isCompatible': [
-            true
-          ],
-          'pk_type': [
-            'date'
-          ],
-          'fk_type': [
-            'date'
-          ]
-        }
-      },
-      {
-        'table': 'KYLIN_CAL_DT',
-        'alias': 'KYLIN_CAL_DT',
-        'joinTable': 'KYLIN_CATEGORY_GRO',
-        'kind': 'LOOKUP',
-        'join': {
-          'type': 'inner',
-          'primary_key': [
-            'KYLIN_CAL_DT.CAL_DT'
-          ],
-          'foreign_key': [
-            'KYLIN_CATEGORY_GRO.PART_DT2'
-          ],
-          'isCompatible': [
-            true
-          ],
-          'pk_type': [
-            'date'
-          ],
-          'fk_type': [
-            'date'
-          ]
-        }
-      }]
-    }, // 左侧的维度数据
     saveList: [],
     saveSelectFiled: [], // 存储已选择的维度
     saveFiledNormalList: [], // 存储正常模式下的数据
@@ -66,11 +12,20 @@ const setFiled = {
     saveNewSortList: [] // 存储最新分类后的维度
   },
   actions: {
+    resetList ({ state }) {
+      state.saveSelectFiled = []
+      state.saveFiledNormalList = []
+      state.saveFiledDerivativelList = []
+      state.dimensions = []
+      state.reloadNeedData = []
+      state.saveNewSortListstructure = []
+      state.saveNewSortList = []
+    },
     /**
      * 维度步骤
      */
     // 存储已选择的维度
-    SaveSelectFiled ({ state, dispatch }, data) {
+    SaveSelectFiled ({ state, dispatch, getters }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
       dispatch('changePushSelectFiled', data)
@@ -112,7 +67,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.name,
+        name: list.item.titName,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledNormalList, 'id')
@@ -129,7 +84,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.name,
+        name: list.item.titName,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledDerivativelList, 'id')
@@ -142,7 +97,7 @@ const setFiled = {
       })
     },
     // 存储输入的显示名称
-    changePushalias ({ state }, val) {
+    changePushalias ({ state, dispatch }, val) {
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -156,10 +111,10 @@ const setFiled = {
           }
         }
       })
+      dispatch('SaveFiledData')
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
-      // console.log(state.saveSelectFiled, 'val====', val)
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
@@ -187,6 +142,7 @@ const setFiled = {
         }
       })
       dispatch('filterFiledTable')
+      dispatch('SaveFiledData')
     },
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state, getters }) {
@@ -196,14 +152,25 @@ const setFiled = {
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
-            datas.push({
-              id: n.id,
-              type: n.dataType,
-              value: item.join.foreign_key.join(',')
-            })
+            if (item.join.foreign_key.length > 1) {
+              item.join.foreign_key.forEach(res => {
+                datas = datas.concat({
+                  id: n.id,
+                  type: n.dataType,
+                  value: res
+                })
+              })
+            } else {
+              datas.push({
+                id: n.id,
+                type: n.dataType,
+                value: item.join.foreign_key.join(',')
+              })
+            }
           }
         })
       })
+      // console.log(datas, '衍生对应的数据')
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {
@@ -226,20 +193,24 @@ const setFiled = {
           if (String(item.mode) === '1') {
             state.dimensions.push({
               table: item.tableName,
-              column: item.name,
-              // columnType: item.dataType,
+              tableId: `${item.tableName}.${item.name}`,
+              column: item.titName,
+              id: item.id,
               column_type: item.dataType,
-              name: item.name ? item.name : item.name
+              name: item.name
             })
           } else {
             state.dimensions.push({
               table: item.tableName,
-              // columnType: item.dataType,
+              tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType,
-              derived: item.mode === '1' ? null : item.name.split(','),
-              name: item.name ? item.name : item.name
+              id: item.id,
+              derived: item.mode === '1' ? null : item.titName.split(','),
+              name: item.name
             })
           }
+          state.dimensions = reduceObj(state.dimensions, 'tableId')
+          // console.log('获取的维度啊', state.dimensions)
         }, 300)
       })
     },

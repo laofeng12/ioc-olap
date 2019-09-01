@@ -28,7 +28,8 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :resetShow="true"></ResultBox>
+                   @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData">
+        </ResultBox>
       </div>
     </div>
   </div>
@@ -38,10 +39,16 @@
 import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
+import { getCubeTreeApi, saveOlapApi, searchOlapApi, exportExcelApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
+  props: {
+    editInfo: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data () {
     return {
       search: '',
@@ -65,18 +72,28 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      exportData: {}
+      exportData: {},
+      formData: {}
     }
   },
   computed: {
     ...mapGetters({ editInstant: 'editInstant' })
   },
+  watch: {
+    editInfo: function (val) {
+      if (val && val.sql) {
+        this.textarea = val.sql
+        this.lineNumber = val.limit
+        this.formData = {
+          folder: val.folderId.toString(),
+          resultName: val.name
+        }
+        this.searchOlap()
+      }
+    }
+  },
   mounted () {
     this.getAsideList()
-    if ((this.$route.query && this.$route.query.edit === 'true') && (this.editInstant && this.editInstant.sql)) {
-      this.textarea = this.editInstant.sql
-      this.lineNumber = this.editInstant.lineNumber
-    }
   },
   methods: {
     async getAsideList () {
@@ -120,7 +137,13 @@ export default {
         sql: this.textarea,
         flags: 0 // 标志 0：正常 1：共享
       }
-      const res = await saveOlapApi(Object.assign({}, data, callbackData))
+      let reqData = {}
+      if (this.editInfo && this.editInfo.sql) {
+        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false })
+      } else {
+        reqData = Object.assign({}, data, callbackData)
+      }
+      const res = await saveOlapApi(reqData)
       if (res.createId) {
         await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
@@ -131,6 +154,24 @@ export default {
       this.checked = true
       this.lineNumber = '100'
       this.tableData = []
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }

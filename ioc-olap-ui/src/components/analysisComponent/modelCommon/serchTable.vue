@@ -21,6 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   data () {
     return {
@@ -43,21 +44,22 @@ export default {
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
         this.loading = true
         this.dataList[0].children = []
-        // console.log(res)
+        let orgId = res.orgId
         /* KELIN */
         if (type && type === 1) {
-          this.$store.dispatch('GetThreeList', { orgId: res.orgId }).then(res => { // kelin
+          this.$store.dispatch('GetThreeList', { orgId: orgId }).then(res => { // kelin
             if (res) {
-              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
+              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, orgId: orgId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
               this.loading = false
               this.$root.eventBus.$emit('saveSelectTables')
             }
           })
         // if (type && type === 1) {
-        //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+        //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
         //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
+        //       this.$root.eventBus.$emit('saveSelectTables')
         //     }
         //   })
         } else {
@@ -89,11 +91,12 @@ export default {
       this.$root.eventBus.$on('saveSelectTables', _ => {
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
-        if (this.$store.state.selectStep.searchType === 1) {
-          this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
-        } else {
-          this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
-        }
+        // if (this.$store.state.selectStep.searchType === 1) {
+        //   this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
+        // } else {
+        //   this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
+        // }
+        this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
         setTimeout(() => {
           this.defaultKey = [...new Set(this.defaultKey)]
         }, 500)
@@ -107,15 +110,16 @@ export default {
       if (value.label === '全选') return
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
+        /** 数据湖 */
         // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
         //   let datas = []
         //   let columnData = res.data.column // 子段说明
         //   res.data.column.forEach(item => {
-        //     datas.push(item.columnAlias)
+        //     datas.push(item.id)
         //   })
         //   let obj = {
         //     params: {
-        //       'columnList': datas,
+        //       'columnIdList': datas,
         //       'page': 0,
         //       'size': 0
         //     },
@@ -129,8 +133,8 @@ export default {
         //   })
         // })
         // 模拟数据kelin
-        this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId }).then(res => {
-          this.$root.eventBus.$emit('klinFetchData', res.data.columns)
+        this.$store.dispatch('GetResourceInfo', value.resourceId).then(res => {
+          this.$root.eventBus.$emit('klinFetchData', JSON.parse(res).data.columns)
         })
       } else {
         const parmas = {
@@ -182,6 +186,7 @@ export default {
     ...mapGetters({
       treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
+      selectTableTotal: 'selectTableTotal',
       saveSelctchckoutone: 'saveSelctchckoutone',
       saveSelctchckouttwo: 'saveSelctchckouttwo',
       serchTableList: 'serchTableList',
@@ -206,13 +211,14 @@ export default {
 .serchTable{
   width 230px
   float left
-  padding 0 25px
+  padding 0 5px
+  overflow auto
   border-right 1px solid #f0f0f0
-  height calc(100vh - 100px)
+  height 98%
   .trees{
-    height calc(100vh - 300px)
-    overflow-y auto
-    width 200px
+    // height calc(100vh - 300px)
+    // overflow-y auto
+    width 250px
   }
   >>>.el-radio{
     display block

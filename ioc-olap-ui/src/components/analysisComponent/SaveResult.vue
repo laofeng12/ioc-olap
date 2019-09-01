@@ -3,7 +3,7 @@
     <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" @exportFunc="exportFile"
                  :shareList="shareList"></ResultBox>
     </div>
   </div>
@@ -13,7 +13,7 @@
 import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { deleteOlapApi, searchOlapByIdApi } from '../../api/instantInquiry'
+import { deleteOlapApi, searchOlapByIdApi, exportExcelApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -99,8 +99,25 @@ export default {
       await this.$store.dispatch('getSaveFolderListAction')
     },
     async editSave (data) {
-      // await this.$store.dispatch('getEditInstantAction', data)
-      // this.$router.replace('/instantInquiry?edit=true')
+      this.$emit('changeActive', '1', data)
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }

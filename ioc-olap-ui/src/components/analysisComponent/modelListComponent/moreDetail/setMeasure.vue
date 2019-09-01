@@ -12,24 +12,39 @@ export default {
   components: {
     elementTable
   },
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
+  },
   data () {
     return {
-      descriptionData: [
-        { index: '1', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '2', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '3', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '4', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '5', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '6', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' },
-        { index: '7', columnName1: 'USER_ID', columnName2: 'string', columnName3: '用户标识', columnName4: '正常模式' }
-      ],
+      descriptionData: [],
       descriptionHead: [
         { prop: 'index', label: '序号 ' },
-        { prop: 'columnName1', label: '度量名称' },
-        { prop: 'columnName2', label: '计算方式' },
-        { prop: 'columnName3', label: '计算值' },
-        { prop: 'columnName4', label: '返回类型' }
+        { prop: 'name', label: '度量名称' },
+        { prop: 'expression', label: '计算方式' },
+        { prop: 'value', label: '计算值' },
+        { prop: 'returntype', label: '返回类型' }
       ]
+    }
+  },
+  mounted () {
+    this.init()
+  },
+  methods: {
+    init () {
+      if (this.jsonData) {
+        this.descriptionData = this.jsonData.CubeList[0].measures.map((item, index) => {
+          return {
+            index: index + 1,
+            name: item.name,
+            expression: item.function.expression,
+            value: item.function.parameter.value,
+            returntype: item.function.returntype
+          }
+        })
+      } 
     }
   }
 }

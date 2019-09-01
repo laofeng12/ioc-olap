@@ -12,6 +12,7 @@ module.exports = {
     proxy: {
       '/olapweb/admin/': {
         target: 'http://183.6.55.26:31075', // 公司测试环境
+        // target: 'http://19.104.40.36', // 政务内网
         pathRewrite: { '^/olapweb/admin/': '/admin/' },
         changeOrigin: true
       },
@@ -32,13 +33,15 @@ module.exports = {
       },
       '/olapweb/olap/': {
         // target: 'http://19.104.40.36', // 麒麟测试环境
-        target: 'http://172.16.60.47:8081', // 左烨本地
-        // target: 'http://172.16.60.3:9090', // 沛城本地
+        // target: 'http://172.16.60.82:8081', // 麒麟地址（new）
+        target: 'http://172.16.60.82:8081', // 左烨本地
+        // target: 'http://19.104.40.36', // 测试服务
+        // target: 'http://172.16.60.99:8080', // 沛城本地
         // pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }
       // '/olapweb/olap': {
-      //   target: 'http://172.16.60.3:9090', // 沛辰本机
+      //   target: 'http://172.16.60.99:9090', // 沛辰本机
       //   // pathRewrite: { '^/olapweb/olap/': '/olap/' },
       //   changeOrigin: true
       // }

@@ -8,11 +8,23 @@ const reloadSet = {
       partition_date_column: '',
       partition_date_format: '',
       partition_time_format: '',
-      INTERVAL: '',
+      interval: '',
       frequencytype: 1
     }
   },
   actions: {
+    resetList ({ state }) {
+      state.relaodFilterList = []
+      state.reloadData = {
+        autoReload: false,
+        dataMany: false,
+        partition_date_column: '',
+        partition_date_format: '',
+        partition_time_format: '',
+        interval: '',
+        frequencytype: 1
+      }
+    },
     // 新增的过滤表
     ReloadFilterTableList ({ state }, data) {
       return new Promise((resolve, reject) => {
@@ -21,7 +33,7 @@ const reloadSet = {
           resolve('ok')
         } else {
           state.relaodFilterList.map((item, index) => {
-            if (data.id === item.id) {
+            if (data.ids === item.ids) {
               state.relaodFilterList[index] = data
               resolve('ok')
             }
@@ -30,9 +42,9 @@ const reloadSet = {
       })
     },
     // 根据生成的id删除对应表
-    deleteReloadFilterTableList ({ state }, id) {
+    deleteReloadFilterTableList ({ state }, ids) {
       state.relaodFilterList.forEach((item, index) => {
-        item.id === id && state.relaodFilterList.splice(index, 1)
+        item.ids === ids && state.relaodFilterList.splice(index, 1)
       })
     }
   }

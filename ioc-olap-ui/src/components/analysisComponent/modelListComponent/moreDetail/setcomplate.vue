@@ -1,45 +1,46 @@
 <template>
-  <div class="setreload">
+  <div class="setreload" v-if="jsonData">
     <h4>模型基本信息</h4>
     <div>
       <span>事实表</span>
-      <span>{{list.data1}}</span>
+      <span>{{jsonData.ModesList.fact_table}}</span>
     </div>
     <div>
       <span>维度表</span>
-      <span>{{list.data2}}</span>
+      <span>{{jsonData.dimensionLength}}</span>
     </div>
     <div>
       <span>维度字段</span>
-      <span>{{list.data3}}</span>
+      <span>{{jsonData.dimensionFiledLength}}</span>
     </div>
     <div>
       <span>度量字段</span>
-      <span>{{list.data4}}</span>
+      <span>{{jsonData.measureFiledLength}}</span>
     </div>
     <div>
       <span>构建引擎</span>
-      <span>{{list.data5}}</span>
+      <span>{{jsonData.CubeList[0].engine_type === '1' ? 'MapReduce' : 'Spark' }}</span>
     </div>
     <h4>描述信息</h4>
-    <el-input style="margin-top:20px;" type="textarea" v-model="list.setDetail" disabled placeholder=""></el-input>
+    <el-input style="margin-top:20px;" type="textarea" v-model="jsonData.CubeList[0].description" disabled placeholder=""></el-input>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
+  },
   data () {
     return {
-      list: {
-        setDetail: '拉拉啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
-        data1: 'lalalalla',
-        data2: 'lalalalla',
-        data3: 'lalalalla',
-        data4: 'lalalalla',
-        data5: 'lalalalla'
-      }
+      list: {}
     }
-  }
+  },
+  mounted () {
+  },
+  methods: {}
 }
 </script>
 
@@ -69,4 +70,3 @@ export default {
   }
 }
 </style>
-

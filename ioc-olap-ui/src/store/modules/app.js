@@ -29,7 +29,7 @@ const app = {
       resURL: 'nolinkpath222',
       resIcon: '',
       subResList: [{
-        resId: 'asdasdasdasdasd',
+        resId: '1',
         index: '4',
         resName: 'OLAP模型',
         resURL: '/analysisModel',

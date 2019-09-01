@@ -51,7 +51,7 @@
 }
 .el-table tr{
  font-size: 13px;
-} 
+}
 .el-table th {
   padding: 16px 0;
 }
@@ -82,4 +82,7 @@
 
 .el-pagination.is-background .btn-prev, .el-pagination.is-background .btn-next, .el-pagination.is-background .el-pager li {
   border-radius: 4px;
+}
+.center-input .el-input__inner {
+  text-align: center;
 }

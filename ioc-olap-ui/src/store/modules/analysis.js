@@ -3,20 +3,19 @@ import { getFolderWithQueryApi } from '../../api/instantInquiry'
 export const analysis = {
   state: {
     saveFolderList: [],
-    cubeId: '',
+    cubeData: {},
     newValueList: [],
     newFilterList: [],
     newRowList: [],
-    newColList: [],
-    editInstant: {}
+    newColList: []
   },
 
   mutations: {
     GET_SAVE_FOLDER_LIST: (state, saveFolderList) => {
       state.saveFolderList = saveFolderList
     },
-    GET_CUBE_ID: (state, cubeId) => {
-      state.cubeId = cubeId
+    GET_CUBE_DATA: (state, cubeData) => {
+      state.cubeData = cubeData
     },
     GET_NEW_VALUE_LIST: (state, newValueList) => {
       state.newValueList = newValueList
@@ -29,24 +28,16 @@ export const analysis = {
     },
     GET_NEW_COL_LIST: (state, newColList) => {
       state.newColList = newColList
-    },
-    GET_EDIT_INSTANT: (state, editInstant) => {
-      state.editInstant = editInstant
     }
   },
 
   actions: {
     async getSaveFolderListAction ({ commit }) {
       const res = await getFolderWithQueryApi()
-      // const list = res.map(v => {
-      //   return (
-      //     { children: v.children, id: v.id, name: v.name, sortNum: v.sortNum, attrs: v.attrs }
-      //   )
-      // })
       commit('GET_SAVE_FOLDER_LIST', res)
     },
-    getCubeIdAction ({ commit }, cubeId) {
-      commit('GET_CUBE_ID', cubeId)
+    getCubeDataAction ({ commit }, cubeData) {
+      commit('GET_CUBE_DATA', cubeData)
     },
     getNewValueListAction ({ commit }, list) {
       commit('GET_NEW_VALUE_LIST', list)
@@ -59,9 +50,6 @@ export const analysis = {
     },
     getNewColListAction ({ commit }, list) {
       commit('GET_NEW_COL_LIST', list)
-    },
-    getEditInstantAction ({ commit }, data) {
-      commit('GET_EDIT_INSTANT', data)
     }
   }
 }

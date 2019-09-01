@@ -140,6 +140,14 @@ export function getModelDataList (params) {
   })
 }
 
+// 获取Encoding
+export function getEncodingList () {
+  return fetch({
+    url: '/olap/apis/OlapModeling/encodingList',
+    method: 'get'
+  })
+}
+
 // kelin
 export function getselectCatalog (params) {
   return fetch({
@@ -157,8 +165,7 @@ export function getselectTable (params) {
 }
 export function getselectColumn (params) {
   return fetch({
-    url: '/olap/apis/OlapModeling/selectColumn',
-    method: 'get',
-    params
+    url: '/olap/apis/OlapModeling/selectColumn?resourceIds=' + params,
+    method: 'get'
   })
 }

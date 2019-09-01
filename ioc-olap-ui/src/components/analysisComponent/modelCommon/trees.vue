@@ -6,11 +6,12 @@
       :data="treeList"
         ref="tree"
         v-loading="treeLoading"
+        auto-expand-parent
         :expand-on-click-node="false"
         node-key="id"
         @node-expand="nodeExpand"
-        :highlight-current="showTree"
         @node-click="getCurrents"
+        highlight-current
         :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
@@ -70,22 +71,30 @@ export default {
     },
     fetchTreeList (val) {
       this.treeLoading = true
+      // this.fetchDatas(val)
+      this.fetchKelinData()
+      // console.log('最后一次点击的', this.lastClickTab)
+      // this.$refs.tree.setCurrentKey(this.lastClickTab)
+    },
+    fetchDatas (val) {
       /** 数据湖 */
-      // this.$store.dispatch('GetTreeList').then(res => {
-      //   if (res && res.code === 200) {
-      //     this.treeLoading = false
-      //     this.setTree(res.data.dataLakeDirectoryTree, 1)
-      //     this.setTree(res.data.dataSetDirectoryTree, 2)
-      //     const ids = val || this.treeList[0].id
-      //     const newids = ids.length > 10 ? this.treeList[0].id : val
-      //     newids && setTimeout(() => {
-      //       this.$refs.tree.store.nodesMap[newids].expanded = true
-      //     }, 500)
-      //     this.defaultFrist(this.treeList)
-      //   }
-      // }).finally(() => {
-      //   this.treeLoading = false
-      // })
+      this.$store.dispatch('GetTreeList').then(res => {
+        if (res && res.code === 200) {
+          this.treeLoading = false
+          this.setTree(res.data.dataLakeDirectoryTree, 1)
+          this.setTree(res.data.dataSetDirectoryTree, 2)
+          const ids = val || this.treeList[0].id
+          const newids = ids.length > 10 ? this.treeList[0].id : val
+          newids && setTimeout(() => {
+            this.$refs.tree.store.nodesMap[newids].expanded = true
+          }, 500)
+          this.defaultFrist(this.treeList)
+        }
+      }).finally(() => {
+        this.treeLoading = false
+      })
+    },
+    fetchKelinData () {
       // kelin测试
       getselectCatalog().then(res => {
         this.treeLoading = false
@@ -149,13 +158,15 @@ export default {
         }
       }
       // 为资源列表的时候
-      if (data.isTable === true) {
-        // this.fetchResourceInfo(data)
+      if (!data.isTable && data.resNum > 0) {
+        // this.fetchResourceList(data)
       }
       // kelin
-      this.fetchResourceList(data, node.parent.key)
+      let lastId = node.parent.label ? node.parent.key : node.key
+      this.fetchResourceList(data, lastId)
       // 保存数据到store
       this.$store.dispatch('SaveSelectData', data)
+      console.log('总的数量', this.selectTableTotal)
     },
     fetchTree (data) {
       this.treeLoading = true
@@ -214,6 +225,7 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
+      selectTableTotal: 'selectTableTotal',
       lastClickTab: 'lastClickTab',
       mockjsonData: 'mockjsonData', // 模拟数据
       serchTableList: 'serchTableList'
@@ -226,6 +238,9 @@ export default {
   },
   created () {
     this.fetchTreeList(this.lastClickTab)
+    this.$nextTick(function () {
+      this.$refs.tree.setCurrentKey(this.lastClickTab)
+    })
   }
 }
 </script>

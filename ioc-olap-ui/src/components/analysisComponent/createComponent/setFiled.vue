@@ -65,8 +65,7 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      dimensions: []
+      tableData: []
     }
   },
   mounted () {
@@ -77,7 +76,7 @@ export default {
       // this.tableData = this.saveList
       // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        this.loading = true
+        // this.loading = true
         // this.tableData = res.data.columns
         // setTimeout(() => {
         // let arr = []
@@ -93,10 +92,39 @@ export default {
         // this.toggleSelection(arr)
         // this.loading = false
         // }, 300)
-        this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
-          if (res) {
-            this.loading = false
-            res.data.columns && res.data.columns.map((n, i) => {
+        // this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
+        //   if (res) {
+        //     this.loading = false
+        //     res.data.columns && res.data.columns.map((n, i) => {
+        //       n.mode = n.mode ? n.mode : '2'
+        //       n.derived = n.name
+        //       n.titName = n.name
+        //       n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
+        //       n.id = `${data.alias}${i}`
+        //       n.filed = data.alias === code ? '1' : '0'
+        //     })
+        //     this.tableData = res.data.columns
+        //     let arr = []
+        //     setTimeout(() => {
+        //       this.tableData && this.tableData.forEach((item, i) => {
+        //         this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+        //           if (val.id === item.id) {
+        //             this.tableData[i].name = val.name
+        //             this.tableData[i].mode = val.mode
+        //             arr.push(item)
+        //           }
+        //         })
+        //       })
+        //       this.toggleSelection(arr)
+        //     }, 500)
+        //   }
+        // })
+        // 获取本地的数据
+        console.log('洗净选择的数据', this.saveSelectFiled)
+        this.saveSelectAllListFiled.forEach((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === data.id) {
+            items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
               n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
@@ -104,7 +132,7 @@ export default {
               n.filed = data.alias === code ? '1' : '0'
               return n
             })
-            this.tableData = res.data.columns
+            this.tableData = items.data.columns
             let arr = []
             setTimeout(() => {
               this.tableData && this.tableData.forEach((item, i) => {
@@ -133,10 +161,11 @@ export default {
     },
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      this.saveSelectFiled.forEach(item => {
+      })
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
-      // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
       //   flag = item.filed === '1' ? 0 : 1
       // })
@@ -146,7 +175,6 @@ export default {
       // debugger
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
-      console.log(this.jointResultData)
     },
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
@@ -167,7 +195,7 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
     // 输入框监听
@@ -183,11 +211,14 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
+      dimensions: 'dimensions',
+      saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
-      saveNewSortList: 'saveNewSortList'
+      saveNewSortList: 'saveNewSortList',
+      saveSelectAllListFiled: 'saveSelectAllListFiled'
     })
   },
   beforeDestroy () {
