@@ -60,10 +60,6 @@ export default {
       val.name === '2'
         ? this.$root.eventBus.$emit('getUploadTable') && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
         : this.$root.eventBus.$emit('getserchTableList', this.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
-        // ? this.$store.dispatch('GetdsUploadTable').then(res => {
-        //   this.$root.eventBus.$emit('getUploadTable', res)
-        // }) && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
-        // : this.$root.eventBus.$emit('getserchTableList', this.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
       // 推送已选择的复选框按钮到serachTable
       this.$root.eventBus.$emit('saveSelectTables')
     }
