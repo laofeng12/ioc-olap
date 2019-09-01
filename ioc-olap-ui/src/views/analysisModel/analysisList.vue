@@ -16,7 +16,7 @@
     </el-aside>
     <div class="cus-right" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew"
-                 :shareList="shareList"></ResultBox>
+                 :shareList="shareList" @exportFunc="exportFile"></ResultBox>
     </div>
   </el-container>
 </template>
@@ -24,15 +24,7 @@
 <script>
 import FolderAside from '../../components/analysisComponent/common/FolderAside'
 import ResultBox from '../../components/analysisComponent/common/ResultBox'
-// import ShareDialog from '../../components/ShareDialog'
-// import MoveDialog from '../../components/MoveDialog'
-// import StatementTable from '@/components/BITemp/StatementTable'
-// import TableFilter from '../../components/TableFilter'
-// import {
-//   getStatementTree, editStatementTree, renameStatementTree, getFolderList, moveStatement,
-//   delFolder, delStatement, newFile, getDepartmentTree, getDepartMember, shareStament, getTableData
-// } from '../../api/statement'
-import { getFolderWithQueryApi, getQueryShareApi, getQueryTableApi } from '../../api/olapAnalysisList'
+import { getFolderWithQueryApi, getQueryShareApi, getQueryTableApi, olapAnalyzeExportExistApi } from '../../api/olapAnalysisList'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -56,7 +48,7 @@ export default {
       },
       tableData: [],
       loading: false,
-      // exportData: {},
+      fileData: {},
       shareList: []
     }
   },
@@ -77,11 +69,12 @@ export default {
       this.shareMenuList = res
       this.shareLoading = false
     },
-    async getTableById (folderData, type) {
+    async getTableById (fileData, type) {
+      this.fileData = fileData
       this.loading = true
       const params = {
-        analyzeId: folderData.attrs.analyzeId,
-        cubeId: folderData.attrs.cubeId
+        analyzeId: fileData.attrs.analyzeId,
+        cubeId: fileData.attrs.cubeId
       }
       try {
         const { results = [] } = await getQueryTableApi(params)
@@ -98,7 +91,7 @@ export default {
         })
         this.tableData = tableData
         // this.shareList = shareList
-        // this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
+        // this.exportData = { sql: fileData.attrs.sql, limit: fileData.attrs.limit }
         if (type !== 'share') {
           this.$message.success('查询完成')
         }
@@ -109,6 +102,28 @@ export default {
     },
     edit (data) {
       this.$router.push(`/newOlapAnalysis?dataId=${data.attrs.analyzeId}`)
+    },
+    async exportFile () {
+      const data = {
+        analyzeId: this.fileData.attrs.analyzeId,
+        cubeId: this.fileData.attrs.cubeId
+      }
+      const res = await olapAnalyzeExportExistApi(data)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = 'olap分析文件'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }
