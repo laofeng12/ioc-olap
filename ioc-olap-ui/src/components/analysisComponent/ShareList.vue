@@ -67,28 +67,24 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'lookDetail', params: scope.row}">查看</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
-                  <!-- <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item> -->
-                  <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'clones', params: scope.row}">复制</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'lookShare', params: scope.row}">查看</el-dropdown-item>
+                  <!--<el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>-->
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
           </template>
         </el-table-column>
       </el-table>
-    <div class="more" v-if="moreShow && tableData.length > 0" @click="moreData">更多数据</div>
-    <clones ref="clones"></clones>
-    <construct ref="construct"></construct>
-    <reloads ref="reloads"></reloads>
-    <merge ref="merge"></merge>
-    <sharedTable ref="sharedTable"></sharedTable>
+    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
+    <!--<el-dialog title="查看共享人" :visible.sync="shareVisible">-->
+      <!--<div class="shareBox dis-flex" v-loading="shareLoading">-->
+
+      <!--</div>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="shareVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="share">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -119,6 +115,8 @@ export default {
       jsonData: {},
       offset: 0,
       moreShow: true
+    //   shareVisible: false,
+    //   shareLoading: false
     }
   },
   filters: {
@@ -171,17 +169,11 @@ export default {
       this.expands = []
       let texts = ''
       switch (type) {
-        case 'disableds':
-          texts = '确定禁用此模型？禁用后，引用了该模型的功能将无法使用！'
-          break
-        case 'enable':
-          texts = '确定启用该模型？'
-          break
-        case 'clones':
-          texts = '确定复制该模型？'
+        case 'lookShare':
+
           break
         case 'dels':
-          texts = '确定删除该模型？'
+
           break
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {

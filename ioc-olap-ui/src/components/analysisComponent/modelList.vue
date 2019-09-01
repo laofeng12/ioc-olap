@@ -81,7 +81,7 @@
           </template>
         </el-table-column>
       </el-table>
-    <div class="more" v-if="moreShow && tableData.length > 0" @click="moreData">更多数据</div>
+    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <clones ref="clones"></clones>
     <construct ref="construct"></construct>
     <reloads ref="reloads"></reloads>

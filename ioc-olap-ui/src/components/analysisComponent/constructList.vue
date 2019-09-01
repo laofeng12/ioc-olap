@@ -59,7 +59,7 @@
           </template>
         </el-table-column>
       </el-table>
-    <div class="more" v-if="moreShow && tableData.length > 0" @click="moreData">更多数据</div>
+    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <el-dialog title="查看日志" :visible.sync="logListVisible">
       <div class="logListBox dis-flex">
         <el-timeline>
