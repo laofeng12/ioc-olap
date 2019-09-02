@@ -1,11 +1,11 @@
 package com.openjava.olap.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.openjava.olap.domain.OlapCubeTable;
+import com.openjava.olap.domain.OlapDatalaketable;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeTableDBParam;
 import com.openjava.olap.repository.OlapCubeTableRepository;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class OlapCubeTableServiceImpl implements OlapCubeTableService {
+public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapCubeTableService {
 
     @Resource
     private OlapCubeTableRepository olapCubeTableRepository;
@@ -78,7 +78,7 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
     }
 
     //保存OLAP_CUBE_TABLE表
-    public List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId) {
+    public List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) {
         ModelsDescDataMapper modelDescData = models.modelDescData;
 
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
@@ -89,42 +89,66 @@ public class OlapCubeTableServiceImpl implements OlapCubeTableService {
         if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
             deleteCubeId(cubeId);
         }
-        //取到事实表
-        String factTable = modelDescData.getFact_table();
-        String libraryNameFact = factTable.substring(0, factTable.indexOf("."));
-        String tableNameFact = factTable.substring(factTable.indexOf(".") + 1);
-        OlapCubeTable cubeTableFact = new OlapCubeTable();
-        cubeTableFact.setCubeTableId(ss.getSequence());
-        cubeTableFact.setName(tableNameFact);//表中文名称
-        cubeTableFact.setCubeId(cubeId);//立方体ID
-        cubeTableFact.setTableName(tableNameFact);//表名称
-        cubeTableFact.setTableAlias(tableNameFact);//表别名
-        cubeTableFact.setIsDict(1);//是否是事实表
-        cubeTableFact.setDatabaseName(libraryNameFact);//数据库名称
-        cubeTableFact.setSAxis(modelDescData.getSAxis());//S轴
-        cubeTableFact.setYAxis(modelDescData.getYAxis());//Y轴
-        cubeTableFact.setSAxis(modelDescData.getJoinSAxis());//joinS轴
-        cubeTableFact.setYAxis(modelDescData.getJoinYAxis());//joinY轴
-        cubeTableFact.setIsNew(true);
-        cubeTablesList.add(cubeTableFact);
+
+        String factTable = models.modelDescData.getFact_table();
 
         for (LookupsMapper lm : modelDescData.getLookups()) {
             String libraryName = lm.getTable().substring(0, lm.getTable().indexOf("."));
             String tableName = lm.getTable().substring(lm.getTable().indexOf(".") + 1);
+
+            String factTableName = factTable.substring(factTable.indexOf(".") + 1);
             OlapCubeTable cubeTable = new OlapCubeTable();
             cubeTable.setCubeTableId(ss.getSequence());
             cubeTable.setName(lm.getAlias());//表中文名称
             cubeTable.setCubeId(cubeId);//立方体ID
             cubeTable.setTableName(tableName);//表名称
             cubeTable.setTableAlias(lm.getAlias());//表别名
-            cubeTable.setIsDict(0);//是否是事实表
+            cubeTable.setIsDict(lm.getJoinTable() == factTableName ? 1 : 0);//是否是事实表
             cubeTable.setDatabaseName(libraryName);//数据库名称
             cubeTable.setSAxis(lm.getSAxis());//S轴
             cubeTable.setYAxis(lm.getYAxis());//Y轴
+            cubeTable.setJoinSAxis(lm.getJoinSAxis());//S轴
+            cubeTable.setJoinYAxis(lm.getJoinYAxis());//Y轴
+            cubeTable.setJoinTable(lm.getJoinTable());
+            cubeTable.setJoinId(lm.getJoinId());
+            cubeTable.setJoinAlias(lm.getJoinAlias());
+            cubeTable.setTableId(lm.getId());
             cubeTable.setIsNew(true);
             cubeTablesList.add(cubeTable);
+
+            //通过cubeDatalaketableNew去查找子表的库名等信息
+            OlapDatalaketable datalaketable = new OlapDatalaketable();
+            for (CubeDatalaketableNewMapper tableList : cubeDatalaketableNew) {
+                for (OlapDatalaketable t : tableList.getTableList()) {
+                    if (t.getTable_id().equals(lm.getJoinId())) {
+                        datalaketable = t;
+                        break;
+                    }
+                }
+            }
+            OlapCubeTable cubeJoinTable = new OlapCubeTable();
+            cubeJoinTable.setCubeTableId(ss.getSequence());
+            cubeJoinTable.setName(lm.getJoinTable());//表中文名称
+            cubeJoinTable.setCubeId(cubeId);//立方体ID
+            cubeJoinTable.setTableName(datalaketable.getTable_name());//表名称
+            cubeJoinTable.setTableAlias(lm.getJoinAlias());//表别名
+            cubeJoinTable.setIsDict(lm.getJoinTable() == factTableName ? 1 : 0);//是否是事实表
+            cubeJoinTable.setDatabaseName(datalaketable.getDatabase());//数据库名称
+            cubeJoinTable.setSAxis(lm.getSAxis());//S轴
+            cubeJoinTable.setYAxis(lm.getYAxis());//Y轴
+            cubeJoinTable.setJoinSAxis(lm.getJoinSAxis());//S轴
+            cubeJoinTable.setJoinYAxis(lm.getJoinYAxis());//Y轴
+            cubeJoinTable.setJoinTable(lm.getJoinTable());
+            cubeJoinTable.setJoinId(lm.getJoinId());
+            cubeJoinTable.setJoinAlias(lm.getJoinAlias());
+            cubeJoinTable.setTableId(lm.getId());
+            cubeJoinTable.setIsNew(true);
+            cubeTablesList.add(cubeJoinTable);
         }
-        return cubeTablesList;
+        List<OlapCubeTable> cubeTables = cubeTablesList.stream().collect(
+                Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OlapCubeTable::getTableAlias))), ArrayList::new)
+        );
+        return cubeTables;
     }
 
 }
