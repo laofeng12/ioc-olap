@@ -178,6 +178,7 @@ export default {
     },
 
     bindEvent (paper) {
+      console.log('来了~~~')
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('blank:pointerup', () => {
         this.hideCellLayer()

@@ -206,7 +206,7 @@ export default {
           })
         }
       })
-      this.formData.engine_typeTit = String(this.totalSaveData.cube.engine_type)
+      this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {
@@ -232,6 +232,10 @@ export default {
       })
     },
     nextModel (val) {
+      console.log(this.iscubeMatch(), '是都啊')
+      if (this.iscubeMatch() === '1') {
+        return this.$message.warning('已选维度与rowkers数量不对应~')
+      }
       if (this.judgeSuccess()) {
         return
       }
@@ -246,7 +250,6 @@ export default {
       if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
       if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
-      // if (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length - this.measureTableList.length <= 1) return this.$message.warning('请选择所有的高级列组合~')
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -331,6 +334,25 @@ export default {
       }
       this.$store.dispatch('RmtagList', list)
     },
+    // 判断模型的维度是否匹配
+    iscubeMatch () {
+      let rowkeyDataVal = this.rowkeyData.rowkey_columns.map(res => {
+        return res.column
+      })
+      let dimensionsVal = this.dimensions.map(res => {
+        return res.tableId
+      })
+      console.log(dimensionsVal, '===========', rowkeyDataVal)
+      let isRowkey = ''
+      dimensionsVal.map(res => {
+        if (rowkeyDataVal.includes(res)) {
+          isRowkey = 1
+        } else {
+          isRowkey = 0
+        }
+      })
+      return isRowkey
+    },
     // 改变对应的长度格式
     encodingIpt () {
       // console.log(this.rowkey.rowkey_columns)
@@ -348,6 +370,7 @@ export default {
       reloadNeedData: 'reloadNeedData',
       totalSaveData: 'totalSaveData',
       measureTableList: 'measureTableList',
+      dimensions: 'dimensions',
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合
       rowkeyData: 'rowkeyData' // rowkeys
