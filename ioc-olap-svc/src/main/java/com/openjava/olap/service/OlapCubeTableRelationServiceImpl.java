@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import com.openjava.olap.domain.OlapCubeTable;
+import com.openjava.olap.domain.OlapCubeTableColumn;
 import com.openjava.olap.domain.OlapCubeTableRelation;
 import com.openjava.olap.mapper.kylin.CubeDescDataMapper;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
@@ -39,6 +40,10 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 
 	public List<OlapCubeTableRelation> queryDataOnly(OlapCubeTableRelationDBParam params, Pageable pageable){
 		return olapCubeTableRelationRepository.queryDataOnly(params, pageable);
+	}
+
+	public ArrayList<OlapCubeTableRelation> findByCubeName(String cubeName) {
+		return olapCubeTableRelationRepository.findByCubeName(cubeName);
 	}
 
 	public OlapCubeTableRelation get(Long id) {

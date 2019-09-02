@@ -32,7 +32,7 @@ public class CubeAction extends KylinAction {
             @ApiImplicitParam(name = "limit", value = "限制数据量", required = true),
             @ApiImplicitParam(name = "offset", value = "从多少条开始查起", required = true)
     })
-	@Security(session = true)
+    @Security(session = true)
     public List<CubeMapper> list(String cubeName, String projectName, Integer limit, Integer offset) throws APIException {
         String url = config.address + "/kylin/api/cubes?";
         StringBuffer sBuffer = new StringBuffer(url);
@@ -95,12 +95,17 @@ public class CubeAction extends KylinAction {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
         Class<CubeDescDataMapper[]> claszz = CubeDescDataMapper[].class;
         CubeDescDataMapper[] result = HttpClient.get(url, config.authorization, claszz);
-        return Arrays.asList(result);
+        if (result == null) {
+            List<CubeDescDataMapper> resultList = new ArrayList<CubeDescDataMapper>();
+            return resultList;
+        } else {
+            return Arrays.asList(result);
+        }
     }
 
     @ApiOperation(value = "克隆CUBE")
     @RequestMapping(value = "clone", method = RequestMethod.PUT)
-	@Security(session = true)
+    @Security(session = true)
     public void clone(String cubeName, String cubeNameClone, String projectName) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/clone", config.address, cubeName);
         HashMap<String, String> hash = new HashMap<String, String>();
@@ -111,7 +116,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "编译CUBE")
     @RequestMapping(value = "build", method = RequestMethod.PUT)
-	@Security(session = true)
+    @Security(session = true)
     public void build(String cubeName, Long start, Long end) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/rebuild", config.address, cubeName);
         HashMap hash = new HashMap();
@@ -198,7 +203,7 @@ public class CubeAction extends KylinAction {
 
     @ApiOperation(value = "删除CUBE")
     @RequestMapping(value = "delete", method = RequestMethod.DELETE)
-	@Security(session = true)
+    @Security(session = true)
     public void delete(String cubeName) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
         HttpClient.delete(url, "", config.authorization, String.class);
