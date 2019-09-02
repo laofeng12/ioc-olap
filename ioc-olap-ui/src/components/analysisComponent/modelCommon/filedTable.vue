@@ -174,7 +174,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',
