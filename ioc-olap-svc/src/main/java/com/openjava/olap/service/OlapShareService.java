@@ -14,23 +14,23 @@ import org.springframework.data.domain.Pageable;
  * @author xiepc
  */
 public interface OlapShareService {
-    Page<OlapShare> query(OlapShareDBParam params, Pageable pageable);
+	Page<OlapShare> query(OlapShareDBParam params, Pageable pageable);
 
-    List<OlapShare> queryDataOnly(OlapShareDBParam params, Pageable pageable);
+	List<OlapShare> queryDataOnly(OlapShareDBParam params, Pageable pageable);
 
-    OlapShare get(Long id);
+	OlapShare get(Long id);
 
-    OlapShare doSave(OlapShare m);
+	OlapShare doSave(OlapShare m);
 
-    void doDelete(Long id);
+	void doDelete(Long id);
 
-    void doRemove(String ids);
+	void doRemove(String ids);
 
-    void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName);
+	void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName);
 
-    void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName, String cubeName);
+	void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName, String cubeName);
 
-    List<ShareUserDto> getList(String sourceType, String sourceId, Long userId);
+	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId);
 
-    List<ShareUserDto> getList(String sourceType, String sourceId, Long userId, String cubeName);
+	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId, String cubeName);
 }
