@@ -33,7 +33,12 @@ module.exports = {
       },
       '/olapweb/olap/': {
         // target: 'http://19.104.40.36', // 麒麟测试环境
+<<<<<<< HEAD
         target: 'http://localhost:9090', // 左烨本地
+=======
+        // target: 'http://183.6.55.26:7070/kylin/login', // 麒麟地址（new）
+        target: 'http://172.16.60.82:8081', // 左烨本地
+>>>>>>> 364b1f39af2735db03b4a6d39b6c0348ee7f84ac
         // target: 'http://19.104.40.36', // 测试服务
         // target: 'http://172.16.60.99:9090', // 沛城本地
         // pathRewrite: { '^/olapweb/olap/': '/olap/' },

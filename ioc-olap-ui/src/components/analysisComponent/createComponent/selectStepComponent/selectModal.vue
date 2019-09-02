@@ -40,7 +40,6 @@ export default {
       this.tableData = this.selectTableTotal.filter(res => {
         return res.label
       })
-      console.log(this.tableData, '1')
     }
   },
   computed: {

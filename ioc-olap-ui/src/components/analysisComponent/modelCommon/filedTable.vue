@@ -122,6 +122,7 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
+      console.log(item, '====', this.dataList.fact_table)
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
       // 存储事实表的所有字段
       if (index === 0) {
@@ -173,7 +174,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',

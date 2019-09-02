@@ -206,7 +206,7 @@ export default {
           })
         }
       })
-      this.formData.engine_typeTit = String(this.engine_types)
+      this.formData.engine_typeTit = String(this.totalSaveData.cube.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {
@@ -346,7 +346,7 @@ export default {
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
-      engine_types: 'engine_types',
+      totalSaveData: 'totalSaveData',
       measureTableList: 'measureTableList',
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合

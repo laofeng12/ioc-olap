@@ -25,7 +25,7 @@ const setFiled = {
      * 维度步骤
      */
     // 存储已选择的维度
-    SaveSelectFiled ({ state, dispatch }, data) {
+    SaveSelectFiled ({ state, dispatch, getters }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
       dispatch('changePushSelectFiled', data)
@@ -102,12 +102,12 @@ const setFiled = {
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
-              state.saveSelectFiled[index].name = name
+              state.saveSelectFiled[index].tableName = res.tableName
             }
           })
         } else {
           if (val.id === item.id) {
-            state.saveSelectFiled[index].name = val.name
+            state.saveSelectFiled[index].tableName = val.tableName
           }
         }
       })
@@ -181,7 +181,7 @@ const setFiled = {
         })
       })
       state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      // console.log('啦啦啦啦', state.reloadNeedData)
+      console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
@@ -195,6 +195,7 @@ const setFiled = {
               table: item.tableName,
               tableId: `${item.tableName}.${item.name}`,
               column: item.titName,
+              id: item.id,
               column_type: item.dataType,
               name: item.name
             })
@@ -203,6 +204,7 @@ const setFiled = {
               table: item.tableName,
               tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType,
+              id: item.id,
               derived: item.mode === '1' ? null : item.titName.split(','),
               name: item.name
             })

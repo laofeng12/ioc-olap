@@ -44,12 +44,14 @@ export default {
   },
   methods: {
     init () {
-      descDataList(this.jsonData).then(res => {
-        if (res.CubeList) {
-          this.isLoading = false
-          this.dataArr = res
-        }
-      })
+      if (this.jsonData.cubeName) {
+        descDataList(this.jsonData).then(res => {
+          if (res.CubeList) {
+            this.isLoading = false
+            this.dataArr = res
+          }
+        })
+      }
     },
     selectTab (id, view) {
       this.cureent = id

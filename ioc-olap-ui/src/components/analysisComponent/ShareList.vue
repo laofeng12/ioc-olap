@@ -142,7 +142,7 @@ export default {
         this.tableData = [...this.tableData, ...res]
       } else {
         this.moreShow = false
-        this.$message.success('已加载所有数据')
+        // this.$message.success('已加载所有数据')
       }
       this.getLoading = false
     },
@@ -176,6 +176,71 @@ export default {
 
           break
       }
+      if (['disableds', 'enable', 'dels'].includes(type)) {
+        return this.$confirm(texts, {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          this.getLoading = true
+          if (type === 'disableds') {
+            params.status === 'DISABLED'
+              ? this.$message.warning('该模型已禁用~')
+              : await disableModeling({ cubeName: params.name }).then(res => {
+                this.$message.success('已禁用')
+                this.init()
+              }).catch(_ => {
+                this.getLoading = false
+              })
+          }
+          if (type === 'enable') {
+            if (params.segments.length < 1) {
+              this.$message.warning('请先构建模型~')
+              this.getLoading = false
+              return
+            }
+            params.status === 'READY'
+              ? this.$message.warning('该模型已启用~')
+              : await enableModeling({ cubeName: params.name }).then(res => {
+                this.$message.success('已启用')
+                this.init()
+              }).catch(_ => {
+                this.getLoading = false
+              })
+          }
+          if (type === 'dels') {
+            await deleteCubeModeling({ cubeName: params.name }).then(res => {
+              this.$message.success('删除成功~')
+              this.init()
+            }).catch(_ => {
+              this.getLoading = false
+            })
+          }
+          this.getLoading = false
+        })
+      }
+      if (type === 'construct') {
+        if (params.segments.length > 0 && params.partitionDateColumn) {
+          this.$refs['construct'].dialog(params)
+        } else {
+          return this.$confirm('是否构建该模型', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(async () => {
+            this.getLoading = true
+            // this.$throttle(() => {
+            await buildModeling({ cubeName: params.name, start: 0, end: 0 }).then(res => {
+              this.$message.success('构建成功~')
+              this.init()
+            }).catch(_ => {
+              this.getLoading = false
+            })
+            // }, 1000)
+          })
+        }
+      }
+      this.$refs[type].dialog(params)
     },
     closeExpands () {
       this.expands = []
@@ -200,7 +265,7 @@ export default {
     },
     moreData () {
       this.offset += 15
-      this.init ()
+      this.init()
     }
   }
 }

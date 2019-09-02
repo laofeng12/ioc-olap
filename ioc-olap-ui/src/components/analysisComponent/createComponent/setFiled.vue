@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -120,16 +120,17 @@ export default {
         //   }
         // })
         // 获取本地的数据
+        console.log('洗净选择的数据', this.saveSelectFiled)
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
-              n.titName = n.name
               n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
               n.id = `${data.alias}${i}`
               n.filed = data.alias === code ? '1' : '0'
+              return n
             })
             this.tableData = items.data.columns
             let arr = []
@@ -137,7 +138,7 @@ export default {
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                   if (val.id === item.id) {
-                    this.tableData[i].name = val.name
+                    this.tableData[i].tableName = val.tableName
                     this.tableData[i].mode = val.mode
                     arr.push(item)
                   }
@@ -159,7 +160,6 @@ export default {
       }
     },
     nextModel (val) {
-      console.log(this.dimensions, '====获取的')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       this.saveSelectFiled.forEach(item => {
       })
@@ -195,7 +195,7 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
     // 输入框监听
@@ -215,6 +215,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
       dimensions: 'dimensions',
+      saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'

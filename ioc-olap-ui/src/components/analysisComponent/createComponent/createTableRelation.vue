@@ -26,7 +26,7 @@
         <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
         <div id="myholder" ref="myHolder"></div>
         <div class="papers" ref="papers" @click="papersClick">
-          <div class="halo-cell-layer" :style="cellLayerStyle"> 
+          <div class="halo-cell-layer" :style="cellLayerStyle">
             <!-- 方块部分 -->
             <div v-if="cellLayerData && !cellLayerData.isLink">
               <!-- 删除 -->
@@ -112,9 +112,9 @@ export default {
       let containers = this.$refs.containers.getBoundingClientRect()
       let arr = []
       data.lookups.forEach(item => {
-        if (item.id) {
-          arr.push(item)
-        }
+        // if (item.id) {
+        arr.push(item)
+        // }
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
