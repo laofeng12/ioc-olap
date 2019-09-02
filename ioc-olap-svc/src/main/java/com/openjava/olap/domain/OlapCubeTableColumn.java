@@ -40,6 +40,9 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	@ApiModelProperty("列类型 HIVE基本数据类型")
 	private String columnType;
 
+	@ApiModelProperty("前端需要的-库名表名")
+	private String libraryTable;
+
 	@ApiModelProperty("原类型为(AVG会转换成SUM,所以需要定义一个原类型,方便编辑的时候用到)")
 	private String primaryType;
 
@@ -143,6 +146,15 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 	}
 	public void setExpressionType(String expressionType) {
 		this.expressionType = expressionType;
+	}
+
+
+	@Column(name = "LIBRARYTABLE")
+	public String getLibraryTable() {
+		return libraryTable;
+	}
+	public void setLibraryTable(String libraryTable) {
+		this.libraryTable = libraryTable;
 	}
 
 

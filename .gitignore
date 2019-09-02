@@ -1,6 +1,6 @@
 /.idea
-*/.idea
 */target
 
 .Ds_Store
 *.iml
+*/.idea

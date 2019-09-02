@@ -16,10 +16,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 文件夹表业务层
- * @author xiepc
  *
+ * @author xiepc
  */
 @Service
 @Transactional
@@ -28,12 +29,12 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 	@Resource
 	private OlapCubeRepository olapCubeRepository;
 
-	public Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable){
+	public Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable) {
 		Page<OlapCube> pageresult = olapCubeRepository.query(params, pageable);
 		return pageresult;
 	}
 
-	public List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable){
+	public List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable) {
 		return olapCubeRepository.queryDataOnly(params, pageable);
 	}
 
@@ -57,11 +58,11 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 
 	public OlapCube get(Long id) {
 		Optional<OlapCube> o = olapCubeRepository.findById(id);
-		if(o.isPresent()) {
+		if (o.isPresent()) {
 			OlapCube m = o.get();
 			return m;
 		}
-		System.out.println("找不到记录OlapCube："+id);
+		System.out.println("找不到记录OlapCube：" + id);
 		return null;
 	}
 
@@ -96,11 +97,11 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 
 	@Override
 	public ArrayList<OlapCube> getValidListByUserId(Long userId) {
-		return olapCubeRepository.findByCreateIdAndFlags(userId,1);
+		return olapCubeRepository.findByCreateIdAndFlags(userId, 1);
 	}
 
 	//保存OLAP_CUBE表
-	public OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO) {
+	public OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength) {
 		CubeDescDataMapper cubeDescData = cube.getCubeDescData();
 		SequenceService ss = ConcurrentSequence.getInstance();
 		Long cubeId = ss.getSequence();
@@ -110,6 +111,9 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 			OlapCube olapCube = findTableInfo(cubeDescData.getName(), Long.parseLong(userVO.getUserId()));
 			olapCube.setName(cubeDescData.getName());
 			olapCube.setRemark(cubeDescData.getDescription());
+			olapCube.setDimensionLength(dimensionLength);
+			olapCube.setDimensionFiledLength(dimensionFiledLength);
+			olapCube.setMeasureFiledLength(measureFiledLength);
 			olapCube.setUpdateId(Long.parseLong(userVO.getUserId()));
 			olapCube.setUpdateName(userVO.getUserAccount());
 			olapCube.setUpdateTime(date);
@@ -120,6 +124,9 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 			olapCube.setName(cubeDescData.getName());
 			olapCube.setRemark(cubeDescData.getDescription());
 			olapCube.setCubeId(cubeId);
+			olapCube.setDimensionLength(dimensionLength);
+			olapCube.setDimensionFiledLength(dimensionFiledLength);
+			olapCube.setMeasureFiledLength(measureFiledLength);
 			olapCube.setCreateTime(date);
 			olapCube.setCreateId(Long.parseLong(userVO.getUserId()));
 			olapCube.setCreateName(userVO.getUserAccount());

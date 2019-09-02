@@ -39,7 +39,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@Resource
 	private OlapCubeService olapCubeService;
 	@Resource
-	private OlapCubeTableService olapCubeTableService;
+	private com.openjava.olap.service.OlapCubeTableService olapCubeTableService;
 	@Resource
 	private OlapCubeTableColumnService olapCubeTableColumnService;
 	@Resource

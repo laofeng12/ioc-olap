@@ -1,6 +1,6 @@
 <template>
   <div class="selectStep">
-    <div class="containers" v-loading="isLoading">
+    <div class="containers">
         <el-tabs v-model="activeName" type="border-card" @tab-click="tabClick">
           <el-tab-pane label="数据湖" name="1">
             <data-lake></data-lake>
@@ -8,7 +8,7 @@
           <el-tab-pane label="本地上传" name="2">
             <local-upload></local-upload>
           </el-tab-pane>
-          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum" v-if="selectTableTotal && selectTableTotal.length">
+          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum">
             <span slot="label" style="cursor:pointer" @click="changes" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
@@ -30,22 +30,10 @@ export default {
   },
   data () {
     return {
-      isLoading: false,
       activeName: '1'
     }
   },
-  mounted () {
-    this.init()
-  },
   methods: {
-    init () {
-      if (this.selectTableTotal.length) {
-        let data = this.selectTableTotal.filter(res => {
-          return res.label
-        })
-        this.selectTableTotal = data
-      }
-    },
     changes (val) {
       this.$refs.dialog.dialog()
     },

@@ -5,8 +5,6 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   savemousedownData: state => state.olap.savemousedownData,
-  ModelAllList: state => state.olap.ModelAllList,
-  modelSelectData: state => state.olap.modelSelectData,
   mockjsonData: state => state.olap.mockjsonData,
   lateData: state => state.olap.lateData,
   totalSaveData: state => state.olap.totalSaveData,
@@ -20,7 +18,6 @@ const getters = {
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
   selectStepList: state => state.selectStep.selectStepList,
   saveSelectAllList: state => state.selectStep.saveSelectAllList,
-  saveSelectAllListFiled: state => state.selectStep.saveSelectAllListFiled,
   SaveFactData: state => state.selectStep.SaveFactData,
   /* */
   jointResultData: state => state.createTableRelation.jointResultData,
@@ -30,6 +27,7 @@ const getters = {
   saveNewSortList: state => state.setFiled.saveNewSortList,
   saveNewSortListstructure: state => state.setFiled.saveNewSortListstructure,
   reloadNeedData: state => state.setFiled.reloadNeedData,
+  saveLeftFiled: state => state.setFiled.saveLeftFiled,
   dimensions: state => state.setFiled.dimensions,
   /* */
   measureTableList: state => state.setMeasure.measureTableList,

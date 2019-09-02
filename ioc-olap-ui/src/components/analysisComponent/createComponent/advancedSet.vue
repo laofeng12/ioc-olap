@@ -243,7 +243,6 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
-      console.log(this.measureTableList.length, '====')
       let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
       let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
       if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')

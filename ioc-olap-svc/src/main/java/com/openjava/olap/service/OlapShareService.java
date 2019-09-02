@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * 文件夹表业务层接口
- * @author xiepc
  *
+ * @author xiepc
  */
 public interface OlapShareService {
 	Page<OlapShare> query(OlapShareDBParam params, Pageable pageable);
@@ -23,9 +23,14 @@ public interface OlapShareService {
 	OlapShare doSave(OlapShare m);
 
 	void doDelete(Long id);
+
 	void doRemove(String ids);
 
-    void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId,String userName);
+	void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName);
+
+	void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName, String cubeName);
 
 	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId);
+
+	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId, String cubeName);
 }

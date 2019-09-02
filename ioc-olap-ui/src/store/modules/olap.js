@@ -1,8 +1,7 @@
 const common = {
   state: {
-    ModelAllList: [], // 所有的数据集合
-    modelSelectData: [],
     /* 建立表关系 */
+    savemousedownData: [], // 存储已拖拽的数据
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
@@ -60,7 +59,6 @@ const common = {
       cube: {
         'cubeDescData': {
           'name': '',
-          'uuid': '',
           'model_name': '',
           'engine_type': 2,
           'description': '',
@@ -189,10 +187,7 @@ const common = {
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       },
-      cubeDatalaketableNew: {},
-      dimensionLength: '',
-      dimensionFiledLength: '',
-      measureFiledLength: ''
+      cubeDatalaketableNew: {}
     }
   },
   actions: {
@@ -206,6 +201,13 @@ const common = {
       }
       state.totalSaveData.cubeDatalaketableNew = {}
       state.totalSaveData.cube.cubeDescData.name = ''
+    },
+    /*
+     *建立表关系
+     */
+    // 存储已拖拽到画布的表
+    SaveMousedownData ({ state }, data) {
+      state.savemousedownData.push(data)
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
@@ -249,15 +251,15 @@ const common = {
         getters.measureTableList.push(item)
       })
       // 赋值第五步
-      getters.reloadData.frequencytype = data.timingreFresh.frequencytype
-      getters.reloadData.autoReload = !!data.timingreFresh.interval
-      getters.reloadData.interval = Number(data.timingreFresh.interval)
-      getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
-      let result = data.ModesList.partition_desc.partition_date_column
-      getters.reloadData.data1a = result.split('.')[0]
-      getters.reloadData.data1b = result.split('.')[1]
-      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
-      getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+      // getters.reloadData.frequencytype = data.timingreFresh.frequencytype
+      // getters.reloadData.autoReload = !!data.timingreFresh.interval
+      // getters.reloadData.interval = Number(data.timingreFresh.interval)
+      // getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
+      // let result = data.ModesList.partition_desc.partition_date_column
+      // getters.reloadData.data1a = result.split('.')[0]
+      // getters.reloadData.data1b = result.split('.')[1]
+      // getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+      // getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
 
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
@@ -278,7 +280,7 @@ const common = {
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       console.log(getters)
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
-      console.log('第六步===', getters.hbase_mapping)
+      console.log('第六步===', getters.aggregation_groups)
     }
   }
 }

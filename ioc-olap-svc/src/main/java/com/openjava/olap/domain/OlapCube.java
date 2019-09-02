@@ -45,6 +45,12 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	@ApiModelProperty("0 不可用 1可用")
 	private Integer flags;
 
+	private Long dimensionLength;
+	@ApiModelProperty("维度字段数量")
+	private Long dimensionFiledLength;
+	@ApiModelProperty("度量字段数量")
+	private Long measureFiledLength;
+
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
 
@@ -154,6 +160,29 @@ public class OlapCube implements Persistable<Long>,Serializable {
 		this.updateId = updateId;
 	}
 
+	@Column(name = "DIMENSIONLENGTH")
+	public Long getDimensionLength() {
+		return dimensionLength;
+	}
+	public void setDimensionLength(Long dimensionLength) {
+		this.dimensionLength = dimensionLength;
+	}
+
+	@Column(name = "DIMENSIONFILELENGTH")
+	public Long getDimensionFiledLength() {
+		return dimensionFiledLength;
+	}
+	public void setDimensionFiledLength(Long dimensionFiledLength) {
+		this.dimensionFiledLength = dimensionFiledLength;
+	}
+
+	@Column(name = "MEASUREFILEDENGTH")
+	public Long getMeasureFiledLength() {
+		return measureFiledLength;
+	}
+	public void setMeasureFiledLength(Long measureFiledLength) {
+		this.measureFiledLength = measureFiledLength;
+	}
 
 	@Column(name = "UPDATE_NAME")
 	public String getUpdateName() {

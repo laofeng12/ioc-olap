@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import { throttle } from '@/utils/index'
 export default {
   props: {
     step: {
@@ -20,14 +19,10 @@ export default {
   },
   methods: {
     nextModel () {
-      throttle(_ => {
-        this.$emit('nextModel', this.step)
-      }, 300)
+      this.$emit('nextModel', this.step)
     },
     prevModel () {
-      throttle(_ => {
-        this.$emit('prevModel', this.step)
-      }, 300)
+      this.$emit('prevModel', this.step)
     }
   }
 }

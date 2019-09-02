@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.openjava.olap.domain.OlapCubeTable;
+import com.openjava.olap.mapper.kylin.CubeDatalaketableNewMapper;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
 import com.openjava.olap.mapper.kylin.ModelsMapper;
 import com.openjava.olap.query.OlapCubeTableDBParam;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -35,5 +37,5 @@ public interface OlapCubeTableService {
 
     ArrayList<OlapCubeTable> findByTable(String cubeName);
 
-    List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId);
+    List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId, List<CubeDatalaketableNewMapper>  cubeDatalaketableNew);
 }

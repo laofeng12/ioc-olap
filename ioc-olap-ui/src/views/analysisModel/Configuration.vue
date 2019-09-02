@@ -4,9 +4,6 @@
       <el-tab-pane label="模型列表" name="1">
         <model-list></model-list>
       </el-tab-pane>
-      <el-tab-pane label="分享列表" name="3">
-        <share-list></share-list>
-      </el-tab-pane>
       <el-tab-pane label="构建列表" name="2">
         <construct-list></construct-list>
       </el-tab-pane>
@@ -16,11 +13,10 @@
 
 <script>
 import modelList from '@/components/analysisComponent/modelList'
-import ShareList from '@/components/analysisComponent/ShareList'
 import constructList from '@/components/analysisComponent/constructList'
 export default {
   components: {
-    modelList, constructList, ShareList
+    modelList, constructList
   },
   data () {
     return {

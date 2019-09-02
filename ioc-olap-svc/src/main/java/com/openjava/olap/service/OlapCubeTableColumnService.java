@@ -36,5 +36,7 @@ public interface OlapCubeTableColumnService {
 
     ArrayList<OlapCubeTableColumn> findByColumn(String cubeName);
 
+    ArrayList<OlapCubeTableColumn> findByCubeTableId(Long tableId);
+
     ArrayList<OlapCubeTableColumn> getListByTableId(Long cubeTableId);
 }

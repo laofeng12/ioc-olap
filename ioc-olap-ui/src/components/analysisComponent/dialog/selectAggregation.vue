@@ -10,18 +10,17 @@
             </el-checkbox-group>
           </div>
         </div> -->
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1" size="mini">
-          <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
-        </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5" size="mini">
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6" size="mini">
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 5">
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
-        <el-checkbox-group ref="group" v-model="selctCheckData" size="mini" v-else>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else>
           <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
-          <!-- <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -47,10 +46,10 @@ export default {
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
-        // { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
-        // { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
-        // { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
-        // { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
+        { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
+        { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
+        { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
+        { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
       ],
       index: '',
       type: '',
@@ -98,11 +97,8 @@ export default {
           this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
           break
         default:
-          // this.options = this.saveselectIncludesData
-          // 递减的功能（选择过后下面的就没法选择）
           let arrD = [...new Set(this.recordingData)]
           this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
-          break
       }
       this.index = index
       this.type = type

@@ -6,6 +6,7 @@ import java.util.*;
 import javax.annotation.Resource;
 
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapTimingrefresh;
 import com.openjava.olap.mapper.kylin.CubeDescDataMapper;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
