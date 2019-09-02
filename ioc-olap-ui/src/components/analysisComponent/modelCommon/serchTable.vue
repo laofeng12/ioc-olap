@@ -21,7 +21,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 export default {
   data () {
     return {
@@ -55,8 +54,9 @@ export default {
             }
           })
         // if (type && type === 1) {
-        //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
+        //   this.$store.dispatch('GetThreeList', { orgId: res.orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
+        //       console.log(res, '=====')
         //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
         //       this.$root.eventBus.$emit('saveSelectTables')
@@ -91,12 +91,11 @@ export default {
       this.$root.eventBus.$on('saveSelectTables', _ => {
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
-        // if (this.$store.state.selectStep.searchType === 1) {
-        //   this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
-        // } else {
-        //   this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
-        // }
-        this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
+        if (this.$store.state.selectStep.searchType === 1) {
+          this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
+        } else {
+          this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
+        }
         setTimeout(() => {
           this.defaultKey = [...new Set(this.defaultKey)]
         }, 500)
@@ -115,11 +114,11 @@ export default {
         //   let datas = []
         //   let columnData = res.data.column // 子段说明
         //   res.data.column.forEach(item => {
-        //     datas.push(item.id)
+        //     datas.push(item.columnAlias)
         //   })
         //   let obj = {
         //     params: {
-        //       'columnIdList': datas,
+        //       'columnList': datas,
         //       'page': 0,
         //       'size': 0
         //     },
@@ -186,7 +185,6 @@ export default {
     ...mapGetters({
       treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
-      selectTableTotal: 'selectTableTotal',
       saveSelctchckoutone: 'saveSelctchckoutone',
       saveSelctchckouttwo: 'saveSelctchckouttwo',
       serchTableList: 'serchTableList',

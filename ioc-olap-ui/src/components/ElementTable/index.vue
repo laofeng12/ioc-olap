@@ -1,5 +1,5 @@
 <template>
-  <el-table class="my-table" :data="tableData">
+  <el-table class="my-table" :data="tableData" :height="height">
     <template v-for="(colConfig, key) in colConfigs">
       <slot v-if="colConfig.slot" :name="colConfig.slot"></slot>
       <el-table-column v-bind="colConfig" :key="key" align="center" show-overflow-tooltip></el-table-column>
@@ -49,7 +49,7 @@ export default {
   }
   >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
     content: ''
-    // height 0!improtant
+    height 0!improtant
   }
 }
 </style>

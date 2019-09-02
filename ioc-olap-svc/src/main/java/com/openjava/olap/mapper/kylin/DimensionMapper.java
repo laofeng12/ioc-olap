@@ -15,4 +15,5 @@ public class DimensionMapper {
     public String column;
     public String columnType;
     public String column_type;
+    public String id;
 }

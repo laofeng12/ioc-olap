@@ -1,8 +1,10 @@
 package com.openjava.olap.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.openjava.olap.domain.OlapCubeTable;
+import com.openjava.olap.domain.OlapCubeTableColumn;
 import com.openjava.olap.domain.OlapCubeTableRelation;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
 import com.openjava.olap.mapper.kylin.ModelsMapper;
@@ -23,6 +25,8 @@ public interface OlapCubeTableRelationService {
 	OlapCubeTableRelation get(Long id);
 
 	OlapCubeTableRelation doSave(OlapCubeTableRelation m);
+
+	ArrayList<OlapCubeTableRelation> findByCubeName(String cubeName);
 
 	void doDelete(Long id);
 	void doRemove(String ids);

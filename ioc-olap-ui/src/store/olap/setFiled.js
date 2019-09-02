@@ -25,7 +25,7 @@ const setFiled = {
      * 维度步骤
      */
     // 存储已选择的维度
-    SaveSelectFiled ({ state, dispatch, getters }, data) {
+    SaveSelectFiled ({ state, dispatch }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       state.saveSelectFiled = datas
       dispatch('changePushSelectFiled', data)
@@ -67,7 +67,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.titName,
+        name: list.item.name,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledNormalList, 'id')
@@ -84,7 +84,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
-        name: list.item.titName,
+        name: list.item.name,
         tableName: list.item.tableName
       })
       let data = reduceJson(state.saveFiledDerivativelList, 'id')
@@ -97,21 +97,20 @@ const setFiled = {
       })
     },
     // 存储输入的显示名称
-    changePushalias ({ state, dispatch }, val) {
+    changePushalias ({ state }, val) {
       state.saveSelectFiled.map((item, index) => {
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
-              state.saveSelectFiled[index].tableName = res.tableName
+              state.saveSelectFiled[index].name = name
             }
           })
         } else {
           if (val.id === item.id) {
-            state.saveSelectFiled[index].tableName = val.tableName
+            state.saveSelectFiled[index].name = val.name
           }
         }
       })
-      dispatch('SaveFiledData')
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
@@ -142,13 +141,13 @@ const setFiled = {
         }
       })
       dispatch('filterFiledTable')
-      dispatch('SaveFiledData')
     },
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state, getters }) {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
+      // console.log(resultVal, '啦啦啦啦', getters.jointResultData.lookups)
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
@@ -181,7 +180,7 @@ const setFiled = {
         })
       })
       state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      console.log('啦啦啦啦', state.reloadNeedData)
+      // console.log('啦啦啦啦', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
@@ -193,24 +192,20 @@ const setFiled = {
           if (String(item.mode) === '1') {
             state.dimensions.push({
               table: item.tableName,
-              tableId: `${item.tableName}.${item.name}`,
-              column: item.titName,
-              id: item.id,
+              column: item.name,
+              // columnType: item.dataType,
               column_type: item.dataType,
-              name: item.name
+              name: item.name ? item.name : item.name
             })
           } else {
             state.dimensions.push({
               table: item.tableName,
-              tableId: `${item.tableName}.${item.name}`,
+              // columnType: item.dataType,
               column_type: item.dataType,
-              id: item.id,
-              derived: item.mode === '1' ? null : item.titName.split(','),
-              name: item.name
+              derived: item.mode === '1' ? null : item.name.split(','),
+              name: item.name ? item.name : item.name
             })
           }
-          state.dimensions = reduceObj(state.dimensions, 'tableId')
-          // console.log('获取的维度啊', state.dimensions)
         }, 300)
       })
     },

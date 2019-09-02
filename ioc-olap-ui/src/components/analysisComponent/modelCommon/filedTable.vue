@@ -51,32 +51,27 @@ export default {
   },
   methods: {
     init () {
-      /**
-       * 1、深拷贝拿到第二步建表生成的数据 this.jointResultData
-       * 2、遍历数据拿到对应的别名（左侧菜单需要展示别名）
-       *
-       */
-      this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
+      // this.dataList = this.saveLeftFiled // 静态数据
+      // console.log(this.jointResultData, '获取')
+      this.dataList = this.jointResultData
       this.dataList.lookups.map((item, index) => {
         this.titleData.push(item.alias)
-        // 取出事实表对应的id以及foreign_key
         if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
-          this.ids = item.joinId
+          this.ids = item.id
           this.primary_key = item.join.foreign_key
         }
       })
-      // 创建一条事实表的数据push到集合里
       let factData = {
         alias: this.dataList.fact_table,
-        id: this.ids,
+        joinId: this.ids,
         table: '',
         joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
         join: {
           foreign_key: this.primary_key
         }
       }
-      this.dataList.lookups = [factData, ...this.dataList.lookups] // 组合数据
-      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])] // 组合事实表的别名跟普通表的别名
+      this.dataList.lookups = [factData, ...this.dataList.lookups]
+      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])]
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
       // 初始化已选择的表
       setTimeout(() => {
@@ -86,17 +81,15 @@ export default {
       // 接收设置表关系的数据
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
-        this.getActiveChange()
-      })
-      this.getActiveChange()
-    },
-    getActiveChange () {
-      this.titleData.forEach((item, index) => {
-        this.saveSelectFiled.forEach((n, i) => {
-          if (item === n.tableName) {
-            this.dataList.lookups[index]['isActive'] = 1
-          }
-        })
+        setTimeout(() => {
+          this.titleData.forEach((item, index) => {
+            this.saveSelectFiled.forEach((n, i) => {
+              if (item === n.tableName) {
+                this.dataList.lookups[index]['isActive'] = 1
+              }
+            })
+          })
+        }, 300)
       })
     },
     cahngges (val) {
@@ -122,13 +115,12 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      console.log(item, '====', this.dataList.fact_table)
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
       // 存储事实表的所有字段
       if (index === 0) {
         this.saveSelectAllList.map((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === this.dataList.lookups[0].id) {
+          if (items.resourceId === this.dataList.lookups[0].joinId) {
             let list = {
               data: items.data.columns,
               list: this.dataList.lookups[0]
@@ -174,9 +166,11 @@ export default {
   },
   computed: {
     ...mapGetters({
+      selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
       jointResultData: 'jointResultData',
+      saveLeftFiled: 'saveLeftFiled',
       saveSelectFiledTree: 'saveSelectFiledTree'
     }),
     getFeact () {

@@ -24,8 +24,8 @@
     	<setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
     <typeAliases>
-<!--        <package name="com.openjava.olapatis.domain"/>-->
-<!--        <package name="com.openjava.olaper.domain"/>-->
+<!--        <package name="com.openjava.platform.mybatis.domain"/>-->
+<!--        <package name="com.openjava.platform.order.domain"/>-->
     </typeAliases>
     <mappers>
 <!--        <mapper resource="com/openjava/example/mybatis/mapper/CityMapper.xml"/>-->

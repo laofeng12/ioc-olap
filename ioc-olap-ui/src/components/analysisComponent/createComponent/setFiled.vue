@@ -17,7 +17,7 @@
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
               <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="name" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
@@ -65,7 +65,8 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: []
+      tableData: [],
+      dimensions: []
     }
   },
   mounted () {
@@ -120,17 +121,16 @@ export default {
         //   }
         // })
         // 获取本地的数据
-        console.log('洗净选择的数据', this.saveSelectFiled)
-        this.saveSelectAllListFiled.forEach((item, index) => {
+        this.saveSelectAllList.forEach((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === data.id) {
+          if (items.resourceId === data.joinId) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
+              n.titName = n.name
               n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
               n.id = `${data.alias}${i}`
               n.filed = data.alias === code ? '1' : '0'
-              return n
             })
             this.tableData = items.data.columns
             let arr = []
@@ -138,7 +138,7 @@ export default {
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                   if (val.id === item.id) {
-                    this.tableData[i].tableName = val.tableName
+                    this.tableData[i].name = val.name
                     this.tableData[i].mode = val.mode
                     arr.push(item)
                   }
@@ -161,11 +161,10 @@ export default {
     },
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      this.saveSelectFiled.forEach(item => {
-      })
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
+      // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
       //   flag = item.filed === '1' ? 0 : 1
       // })
@@ -195,7 +194,7 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
+      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
       this.$refs.dialog.dialog()
     },
     // 输入框监听
@@ -214,11 +213,9 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
-      dimensions: 'dimensions',
-      saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
-      saveSelectAllListFiled: 'saveSelectAllListFiled'
+      saveSelectAllList: 'saveSelectAllList'
     })
   },
   beforeDestroy () {

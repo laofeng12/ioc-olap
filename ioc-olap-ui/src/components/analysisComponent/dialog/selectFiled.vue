@@ -41,7 +41,6 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      console.log('==========', this.saveNewSortListstructure)
       this.dialogFormVisible = true
       this.options = this.saveNewSortListstructure
     }

@@ -1,8 +1,7 @@
 const common = {
   state: {
-    ModelAllList: [], // 所有的数据集合
-    modelSelectData: [],
     /* 建立表关系 */
+    savemousedownData: [], // 存储已拖拽的数据
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
@@ -60,7 +59,6 @@ const common = {
       cube: {
         'cubeDescData': {
           'name': '',
-          'uuid': '',
           'model_name': '',
           'engine_type': 2,
           'description': '',
@@ -189,10 +187,7 @@ const common = {
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       },
-      cubeDatalaketableNew: {},
-      dimensionLength: '',
-      dimensionFiledLength: '',
-      measureFiledLength: ''
+      cubeDatalaketableNew: {}
     }
   },
   actions: {
@@ -206,6 +201,13 @@ const common = {
       }
       state.totalSaveData.cubeDatalaketableNew = {}
       state.totalSaveData.cube.cubeDescData.name = ''
+    },
+    /*
+     *建立表关系
+     */
+    // 存储已拖拽到画布的表
+    SaveMousedownData ({ state }, data) {
+      state.savemousedownData.push(data)
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {

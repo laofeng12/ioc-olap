@@ -2,10 +2,10 @@
   <div class="completeCreate">
     <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
-       <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
-       <el-form-item label="维度表">{{formData.dimensionLength}}</el-form-item>
-       <el-form-item label="维度字段">{{formData.dimensionFiledLength}}</el-form-item>
-       <el-form-item label="度量字段">{{formData.measureFiledLength}}</el-form-item>
+       <el-form-item label="事实表">{{formData.factName}}</el-form-item>
+       <el-form-item label="维度表">{{formData.dimensionName}}</el-form-item>
+       <el-form-item label="维度字段">{{formData.dimensionFiled}}</el-form-item>
+       <el-form-item label="度量字段">{{formData.measureFiled}}</el-form-item>
        <el-form-item label="构建引擎">{{formData.engine}}</el-form-item>
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
@@ -33,9 +33,9 @@ export default {
       completeLoading: false,
       formData: {
         factName: '',
-        dimensionLength: '',
-        dimensionFiledLength: '',
-        measureFiledLength: '',
+        dimensionName: '',
+        dimensionFiled: '',
+        measureFiled: '',
         engine: ''
         // description: '123123'
       }
@@ -52,9 +52,9 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionLength = this.jointResultData.lookups.length
-      this.formData.dimensionFiledLength = this.saveSelectFiled.length
-      this.formData.measureFiledLength = this.measureTableList.length
+      this.formData.dimensionName = this.jointResultData.lookups.length
+      this.formData.dimensionFiled = this.saveSelectFiled.length
+      this.formData.measureFiled = this.measureTableList.length
       this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
@@ -78,6 +78,7 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
+      this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
       this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
       this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
@@ -85,53 +86,22 @@ export default {
           item.columns[0].measure_refs.push('_COUNT_')
         }
       })
+      // this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs = [...new Set(this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family[0].measure_refs)]
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
+      this.totalSaveData.cube.cubeDescData.engine_type = this.engine_types
       this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
       this.totalSaveData.timingreFresh.interval = Number(this.reloadData.INTERVAL)
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
-      this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
-      this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
-      this.totalSaveData.measureFiledLength = this.measureTableList.length
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      // models放入所有选择的表字段
-      // this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
-      console.log(this.rowkeyData, '李帆', this.saveSelectAllListFiled)
-      let dest = []
-      this.saveSelectAllListFiled.map((item, index) => {
-        let data = JSON.parse(item)
-        this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
-          if (data.resourceId === n.id) {
-            dest.push({
-              table: n.alias,
-              columns: data.data.columns.map(res => {
-                return res.name
-              })
-            })
-          }
-        })
-        if (this.jointResultData.fact_table.substring(this.jointResultData.fact_table.indexOf('.') + 1) === data.name) {
-          dest.push({
-            table: data.name,
-            columns: data.data.columns.map(res => {
-              return res.name
-            })
-          })
-        }
-        return dest
-      })
-      // console.log('最终的', dest)
-      this.totalSaveData.models.modelDescData.dimensions = dest
     },
-    // 处理 dimensions（选择维度）
-
     nextModel (val) {
       console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {
@@ -163,7 +133,6 @@ export default {
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
       selectDataidList: 'selectDataidList',
       reloadNeedData: 'reloadNeedData',
-      saveSelectAllListFiled: 'saveSelectAllListFiled', // 建表后对应的所有字段
       engine_types: 'engine_types', // 构建引擎
       hbase_mapping: 'hbase_mapping', // 高级组合
       aggregation_groups: 'aggregation_groups', // 聚合

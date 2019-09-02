@@ -17,6 +17,7 @@
          class="statusDiv"
         tooltip-effect="dark"
         @row-click="clickTable"
+        @selection-change="handleSelectionChange"
         style="width: 100%;margin-top: 10px;">
         <el-table-column align="center" show-overflow-tooltip type="expand">
           <template>
@@ -55,7 +56,9 @@
         </el-table-column>
         <el-table-column label="模型来源" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>自建</div>
+            <div>
+               {{scope.row.modelSource ? '共享' : '自建'}}
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -70,6 +73,7 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
+                  <!-- <el-dropdown-item :command="{type: 'merge', params: scope.row}">合并</el-dropdown-item> -->
                   <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
@@ -81,17 +85,17 @@
           </template>
         </el-table-column>
       </el-table>
-    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
-    <clones ref="clones"></clones>
-    <construct ref="construct"></construct>
-    <reloads ref="reloads"></reloads>
-    <merge ref="merge"></merge>
-    <sharedTable ref="sharedTable"></sharedTable>
+      <!-- <element-pagination :total="totalCount" :pageSize="pageSize" :currentPage="currentPage" @handleCurrentChange="handleCurrentChange" @handleSizeChange="handleSizeChange"></element-pagination> -->
+      <clones ref="clones"></clones>
+      <construct ref="construct"></construct>
+      <reloads ref="reloads"></reloads>
+      <merge ref="merge"></merge>
+      <sharedTable ref="sharedTable"></sharedTable>
   </div>
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime } from '@/utils/index'
@@ -114,9 +118,7 @@ export default {
       // 要展开的行，数值的元素是row的key值
       expands: [],
       tableData: [],
-      jsonData: {},
-      offset: 0,
-      moreShow: true
+      jsonData: {}
     }
   },
   filters: {
@@ -129,25 +131,21 @@ export default {
     this.init()
   },
   methods: {
-    async init (val) {
+    init (val) {
       this.getLoading = true
       const params = {
-        limit: 15,
-        offset: this.offset,
-        dateType: 1,
+        limit: 50,
+        offset: 0,
         ...val
       }
-      const res = await getModelDataList(params)
-      if (res.length > 0) {
-        this.tableData = [...this.tableData, ...res]
-      } else {
-        this.moreShow = false
-        // this.$message.success('已加载所有数据')
-      }
-      this.getLoading = false
+      getModelDataList(params).then(res => {
+        this.tableData = res
+        this.getLoading = false
+      })
     },
     searchFetch (val) {
       this.init(val)
+      console.log(val)
     },
     createolap () {
       this.$router.push('/analysisModel/createolap/selectStep')
@@ -183,7 +181,12 @@ export default {
       }
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
-        this.jsonData = { cubeName: params.name, models: params.model }
+        descDataList({ cubeName: params.name, models: params.model }).then(res => {
+          if (res) {
+            this.jsonData = res
+            // console.log(JSON.stringify(res.ModesList.lookups), '==============')
+          }
+        })
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {
@@ -250,14 +253,6 @@ export default {
           })
         }
       }
-      if (type === 'lookUserModal') {
-        return this.$router.push({
-          path: '/analysisModel/createolap/selectStep',
-          query: {
-            cubeName: params.name, models: params.model
-          }
-        })
-      }
       this.$refs[type].dialog(params)
     },
     closeExpands () {
@@ -280,10 +275,6 @@ export default {
     },
     handleSelectionChange () {
 
-    },
-    moreData () {
-      this.offset += 15
-      this.init()
     }
   }
 }
@@ -327,15 +318,6 @@ export default {
       left 0
       width 100%
     }
-  }
-  .more {
-    height 40px
-    line-height 40px
-    background-color #409EFF
-    color #ffffff
-    margin-top 30px
-    text-align center
-    cursor pointer
   }
 }
 </style>
