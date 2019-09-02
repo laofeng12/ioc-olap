@@ -7,15 +7,15 @@
     </div>
     <div>
       <span>维度表</span>
-      <span>{{jsonData.dimensionLength}}</span>
+      <span>{{jsonData.dimensionLength || '10'}}</span>
     </div>
     <div>
       <span>维度字段</span>
-      <span>{{jsonData.dimensionFiledLength}}</span>
+      <span>{{jsonData.dimensionFiledLength || '5'}}</span>
     </div>
     <div>
       <span>度量字段</span>
-      <span>{{jsonData.measureFiledLength}}</span>
+      <span>{{jsonData.measureFiledLength || '2'}}</span>
     </div>
     <div>
       <span>构建引擎</span>

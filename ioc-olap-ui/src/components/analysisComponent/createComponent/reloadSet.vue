@@ -15,7 +15,7 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率" v-if="formData.autoReload">
+        <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
               <el-input type="text" v-model="formData.interval"></el-input>
@@ -148,6 +148,9 @@ export default {
         ],
         data2b: [
           { required: false, message: '请选择日期字段', trigger: 'change' }
+        ],
+        interval: [
+          { required: true, message: '请填写更新频率', trigger: 'blur' }
         ]
       }
     }
@@ -169,7 +172,7 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
+      // console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
