@@ -102,12 +102,12 @@ const setFiled = {
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
-              state.saveSelectFiled[index].tableName = res.tableName
+              state.saveSelectFiled[index].name = name
             }
           })
         } else {
           if (val.id === item.id) {
-            state.saveSelectFiled[index].tableName = val.tableName
+            state.saveSelectFiled[index].name = val.name
           }
         }
       })

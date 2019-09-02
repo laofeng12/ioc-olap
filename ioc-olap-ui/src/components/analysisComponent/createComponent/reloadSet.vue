@@ -160,6 +160,7 @@ export default {
   },
   methods: {
     init () {
+      console.log('==========', this.SaveFactData)
       this.tableOptions = [...this.selectTableTotal]
       this.tableData = this.relaodFilterList
       this.formData = this.reloadData
@@ -245,6 +246,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
+      SaveFactData: 'SaveFactData',
       reloadData: 'reloadData',
       saveSelectAllList: 'saveSelectAllList',
       totalSaveData: 'totalSaveData'
