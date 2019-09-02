@@ -37,9 +37,9 @@
           <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
         </div>
       </div>
-      <DynamicTable class="allScreen" :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
+      <DynamicTable :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
                     :canClick="(drillDown && 'drillDown') || (transversedrillDown && 'transversedrillDown')"
-                    @tdClick="tdClick" :pageData="pageData"></DynamicTable>
+                    @tdClick="tdClick" :pageData="pageData" :page="page"></DynamicTable>
     </div>
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
@@ -112,6 +112,10 @@ export default {
     pageData: {
       type: Object,
       default: () => ({})
+    },
+    page: {
+      type: Number,
+      default: 1
     }
   },
   components: { DynamicTable },

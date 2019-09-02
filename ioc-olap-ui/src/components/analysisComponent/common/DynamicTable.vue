@@ -1,6 +1,6 @@
 <template>
   <div class="con">
-    <div class="showCon" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; max-height: ${tableBoxHeight}px`">
+    <div class="showCon allScreen" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; max-height: ${tableBoxHeight}px`">
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
           <tr v-for="(item, index) in tableData" :key="index">
@@ -17,7 +17,7 @@
     </div>
     <div class="page dis-flex" v-if="pageData.pageSize && tableData.length > 0">
       <el-pagination class="pagination" background layout="prev, pager, next" :total="pageData.totalRows"
-                     :page-size="pageData.pageSize" @current-change="handleCurrentChange"></el-pagination>
+                     :page-size="pageData.pageSize" @current-change="handleCurrentChange" :current-page.sync="page"></el-pagination>
       <div class="row dis-flex">
         <div>查询行数：</div>
         <el-input class="input center-input" v-model="input" size="mini"></el-input>
@@ -48,6 +48,10 @@ export default {
     pageData: {
       type: Object,
       default: () => ({})
+    },
+    page: {
+      type: Number,
+      default: 1
     }
   },
   data () {
@@ -66,7 +70,7 @@ export default {
   },
   created () {
     this.tableBoxWidth = document.body.offsetWidth - this.diffWidth
-    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 300 : document.body.offsetHeight - 260
+    this.tableBoxHeight = this.isPop ? document.body.offsetHeight - 320 : document.body.offsetHeight - 300
   },
   methods: {
     tdClick (item, type) {
