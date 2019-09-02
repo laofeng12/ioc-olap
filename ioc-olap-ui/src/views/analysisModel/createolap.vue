@@ -872,7 +872,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('SaveModelAllList', this.json)
+      // this.$store.dispatch('SaveModelAllList', this.json)
       if (this.$route.query.cubeName) {
         this.isLoading = true
         let { cubeName, models } = this.$route.query

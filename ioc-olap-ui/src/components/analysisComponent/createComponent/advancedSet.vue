@@ -74,14 +74,14 @@
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <!-- <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="isOutput"></el-input> -->
-                  <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="changeShardby">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -221,7 +221,6 @@ export default {
         })
         return arr
       })
-      // debugger
       this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     resortAggregation () {
@@ -239,7 +238,6 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
-      console.log(this.measureTableList.length, '====')
       let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
       let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
       if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
@@ -330,14 +328,6 @@ export default {
         findIndex: findIndex
       }
       this.$store.dispatch('RmtagList', list)
-    },
-    // 改变对应的长度格式
-    encodingIpt () {
-      // console.log(this.rowkey.rowkey_columns)
-    },
-    changeShardby () {
-      // this.$store.dispatch('SaveRowkeyList', )
-      // console.log(this.rowkey.rowkey_columns)
     }
   },
   computed: {
