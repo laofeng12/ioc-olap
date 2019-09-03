@@ -74,6 +74,10 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 		olapCubeRepository.deleteById(id);
 	}
 
+	public void deleteCubeName(String cubeName) {
+		olapCubeRepository.deleteCubeName(cubeName);
+	}
+
 	public List<OlapCube> getOlapShareByShareUserId(String shareUserId) {
 		return olapCubeRepository.getOlapShareByShareUserId(shareUserId);
 	}

@@ -2,9 +2,11 @@ package com.openjava.olap.repository;
 
 import com.openjava.olap.domain.OlapCube;
 import org.ljdp.core.spring.data.DynamicJpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +17,10 @@ import java.util.Optional;
  *
  */
 public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>, OlapCubeRepositoryCustom{
-
-//    ArrayList<OlapCube> findByUserId(Long userId);
+    @Transactional
+    @Modifying
+    @Query(value = "delete from OLAP_CUBE t where t.NAME=:cubeName", nativeQuery = true)
+    void deleteCubeName(@Param("cubeName") String cubeName);
 
     @Query(value = "select t.* from OLAP_CUBE t where  t.CREATE_ID=:createId", nativeQuery = true)
     List<OlapCube> findByUserId(@Param("createId") Long createId);

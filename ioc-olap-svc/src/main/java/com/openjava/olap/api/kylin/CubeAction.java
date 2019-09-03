@@ -64,11 +64,7 @@ public class CubeAction extends KylinAction {
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
         CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
-        if (result == null) {
-            //立方体不成功则删除models
-            modelsAction.delete(modelName);
-            throw new APIException(400, "网络错误!");
-        }
+
         return result;
     }
 

@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("构建选择表")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_DATALAKETABLE")
 public class OlapDatalaketable implements Persistable<Long>,Serializable {

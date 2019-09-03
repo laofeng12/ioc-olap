@@ -31,6 +31,6 @@ public interface OlapFilterService {
     OlapFilter doSave(OlapFilter m);
 
     void doDelete(Long id);
-
+    void deleteCubeName(String cubeName);
     void doRemove(String ids);
 }
