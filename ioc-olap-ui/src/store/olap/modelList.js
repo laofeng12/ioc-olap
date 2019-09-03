@@ -1,6 +1,8 @@
-import { getModelDataList, jobsListModeling, buildModeling, cloneModeling, disableModeling, enableModeling, descDataList } from '@/api/modelList'
+import { getModelDataList, jobsListModeling } from '@/api/modelList'
 const modelList = {
   state: {
+    /* 度量 */
+    measureTableList: [],
     /* 模型列表 */
     modelListData: [],
     cubeObjListData: [],
