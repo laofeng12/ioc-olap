@@ -67,7 +67,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.selectTableTotal, '=====', this.jointResultData.fact_table)
       this.fact_tableName = this.jointResultData.fact_table.split('.')[1]
       this.dataList = [...this.selectTableTotal] || []
       this.checkFactFile()

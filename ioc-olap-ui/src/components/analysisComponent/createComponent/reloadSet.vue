@@ -38,7 +38,7 @@
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期格式">
+        <el-form-item label="日期格式" prop="partition_date_format">
           <el-select v-model="formData.partition_date_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
@@ -149,6 +149,9 @@ export default {
         data2b: [
           { required: false, message: '请选择日期字段', trigger: 'change' }
         ],
+        partition_date_format: [
+          { required: false, message: '请选择日期格式', trigger: 'change' }
+        ],
         interval: [
           { required: true, message: '请填写更新频率', trigger: 'blur' }
         ]
@@ -160,8 +163,8 @@ export default {
   },
   methods: {
     init () {
-      console.log('==========', this.SaveFactData)
-      this.tableOptions = [...this.selectTableTotal]
+      this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
+      this.fetchDeac(this.tableOptions[0].label)
       this.tableData = this.relaodFilterList
       this.formData = this.reloadData
     },
@@ -173,7 +176,8 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
-      // console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
+      if (this.formData.data1a) this.rules.data1b[0].required = true
+      if (this.formData.data1b) this.rules.partition_date_format[0].required = true
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -191,24 +195,27 @@ export default {
     visibleData (type) {
       this.idx = type
     },
-    selectTable (val) {
-      const params = {
-        dsDataSourceId: 2,
-        tableName: val
-      }
+    fetchDeac (val) {
       let valId = this.selectTableTotal.filter((res, index) => {
         return res.label === val
       })
-      // this.idx === 0 ? this.formData.data1b = '' : this.formData.data2b = ''
-      // this.$store.dispatch('GetColumnList', params).then(res => {
-      //   this.textOptions = res.data
-      // })
       this.saveSelectAllList.forEach((item, index) => {
         let items = JSON.parse(item)
         if (items.resourceId === valId[0].id) {
           this.textOptions = items.data.columns
         }
       })
+    },
+    selectTable (val) {
+      this.fetchDeac(val)
+      const params = {
+        dsDataSourceId: 2,
+        tableName: val
+      }
+      // this.idx === 0 ? this.formData.data1b = '' : this.formData.data2b = ''
+      // this.$store.dispatch('GetColumnList', params).then(res => {
+      //   this.textOptions = res.data
+      // })
       // this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
       //   if (res) {
       //     this.textOptions = res.data.columns

@@ -1,16 +1,6 @@
 <template>
   <div class="factTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <!-- <ul v-if="titleData && titleData.length">
-       <li v-for="(item, index) in titleData"
-        :class="item.isActive===1?'actives':''"
-        :style="{color: current===index?colors:''}"
-        :key="index" @click="changeLi(item, index)">
-         <i class="el-icon-date" style="margin-right:3px;"></i>
-         {{titleData[index]}}
-         <span v-if="titleData[index]===getFeact">事实表</span>
-       </li>
-     </ul> -->
      <ul v-if="dataList.lookups && dataList.lookups.length">
        <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
@@ -122,7 +112,7 @@ export default {
       //   this.$store.dispatch('SaveList', res.data)
       // })
       // kelin
-      console.log(item, '====', this.dataList.fact_table)
+      // console.log(item, '====', this.dataList.fact_table)
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
       // 存储事实表的所有字段
       if (index === 0) {
