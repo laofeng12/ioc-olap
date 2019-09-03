@@ -163,6 +163,9 @@ export default {
   },
   methods: {
     init () {
+      // console.log(this.reloadData, this.selectTableTotal, '===', this.jointResultData.fact_table.split('.')[1])
+      this.selectTableTotal = this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
+      console.log(this.selectTableTotal)
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
       this.fetchDeac(this.tableOptions[0].label)
       this.tableData = this.relaodFilterList
@@ -208,10 +211,10 @@ export default {
     },
     selectTable (val) {
       this.fetchDeac(val)
-      const params = {
-        dsDataSourceId: 2,
-        tableName: val
-      }
+      // const params = {
+      //   dsDataSourceId: 2,
+      //   tableName: val
+      // }
       // this.idx === 0 ? this.formData.data1b = '' : this.formData.data2b = ''
       // this.$store.dispatch('GetColumnList', params).then(res => {
       //   this.textOptions = res.data
@@ -253,6 +256,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
+      jointResultData: 'jointResultData',
       SaveFactData: 'SaveFactData',
       reloadData: 'reloadData',
       saveSelectAllList: 'saveSelectAllList',

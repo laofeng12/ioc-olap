@@ -3,7 +3,7 @@
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-button type="text" @click="changes">设置事实表</el-button>
      <ul v-if="dataList && dataList.length" onselectstart = "return false">
-       <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
+       <li onselectstart = "return false" v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
          <span v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>

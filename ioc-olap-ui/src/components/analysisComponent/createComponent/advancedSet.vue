@@ -232,9 +232,6 @@ export default {
       })
     },
     nextModel (val) {
-      if (this.iscubeMatch() === '1') {
-        return this.$message.warning('已选维度与rowkers数量不对应~')
-      }
       if (this.judgeSuccess()) {
         return
       }
@@ -331,25 +328,6 @@ export default {
         findIndex: findIndex
       }
       this.$store.dispatch('RmtagList', list)
-    },
-    // 判断模型的维度是否匹配
-    iscubeMatch () {
-      let rowkeyDataVal = this.rowkeyData.rowkey_columns.map(res => {
-        return res.column
-      })
-      let dimensionsVal = this.dimensions.map(res => {
-        return res.tableId
-      })
-      console.log(dimensionsVal, '===========', rowkeyDataVal)
-      let isRowkey = ''
-      dimensionsVal.map(res => {
-        if (rowkeyDataVal.includes(res)) {
-          isRowkey = 1
-        } else {
-          isRowkey = 0
-        }
-      })
-      return isRowkey
     },
     // 改变对应的长度格式
     encodingIpt () {

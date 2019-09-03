@@ -228,7 +228,7 @@ const common = {
       // 赋值第二步模型的表
       getters.jointResultData.lookups = data.ModesList.lookups
       getters.jointResultData.fact_table = data.ModesList.fact_table
-      console.log('表的数据', getters.jointResultData.lookups)
+      // console.log('表的数据', getters.jointResultData.lookups)
       // 赋值第三步
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)
@@ -249,15 +249,17 @@ const common = {
         getters.measureTableList.push(item)
       })
       // 赋值第五步
-      // getters.reloadData.frequencytype = data.timingreFresh.frequencytype
-      // getters.reloadData.autoReload = !!data.timingreFresh.interval
-      // getters.reloadData.interval = Number(data.timingreFresh.interval)
-      // getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
-      // let result = data.ModesList.partition_desc.partition_date_column
-      // getters.reloadData.data1a = result.split('.')[0]
-      // getters.reloadData.data1b = result.split('.')[1]
-      // getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
-      // getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+      getters.reloadData.frequencytype = data.timingreFresh.frequencytype
+      getters.reloadData.autoReload = !!data.timingreFresh.interval
+      getters.reloadData.interval = Number(data.timingreFresh.interval)
+      getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
+      let result = data.ModesList.partition_desc.partition_date_column
+      getters.reloadData.data1a = result.split('.')[0]
+      getters.reloadData.data1b = result.split('.')[1]
+      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+      getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+      console.log(data.filterCondidion, '1')
+      data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
 
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
@@ -278,7 +280,7 @@ const common = {
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       console.log(getters)
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
-      console.log('第六步===', getters.aggregation_groups)
+      // console.log('第六步===', getters.aggregation_groups)
     }
   }
 }
