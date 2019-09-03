@@ -14,24 +14,27 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * 构建定时任务业务层接口
- * @author zy
  *
+ * @author zy
  */
 public interface OlapTimingrefreshService {
-	Page<OlapTimingrefresh> query(OlapTimingrefreshDBParam params, Pageable pageable);
+    Page<OlapTimingrefresh> query(OlapTimingrefreshDBParam params, Pageable pageable);
 
-	List<OlapTimingrefresh> queryDataOnly(OlapTimingrefreshDBParam params, Pageable pageable);
+    List<OlapTimingrefresh> queryDataOnly(OlapTimingrefreshDBParam params, Pageable pageable);
 
-	List<OlapTimingrefresh> findTiming(int frequencyType);
+    List<OlapTimingrefresh> findTiming(int frequencyType);
 
-	OlapTimingrefresh findTableInfo(String cubeName, Long createId);
+    OlapTimingrefresh findTableInfo(String cubeName, Long createId);
 
-	OlapTimingrefresh get(Long id);
+    OlapTimingrefresh get(Long id);
 
-	OlapTimingrefresh doSave(OlapTimingrefresh m);
+    OlapTimingrefresh doSave(OlapTimingrefresh m);
 
-	void doDelete(Long id);
-	void doRemove(String ids);
+    void deleteCubeName(String cubeName);
 
-	void timingTasks(OlapTimingrefresh olapTimingrefresh, CubeDescMapper cube, Date date, OaUserVO userVO);
+    void doDelete(Long id);
+
+    void doRemove(String ids);
+
+    void timingTasks(OlapTimingrefresh olapTimingrefresh, CubeDescMapper cube, Date date, OaUserVO userVO);
 }

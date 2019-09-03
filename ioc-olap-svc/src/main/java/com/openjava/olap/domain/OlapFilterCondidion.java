@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("过滤条件")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_FILTER_CONDIDION")
 public class OlapFilterCondidion implements Persistable<Long>,Serializable {

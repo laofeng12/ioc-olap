@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("立方体关系")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_CUBE_TABLE_RELATION")
 public class OlapCubeTableRelation implements Persistable<Long>,Serializable {

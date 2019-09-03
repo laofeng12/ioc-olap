@@ -33,6 +33,8 @@ public interface OlapCubeService {
 
 	void doDelete(Long id);
 
+	void deleteCubeName(String cubeName);
+
 	void doRemove(String ids);
 
 	List<OlapCube> findByUserId(Long createId);

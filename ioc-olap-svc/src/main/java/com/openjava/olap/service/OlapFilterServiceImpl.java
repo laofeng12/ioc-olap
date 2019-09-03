@@ -65,6 +65,10 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 		return olapFilterRepository.save(m);
 	}
 
+	public void deleteCubeName(String cubeName) {
+		olapFilterRepository.deleteCubeName(cubeName);
+	}
+
 	public void doDelete(Long id) {
 		olapFilterRepository.deleteById(id);
 	}

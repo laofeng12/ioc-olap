@@ -6,35 +6,35 @@
           <div class="aggregation_head">
             <span>维度分组聚合</span>
           </div>
-          <el-card class="box-card" v-for="(item, index) in list.totalSaveList" :key="index">
+          <el-card class="box-card" v-for="(item, index) in list.aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
             </div>
             <div class="item_box">
               <span>包含维度</span>
               <div class="box_r">
-                <el-tag type="" v-for="(n, i) in item.containData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" v-for="(n, i) in item.includes" :key="i"><h6>{{n}}</h6></el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r">
-                <el-tag type="" v-for="(n, i) in item.necessaryData" :key="i" closable>{{n.columnName}}</el-tag>
+                <el-tag type="" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i"><h6>{{n}}</h6></el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
-              <div class="adds" v-for="(itemData, i) in item.levelData" :key="i">
+              <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div>
-                  <el-tag v-for="(n, q) in itemData" :key="q" closable>{{n.columnName}}</el-tag>
+                  <el-tag v-for="(n, q) in itemData" :key="q"><h6>{{n}}</h6></el-tag>
                 </div>
               </div>
             </div>
             <div class="item_box noflex">
               <span>联合维度</span>
-              <div class="adds" v-for="(jsonData, t) in item.jointData" :key="t">
+              <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div>
-                  <el-tag v-for="(x, y) in jsonData" :key="y" closable>{{x.columnName}}</el-tag>
+                  <el-tag v-for="(x, y) in jsonData" :key="y"><h6>{{x}}</h6></el-tag>
                 </div>
               </div>
             </div>
@@ -42,36 +42,27 @@
         </div>
         <div class="setRowkeys">
           <p style="margin:20px 0">Rowkeys设置</p>
-          <el-table
-            :data="list.tableData"
-            ref="multipleTable"
-            tooltip-effect="dark"
-            style="margin-top: 10px;">
-            <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
-            <el-table-column label="编码类型" align="center" prop="type"></el-table-column>
-            <el-table-column label="长度" width="100" align="center" prop="length"></el-table-column>
-            <el-table-column prop="apiPaths" label="碎片区" align="center"></el-table-column>
-          </el-table>
+          <element-table :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
         </div>
         <div class="listSet">
           <span>维度黑白名单设置</span>
           <div class="listSet__box">
-            <div class="adds" v-for="(n, i) in list.savedimensionData" :key="i">
+            <div class="adds" v-for="(n, i) in list.mandatory_dimension_set_list" :key="i">
               <div>
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag v-for="(x, y) in n" :key="y"><h6>{{x}}</h6></el-tag>
               </div>
             </div>
           </div>
         </div>
         <el-form-item label="模型构建引擎">
-          {{list.val}}
+          {{list.engine_type === '1' ? 'MapReduce' : 'Spark' }}
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>
-          <div class="listSet__box hetCompose__box">
-            <div class="adds" v-for="(n, i) in list.savehetComposeData" :key="i">
+          <div class="listSet__box hetCompose__box" v-if="list.hbase_mapping">
+            <div class="adds" v-for="(n, i) in list.hbase_mapping.column_family" :key="i">
               <div>
-                <el-tag v-for="(x, y) in n" :key="y" closable>{{x.columnName}}</el-tag>
+                <el-tag v-for="(x, y) in n.columns[0].measure_refs" :key="y"><h6>{{x}}</h6></el-tag>
               </div>
             </div>
           </div>
@@ -81,27 +72,35 @@
 </template>
 
 <script>
+import elementTable from '@/components/ElementTable/index'
 export default {
+  components: {
+    elementTable
+  },
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
+  },
   data () {
     return {
-      list: {
-        totalSaveList: [
-          {
-            containData: [],
-            necessaryData: [],
-            levelData: [{}],
-            jointData: [{}]
-          }
-        ],
-        tableData: [
-          { columnName: '啦啦啦啦', type: 'string', length: '10', apiPaths: '是' },
-          { columnName: '啦啦啦啦', type: 'string', length: '10', apiPaths: '是' },
-          { columnName: '啦啦啦啦', type: 'string', length: '10', apiPaths: '是' }
-        ],
-        val: 'lalal',
-        savedimensionData: [{}],
-        savehetComposeData: [{}]
-      }
+      list: {},
+      descriptionData: [
+        { index: '1', name: 'USER_ID', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '2', name: 'USER_ID1', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '3', name: 'USER_ID2', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '4', name: 'USER_ID3', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '5', name: 'USER_ID4', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '6', name: 'USER_ID5', expression: 'string', value: '用户标识', returntype: '正常模式' },
+        { index: '7', name: 'USER_ID6', expression: 'string', value: '用户标识', returntype: '正常模式' }
+      ],
+      descriptionHead: [
+        { prop: 'index', label: '序号 ' },
+        { prop: 'name', label: '表名称' },
+        { prop: 'expression', label: '字段' },
+        { prop: 'value', label: '过滤方式' },
+        { prop: 'returntype', label: '过滤值' }
+      ]
     }
   },
   mounted () {
@@ -109,6 +108,12 @@ export default {
   },
   methods: {
     init () {
+      if (this.jsonData) {
+        let { aggregation_groups, rowkey, hbase_mapping, mandatory_dimension_set_list, engine_type } = this.jsonData.CubeList[0]
+        this.list = this.jsonData.CubeList[0]
+        if (mandatory_dimension_set_list.length < 1) this.list.mandatory_dimension_set_list = [[]]
+        console.log(this.list)
+      }
     }
   }
 }
@@ -150,20 +155,25 @@ export default {
           border 1px solid #cccccc
           flex 1
           padding 25px
-          cursor pointer
         }
         >>>.el-tag{
-          width 30%
+          width 31%
           float left
           margin-left 1%
           margin-bottom 10px
-          font-size 11px
+          font-size 8px
           text-align center
           background #FBFBFB
           color #555555
           i{
             float right!important
             margin-top 8px
+          }
+          h6{
+            text-overflow: ellipsis;
+            float left
+            width: 90%;
+            overflow: hidden;
           }
         }
         .adds{
@@ -231,17 +241,23 @@ export default {
         }
       }
       >>>.el-tag{
-          width 30%
+          width 32%
           float left
           margin-left 1%
           margin-bottom 10px
-          font-size 11px
+          font-size 8px
           text-align center
           background #FBFBFB
           color #555555
           i{
             float right!important
             margin-top 8px
+          }
+          h6{
+            text-overflow: ellipsis;
+            float left
+            width: 90%;
+            overflow: hidden;
           }
         }
     }

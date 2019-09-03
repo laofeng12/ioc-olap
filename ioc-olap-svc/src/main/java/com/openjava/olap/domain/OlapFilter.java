@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("构建过滤")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_FILTER")
 public class OlapFilter implements Persistable<Long>,Serializable {
