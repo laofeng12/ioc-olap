@@ -182,11 +182,6 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 				String columnTypePk = lk.join.getPk_type().get(i);
 				saveColumn(column, dmEntity, joinPk, columnTypePk, cubeId);
 			}
-//            for (int i = 0; i < lk.join.getPrimary_key().length; i++) {
-//                String join = lk.join.getPrimary_key()[i];
-//                String columnType = lk.join.getPk_type().get(i);
-//                saveColumn(column, dmEntity, join, columnType, cubeId);
-//            }
 		}
 	}
 
