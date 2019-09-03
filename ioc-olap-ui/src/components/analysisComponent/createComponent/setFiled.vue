@@ -65,8 +65,7 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      dimensions: []
+      tableData: []
     }
   },
   mounted () {
@@ -121,9 +120,10 @@ export default {
         //   }
         // })
         // 获取本地的数据
-        this.saveSelectAllList.forEach((item, index) => {
+        console.log('洗净选择的数据', this.saveSelectFiled)
+        this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
-          if (items.resourceId === data.joinId) {
+          if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
@@ -161,10 +161,11 @@ export default {
     },
     nextModel (val) {
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
+      this.saveSelectFiled.forEach(item => {
+      })
       this.$router.push('/analysisModel/createolap/setMeasure')
       this.$parent.getStepCountAdd(val)
       // let flag
-      // console.log(this.saveSelectFiled)
       // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
       //   flag = item.filed === '1' ? 0 : 1
       // })
@@ -194,7 +195,7 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
     // 输入框监听
@@ -213,9 +214,11 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
+      dimensions: 'dimensions',
+      saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
-      saveSelectAllList: 'saveSelectAllList'
+      saveSelectAllListFiled: 'saveSelectAllListFiled'
     })
   },
   beforeDestroy () {

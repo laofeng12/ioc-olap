@@ -18,21 +18,26 @@ export default {
       type: [Object, Array]
     }
   },
+  watch: {
+    jsonData () {
+      this.init()
+    }
+  },
   data () {
     return {
       descriptionData: [
-        { index: '1', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '2', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '3', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '4', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '5', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '6', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        { index: '7', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' }
+        // { index: '1', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '2', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '3', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '4', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '5', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '6', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
+        // { index: '7', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' }
       ],
       descriptionHead: [
         { prop: 'index', label: '序号 ' },
-        { prop: 'dataType', label: '来源' },
-        { prop: 'columnName', label: '表名称' }
+        { prop: 'type', label: '来源' },
+        { prop: 'table_name', label: '表名称' }
       ]
     }
   },
@@ -42,7 +47,9 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        // console.log('父亲来的', this.jsonData)
+        this.descriptionData = this.jsonData.TableList && this.jsonData.TableList[0].tableList.map((res, index) => {
+          return { index: index + 1, type: res.type === 1 ? '数据湖' : '本地上传', table_name: res.table_name }
+        })
       }
     }
   }

@@ -15,10 +15,10 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率" v-if="formData.autoReload">
+        <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.INTERVAL"></el-input>
+              <el-input type="text" v-model="formData.interval"></el-input>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -56,7 +56,7 @@
           </template>
         </el-form-item>
         <div v-if="formData.partition_type">
-        <el-form-item label="日期字段表" class="datarowmore">
+        <!-- <el-form-item label="日期字段表" class="datarowmore">
           <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
@@ -65,7 +65,7 @@
           <el-select v-model="formData.data2b" placeholder="请选择日期字段">
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.id"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="日期格式">
           <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
@@ -78,7 +78,7 @@
           ref="multipleTable"
           tooltip-effect="dark"
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" prop="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
@@ -134,18 +134,8 @@ export default {
         interval: null,
         frequencytype: 1
       },
-      tableOptions: [
-        // { label: 'a' },
-        // { label: 'b' },
-        // { label: 'c' }
-      ],
-      textOptions: [
-        // { comment: 'aaa', columnName: 'aaa' },
-        // { comment: 'bbb', columnName: 'bbb' },
-        // { comment: 'vccc', columnName: 'vccc' },
-        // { comment: 'vvvv', columnName: 'vvvv' },
-        // { comment: 'bbbbb', columnName: 'bbbbb' }
-      ],
+      tableOptions: [],
+      textOptions: [],
       formatOptions: [
         { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
         { id: 2, value: 'yyyy-MM-dd' },
@@ -158,6 +148,9 @@ export default {
         ],
         data2b: [
           { required: false, message: '请选择日期字段', trigger: 'change' }
+        ],
+        interval: [
+          { required: true, message: '请填写更新频率', trigger: 'blur' }
         ]
       }
     }
@@ -167,6 +160,7 @@ export default {
   },
   methods: {
     init () {
+      console.log('==========', this.SaveFactData)
       this.tableOptions = [...this.selectTableTotal]
       this.tableData = this.relaodFilterList
       this.formData = this.reloadData
@@ -179,6 +173,7 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
+      // console.log('刷新的', this.totalSaveData.models.modelDescData.partition_desc)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -189,13 +184,6 @@ export default {
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/setMeasure')
-    },
-    verification () {
-      this.$refs.formData.validate((valid) => {
-        if (valid) {
-
-        }
-      })
     },
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
@@ -258,6 +246,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       relaodFilterList: 'relaodFilterList',
+      SaveFactData: 'SaveFactData',
       reloadData: 'reloadData',
       saveSelectAllList: 'saveSelectAllList',
       totalSaveData: 'totalSaveData'
