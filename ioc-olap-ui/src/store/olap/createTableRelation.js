@@ -47,7 +47,8 @@ const creatTableRelation = {
           state.foreignKeyData.push(res.join.foreign_key.join(','))
         }
       })
-      console.log('foreignKeyData===', [...new Set(state.foreignKeyData)])
+      state.foreignKeyData = [...new Set(state.foreignKeyData)]
+      // console.log('foreignKeyData===', [...new Set(state.foreignKeyData)])
     }
   },
   actions: {
@@ -58,6 +59,7 @@ const creatTableRelation = {
         fact_table: '',
         lookups: []
       }
+      state.foreignKeyData = []
     }
   }
 }

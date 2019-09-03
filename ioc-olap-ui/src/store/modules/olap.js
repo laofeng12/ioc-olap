@@ -206,6 +206,7 @@ const common = {
       }
       state.totalSaveData.cubeDatalaketableNew = {}
       state.totalSaveData.cube.cubeDescData.name = ''
+      state.totalSaveData.cube.cubeDescData.description = ''
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {

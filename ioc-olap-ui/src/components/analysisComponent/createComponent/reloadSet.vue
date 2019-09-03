@@ -163,9 +163,7 @@ export default {
   },
   methods: {
     init () {
-      // console.log(this.reloadData, this.selectTableTotal, '===', this.jointResultData.fact_table.split('.')[1])
-      this.selectTableTotal = this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
-      console.log(this.selectTableTotal)
+      this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
       this.fetchDeac(this.tableOptions[0].label)
       this.tableData = this.relaodFilterList
