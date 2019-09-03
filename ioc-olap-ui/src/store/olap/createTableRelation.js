@@ -31,14 +31,24 @@ const creatTableRelation = {
         //   }
         // }
       ]
-    }
+    },
+    // 存储连后对应的fk
+    foreignKeyData: []
   },
   mutations: {
     SaveJointResult (state, payload) {
       state.jointResultData = payload
-    },
-    SaveJointResultLookups (state, payload) {
-      state.jointResultData.lookups = payload
+      payload.lookups.map(res => {
+        if (res.join.foreign_key.length > 1) {
+          res.join.foreign_key.forEach(item => {
+            state.foreignKeyData = state.foreignKeyData.concat(item)
+          })
+        } else {
+          state.foreignKeyData.push(res.join.foreign_key.join(','))
+        }
+      })
+      state.foreignKeyData = [...new Set(state.foreignKeyData)]
+      // console.log('foreignKeyData===', [...new Set(state.foreignKeyData)])
     }
   },
   actions: {
@@ -49,12 +59,8 @@ const creatTableRelation = {
         fact_table: '',
         lookups: []
       }
+      state.foreignKeyData = []
     }
-    // SaveJointResult ({ commit }, data) {
-    //   commit('SAVE_JOINT_RESULT', data)
-    //   // state.jointResult = data
-    //   // console.log(state.jointResult, '啦啦啦啦啦')
-    // }
   }
 }
 

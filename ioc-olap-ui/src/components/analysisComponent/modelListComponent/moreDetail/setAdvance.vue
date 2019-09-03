@@ -85,21 +85,13 @@ export default {
   data () {
     return {
       list: {},
-      descriptionData: [
-        { index: '1', name: 'USER_ID', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '2', name: 'USER_ID1', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '3', name: 'USER_ID2', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '4', name: 'USER_ID3', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '5', name: 'USER_ID4', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '6', name: 'USER_ID5', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '7', name: 'USER_ID6', expression: 'string', value: '用户标识', returntype: '正常模式' }
-      ],
+      descriptionData: [],
       descriptionHead: [
         { prop: 'index', label: '序号 ' },
-        { prop: 'name', label: '表名称' },
-        { prop: 'expression', label: '字段' },
-        { prop: 'value', label: '过滤方式' },
-        { prop: 'returntype', label: '过滤值' }
+        { prop: 'column', label: '字段名称' },
+        { prop: 'encodingType', label: '编码类型' },
+        { prop: 'encodingLen', label: '长度' },
+        { prop: 'isShardBy', label: '碎片区' }
       ]
     }
   },
@@ -109,10 +101,19 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        let { aggregation_groups, rowkey, hbase_mapping, mandatory_dimension_set_list, engine_type } = this.jsonData.CubeList[0]
+        let { mandatory_dimension_set_list, rowkey } = this.jsonData.CubeList[0]
         this.list = this.jsonData.CubeList[0]
         if (mandatory_dimension_set_list.length < 1) this.list.mandatory_dimension_set_list = [[]]
-        console.log(this.list)
+        this.descriptionData = rowkey.rowkey_columns.map((item, index) => {
+          return {
+            index: index + 1,
+            column: item.column,
+            encodingType: item.encoding.indexOf('.') !== -1 ? item.encoding.split('.')[0] : item.encoding,
+            encodingLen: item.encoding.indexOf('.') !== -1 ? item.encoding.split('.')[1] : '无',
+            isShardBy: item.isShardBy
+          }
+        })
+        console.log(this.descriptionData)
       }
     }
   }
