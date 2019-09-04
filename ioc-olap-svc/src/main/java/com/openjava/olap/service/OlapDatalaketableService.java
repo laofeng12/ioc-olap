@@ -21,6 +21,7 @@ public interface OlapDatalaketableService {
 
 	OlapDatalaketable doSave(OlapDatalaketable m);
 
+	void deleteCubeName(String cubeName);
 	void doDelete(Long id);
 	void doRemove(String ids);
 

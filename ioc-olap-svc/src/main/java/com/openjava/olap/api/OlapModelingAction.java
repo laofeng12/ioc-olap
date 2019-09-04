@@ -557,6 +557,7 @@ public class OlapModelingAction extends BaseAction {
             olapFilterCondidions = olapFilterCondidionService.findByFilterId(olapFilter.getId());
         }
 
+
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ModesList", model);
         paramMap.put("CubeList", cube);
@@ -660,15 +661,19 @@ public class OlapModelingAction extends BaseAction {
         ArrayList<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.findByCubeName(cubeName);
         //拿到定时任务
         OlapTimingrefresh olapTimingrefresh = olapTimingrefreshService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+        //拿到第一步用户选择表
+        List<OlapDatalaketable> datalaketables = olapDatalaketableService.getListByCubeName(cubeName);
+
         //放到事物里进行保存
-        saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, cubeNameClone);
+        saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, cubeNameClone);
     }
 
 
     //保存克隆所有数据
     @Transactional(readOnly = false)
     public void saveTableClone(OlapCube olapCube, ArrayList<OlapCubeTable> cubeTablesList, ArrayList<OlapCubeTableColumn> findByColumn,
-                               OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh, String cubeNameClone) {
+                               OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh,
+                               List<OlapDatalaketable> datalaketables, String cubeNameClone) {
         SequenceService ss = ConcurrentSequence.getInstance();
 
         OlapCube olapCubec = new OlapCube();
@@ -739,6 +744,15 @@ public class OlapModelingAction extends BaseAction {
             olapTiming.setIsNew(true);
             olapTimingrefreshService.doSave(olapTiming);
         }
+
+        for (OlapDatalaketable olapDatalaketable : datalaketables) {
+            OlapDatalaketable datalaketable = new OlapDatalaketable();
+            MyBeanUtils.copyPropertiesNotBlank(datalaketable, olapDatalaketable);
+            datalaketable.setId(ss.getSequence());
+            datalaketable.setCubeName(cubeNameClone);
+            datalaketable.setIsNew(true);
+            olapDatalaketableService.doSave(datalaketable);
+        }
     }
 
 
@@ -770,6 +784,7 @@ public class OlapModelingAction extends BaseAction {
                 olapFilterService.deleteCubeName(cubeName);
             }
             olapTimingrefreshService.deleteCubeName(cubeName);
+            olapDatalaketableService.deleteCubeName(cubeName);
         }
     }
 
