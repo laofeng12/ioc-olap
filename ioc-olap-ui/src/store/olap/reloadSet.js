@@ -1,7 +1,15 @@
 
 const reloadSet = {
   state: {
+    // 刷新过滤设置
     relaodFilterList: [],
+    /**
+     * {autoReload} 是否开启自动刷新
+     * partition_date_column 第一条数据表加字段
+     * partition_date_format 第一条的时间格式
+     * interval 刷新频率
+     * frequencytype 频率方式
+     */
     reloadData: {
       autoReload: false,
       dataMany: false,

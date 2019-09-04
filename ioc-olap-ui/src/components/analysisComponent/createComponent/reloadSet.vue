@@ -163,22 +163,19 @@ export default {
   },
   methods: {
     init () {
+      /**
+       * 遍历已选择的表（筛选出事实表的这条数据）
+       * 赋值给日期字段表 tableOptions
+       */
       this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
+      // 默认调用根据表名去获取对应的字段名
       this.fetchDeac(this.tableOptions[0].label)
-      this.tableData = this.relaodFilterList
+      // 获取已经设置保存过的刷新过滤数据
+      this.tableData = [...this.relaodFilterList]
       this.formData = this.reloadData
     },
     nextModel (val) {
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
-      this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
-      this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
-      if (this.formData.partition_type === true) {
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
-      }
-      if (this.formData.data1a) this.rules.data1b[0].required = true
-      if (this.formData.data1b) this.rules.partition_date_format[0].required = true
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -186,16 +183,46 @@ export default {
         }
       })
     },
+    // 处理后端需要的数据
+    processReloadData () {
+      /**
+       * ${partition_date_column} -- 拼接数据表跟表对应的字段
+       * ${partition_date_format} -- 赋值第一个字段表对应的时间格式
+       * ${partition_type} -- 日期是否存在多列
+       **/
+      Object.assign(this.totalSaveData.models.modelDescData.partition_desc, {
+        partition_date_column: this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : '',
+        partition_date_format: this.formData.partition_date_format ? this.formData.partition_date_format : '',
+        partition_type: 'APPEND'
+      })
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
+      // this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
+      if (this.formData.partition_type === true) {
+        // 如果开启了日期多列就添加第二个日期格式
+        Object.assign(this.totalSaveData.models.modelDescData.partition_desc, {
+          partition_time_format: this.formData.partition_time_format
+        })
+        // this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
+        // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
+      }
+      // 如果选择了数据表 字段表就得变成必填
+      if (this.formData.data1a) this.rules.data1b[0].required = true
+      // 如果选择了字段表 日期格式就得变成必填
+      if (this.formData.data1b) this.rules.partition_date_format[0].required = true
+    },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
       this.$router.push('/analysisModel/createolap/setMeasure')
     },
+    // 添加过滤条件
     addReloadSet (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
     },
     visibleData (type) {
       this.idx = type
     },
+    // 根据表的name查出对应的所有字段
     fetchDeac (val) {
       let valId = this.selectTableTotal.filter((res, index) => {
         return res.label === val
@@ -223,6 +250,7 @@ export default {
       //   }
       // })
     },
+    // 删除刷新过滤列表
     handleChange (val) {
       let idx = val.$index
       this.$confirm('是否删除这条数据？', {
@@ -240,11 +268,10 @@ export default {
     changeUploadNum (val) {
       console.log(val)
     },
+    // 改变日期是否存在多列按钮
     changeDataMany (val) {
       if (val !== true) {
-        // this.formData.partition_date_column.splice(1, 1)
-        // this.formData.partition_date_format.splice(1, 1)
-        // this.formData.partition_time_format.splice(1, 1)
+        // 倘若关闭是否存在多列就得关闭第二个对应的日期格式
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_column
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_format
       }

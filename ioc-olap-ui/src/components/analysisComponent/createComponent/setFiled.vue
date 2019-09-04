@@ -74,9 +74,16 @@ export default {
   },
   methods: {
     init () {
+      /**
+       * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
+       */
       this.$root.eventBus.$on('filedTable', (data, code) => {
         // this.loading = true
-        // 获取本地的数据
+        /**
+         * 获取第一步保存的选择的表对应的所有字段
+         * 遍历所有字段
+         * 根据从左侧菜单带过来的${data.id}来进行匹配${item.resourceId} 获取对应的所有字段
+         */
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
@@ -88,9 +95,16 @@ export default {
               n.id = `${data.alias}${i}`
               n.filed = data.alias === code ? '1' : '0'
             })
+            // 获取对应的字段赋值到列表
             this.tableData = items.data.columns
             let arr = []
             setTimeout(() => {
+              /**
+               * 遍历获取tableData列表
+               * 遍历 ${saveSelectFiled} 已经勾选的字段
+               * 匹配两者相同的id对应的数据放到${arr}
+               * 执行toggleSelection 存放匹配到的数据
+               */
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                   if (val.id === item.id) {
@@ -106,6 +120,7 @@ export default {
         })
       })
     },
+    // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
       if (rows) {
         rows.forEach(row => {
@@ -121,7 +136,6 @@ export default {
       if (this.iscubeMatch()) {
         return this.$message.warning('对应的foreign_key找不到~')
       }
-
       let flag
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         flag = item.filed === '1' ? 0 : 1
@@ -137,7 +151,7 @@ export default {
     iscubeMatch () {
       let dimensionsVal = []
       let factVal = []
-      console.log('获取的', this.reloadNeedData)
+      // console.log('获取的', this.reloadNeedData)
       this.reloadNeedData.map(res => {
         if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '1') {
           // 获取事实表的value
@@ -148,10 +162,8 @@ export default {
           factVal.push(res.value)
         }
       })
-      console.log('获取的', factVal, '李帆', dimensionsVal)
-
+      // console.log('获取的', factVal, '李帆', dimensionsVal)
       let isRowkey = this.factVal && this.factVal.length ? this.factVal.some(_ => dimensionsVal.includes(_)) : false
-      console.log(isRowkey)
       // 是否选择延伸模式
       // 如果为 true 的话，说明不能下一步，提示用户。必须选择指定字段才允许下一步。
       return (isRowkey && factVal.length) || factVal.length

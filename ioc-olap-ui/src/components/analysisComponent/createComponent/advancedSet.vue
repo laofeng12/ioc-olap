@@ -268,6 +268,7 @@ export default {
     addaAggregation () {
       this.$store.dispatch('addAggregationList')
     },
+    // 删除聚合小组
     handleRms (index) {
       if (this.aggregation_groups.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups.splice(index, 1)
@@ -280,10 +281,12 @@ export default {
     addjointData (index) {
       this.$store.dispatch('AddjointData', index)
     },
+    // 删除层级维度
     removelevelData (index, i) {
       if (this.aggregation_groups[index].select_rule.hierarchy_dims.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups[index].select_rule.hierarchy_dims.splice(i, 1)
     },
+    // 删除联合维度
     removejointData (index, i) {
       if (this.aggregation_groups[index].select_rule.joint_dims.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups[index].select_rule.joint_dims.splice(i, 1)
@@ -292,6 +295,7 @@ export default {
     addimensionData () {
       this.$store.dispatch('AddimensionData')
     },
+    // 删除维度黑白名单
     removedimensionData (index) {
       if (this.mandatory_dimension_set_list.length === 1) return this.$message.error('必须保留一个~')
       this.mandatory_dimension_set_list.splice(index, 1)
@@ -300,6 +304,7 @@ export default {
     addhetComposeData () {
       this.$store.dispatch('AddhetComposeData')
     },
+    // 删除高级列组合
     removehetComposeData (index) {
       this.hbase_mapping.column_family.splice(index, 1)
     },
@@ -308,6 +313,7 @@ export default {
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
+    // 黑白名单or高级列弹框
     lastGetModal (index, type) {
       this.$refs.selectFiled.dialog(type, index)
     },

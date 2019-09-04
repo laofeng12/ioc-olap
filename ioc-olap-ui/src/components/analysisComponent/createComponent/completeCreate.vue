@@ -96,6 +96,14 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+
+      // Object.assign(this.totalSaveData, {
+      //   cube: {
+      //     cubeDescData: {
+      //       measures: this.measureTableList
+      //     }
+      //   }
+      // })
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''

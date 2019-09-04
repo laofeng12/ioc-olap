@@ -39,7 +39,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.selectTableTotal, '第一步')
       if (this.selectTableTotal && this.selectTableTotal.length) {
         let data = this.selectTableTotal.filter(res => {
           return res.label
@@ -55,6 +54,7 @@ export default {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$store.commit('SaveSelectAllListone', this.saveSelectTable)
+      // 清掉第二步创建的表
       this.$store.commit('ClearTableRelation')
     },
     tabClick (val) {
