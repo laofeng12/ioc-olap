@@ -67,6 +67,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
+        modeType: '1',
         name: list.item.titName,
         tableName: list.item.tableName
       })
@@ -84,6 +85,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
+        modeType: '2',
         name: list.item.titName,
         tableName: list.item.tableName
       })
@@ -147,6 +149,7 @@ const setFiled = {
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state, getters }) {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
+      console.log(resultVal, '2020')
       // 筛选对应的foreign_key名
       let datas = []
       getters.jointResultData.lookups.map((item, index) => {
@@ -157,6 +160,7 @@ const setFiled = {
                 datas = datas.concat({
                   id: n.id,
                   type: n.dataType,
+                  modeType: '2',
                   value: res
                 })
               })
@@ -164,6 +168,7 @@ const setFiled = {
               datas.push({
                 id: n.id,
                 type: n.dataType,
+                modeType: '2',
                 value: item.join.foreign_key.join(',')
               })
             }
@@ -177,6 +182,7 @@ const setFiled = {
         nomrlData = nomrlData.concat({
           id: res.id,
           type: res.dataType,
+          modeType: res.modeType,
           value: res.tableName + '.' + res.name
         })
       })

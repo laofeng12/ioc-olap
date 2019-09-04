@@ -221,7 +221,6 @@ export default {
         })
         return arr
       })
-      // debugger
       this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     resortAggregation () {

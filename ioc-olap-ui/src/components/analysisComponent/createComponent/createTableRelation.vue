@@ -1007,6 +1007,9 @@ export default {
 .papers .linkRemove{
   left 50%
   top 50%
+  height 15px
+  width 15px
+  background-size 100% 100%
   tranform translate(-50%, -50%)
 }
 

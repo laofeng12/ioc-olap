@@ -53,6 +53,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectFiled from '@/components/analysisComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
+import { debuglog } from 'util'
 export default {
   components: {
     filedTable,
@@ -115,33 +116,54 @@ export default {
       }
     },
     nextModel (val) {
-      if (this.iscubeMatch() !== '1') return this.$message.warning('对应的foreign_key找不到~')
-      if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      this.saveSelectFiled.forEach(item => {
+      // 如果返回 true ，说明用户勾选了延伸模式，但并没有选择指定字段，所以需要提示错误信息。
+      // window.alert([20190904173527, this.iscubeMatch()].join('  '))
+      if (this.iscubeMatch()) {
+        return this.$message.warning('对应的foreign_key找不到~')
+      }
+
+      let flag
+      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+        flag = item.filed === '1' ? 0 : 1
       })
-      this.$router.push('/analysisModel/createolap/setMeasure')
-      this.$parent.getStepCountAdd(val)
-      // let flag
-      // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-      //   flag = item.filed === '1' ? 0 : 1
-      // })
-      // String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+      if (this.saveSelectFiled.length === 0) {
+        this.$message.warning('请选择维度字段')
+      } else {
+        this.$router.push('/analysisModel/createolap/setMeasure')
+        this.$parent.getStepCountAdd(val)
+      }
     },
     // 判断选择的衍生模式能否找到对应的fk
     iscubeMatch () {
-      let dimensionsVal = this.dimensions.map(res => {
-        return res.tableId
+      let dimensionsVal = []
+      let factVal = []
+      console.log('获取的', this.reloadNeedData)
+      this.reloadNeedData.map(res => {
+        if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '1') {
+          // 获取事实表的value
+          dimensionsVal.push(res.value)
+        }
+        if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '2') {
+          // 获取非事实表选择的数据
+          factVal.push(res.value)
+        }
       })
-      let isRowkey = ''
-      this.foreignKeyData.map(res => {
-        isRowkey = dimensionsVal.includes(res) ? '1' : '0'
-      })
-      return isRowkey
+      console.log('获取的', factVal, '李帆', dimensionsVal)
+
+      let isRowkey = this.factVal && this.factVal.length ? this.factVal.some(_ => dimensionsVal.includes(_)) : false
+      console.log(isRowkey)
+      // 是否选择延伸模式
+      // 如果为 true 的话，说明不能下一步，提示用户。必须选择指定字段才允许下一步。
+      return (isRowkey && factVal.length) || factVal.length
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
+    /**
+     * 点击复选框
+     * 根据rows的长度来判断是选择还是取消
+     */
     selectcheck (rows, row) {
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
@@ -150,7 +172,10 @@ export default {
       // 若点击 左侧对应父级菜单高亮
       this.$root.eventBus.$emit('tableNameActive')
     },
-    // 全选功能
+    /**
+     * 全选功能 rows的长度> 0 = 全选
+     * 取消全选的时候需要把rows以及tableName带过去过滤
+     */
     selectAllCheck (rows) {
       let list = {
         list: rows,
@@ -176,9 +201,8 @@ export default {
   computed: {
     ...mapGetters({
       saveSelectFiled: 'saveSelectFiled',
-      selectTableTotal: 'selectTableTotal',
-      saveList: 'saveList',
       dimensions: 'dimensions',
+      reloadNeedData: 'reloadNeedData',
       foreignKeyData: 'foreignKeyData',
       saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',

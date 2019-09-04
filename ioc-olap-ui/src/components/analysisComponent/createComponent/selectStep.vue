@@ -39,6 +39,7 @@ export default {
   },
   methods: {
     init () {
+      console.log(this.selectTableTotal, '第一步')
       if (this.selectTableTotal && this.selectTableTotal.length) {
         let data = this.selectTableTotal.filter(res => {
           return res.label
