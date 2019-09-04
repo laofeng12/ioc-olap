@@ -24,6 +24,7 @@ const getters = {
   SaveFactData: state => state.selectStep.SaveFactData,
   /* */
   jointResultData: state => state.createTableRelation.jointResultData,
+  foreignKeyData: state => state.createTableRelation.foreignKeyData,
   /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,

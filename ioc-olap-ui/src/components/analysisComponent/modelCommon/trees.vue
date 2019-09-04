@@ -166,7 +166,6 @@ export default {
       this.fetchResourceList(data, lastId)
       // 保存数据到store
       this.$store.dispatch('SaveSelectData', data)
-      console.log('总的数量', this.selectTableTotal)
     },
     fetchTree (data) {
       this.treeLoading = true
