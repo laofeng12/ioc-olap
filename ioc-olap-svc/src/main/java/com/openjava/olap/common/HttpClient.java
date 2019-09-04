@@ -1,7 +1,10 @@
 package com.openjava.olap.common;
 
+import org.ljdp.component.exception.APIException;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class HttpClient {
 

@@ -63,6 +63,11 @@ public class OlapFilterCondidion implements Persistable<Long>,Serializable {
 	@Column(name = "PARAMETERBE")
 	private String parameterbe;
 
+	@ApiModelProperty("前端需要的ID")
+	@Length(min=0, max=500)
+	@Column(name = "IDS")
+	private String ids;
+
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;

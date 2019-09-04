@@ -101,7 +101,7 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 			filter.setUpdateName(userVO.getUserAccount());
 			filter.setUpdateTime(date);
 			filter.setIsNew(false);
-			olapFilterCondidionService.deleteCubeId(filterId);
+			olapFilterCondidionService.deleteFilterId(filterId);
 		} else {
 			filter.setCreateTime(date);//创建时间
 			filter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
@@ -120,6 +120,7 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 			filterCondion.setField(fc.getField());          //表字段
 			filterCondion.setPattern(fc.getPattern());      //过滤方式
 			filterCondion.setParameter(fc.getParameter());  //过滤值
+			filterCondion.setIds(fc.getIds()); 			    //前端需要的ID
 
 			if (fc.getPattern().equals("BETWEEN")) {
 				filterCondion.setParameterbe(fc.getParameterbe());  //ETWEEN过滤值

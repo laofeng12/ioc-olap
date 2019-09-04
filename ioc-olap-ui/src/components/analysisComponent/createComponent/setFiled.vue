@@ -73,54 +73,9 @@ export default {
   },
   methods: {
     init () {
-      // this.tableData = this.saveList
-      // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
       this.$root.eventBus.$on('filedTable', (data, code) => {
         // this.loading = true
-        // this.tableData = res.data.columns
-        // setTimeout(() => {
-        // let arr = []
-        // this.tableData && this.tableData.forEach((item, i) => {
-        // this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-        // if (val.id === item.id) {
-        // this.tableData[i].tableName = val.tableName
-        // this.tableData[i].mode = val.mode
-        // arr.push(item)
-        // }
-        // })
-        // })
-        // this.toggleSelection(arr)
-        // this.loading = false
-        // }, 300)
-        // this.$store.dispatch('GetResourceInfo', { resourceId: data.joinId }).then(res => {
-        //   if (res) {
-        //     this.loading = false
-        //     res.data.columns && res.data.columns.map((n, i) => {
-        //       n.mode = n.mode ? n.mode : '2'
-        //       n.derived = n.name
-        //       n.titName = n.name
-        //       n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
-        //       n.id = `${data.alias}${i}`
-        //       n.filed = data.alias === code ? '1' : '0'
-        //     })
-        //     this.tableData = res.data.columns
-        //     let arr = []
-        //     setTimeout(() => {
-        //       this.tableData && this.tableData.forEach((item, i) => {
-        //         this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-        //           if (val.id === item.id) {
-        //             this.tableData[i].name = val.name
-        //             this.tableData[i].mode = val.mode
-        //             arr.push(item)
-        //           }
-        //         })
-        //       })
-        //       this.toggleSelection(arr)
-        //     }, 500)
-        //   }
-        // })
         // 获取本地的数据
-        console.log('洗净选择的数据', this.saveSelectFiled)
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
@@ -160,6 +115,7 @@ export default {
       }
     },
     nextModel (val) {
+      if (this.iscubeMatch() !== '1') return this.$message.warning('对应的foreign_key找不到~')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
       this.saveSelectFiled.forEach(item => {
       })
@@ -171,8 +127,18 @@ export default {
       // })
       // String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
     },
+    // 判断选择的衍生模式能否找到对应的fk
+    iscubeMatch () {
+      let dimensionsVal = this.dimensions.map(res => {
+        return res.tableId
+      })
+      let isRowkey = ''
+      this.foreignKeyData.map(res => {
+        isRowkey = dimensionsVal.includes(res) ? '1' : '0'
+      })
+      return isRowkey
+    },
     prevModel (val) {
-      // debugger
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$parent.getStepCountReduce(val)
     },
@@ -201,12 +167,10 @@ export default {
     // 输入框监听
     iptChange (val) {
       this.$store.dispatch('changePushalias', val)
-      // this.$store.dispatch('SaveFiledData')
     },
     // 单选框触发
     radioChange (val) {
       this.$store.dispatch('changePushSelectFiled', val)
-      // this.$store.dispatch('SaveFiledData')
     }
   },
   computed: {
@@ -215,6 +179,7 @@ export default {
       selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
       dimensions: 'dimensions',
+      foreignKeyData: 'foreignKeyData',
       saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',

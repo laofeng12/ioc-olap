@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     init () {
-      if (this.selectTableTotal.length) {
+      if (this.selectTableTotal && this.selectTableTotal.length) {
         let data = this.selectTableTotal.filter(res => {
           return res.label
         })
