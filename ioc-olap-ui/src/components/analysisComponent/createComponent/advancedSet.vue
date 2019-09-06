@@ -143,7 +143,6 @@ import selectAggregation from '@/components/analysisComponent/dialog/selectAggre
 import { mapGetters } from 'vuex'
 import { getEncodingList } from '@/api/olapModel'
 import { reduceObj } from '@/utils/index'
-import { log } from 'util'
 export default {
   components: {
     steps, selectAggregation
@@ -187,7 +186,7 @@ export default {
     }
   },
   mounted () {
-    // this.resortAggregation()
+    this.resortAggregation()
     this.init()
   },
   methods: {
@@ -197,15 +196,15 @@ export default {
         // this.getAllcoding = res
       })
       // 重置高级组合
-      // this.hbase_mapping.column_family.forEach((item, index) => {
-      //   if (item.name === 'F1') {
-      //     item.columns[0].measure_refs.forEach((n, i) => {
-      //       if (n === '_COUNT_') {
-      //         item.columns[0].measure_refs.splice(i, 1)
-      //       }
-      //     })
-      //   }
-      // })
+      this.hbase_mapping.column_family.forEach((item, index) => {
+        if (item.name === 'F1') {
+          item.columns[0].measure_refs.forEach((n, i) => {
+            if (n === '_COUNT_') {
+              item.columns[0].measure_refs.splice(i, 1)
+            }
+          })
+        }
+      })
       // this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
@@ -328,6 +327,7 @@ export default {
       this.$store.dispatch('RmtagList', list)
     },
     lastrmTag (type, id, findIndex) {
+      console.log(type, id, findIndex)
       const list = {
         id: id,
         type: type,

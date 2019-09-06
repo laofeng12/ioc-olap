@@ -53,7 +53,7 @@ export default {
     }
   },
   mounted () {
-    // console.log(this.saveselectIncludesData)
+    console.log(this.reloadNeedData, '获取的')
   },
   methods: {
     closeBtn () {
@@ -78,6 +78,7 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
+      console.log(this.recordingData, '选择后的', this.saveselectIncludesData)
       this.dialogFormVisible = true
       switch (type) {
         case 1:

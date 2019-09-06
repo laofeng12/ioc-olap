@@ -99,9 +99,13 @@ export default {
         res.encoding = `${res.columns_Type}${leh}`
       })
       // models放入所有选择的表字段
+      /**
+       * models中的dimensions放入所有选择的表字段
+      */
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
         let data = JSON.parse(item)
+        // 遍历第二步存储的表 根据id来找出事实表的那条数据
         this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
           if (data.resourceId === n.id) {
             dest.push({
@@ -112,7 +116,7 @@ export default {
             })
           }
         })
-        if (this.jointResultData.fact_table.substring(this.jointResultData.fact_table.indexOf('.') + 1) === data.name) {
+        if (this.jointResultData.fact_table.split('.')[1] === data.name) {
           dest.push({
             table: data.name,
             columns: data.data.columns.map(res => {
