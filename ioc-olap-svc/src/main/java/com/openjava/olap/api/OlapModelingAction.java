@@ -3,7 +3,7 @@ package com.openjava.olap.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.api.kylin.*;
+import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.service.*;
@@ -16,13 +16,13 @@ import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -59,23 +59,18 @@ public class OlapModelingAction extends BaseAction {
     @Resource
     private OlapDatalaketableService olapDatalaketableService;
 
-    @Resource
-    ModelsAction modelsAction;
-
-    @Resource
-    CubeAction cubeAction;
-
-    @Resource
-    JobsAction jobsAction;
-
-    @Resource
-    ProjectAction projectAction;
-
-    @Resource
-    HiveAction hiveAction;
-
-    @Resource
-    EncodingAction encodingAction;
+    @Autowired
+    ModelHttpClient modelHttpClient;
+    @Autowired
+    CubeHttpClient cubeHttpClient;
+    @Autowired
+    JobHttpClient jobsHttpClient;
+    @Autowired
+    ProjectHttpClient projectHttpClient;
+    @Autowired
+    HiveHttpClient hiveHttpClient;
+    @Autowired
+    TableHttpClient tableHttpClient;
 
 
     @ApiOperation(value = "模型列表")
@@ -99,14 +94,14 @@ public class OlapModelingAction extends BaseAction {
 
             //循环在麒麟找到分享的数据并加入数据里
             for (OlapCube o : shareList) {
-                List<CubeMapper> cubeListMa = cubeAction.list(o.getName(), String.valueOf(o.getCreateId()), limit, offset);
+                List<CubeMapper> cubeListMa = cubeHttpClient.list(o.getName(), String.valueOf(o.getCreateId()), limit, offset);
                 Optional<CubeMapper> cubeEntity = cubeListMa.stream().filter(p -> p.getName().equals(o.getName())).findFirst();
                 if (cubeEntity.isPresent()) {
                     cubeList.add(cubeEntity.get());
                 }
             }
         } else {
-            cubeList = cubeAction.list(cubeName, projectName, limit, offset);
+            cubeList = cubeHttpClient.list(cubeName, projectName, limit, offset);
         }
 
 //        //为了及时更新olap分析olap_cube表里的flags状态,所以需要根据查询出来的数据去做对比
@@ -131,7 +126,7 @@ public class OlapModelingAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
 
-        JobsMapper[] jobs = jobsAction.list(limit, offset, projectName, cubeName);
+        JobsMapper[] jobs = jobsHttpClient.list(limit, offset, projectName, cubeName);
         List<JobsMapper> jobsList = Arrays.asList(jobs);
         jobsList.sort(Comparator.comparing(JobsMapper::getLast_modified).reversed());
 
@@ -141,16 +136,16 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "第六步——获取Encoding")
     @RequestMapping(value = "/encodingList", method = RequestMethod.GET)
     @Security(session = true)
-    public EncodingDataMapper encodingList() {
-        return encodingAction.encodingDataType();
+    public EncodingDataMapper encodingList() throws APIException {
+        return tableHttpClient.encodingDataType();
     }
 
 
     @ApiOperation(value = "第六步——获取Encoding2")
     @RequestMapping(value = "/encoding2List", method = RequestMethod.GET)
     @Security(session = true)
-    public Map<String, Integer> encoding2List() {
-        return encodingAction.encodingDataTypeCount();
+    public Map<String, Integer> encoding2List() throws APIException {
+        return tableHttpClient.encodingDataTypeCount();
     }
 
 
@@ -195,25 +190,17 @@ public class OlapModelingAction extends BaseAction {
             cube.setCubeName(cubeName);
             cube.setProject(userVO.getUserId());
             models.setProject(userVO.getUserId());
-            modelMap = modelsAction.create(models);
-            if (modelMap == null) {
-                throw new APIException(400, "模型信息错误！");
+            modelMap = modelHttpClient.create(models);
+            try{
+                cubeMap = cubeHttpClient.create(cube, modelName);
             }
-            cubeMap = cubeAction.create(cube, modelName);
-            if (cubeMap == null) {
-                //立方体不成功则删除models
-                modelsAction.delete(modelName);
-                throw new APIException(400, "立方体信息错误！");
+            catch (APIException ex){
+                modelHttpClient.delete(modelName);
+                throw ex;
             }
         } else {
-            modelMap = modelsAction.update(models);
-            if (modelMap == null) {
-                throw new APIException(400, "模型信息错误！");
-            }
-            cubeMap = cubeAction.update(cube, models.modelDescData.getName());
-            if (cubeMap == null) {
-                throw new APIException(400, "立方体信息错误！");
-            }
+            modelMap = modelHttpClient.update(models);
+            cubeMap = cubeHttpClient.update(cube, models.modelDescData.getName());
         }
 
         paramMap.put("ModesList", modelMap);
@@ -302,14 +289,14 @@ public class OlapModelingAction extends BaseAction {
         cube.getCubeDescData().getMeasures().forEach(p -> {
             metricsList.add(p.function.parameter.getValue());
         });
-        models.setMetrics(metricsList);
+        models.getModelDescData().setMetrics(metricsList);
     }
 
     //处理逻辑如下：
     //1、将用户创建的模型里选择过的表全部拉到DataSource里
     public void hiveCreate(OaUserVO userVO, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) throws APIException {
         //拿到所有project
-        List<ProjectDescDataMapper> projectDescList = projectAction.list();
+        List<ProjectDescDataMapper> projectDescList = projectHttpClient.list();
         Optional<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName().equals(userVO.getUserId())).findFirst();
 
 
@@ -330,8 +317,8 @@ public class OlapModelingAction extends BaseAction {
             OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
             override.setAuthor(userVO.getUserName());
             projectDesc.setOverride_kylin_properties(override);
-            projectAction.create(projectDesc);
-            hiveAction.create(tableNameList, userVO.getUserId());
+            projectHttpClient.create(projectDesc);
+            hiveHttpClient.create(tableNameList, userVO.getUserId());
         } else {
             String[] strArrayTrue = (String[]) projectList.get().getTables().toArray(new String[0]);
             String[] tableName = tableNameList.stream().toArray(String[]::new);
@@ -339,7 +326,7 @@ public class OlapModelingAction extends BaseAction {
             String[] tableNameArray = minus(strArrayTrue, tableName);
             if (tableNameArray.length != 0) {
                 List<String> list = Arrays.asList(tableNameArray);
-                hiveAction.create(list, userVO.getUserId());
+                hiveHttpClient.create(list, userVO.getUserId());
             }
         }
     }
@@ -432,11 +419,11 @@ public class OlapModelingAction extends BaseAction {
     @Security(session = true)
     public Map<String, Object> desc(String cubeName, String models) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ModelsDescDataMapper model = modelsAction.entity(models);
+        ModelsDescDataMapper model = modelHttpClient.entity(models);
         if (model == null) {
             throw new APIException(400, "网络错误！");
         }
-        List<CubeDescDataMapper> cube = (cubeAction.desc(cubeName));
+        List<CubeDescDataMapper> cube = (cubeHttpClient.desc(cubeName));
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         //事实表
@@ -577,13 +564,13 @@ public class OlapModelingAction extends BaseAction {
     public void build(String cubeName, Long start, Long end) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         //判断是否有存在该立方体名称
-        List<JobsMapper> jobList = Arrays.asList(jobsAction.list(100000L, 0L, userVO.getUserId(), cubeName));
+        List<JobsMapper> jobList = Arrays.asList(jobsHttpClient.list(100000L, 0L, userVO.getUserId(), cubeName));
         for (JobsMapper jobs : jobList) {
             if (jobs.getJob_status().equals("RUNNING") || jobs.getJob_status().equals("PENDING")) {
                 throw new APIException(400, "该立方体已在构建中！");
             }
         }
-        cubeAction.build(cubeName, start, end);
+        cubeHttpClient.build(cubeName, start, end);
     }
 
 
@@ -591,7 +578,7 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/refresh", method = RequestMethod.PUT)
     @Security(session = true)
     public void refresh(String cubeName, Long startTime, Long endTime) throws Exception {
-        cubeAction.refresh(cubeName, startTime, endTime);
+        cubeHttpClient.refresh(cubeName, startTime, endTime);
     }
 
 
@@ -599,7 +586,7 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/merge", method = RequestMethod.PUT)
     @Security(session = true)
     public void merge(String cubeName, Long start, Long end) throws Exception {
-        cubeAction.build(cubeName, start, end);
+        cubeHttpClient.build(cubeName, start, end);
     }
 
 
@@ -607,16 +594,12 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/disable", method = RequestMethod.PUT)
     @Security(session = true)
     public void disable(String cubeName) throws APIException {
-        boolean bl = cubeAction.disable(cubeName);
-        if (bl == true) {
-            //修改olap分析的cube表状态值为不可用
-            OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
-            olapCube.setIsNew(false);
-            olapCube.setFlags(0);
-            olapCubeService.doSave(olapCube);
-        } else {
-            throw new APIException(400, "禁用失败！");
-        }
+        cubeHttpClient.disable(cubeName);
+        //修改olap分析的cube表状态值为不可用
+        OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
+        olapCube.setIsNew(false);
+        olapCube.setFlags(0);
+        olapCubeService.doSave(olapCube);
     }
 
 
@@ -624,16 +607,12 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/enable", method = RequestMethod.PUT)
     @Security(session = true)
     public void enable(String cubeName) throws APIException {
-        boolean bl = cubeAction.enable(cubeName);
-        if (bl == true) {
-            //修改olap分析的cube表状态值为不可用
-            OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
-            olapCube.setIsNew(false);
-            olapCube.setFlags(0);
-            olapCubeService.doSave(olapCube);
-        } else {
-            throw new APIException(400, "启用失败！");
-        }
+        cubeHttpClient.enable(cubeName);
+        //修改olap分析的cube表状态值为不可用
+        OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
+        olapCube.setIsNew(false);
+        olapCube.setFlags(0);
+        olapCubeService.doSave(olapCube);
     }
 
     @ApiOperation(value = "立方体:复制")
@@ -643,12 +622,12 @@ public class OlapModelingAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Date date = new Date();
 
-        List<CubeDescDataMapper> cubeList = cubeAction.desc(cubeNameClone);
+        List<CubeDescDataMapper> cubeList = cubeHttpClient.desc(cubeNameClone);
         if (cubeList.size() != 0) {
             throw new APIException(400, "已存在该立方体名称！");
         }
         //进行克隆
-        cubeAction.clone(cubeName, cubeNameClone, userVO.getUserId());
+        cubeHttpClient.clone(cubeName, cubeNameClone, userVO.getUserId());
         //拿到OLAP_CUBE表数据
         OlapCube olapCubeEntity = olapCubeService.findTableInfo(cubeName);
         //拿到OLAP_CUBE_TABLE表数据
@@ -762,14 +741,14 @@ public class OlapModelingAction extends BaseAction {
     public void deleteCube(String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         //判断该立方体是否还存在job数据,如果存在则不能删除.
-        List<JobsMapper> jobList = Arrays.asList(jobsAction.list(100000L, 0L, userVO.getUserId(), cubeName));
+        List<JobsMapper> jobList = Arrays.asList(jobsHttpClient.list(100000L, 0L, userVO.getUserId(), cubeName));
         for (JobsMapper jobs : jobList) {
             if (jobs.getName().equals(cubeName)) {
                 throw new APIException(400, "请先删除构建数据！");
             }
         }
         //删除立方体
-        cubeAction.delete(cubeName);
+        cubeHttpClient.delete(cubeName);
         //删除与该立方体相关数据
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         if (olapCube != null) {
@@ -793,22 +772,22 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/cancelJob", method = RequestMethod.PUT)
     @Security(session = true)
     public void cancelJob(String jobsId) throws APIException {
-        jobsAction.cancel(jobsId);
-        jobsAction.cancel(jobsId);
+        jobsHttpClient.cancel(jobsId);
+        jobsHttpClient.cancel(jobsId);
     }
 
     @ApiOperation(value = "构建列表:暂停")
     @RequestMapping(value = "/pauseJob", method = RequestMethod.PUT)
     @Security(session = true)
     public void pauseJob(String cubeName, String jobsId) throws APIException {
-        jobsAction.pause(jobsId);
+        jobsHttpClient.pause(jobsId);
     }
 
     @ApiOperation(value = "构建列表:运行")
     @RequestMapping(value = "/resumeJob", method = RequestMethod.PUT)
     @Security(session = true)
     public void resumeJob(String jobsId) throws APIException {
-        jobsAction.resume(jobsId);
+        jobsHttpClient.resume(jobsId);
     }
 
 
@@ -817,7 +796,7 @@ public class OlapModelingAction extends BaseAction {
     @Security(session = true)
     public void deleteJob(String jobsId) throws APIException {
 //        jobsAction.cancel(jobsId);
-        jobsAction.delete(jobsId);
+        jobsHttpClient.delete(jobsId);
     }
 
 
@@ -918,8 +897,8 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "查看job某一步骤的详细返回数据")
     @RequestMapping(value = "/getJobStepOut", method = RequestMethod.GET)
     @Security(session = true)
-    public JobStepOutputMapper getJobStepOut(String jobId, String stepId) {
-        return jobsAction.output(jobId, stepId);
+    public JobStepOutputMapper getJobStepOut(String jobId, String stepId) throws APIException {
+        return jobsHttpClient.output(jobId, stepId);
     }
 
 

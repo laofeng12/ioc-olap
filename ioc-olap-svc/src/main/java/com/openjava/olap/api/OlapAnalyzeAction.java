@@ -1,8 +1,8 @@
 package com.openjava.olap.api;
 
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.api.kylin.CubeAction;
 import com.openjava.olap.common.Export;
+import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.mapper.kylin.QueryResultMapper;
@@ -42,8 +42,6 @@ public class OlapAnalyzeAction {
     private OlapFolderService olapFolderService;
     @Resource
     private OlapAnalyzeService olapAnalyzeService;
-    @Resource
-    private CubeAction cubeAction;
     @Resource
     private OlapShareService olapShareService;
 
