@@ -106,7 +106,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine_typeTit" placeholder="请选择" @change="changeEngine">
+              <el-select v-model="totalSaveData.cube.cubeDescData.engine_type" placeholder="请选择" @change="changeEngine">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -187,7 +187,7 @@ export default {
     }
   },
   mounted () {
-    this.resortAggregation()
+    // this.resortAggregation()
     this.init()
   },
   methods: {
@@ -197,16 +197,16 @@ export default {
         // this.getAllcoding = res
       })
       // 重置高级组合
-      this.hbase_mapping.column_family.forEach((item, index) => {
-        if (item.name === 'F1') {
-          item.columns[0].measure_refs.forEach((n, i) => {
-            if (n === '_COUNT_') {
-              item.columns[0].measure_refs.splice(i, 1)
-            }
-          })
-        }
-      })
-      this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
+      // this.hbase_mapping.column_family.forEach((item, index) => {
+      //   if (item.name === 'F1') {
+      //     item.columns[0].measure_refs.forEach((n, i) => {
+      //       if (n === '_COUNT_') {
+      //         item.columns[0].measure_refs.splice(i, 1)
+      //       }
+      //     })
+      //   }
+      // })
+      // this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {

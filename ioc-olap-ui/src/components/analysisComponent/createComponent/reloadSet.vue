@@ -176,6 +176,7 @@ export default {
       this.formData = this.reloadData
     },
     nextModel (val) {
+      this.processReloadData()
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -190,23 +191,25 @@ export default {
        * ${partition_date_format} -- 赋值第一个字段表对应的时间格式
        * ${partition_type} -- 日期是否存在多列
        **/
-      Object.assign(this.totalSaveData.models.modelDescData.partition_desc, {
+      Object.assign({}, this.totalSaveData.models.modelDescData.partition_desc, {
         partition_date_column: this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : '',
         partition_date_format: this.formData.partition_date_format ? this.formData.partition_date_format : '',
         partition_type: 'APPEND'
       })
+      console.log(this.totalSaveData.models.modelDescData)
       // this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       // this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       // this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
       if (this.formData.partition_type === true) {
         // 如果开启了日期多列就添加第二个日期格式
-        Object.assign(this.totalSaveData.models.modelDescData.partition_desc, {
+        Object.assign({}, this.totalSaveData.models.modelDescData.partition_desc, {
           partition_time_format: this.formData.partition_time_format
         })
         // this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         // this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
       }
       // 如果选择了数据表 字段表就得变成必填
+      console.log(this.formData.data1a)
       if (this.formData.data1a) this.rules.data1b[0].required = true
       // 如果选择了字段表 日期格式就得变成必填
       if (this.formData.data1b) this.rules.partition_date_format[0].required = true
@@ -236,19 +239,6 @@ export default {
     },
     selectTable (val) {
       this.fetchDeac(val)
-      // const params = {
-      //   dsDataSourceId: 2,
-      //   tableName: val
-      // }
-      // this.idx === 0 ? this.formData.data1b = '' : this.formData.data2b = ''
-      // this.$store.dispatch('GetColumnList', params).then(res => {
-      //   this.textOptions = res.data
-      // })
-      // this.$store.dispatch('GetResourceInfo', { resourceId: valId[0].id, type: '1' }).then(res => {
-      //   if (res) {
-      //     this.textOptions = res.data.columns
-      //   }
-      // })
     },
     // 删除刷新过滤列表
     handleChange (val) {

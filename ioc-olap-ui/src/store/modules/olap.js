@@ -62,7 +62,7 @@ const common = {
           'name': '',
           'uuid': '',
           'model_name': '',
-          'engine_type': 2,
+          'engine_type': '2',
           'description': '',
           'dimensions': [ // 设置维度表
             {

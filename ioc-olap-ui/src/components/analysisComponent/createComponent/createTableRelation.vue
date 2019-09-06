@@ -60,7 +60,11 @@ import { setTimeout } from 'timers'
 import { constants } from 'crypto'
 
 let joint = require('jointjs')
-
+/**
+ * routers 设置连线的type
+ * 1、manhattan-直角
+ * 2、normal-直线
+*/
 export default {
   components: {
     factTable, steps, createTableModal
@@ -331,7 +335,7 @@ export default {
                 'stroke-width': 0.5// 连线粗细
               }
             },
-            router: { name: 'manhattan' }// 设置连线弯曲样式 manhattan直角
+            router: { name: 'normal' }// 设置连线弯曲样式 normal直角
           })
           this.graph.addCell(link)
           break
@@ -578,7 +582,7 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
-        router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
+        router: { name: 'normal' }, // 设置连线弯曲样式 normal直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
           'data': item,
