@@ -3,10 +3,10 @@
     <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
-       <el-form-item label="维度表">{{formData.dimensionLength}}</el-form-item>
-       <el-form-item label="维度字段">{{formData.dimensionFiledLength}}</el-form-item>
-       <el-form-item label="度量字段">{{formData.measureFiledLength}}</el-form-item>
-       <el-form-item label="构建引擎">{{formData.engine}}</el-form-item>
+       <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
+       <el-form-item label="维度字段">{{saveSelectFiled.length}}</el-form-item>
+       <el-form-item label="度量字段">{{measureTableList.length}}</el-form-item>
+       <el-form-item label="构建引擎">{{engine_types === '2' ? 'MapReduce' : 'Spark'}}</el-form-item>
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
            <div>
@@ -52,66 +52,98 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionLength = this.jointResultData.lookups.length
-      this.formData.dimensionFiledLength = this.saveSelectFiled.length
-      this.formData.measureFiledLength = this.measureTableList.length
-      this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
-      // 整理接口数据-----
-      this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
-      this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
-        return item.alias !== this.jointResultData.fact_table
-      }) // 表的关系
-      /**
-       * 处理聚合小组
-       */
-      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
-      this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
-        let item = i.select_rule
-        item.hierarchy_dims.forEach((k, idx1) => {
-          if (k.length === 0) item.hierarchy_dims = []
-        })
-        item.joint_dims.forEach((k, idx1) => {
-          if (k.length === 0) item.joint_dims = []
-        })
-      })
-      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
-        if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
-      })
-      this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
-      this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
-      this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
-        if (item.name === 'F1') {
-          item.columns[0].measure_refs.push('_COUNT_')
-        }
-      })
-      this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
-      this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
-      this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
-      this.totalSaveData.timingreFresh.interval = Number(this.reloadData.interval)
-      this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
-      this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
-      this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
-      this.totalSaveData.cubeDatalaketableNew = this.selectStepList
-      this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
-      this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
-      this.totalSaveData.measureFiledLength = this.measureTableList.length
-
-      // Object.assign(this.totalSaveData, {
-      //   cube: {
-      //     cubeDescData: {
-      //       measures: this.measureTableList
-      //     }
+      // // 整理接口数据-----
+      // this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
+      // this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
+      //   return item.alias !== this.jointResultData.fact_table
+      // }) // 表的关系
+      // /**
+      //  * 处理聚合小组
+      //  */
+      // this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
+      // this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
+      // this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
+      //   let item = i.select_rule
+      //   item.hierarchy_dims.forEach((k, idx1) => {
+      //     if (k.length === 0) item.hierarchy_dims = []
+      //   })
+      //   item.joint_dims.forEach((k, idx1) => {
+      //     if (k.length === 0) item.joint_dims = []
+      //   })
+      // })
+      // this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
+      //   if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
+      // })
+      // this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
+      // this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      // this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
+      //   if (item.name === 'F1') {
+      //     item.columns[0].measure_refs.push('_COUNT_')
       //   }
       // })
+      // this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
+      // this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
+      // this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
+      // this.totalSaveData.timingreFresh.interval = Number(this.reloadData.interval)
+      // this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
+      // this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
+      // this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
+      // this.totalSaveData.cubeDatalaketableNew = this.selectStepList
+      // this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
+      // this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
+      // this.totalSaveData.measureFiledLength = this.measureTableList.length
+      Object.assign(this.totalSaveData, {
+        models: {
+          modelDescData: {
+            fact_table: this.jointResultData.fact_table, // 事实表名
+            lookups: this.jointResultData.lookups.filter(item => {
+              return item.alias !== this.jointResultData.fact_table
+            }) // 表的关系
+          }
+        },
+        cube: {
+          cubeDescData: {
+            aggregation_groups: JSON.parse(JSON.stringify(this.aggregation_groups)).forEach((i, n) => {
+              let item = i.select_rule
+              item.hierarchy_dims.forEach((k, idx1) => {
+                if (k.length === 0) item.hierarchy_dims = []
+              })
+              item.joint_dims.forEach((k, idx1) => {
+                if (k.length === 0) item.joint_dims = []
+              })
+            }), // 聚合列表
+            mandatory_dimension_set_list: JSON.parse(JSON.stringify(this.mandatory_dimension_set_list)).forEach((n, i) => {
+              if (n.length === 0) return []
+            }), // 黑白名单设置
+            dimensions: this.dimensions, // 选择的维度表
+            hbase_mapping: JSON.parse(JSON.stringify(this.hbase_mapping)).forEach((item, index) => {
+              // 如果是第一条数据的时候就需要在改数据中push ${_COUNT_}
+              if (item.name === 'F1') {
+                item.columns[0].measure_refs.push('_COUNT_')
+              }
+            }), // 高级列组合
+            measures: this.measureTableList, // 设置度量
+            rowkey: this.rowkeyData // 设置rowkeys
+          }
+        },
+        filterCondidion: this.relaodFilterList, // 刷新过滤
+        timingreFresh: {
+          interval: Number(this.reloadData.interval),
+          frequencytype: this.reloadData.frequencytype,
+          autoReload: this.reloadData.autoReload === true ? 1 : 0,
+          dataMany: this.reloadData.dataMany === true ? 1 : 0
+        },
+        cubeDatalaketableNew: this.selectStepList,
+        dimensionLength: this.jointResultData.lookups.length,
+        dimensionFiledLength: this.saveSelectFiled.length,
+        measureFiledLength: this.measureTableList.length
+      })
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
       // models放入所有选择的表字段
-      // this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
-      console.log(this.rowkeyData, '李帆', this.saveSelectAllListFiled)
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
         let data = JSON.parse(item)
@@ -135,7 +167,6 @@ export default {
         }
         return dest
       })
-      // console.log('最终的', dest)
       this.totalSaveData.models.modelDescData.dimensions = dest
     },
     // 处理 dimensions（选择维度）

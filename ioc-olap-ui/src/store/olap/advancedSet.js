@@ -260,13 +260,8 @@ const advancedSet = {
     },
     // 设置剩余的list
     SetrecordingData ({ state }, data) {
-      console.log('保存新的', data)
       state.recordingData = data
     }
-    // 存储rowkeys设置
-    // SaveRowkeyList ({ state }, data) {
-    //   state.rowkeyData.rowkey_columns = data
-    // }
   }
 }
 

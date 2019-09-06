@@ -238,8 +238,9 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
-      let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
-      let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
+      const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
+      let hierarchy_dimsLen = hierarchy_dims[0].length
+      let joint_dimsLen = joint_dims[0].length
       if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
       if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
