@@ -1,18 +1,21 @@
 package com.openjava.olap.api.kylin;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.mapper.kylin.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -59,17 +62,19 @@ public class CubeAction extends KylinAction {
             }
         }
         String url = config.address + "/kylin/api/cubes";
-
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
-        if (result == null) {
-            //立方体不成功则删除models
-            modelsAction.delete(modelName);
-            throw new APIException(400, "网络错误!");
+        try {
+            CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
+            return result;
+        } catch (HttpServerErrorException ex) {
+            String error = new String(ex.getResponseBodyAsByteArray());
+            JSONObject errorEntity = JSONObject.fromObject(error);
+            errorEntity.get("msg");
+            String info = String.valueOf(errorEntity.get("msg"));
+            throw new APIException(10002, info);
         }
-        return result;
     }
 
     @ApiOperation(value = "修改立方体")
@@ -81,11 +86,16 @@ public class CubeAction extends KylinAction {
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
         hash.put("project", cube.project);
         hash.put("cubeName", cube.cubeName);
-        CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
-        if (result == null) {
-            throw new APIException(400, "网络错误!");
+        try {
+            CubeDescNewMapper result = HttpClient.post(url, JSON.toJSONString(hash), config.authorization, CubeDescNewMapper.class);
+            return result;
+        } catch (HttpServerErrorException ex) {
+            String error = new String(ex.getResponseBodyAsByteArray());
+            JSONObject errorEntity = JSONObject.fromObject(error);
+            errorEntity.get("msg");
+            String info = String.valueOf(errorEntity.get("msg"));
+            throw new APIException(10002, info);
         }
-        return result;
     }
 
     @ApiOperation(value = "获取CUBE描述信息")
@@ -123,7 +133,15 @@ public class CubeAction extends KylinAction {
         hash.put("buildType", "BUILD");
         hash.put("startTime", start);
         hash.put("endTime", end);
-        HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
+        try {
+            HttpClient.put(url, JSON.toJSONString(hash), config.authorization, String.class);
+        } catch (HttpServerErrorException ex) {
+            String error = new String(ex.getResponseBodyAsByteArray());
+            JSONObject errorEntity = JSONObject.fromObject(error);
+            errorEntity.get("msg");
+            String info = String.valueOf(errorEntity.get("msg"));
+            throw new APIException(10002, info);
+        }
     }
 
     @ApiOperation(value = "刷新CUBE")

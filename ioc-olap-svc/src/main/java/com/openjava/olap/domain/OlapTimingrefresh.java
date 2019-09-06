@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("构建定时任务")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_TIMINGREFRESH")
 public class OlapTimingrefresh implements Persistable<Long>,Serializable {
@@ -97,11 +97,11 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	private Date nextExecutionTime;
 
 
-	@ApiModelProperty("前端判断是否打开")
+	@ApiModelProperty("是否自动刷新模型")
 	@Column(name = "AUTORELOAD")
 	private Long autoReload;
 
-	@ApiModelProperty("前端判断是否打开")
+	@ApiModelProperty("是否多字段")
 	@Column(name = "DATAMANY")
 	private Long dataMany;
 

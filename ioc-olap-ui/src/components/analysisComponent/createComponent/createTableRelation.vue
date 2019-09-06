@@ -63,7 +63,9 @@ let joint = require('jointjs')
 /**
  * routers 设置连线的type
  * 1、manhattan-直角
+ * 2、metro-直角
  * 2、normal-直线
+ *
 */
 export default {
   components: {

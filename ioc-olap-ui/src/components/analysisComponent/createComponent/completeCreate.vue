@@ -129,7 +129,6 @@ export default {
       this.totalSaveData.models.modelDescData.dimensions = dest
     },
     // 处理 dimensions（选择维度）
-
     nextModel (val) {
       console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {

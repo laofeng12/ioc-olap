@@ -197,8 +197,6 @@ export default {
           this.$root.eventBus.$emit('clearSelect')
           // 存储当前点击的父节点的id
           this.$store.dispatch('setLastClickTab', nodeId)
-          // 保存选择的数据源数据
-          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
       })
     }

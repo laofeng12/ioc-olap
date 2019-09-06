@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("过滤条件")
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+//@Accessors(chain = true)
 @Entity
 @Table(name = "OLAP_FILTER_CONDIDION")
 public class OlapFilterCondidion implements Persistable<Long>,Serializable {
@@ -62,6 +62,11 @@ public class OlapFilterCondidion implements Persistable<Long>,Serializable {
 	@Length(min=0, max=500)
 	@Column(name = "PARAMETERBE")
 	private String parameterbe;
+
+	@ApiModelProperty("前端需要的ID")
+	@Length(min=0, max=500)
+	@Column(name = "IDS")
+	private String ids;
 
 	@ApiModelProperty("是否新增")
 	@Transient

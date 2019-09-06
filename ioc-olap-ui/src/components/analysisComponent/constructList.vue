@@ -133,7 +133,10 @@ export default {
       logDetailsVisible: false,
       steps: [],
       logData: {},
-      logDetails: ''
+      logDetails: '',
+      offset: 0,
+      moreShow: true,
+      setTimeout: null
     }
   },
   filters: {
@@ -149,21 +152,42 @@ export default {
       cubeObjListData: 'cubeObjListData'
     })
   },
+  destroyed () {
+    clearTimeout(this.setTimeout)
+  },
   methods: {
-    init (val) {
-      this.$store.dispatch('SaveCubeObjListData', val).then(res => {
-        this.getLoading = true
-        if (res) {
-          this.getLoading = false
-          this.tableData = res
-        }
-      })
+    async update () {
+      const params = {
+        limit: this.tableData.length,
+        offset: 0
+      }
+      const res = await this.$store.dispatch('SaveCubeObjListData', params)
+      this.tableData = res
+      this.setTimeout = setTimeout(this.update, 3000)
+    },
+    async init (val) {
+      const params = {
+        limit: 15,
+        offset: this.offset,
+        ...val
+      }
+      this.getLoading = true
+      const res = await this.$store.dispatch('SaveCubeObjListData', params)
+      if (res.length > 0) {
+        this.tableData = [...this.tableData, ...res]
+      } else {
+        this.moreShow = false
+        // this.$message.success('已加载所有数据')
+      }
+      this.getLoading = false
+      this.update()
     },
     searchFetch (val) {
       this.getLoading = true
       this.init(val)
     },
     handleCommand (val) {
+      // clearTimeout(this.setTimeout)
       const { type, params } = val
       let texts = ''
       switch (type) {

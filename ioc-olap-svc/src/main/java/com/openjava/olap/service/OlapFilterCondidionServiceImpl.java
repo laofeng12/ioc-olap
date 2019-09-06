@@ -14,49 +14,55 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 过滤条件业务层
- * @author zy
  *
+ * @author zy
  */
 @Service
 @Transactional
 public class OlapFilterCondidionServiceImpl implements OlapFilterCondidionService {
 
-	@Resource
-	private OlapFilterCondidionRepository olapFilterCondidionRepository;
+    @Resource
+    private OlapFilterCondidionRepository olapFilterCondidionRepository;
 
-	public Page<OlapFilterCondidion> query(OlapFilterCondidionDBParam params, Pageable pageable){
-		Page<OlapFilterCondidion> pageresult = olapFilterCondidionRepository.query(params, pageable);
-		return pageresult;
-	}
+    public Page<OlapFilterCondidion> query(OlapFilterCondidionDBParam params, Pageable pageable) {
+        Page<OlapFilterCondidion> pageresult = olapFilterCondidionRepository.query(params, pageable);
+        return pageresult;
+    }
 
-	public List<OlapFilterCondidion> queryDataOnly(OlapFilterCondidionDBParam params, Pageable pageable){
-		return olapFilterCondidionRepository.queryDataOnly(params, pageable);
-	}
+    public List<OlapFilterCondidion> queryDataOnly(OlapFilterCondidionDBParam params, Pageable pageable) {
+        return olapFilterCondidionRepository.queryDataOnly(params, pageable);
+    }
 
-	public OlapFilterCondidion get(Long id) {
-		Optional<OlapFilterCondidion> o = olapFilterCondidionRepository.findById(id);
-		if(o.isPresent()) {
-			OlapFilterCondidion m = o.get();
-			return m;
-		}
-		System.out.println("找不到记录OlapFilterCondidion："+id);
-		return null;
-	}
+    public List<OlapFilterCondidion> findByFilterId(Long filterId) {
+        return olapFilterCondidionRepository.findByFilterId(filterId);
+    }
 
-	public OlapFilterCondidion doSave(OlapFilterCondidion m) {
-		return olapFilterCondidionRepository.save(m);
-	}
+    public OlapFilterCondidion get(Long id) {
+        Optional<OlapFilterCondidion> o = olapFilterCondidionRepository.findById(id);
+        if (o.isPresent()) {
+            OlapFilterCondidion m = o.get();
+            return m;
+        }
+        System.out.println("找不到记录OlapFilterCondidion：" + id);
+        return null;
+    }
 
-	public void doDelete(Long id) {
-		olapFilterCondidionRepository.deleteById(id);
-	}
-	public void doRemove(String ids) {
-		String[] items = ids.split(",");
-		for (int i = 0; i < items.length; i++) {
-			olapFilterCondidionRepository.deleteById(new Long(items[i]));
-		}
-	}
-	public void deleteCubeId(Long filterId) {
-		olapFilterCondidionRepository.deleteCubeId(filterId);
-	}
+    public OlapFilterCondidion doSave(OlapFilterCondidion m) {
+        return olapFilterCondidionRepository.save(m);
+    }
+
+    public void doDelete(Long id) {
+        olapFilterCondidionRepository.deleteById(id);
+    }
+
+    public void doRemove(String ids) {
+        String[] items = ids.split(",");
+        for (int i = 0; i < items.length; i++) {
+            olapFilterCondidionRepository.deleteById(new Long(items[i]));
+        }
+    }
+
+    public void deleteFilterId(Long filterId) {
+        olapFilterCondidionRepository.deleteFilterId(filterId);
+    }
 }

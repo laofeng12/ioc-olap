@@ -18,11 +18,13 @@ public interface OlapFilterCondidionService {
 
 	List<OlapFilterCondidion> queryDataOnly(OlapFilterCondidionDBParam params, Pageable pageable);
 
+	List<OlapFilterCondidion> findByFilterId(Long filterId);
+
 	OlapFilterCondidion get(Long id);
 
 	OlapFilterCondidion doSave(OlapFilterCondidion m);
 
 	void doDelete(Long id);
 	void doRemove(String ids);
-	void deleteCubeId(Long filterId);
+	void deleteFilterId(Long filterId);
 }

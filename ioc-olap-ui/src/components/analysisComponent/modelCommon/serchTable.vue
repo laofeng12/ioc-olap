@@ -182,7 +182,6 @@ export default {
       treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
-      saveSelctchckouttwo: 'saveSelctchckouttwo',
       serchTableList: 'serchTableList',
       saveLocalSelectTable: 'saveLocalSelectTable'
 
