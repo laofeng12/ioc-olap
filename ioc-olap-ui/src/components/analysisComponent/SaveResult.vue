@@ -1,10 +1,10 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById"
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :exportData="exportData"
-                 :folderData="folderData" :duration="duration" :shareList="shareList"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" @exportFunc="exportFile"
+                 :shareList="shareList"></ResultBox>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
 import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { deleteOlapApi, searchOlapByIdApi } from '../../api/instantInquiry'
+import { deleteOlapApi, searchOlapByIdApi, exportExcelApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
@@ -50,8 +50,6 @@ export default {
       menuListLoading: false,
       exportData: {},
       loading: false,
-      folderData: {},
-      duration: '',
       shareList: []
     }
   },
@@ -69,9 +67,8 @@ export default {
     },
     async getTableById (folderData, type) {
       this.loading = true
-      this.folderData = folderData
       try {
-        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
+        const { columnMetas, results, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -85,7 +82,6 @@ export default {
           })
           return list
         })
-        this.duration = duration
         this.shareList = shareList
         this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
@@ -101,12 +97,34 @@ export default {
       const res = await deleteOlapApi({id})
       this.$message.success('删除成功')
       await this.$store.dispatch('getSaveFolderListAction')
+    },
+    async editSave (data) {
+      this.$emit('changeActive', '1', data)
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;

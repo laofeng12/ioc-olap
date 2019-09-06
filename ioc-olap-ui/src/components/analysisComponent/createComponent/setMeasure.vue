@@ -10,10 +10,10 @@
           <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="name" label="度量名称" align="center"> </el-table-column>
           <el-table-column prop="function.expression" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="function.parameter.value" label="计算值" align="center">
+          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent" width="300">
             <template slot-scope="scope">
-              <span style="margin-right:15px;">值：{{'LEAF_CATEG_ID'}}</span>
-              <span>类型：{{scope.row.function.parameter.value}}</span>
+              <div style="text-align: left;margin-left:62px;"><span>值：</span>{{scope.row.function.parameter.value}}</div>
+              <div style="text-align: left;margin-left:62px;"><span>类型：</span>{{scope.row.function.returntype}}</div>
             </template>
           </el-table-column>
           <el-table-column prop="function.parameter.type" label="计算类型" align="center"> </el-table-column>
@@ -29,7 +29,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" @click="addMeasure()">添加度量</el-button>
+        <el-button type="primary" style="float:right;margin-top:20px;" @click="addMeasure()">添加度量</el-button>
     </el-form>
     <add-measure ref="dialog"></add-measure>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -57,8 +57,12 @@ export default {
       this.tableData = [...this.measureTableList]
     },
     nextModel (val) {
-      this.$parent.getStepCountAdd(val)
-      this.$router.push('/analysisModel/createolap/reloadSet')
+      if (this.measureTableList.length > 0) {
+        this.$router.push('/analysisModel/createolap/reloadSet')
+        this.$parent.getStepCountAdd(val)
+      } else {
+        this.$message.warning('至少添加一条度量')
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

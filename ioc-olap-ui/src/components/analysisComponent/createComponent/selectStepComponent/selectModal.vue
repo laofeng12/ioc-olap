@@ -36,12 +36,16 @@ export default {
     },
     dialog (val, data) {
       this.dialogFormVisible = true
-      this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
+      // this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
+      this.tableData = this.selectTableTotal.filter(res => {
+        return res.label
+      })
     }
   },
   computed: {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
+      selectTableTotal: 'selectTableTotal',
       saveLocalSelectTable: 'saveLocalSelectTable'
     })
   }
@@ -58,7 +62,7 @@ export default {
       float left
       margin-left 3%
       margin-bottom 20px
-      font-size 13px
+      font-size 12px
       background #009688
       color #ffffff
       text-align center

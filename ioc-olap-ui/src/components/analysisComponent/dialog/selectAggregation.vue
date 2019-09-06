@@ -10,8 +10,18 @@
             </el-checkbox-group>
           </div>
         </div> -->
-        <el-checkbox-group ref="group" v-model="selctCheckData">
-          <el-checkbox-button v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1" size="mini">
+          <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5" size="mini">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6" size="mini">
+          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+        </el-checkbox-group>
+        <el-checkbox-group ref="group" v-model="selctCheckData" size="mini" v-else>
+          <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
+          <!-- <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -33,18 +43,22 @@ export default {
   },
   data () {
     return {
+      optionData: [],
       dialogFormVisible: false,
       selctCheckData: [],
       options: [
-        { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
-        { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
-        { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
-        { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
+        // { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
+        // { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
+        // { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
+        // { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
       ],
       index: '',
       type: '',
       findIndex: ''
     }
+  },
+  mounted () {
+    // console.log(this.saveselectIncludesData)
   },
   methods: {
     closeBtn () {
@@ -63,10 +77,33 @@ export default {
       }
       this.$store.dispatch('SaveAggregationWD', slectData)
     },
+    getArrDifference (arr1, arr2) {
+      return arr1.concat(arr2).filter(function (v, i, arr) {
+        return arr.indexOf(v) === arr.lastIndexOf(v)
+      })
+    },
     dialog (type, index, findIndex) {
       this.dialogFormVisible = true
       // this.options = this.saveNewSortList
-      this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+      // console.log('第二步选择的', this.aggregation_groups)
+      // this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+      switch (type) {
+        case 1:
+          this.options = this.reloadNeedData
+          break
+        case 5:
+          this.options = this.reloadNeedData
+          break
+        case 6:
+          this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
+          break
+        default:
+          // this.options = this.saveselectIncludesData
+          // 递减的功能（选择过后下面的就没法选择）
+          let arrD = [...new Set(this.recordingData)]
+          this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+          break
+      }
       this.index = index
       this.type = type
       this.findIndex = findIndex
@@ -100,9 +137,12 @@ export default {
   computed: {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
+      recordingData: 'recordingData',
+      aggregation_groups: 'aggregation_groups',
       selectDataidList: 'selectDataidList',
       savedimensionDataId: 'savedimensionDataId',
       savehetComposeDataId: 'savehetComposeDataId',
+      saveselectIncludesData: 'saveselectIncludesData', // 选择过的包含维度
       measureTableList: 'measureTableList', // 度量数据
       reloadNeedData: 'reloadNeedData' // 包含维度
     })
@@ -119,14 +159,24 @@ export default {
     .el-checkbox-group{
     }
     .el-checkbox-button{
-      width 200px
+      // width 200px
       margin-left 20px
       margin-bottom 20px
-      border-left 1px solid #DCDFE6
+      // border-left 1px solid #DCDFE6
       span{
         text-align center
         width 100%
         font-size 11px
+      }
+    }
+    .el-checkbox-button__inner{
+      border 1px solid #DCDFE6
+    }
+    .is-checked{
+      .el-checkbox-button__inner{
+        background #009688!important
+        color #ffffff
+        border 1px solid #009688!important
       }
     }
     .el-checkbox-button:last-child{
@@ -136,7 +186,10 @@ export default {
     }
     .el-checkbox-button:first-child .el-checkbox-button__inner{
       border-radius 0
-      border-left none
+      // border-left none
+    }
+    .el-checkbox-button.is-checked .el-checkbox-button__inner{
+      border 1px solid #009688!important
     }
   }
   .container{

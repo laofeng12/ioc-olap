@@ -93,3 +93,13 @@ export function searchOlapByIdApi (data) {
     data
   })
 }
+
+export function exportExcelApi (data) {
+  return fetch({
+    url: '/olap/apis/olapRealQuery/export',
+    method: 'post',
+    responseType: 'blob',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}

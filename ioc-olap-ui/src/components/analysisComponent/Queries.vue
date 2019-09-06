@@ -28,19 +28,27 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" :exportData="exportData" :duration="duration" :resetShow="true"></ResultBox>
+                   @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData">
+        </ResultBox>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
-import { getCubeTreeApi, saveOlapApi, searchOlapApi } from '../../api/instantInquiry'
+import { getCubeTreeApi, saveOlapApi, searchOlapApi, exportExcelApi } from '../../api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox },
+  props: {
+    editInfo: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data () {
     return {
       search: '',
@@ -65,7 +73,23 @@ export default {
       menuListLoading: false,
       loading: false,
       exportData: {},
-      duration: 1000
+      formData: {}
+    }
+  },
+  computed: {
+    ...mapGetters({ editInstant: 'editInstant' })
+  },
+  watch: {
+    editInfo: function (val) {
+      if (val && val.sql) {
+        this.textarea = val.sql
+        this.lineNumber = val.limit
+        this.formData = {
+          folder: val.folderId.toString(),
+          resultName: val.name
+        }
+        this.searchOlap()
+      }
     }
   },
   mounted () {
@@ -86,7 +110,7 @@ export default {
       }
       this.exportData = data
       try {
-        const { columnMetas, results, duration } = await searchOlapApi(data)
+        const { columnMetas, results } = await searchOlapApi(data)
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -101,7 +125,6 @@ export default {
           return list
         })
         this.tableData = [...[columnMetasList], ...resultsList]
-        this.duration = duration
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -114,8 +137,15 @@ export default {
         sql: this.textarea,
         flags: 0 // 标志 0：正常 1：共享
       }
-      const res = await saveOlapApi(Object.assign({}, data, callbackData))
+      let reqData = {}
+      if (this.editInfo && this.editInfo.sql) {
+        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false })
+      } else {
+        reqData = Object.assign({}, data, callbackData)
+      }
+      const res = await saveOlapApi(reqData)
       if (res.createId) {
+        await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
       }
     },
@@ -124,12 +154,31 @@ export default {
       this.checked = true
       this.lineNumber = '100'
       this.tableData = []
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;

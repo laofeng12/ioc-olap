@@ -2,10 +2,10 @@
   <div>
     <el-tabs v-model="activeName">
       <el-tab-pane label="新建查询" name="1">
-        <Queries></Queries>
+        <Queries :editInfo="editInfo"></Queries>
       </el-tab-pane>
       <el-tab-pane label="已保存结果" name="2">
-        <SaveResult></SaveResult>
+        <SaveResult @changeActive="changeActive"></SaveResult>
       </el-tab-pane>
       <el-tab-pane label="共享的结果" name="3">
         <ShareResult></ShareResult>
@@ -24,11 +24,18 @@ export default {
   components: { Queries, SaveResult, ShareResult },
   data () {
     return {
-      activeName: '1'
+      activeName: '1',
+      editInfo: {}
     }
   },
   computed: {
     ...mapGetters(['userInfo'])
+  },
+  methods: {
+    changeActive (index, data) {
+      this.activeName = index
+      this.editInfo = data.attrs
+    }
   }
 }
 </script>

@@ -2,7 +2,7 @@
   <div class="setFiled">
     <div class="containers">
       <filed-table></filed-table>
-      <div class="dimension" style="margin-left:240px;">
+      <div class="dimension" style="margin-left:270px;">
         <p>
           <span>维度选择</span>
           <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
@@ -16,13 +16,13 @@
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
-              <el-table-column type="selection" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="columnName" label="字段名称" align="center"> </el-table-column>
+              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
+              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
-              <el-table-column prop="tableName" label="显示名称" align="center">
+              <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
-                  <el-form-item :prop="'tableData.' + scope.$index + '.tableName'">
-                    <el-input type="text" v-model="scope.row.tableName" @change="iptChange(scope.row)"></el-input>
+                  <el-form-item :prop="'tableData.' + scope.$index + '.name'">
+                    <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -31,7 +31,7 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.row)">
+                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
@@ -65,23 +65,7 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: [],
-      dimensions: [
-        // {
-        //   name: '2',
-        //   table: 'KYLIN_CAL_DT',
-        //   derived: null,
-        //   column: 'WEEK_BEG_DT'
-        // }
-        // {
-        //   'name': 'LEAF_CATEG_ID',
-        //   'table': 'KYLIN_CATEGORY_GROUPINGS',
-        //   'derived': [
-        //     'LEAF_CATEG_ID'
-        //   ],
-        //   'column': null
-        // }
-      ]
+      tableData: []
     }
   },
   mounted () {
@@ -89,28 +73,36 @@ export default {
   },
   methods: {
     init () {
-      this.tableData = this.saveList
-      // this.selectTableTotal.length < 1 && this.$router.push('/olap/createolap/selectStep')
-      this.$root.eventBus.$on('filedTable', (res, code) => {
-        this.loading = true
-        if (code === 200) {
-          console.log(res)
-          this.tableData = res
-          setTimeout(() => {
-            this.loading = false
-            let arr = []
-            this.tableData && this.tableData.forEach((item, i) => {
-              this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                if (val.id === item.id) {
-                  this.tableData[i].tableName = val.tableName
-                  this.tableData[i].mode = val.mode
-                  arr.push(item)
-                }
-              })
+      this.$root.eventBus.$on('filedTable', (data, code) => {
+        // this.loading = true
+        // 获取本地的数据
+        this.saveSelectAllListFiled.forEach((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === data.id) {
+            items.data.columns && items.data.columns.map((n, i) => {
+              n.mode = n.mode ? n.mode : '2'
+              n.derived = n.name
+              n.titName = n.name
+              n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
+              n.id = `${data.alias}${i}`
+              n.filed = data.alias === code ? '1' : '0'
             })
-            this.toggleSelection(arr)
-          }, 300)
-        }
+            this.tableData = items.data.columns
+            let arr = []
+            setTimeout(() => {
+              this.tableData && this.tableData.forEach((item, i) => {
+                this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                  if (val.id === item.id) {
+                    this.tableData[i].name = val.name
+                    this.tableData[i].mode = val.mode
+                    arr.push(item)
+                  }
+                })
+              })
+              this.toggleSelection(arr)
+            }, 500)
+          }
+        })
       })
     },
     toggleSelection (rows) {
@@ -123,19 +115,28 @@ export default {
       }
     },
     nextModel (val) {
+      if (this.iscubeMatch() !== '1') return this.$message.warning('对应的foreign_key找不到~')
       if (this.saveSelectFiled.length === 0) return this.$message.warning('请选择维度字段')
-      let flag
-      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        flag = item.filed !== 1 ? 1 : 0
+      this.saveSelectFiled.forEach(item => {
       })
-      if (flag === '1') {
-        this.$message.warning('请选择事实表维度字段')
-      } else {
-        this.$router.push('/analysisModel/createolap/setMeasure')
-        this.$parent.getStepCountAdd(val)
-      }
-      flag === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
-      // this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/setMeasure')
+      this.$parent.getStepCountAdd(val)
+      // let flag
+      // this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+      //   flag = item.filed === '1' ? 0 : 1
+      // })
+      // String(flag) === '1' ? this.$message.warning('请选择事实表维度字段') : (this.$router.push('/analysisModel/createolap/setMeasure') && this.$parent.getStepCountAdd(val))
+    },
+    // 判断选择的衍生模式能否找到对应的fk
+    iscubeMatch () {
+      let dimensionsVal = this.dimensions.map(res => {
+        return res.tableId
+      })
+      let isRowkey = ''
+      this.foreignKeyData.map(res => {
+        isRowkey = dimensionsVal.includes(res) ? '1' : '0'
+      })
+      return isRowkey
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
@@ -160,26 +161,29 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
     // 输入框监听
     iptChange (val) {
       this.$store.dispatch('changePushalias', val)
-      // this.$store.dispatch('SaveFiledData')
     },
     // 单选框触发
     radioChange (val) {
       this.$store.dispatch('changePushSelectFiled', val)
-      // this.$store.dispatch('SaveFiledData')
     }
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
+      selectTableTotal: 'selectTableTotal',
       saveList: 'saveList',
-      saveNewSortList: 'saveNewSortList'
+      dimensions: 'dimensions',
+      foreignKeyData: 'foreignKeyData',
+      saveNewSortListstructure: 'saveNewSortListstructure',
+      jointResultData: 'jointResultData',
+      saveNewSortList: 'saveNewSortList',
+      saveSelectAllListFiled: 'saveSelectAllListFiled'
     })
   },
   beforeDestroy () {
@@ -201,6 +205,17 @@ export default {
       height calc(100vh - 150px)
       padding-bottom 100px
       overflow auto
+    }
+    >>>.el-form-item{
+      margin-bottom 0
+      .el-input__inner{
+        height 35px
+      }
+    }
+    >>>.el-radio-group{
+      label:nth-child(1) {
+        margin-right 18px
+      }
     }
     >>>.el-table__body td{
       border none!important

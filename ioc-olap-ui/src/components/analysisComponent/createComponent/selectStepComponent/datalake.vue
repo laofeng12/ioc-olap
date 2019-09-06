@@ -54,7 +54,16 @@ export default {
   },
   methods: {
     init () {
-    // 数据湖获取表的数据
+    // kelin模拟数据
+      this.$root.eventBus.$on('klinFetchData', res => {
+        this.descriptionHead = [
+          { prop: 'name', label: '字段名称' },
+          { prop: 'dataType', label: '字段类型' },
+          { prop: 'dataType', label: '字段描述' }
+        ]
+        this.descriptionData = res
+      })
+      // 数据湖获取表的数据
       this.$root.eventBus.$on('getTabdataList', (res, columnData) => {
         console.log(columnData)
         this.managementHead = []
@@ -100,7 +109,7 @@ export default {
   display flex
   .step_tab{
     flex 1
-    min-width 500px
+    min-width 800px
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px

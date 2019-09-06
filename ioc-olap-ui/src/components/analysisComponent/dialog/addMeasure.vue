@@ -1,27 +1,27 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="新增度量" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="formData" ref="formData">
-        <el-form-item label="度量名称" :label-width="formLabelWidth">
+      <el-form :model="formData" ref="formData" :rules="rules">
+        <el-form-item label="度量名称" :label-width="formLabelWidth" prop="name">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
         </el-form-item>
-        <el-form-item label="计算方式" :label-width="formLabelWidth">
+        <el-form-item label="计算方式" :label-width="formLabelWidth" prop="function.expression">
           <el-select v-model="formData.function.expression" placeholder="请选择" @change="selectChange">
             <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="类型" :label-width="formLabelWidth">
-          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype">
+        <el-form-item label="类型" :label-width="formLabelWidth" prop="function.parameter.type">
+          <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype" @change="selectType">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext">
-            <el-option v-for="item in fieldtextOption" :key="item.id" :label="item.label" :value="item.label"></el-option>
+        <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
+          <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectValue">
+            <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="margin-top:-20px;" :label-width="formLabelWidth">
-          <el-checkbox label="显示所有字段" @change="changeAll"></el-checkbox>
+        <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
+          <el-checkbox label="显示所有字段" v-model="checkedAll" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
@@ -29,7 +29,7 @@
         <div v-if="formData.function.expression === 'COUNT_DISTINCT'" class="coutDistinct">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
             <el-select v-model="formData.type" placeholder="请选择" :disabled="isDisabledtype">
-              <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              <el-option v-for="item in backType" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
           <el-table :data="formData.answers">
@@ -45,7 +45,7 @@
               <template slot-scope="scope">
                 <el-form-item :prop="'answers.' + scope.$index + '.answertext'">
                   <el-select v-model="scope.row.answertext" placeholder="请选择字段">
-                    <el-option v-for="(item, index) in datas" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
@@ -82,7 +82,7 @@
               <template slot-scope="scope">
                 <el-form-item :prop="'answers.' + scope.$index + '.answertext'" :rules='rules.answertext'>
                   <el-select v-model="scope.row.answertext" placeholder="请选择字段">
-                    <el-option v-for="(item, index) in datas" :key="index" :label="item.codename" :value="item.codename"></el-option>
+                    <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
                   </el-select>
                 </el-form-item>
               </template>
@@ -131,6 +131,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { deflate } from 'zlib'
 export default {
   props: {
     border: {
@@ -147,11 +148,11 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       },
+      checkedAll: false,
       isNew: 1,
       formLabelWidth: '100px',
       dialogFormVisible: false,
@@ -169,15 +170,14 @@ export default {
         value: 'MIN',
         label: 'MIN'
       }, {
-        value: 'COUNT',
-        label: 'COUNT'
-      }, {
         value: 'COUNT_DISTINCT',
         label: 'COUNT_DISTINCT '
-      }, {
-        value: 'TOP_N',
-        label: 'TOP_N'
-      }, {
+      },
+      {
+        value: 'AVG',
+        label: 'AVG'
+      },
+      {
         value: 'EXTENDED_COLUMN',
         label: 'EXTENDED_COLUMN'
       }, {
@@ -204,9 +204,19 @@ export default {
         { value: '5', label: 'TOP 5000' },
         { value: '6', label: 'TOP 10000' }
       ],
+      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal(19,4)', 'bigint'],
       rules: {
-        answertext: [
-          { required: false, message: '请选择字段', trigger: 'blur' }
+        name: [
+          { required: true, message: '请输入度量名称', trigger: 'blur' }
+        ],
+        'function.expression': [
+          { required: true, message: '请选择计算方式', trigger: 'change' }
+        ],
+        'function.parameter.type': [
+          { required: true, message: '请选择类型', trigger: 'change' }
+        ],
+        'function.parameter.value': [
+          { required: false, message: '请选择字段', trigger: 'change' }
         ]
       }
     }
@@ -214,11 +224,14 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
-      saveSelectFiled: 'saveSelectFiled'
+      saveSelectFiled: 'saveSelectFiled',
+      SaveFactData: 'SaveFactData',
+      jointResultData: 'jointResultData',
+      saveSelectAllList: 'saveSelectAllList'
     })
   },
   mounted () {
-    // console.log(this.selectTableTotal)
+    console.log(this.formData)
   },
   methods: {
     resetData () {
@@ -229,37 +242,61 @@ export default {
           parameter: {
             type: '',
             value: ''
-          },
-          showDim: false
+          }
         },
         answers: []
       }
     },
     closeBtn () {
       this.dialogFormVisible = false
+      this.$refs.formData.clearValidate()
+    },
+    selectValue (val) {
+      let result = this.fieldtextOption.filter((res, index) => {
+        return res.label === val
+      })
+      this.formData.function.returntype = result[0].dataType
+      if (this.jsonType.indexOf(result[0].dataType) === -1) {
+        this.$message.warning('不支持当前字段类型~')
+        this.formData.function.parameter.value = ''
+      }
+    },
+    selectType (val) {
+      if (val === 'constant') {
+        this.formData.function.parameter.value = 1
+        this.formData.function.returntype = 'bigint'
+        this.isDisabledtext = true
+      } else {
+        this.formData.function.parameter.value = ''
+        this.isDisabledtext = false
+      }
     },
     submitBtn (index) {
-      this.dialogFormVisible = false
-      let id = Math.random().toString(36).substr(3)
-      this.formData['id'] = id
-      this.formData['isNew'] = this.isNew
-      this.$store.dispatch('MeasureTableList', this.formData).then(res => {
-        if (res) {
-          this.$message.success('保存成功~')
-          this.resetData()
+      this.$refs.formData.validate((valid) => {
+        if (valid) {
+          this.dialogFormVisible = false
+          let id = Math.random().toString(36).substr(3)
+          this.formData['id'] = id
+          this.formData['isNew'] = this.isNew
+          this.formData['showDim'] = true
+          this.$store.dispatch('MeasureTableList', this.formData).then(res => {
+            if (res) {
+              this.$message.success('设置成功~')
+              this.$refs.formData.clearValidate()
+              this.checkedAll = false
+            }
+          })
+          this.$parent.init()
         }
       })
-      this.$parent.init()
     },
     dialog (data) {
       this.dialogFormVisible = true
       this.fieldtextOption = []
-      this.saveSelectFiled.map(item => {
-        if (item.filed === '1') {
-          this.fieldtextOption.push(
-            { id: item.id, label: `${item.tableName}.${item.columnName}` }
-          )
-        }
+      this.SaveFactData.map(item => {
+        this.fieldtextOption.push(
+          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+        )
       })
       if (data) {
         this.formData = data
@@ -267,32 +304,61 @@ export default {
       } else {
         this.resetData()
         this.isNew = 0
+        setTimeout(() => {
+          this.$refs.formData.clearValidate()
+        }, 100)
       }
     },
     changeAll (n) {
       this.fieldtextOption = []
       this.formData.function.parameter.value = ''
-      n === true
-        ? this.saveSelectFiled.map(res => {
-          this.fieldtextOption.push({ id: res.id, label: `${res.tableName}.${res.columnName}` })
-        })
-        : this.saveSelectFiled.map(item => {
-          if (item.filed === '1') {
-            this.fieldtextOption.push({ id: item.id, label: `${item.tableName}.${item.columnName}` })
+      let AllData = []
+      this.saveSelectAllList.forEach((item, index) => {
+        let findData = []
+        let items = JSON.parse(item)
+        this.jointResultData.lookups.forEach((n, i) => {
+          if (items.resourceId === n.id) {
+            items.data.columns.forEach((k, i) => {
+              findData.push({
+                name: n.alias + '.' + k.name,
+                id: k.id,
+                dataType: k.dataType
+              })
+            })
           }
+        })
+        AllData = AllData.concat(findData)
+      })
+      n === true
+        ? AllData.map(res => {
+          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: res.name })
+        })
+        : this.SaveFactData.map(item => {
+          this.fieldtextOption.push(
+            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+          )
         })
     },
     selectChange (val) {
+      this.formData.function.parameter.value = ''
       switch (val) {
         case 'COUNT':
           this.formData.function.parameter.type = 'constant'
-          this.formData.fieldtext = 1
+          this.formData.function.parameter.value = 1
+          this.formData.function.returntype = 'bigint'
           this.isDisabledtype = true
           this.isDisabledtext = true
           break
         case 'PERCENTILE':
           this.formData.function.parameter.type = 'column'
+          this.formData.function.parameter.value = ''
           this.isDisabledtype = true
+          this.isDisabledtext = false
+          break
+        case 'COUNT_DISTINCT':
+          this.formData.function.parameter.value = ''
+          this.isDisabledtext = true
+          this.isDisabledtext = true
           break
         default:
           this.isDisabledtype = false
@@ -305,7 +371,8 @@ export default {
       this.formData.answers.splice(index, 1)
     },
     addtext () {
-      this.formData.answers.push({ index: 1, answertext: '' })
+      let idx = this.formData.answers.length + 1
+      this.formData.answers.push({ index: idx, answertext: '' })
     }
   }
 }
@@ -321,6 +388,9 @@ export default {
       margin-right 20px
       margin-bottom 10px
     }
+  }
+  >>>.el-select{
+    width 100%
   }
   .coutDistinct, .coutTopn{
     >>>.el-form-item{

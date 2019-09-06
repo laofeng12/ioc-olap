@@ -1,9 +1,8 @@
 <template>
      <li class="data-list dimen-list" :data-type="dataType">
-       <el-tooltip  v-if="name.length>20" class="item" effect="dark" :content="name" placement="top">
+       <el-tooltip class="item" effect="dark" :content="name" placement="top">
          <span class="column-name">{{name}}</span>
        </el-tooltip>
-       <span v-else class="">{{name}}</span>
        <span class="filtrate-btn-box"><i v-if="showEdit" class="el-icon-edit"  @click="editClick"></i><i class="el-icon-close" @click="filtrate"></i>
        </span></li>
 </template>
@@ -43,7 +42,7 @@ export default {
     editClick () {
       const item = this.items[this.index]
       // console.log(this.items[this.index])
-      this.$emit('editClick', item.dataType, item, this.index)
+      this.$emit('editClick', item, this.index)
     },
     // 删除筛选
     filtrate () {
@@ -68,6 +67,7 @@ export default {
       overflow: hidden;
     }
     .filtrate-btn-box{
+      flex-shrink: 0;
       display: flex;
       i{
         margin-left: 10px;

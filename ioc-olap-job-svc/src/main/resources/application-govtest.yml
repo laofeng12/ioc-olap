@@ -63,11 +63,34 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
- 
-#计划任务配置
+
+
+
+kylin:
+  address:  http://19.104.59.1:7070
+  account:  ADMIN
+  pwd:  KYLIN
+  authorization:  Basic QURNSU46S1lMSU4=
+
+#计划任务配置 cron表达式
 schedule:
   execution:
     waitqueue: 0/5 * * * * ?
+  example:
+    example: 0/5 * * * * ?
+
+  hour:
+    hour: 0 59 * * * ?
+  day:
+    day: 0 59 23 ? * *
+  month:
+    month: 0 0 0 1 * ?
+  minute:
+    minute: 0 */1 * * * ?
+  five_minute:
+    five_minute: 0 */5 * * * ?
+
+
 
 
 

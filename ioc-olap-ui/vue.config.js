@@ -1,5 +1,5 @@
 // const baseUrl = process.env.NODE_ENV === 'production' ? '/' : '/'
-const baseUrl  '/olapweb'
+const baseUrl = '/olapweb'
 const path = require('path')
 function resolve (dir) {
   return path.join(__dirname, '.', dir)
@@ -12,6 +12,7 @@ module.exports = {
     proxy: {
       '/olapweb/admin/': {
         target: 'http://183.6.55.26:31075', // 公司测试环境
+        // target: 'http://19.104.40.36', // 政务内网
         pathRewrite: { '^/olapweb/admin/': '/admin/' },
         changeOrigin: true
       },
@@ -30,21 +31,15 @@ module.exports = {
         pathRewrite: { '^/olapweb/pds/': '/pds/' },
         changeOrigin: true
       },
+      '/olapweb/olap/apis': {
+        target: 'http://183.6.55.26:30003', // 麒麟测试环境
+        changeOrigin: true
+      },
       '/olapweb/olap/': {
-        // target: 'http://19.104.40.36', // 麒麟测试环境
-        target: 'http://172.16.60.84:8081', // 左烨本地
-        // pathRewrite: { '^/olapweb/olap/': '/olap/' },
+        target: 'http://183.6.55.26:30003', // 麒麟测试环境
+        pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }
-      // '/olapweb/olap': {
-      //   target: 'http://172.16.60.25:9090', // 沛辰本机
-      //   // pathRewrite: { '^/olapweb/olap/': '/olap/' },
-      //   changeOrigin: true
-      // }
-      // '/olapweb/': {
-      //   target: 'http://172.16.60.5:8080', // 宝珠本机
-      //   changeOrigin: true
-      // }
     }
   },
   chainWebpack: config => {

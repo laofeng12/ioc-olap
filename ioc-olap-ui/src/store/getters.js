@@ -5,6 +5,9 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   savemousedownData: state => state.olap.savemousedownData,
+  ModelAllList: state => state.olap.ModelAllList,
+  modelSelectData: state => state.olap.modelSelectData,
+  mockjsonData: state => state.olap.mockjsonData,
   lateData: state => state.olap.lateData,
   totalSaveData: state => state.olap.totalSaveData,
   treeList: state => state.selectStep.treeList,
@@ -15,15 +18,19 @@ const getters = {
   lastClickTab: state => state.selectStep.lastClickTab,
   saveSelctchckoutone: state => state.selectStep.saveSelctchckoutone,
   saveSelctchckouttwo: state => state.selectStep.saveSelctchckouttwo,
+  selectStepList: state => state.selectStep.selectStepList,
+  saveSelectAllList: state => state.selectStep.saveSelectAllList,
+  saveSelectAllListFiled: state => state.selectStep.saveSelectAllListFiled,
+  SaveFactData: state => state.selectStep.SaveFactData,
   /* */
-  jointResult: state => state.createTableRelation.jointResult,
+  jointResultData: state => state.createTableRelation.jointResultData,
+  foreignKeyData: state => state.createTableRelation.foreignKeyData,
   /* */
   saveSelectFiled: state => state.setFiled.saveSelectFiled,
   saveList: state => state.setFiled.saveList,
   saveNewSortList: state => state.setFiled.saveNewSortList,
   saveNewSortListstructure: state => state.setFiled.saveNewSortListstructure,
   reloadNeedData: state => state.setFiled.reloadNeedData,
-  saveLeftFiled: state => state.setFiled.saveLeftFiled,
   dimensions: state => state.setFiled.dimensions,
   /* */
   measureTableList: state => state.setMeasure.measureTableList,
@@ -31,14 +38,24 @@ const getters = {
   reloadData: state => state.reloadSet.reloadData,
   /* */
   mandatory_dimension_set_list: state => state.advancedSet.mandatory_dimension_set_list,
+  saveselectIncludesData: state => state.advancedSet.saveselectIncludesData,
+  filterMappingData: state => state.advancedSet.filterMappingData,
   hbase_mapping: state => state.advancedSet.hbase_mapping,
   aggregation_groups: state => state.advancedSet.aggregation_groups,
   selectDataidList: state => state.advancedSet.selectDataidList,
   savedimensionDataId: state => state.advancedSet.savedimensionDataId,
   rowkeyData: state => state.advancedSet.rowkeyData,
   engine_types: state => state.advancedSet.engine_types,
+  recordingData: state => state.advancedSet.recordingData,
   savehetComposeDataId: state => state.advancedSet.savehetComposeDataId,
   /* */
-  saveFolderList: state => state.analysis.saveFolderList
+  saveFolderList: state => state.analysis.saveFolderList,
+  cubeData: state => state.analysis.cubeData,
+  newValueList: state => state.analysis.newValueList,
+  newFilterList: state => state.analysis.newFilterList,
+  newRowList: state => state.analysis.newRowList,
+  newColList: state => state.analysis.newColList,
+  /** modelList */
+  cubeObjListData: state => state.modelList.cubeObjListData
 }
 export default getters

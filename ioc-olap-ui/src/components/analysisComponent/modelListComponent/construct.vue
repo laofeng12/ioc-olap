@@ -3,11 +3,12 @@
     <el-dialog title="构建模型" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="日期字段" :label-width="formLabelWidth">
-          {{11111111111}}
+          {{dataList.partitionDateColumn}}
         </el-form-item>
         <el-form-item label="开始时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.startTime"
+            :disabled="isDisabled"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
@@ -15,6 +16,8 @@
         <el-form-item label="结束时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.endTime"
+            format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
@@ -29,10 +32,13 @@
 </template>
 
 <script>
+import { buildModeling } from '@/api/modelList'
 export default {
   data () {
     return {
+      dataList: {},
       form: {},
+      isDisabled: true,
       formLabelWidth: '120px',
       dialogFormVisible: false
     }
@@ -44,15 +50,29 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '构建成功!'
-        })
         this.dialogFormVisible = false
+        this.$parent.changeLoading()
+        let parmas = {
+          cubeName: this.dataList.name,
+          start: Date.parse(new Date(this.form.startTime)) / 1000,
+          end: Date.parse(new Date(this.form.endTime)) / 1000
+        }
+        this.$throttle(async () => {
+          await buildModeling(parmas).then(res => {
+            this.$message.success('构建成功~')
+            this.$parent.closeChangeLoading()
+          }).catch(_ => {
+            this.$parent.closeChangeLoading()
+          })
+        })
       })
     },
-    dialog () {
+    dialog (val) {
+      this.dataList = val
       this.dialogFormVisible = true
+      val.segments.forEach(item => {
+        this.form.startTime = item.last_build_time
+      })
     }
   }
 }

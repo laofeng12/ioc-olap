@@ -1,25 +1,25 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="过滤设置" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="formData" :rules="rules">
-        <el-form-item label="选择字段表" :label-width="formLabelWidth">
-          <el-select v-model="formData.TABLENAME" placeholder="请选择字段表" @change="selectTable">
+      <el-form :model="formData" :rules="rules" ref="formData">
+        <el-form-item label="选择字段表" :label-width="formLabelWidth" prop="tableName">
+          <el-select v-model="formData.tableName" placeholder="请选择字段表" @change="selectTable">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择字段" :label-width="formLabelWidth">
-          <el-select v-model="formData.FIELD" placeholder="请选择字段">
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnName" :value="item.comment"></el-option>
+        <el-form-item label="选择字段" :label-width="formLabelWidth" prop="field">
+          <el-select v-model="formData.field" placeholder="请选择字段">
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择过滤条件" :label-width="formLabelWidth">
-          <el-select v-model="formData.PATTERN" placeholder="请选择过滤条件">
+        <el-form-item label="选择过滤条件" :label-width="formLabelWidth" prop="pattern">
+          <el-select v-model="formData.pattern" placeholder="请选择过滤条件">
             <el-option v-for="item in filterOptions" :key="item.value" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="设置过滤值" :label-width="formLabelWidth">
-          <el-input v-model="formData.PARAMETER" autocomplete="off" placeholder="请输入过滤值"></el-input>
-          <el-input v-if="formData.PATTERN === 'BETWEED'" v-model="formData.PARAMETERBE" autocomplete="off" placeholder="请输入过滤值"></el-input>
+        <el-form-item label="设置过滤值" :label-width="formLabelWidth" prop="parameter">
+          <el-input v-model="formData.parameter" autocomplete="off" placeholder="请输入过滤值"></el-input>
+          <el-input v-if="formData.pattern === 'BETWEED'" v-model="formData.parameterbe" autocomplete="off" placeholder="请输入过滤值"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -41,24 +41,16 @@ export default {
   },
   data () {
     return {
-      formData: {},
+      formData: {
+        TABLENAME: ''
+      },
       isNew: 1,
-      formLabelWidth: '100px',
+      formLabelWidth: '120px',
       dialogFormVisible: false,
       tableData: [],
       typeOptions: [],
-      tableOptions: [
-        // { label: 'a' },
-        // { label: 'b' },
-        // { label: 'c' }
-      ],
-      textOptions: [
-        // { comment: 'aaa', columnName: 'aaa' },
-        // { comment: 'bbb', columnName: 'bbb' },
-        // { comment: 'vccc', columnName: 'vccc' },
-        // { comment: 'vvvv', columnName: 'vvvv' },
-        // { comment: 'bbbbb', columnName: 'bbbbb' }
-      ],
+      tableOptions: [],
+      textOptions: [],
       filterOptions: [
         { value: '0', label: '=' },
         { value: '1', label: '<>' },
@@ -69,8 +61,17 @@ export default {
         { value: '6', label: 'BETWEED' }
       ],
       rules: {
-        answertext: [
-          { required: false, message: '请选择字段', trigger: 'blur' }
+        tableName: [
+          { required: true, message: '请选择字段表', trigger: 'change' }
+        ],
+        field: [
+          { required: true, message: '请选择字段', trigger: 'change' }
+        ],
+        pattern: [
+          { required: true, message: '请选择过滤条件', trigger: 'change' }
+        ],
+        parameter: [
+          { required: true, message: '请设置过滤值', trigger: 'blur' }
         ]
       }
     }
@@ -84,28 +85,43 @@ export default {
     },
     closeBtn () {
       this.dialogFormVisible = false
+      this.$refs.formData.clearValidate()
     },
     selectTable (val) {
-      const params = {
-        dsDataSourceId: 2,
-        tableName: val
-      }
-      this.$store.dispatch('GetColumnList', params).then(res => {
-        this.textOptions = res.data
-      })
-    },
-    submitBtn (index) {
-      this.dialogFormVisible = false
-      let id = Math.random().toString(36).substr(3)
-      this.formData['id'] = id
-      this.formData['isNew'] = this.isNew
-      this.$store.dispatch('ReloadFilterTableList', this.formData).then(res => {
-        if (res) {
-          this.$message.success('保存成功~')
-          this.formData = {}
+      // const params = {
+      //   dsDataSourceId: 2,
+      //   tableName: val
+      // }
+      // this.$store.dispatch('GetColumnList', params).then(res => {
+      //   this.textOptions = res.data
+      // })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: '1' }).then(res => {
+      //   this.textOptions = res.data.columns
+      // })
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.name === val) {
+          this.textOptions = items.data.columns
         }
       })
-      this.$parent.init()
+    },
+    submitBtn () {
+      this.$refs.formData.validate((valid) => {
+        if (valid) {
+          this.dialogFormVisible = false
+          let ids = Math.random().toString(36).substr(3)
+          this.formData['ids'] = ids
+          this.formData['isNew'] = this.isNew
+          this.$store.dispatch('ReloadFilterTableList', this.formData).then(res => {
+            if (res) {
+              this.$message.success('保存成功~')
+              this.formData = {}
+              this.$parent.init()
+              this.$refs.formData.clearValidate()
+            }
+          })
+        }
+      })
     },
     dialog (data) {
       this.dialogFormVisible = true
@@ -115,12 +131,16 @@ export default {
       } else {
         this.formData = {}
         this.isNew = 0
+        setTimeout(() => {
+          this.$refs.formData.clearValidate()
+        }, 100)
       }
     }
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList'
     })
   }
 }
@@ -136,6 +156,9 @@ export default {
       margin-right 20px
       margin-bottom 10px
     }
+  }
+  >>>.el-select{
+    width 100%
   }
   >>>.is-focus{
     .el-input__suffix{

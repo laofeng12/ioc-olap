@@ -1,0 +1,29 @@
+package com.openjava.olap.repository;
+
+import com.openjava.olap.domain.OlapCubeTableColumn;
+import com.openjava.olap.domain.OlapCubeTableRelation;
+import org.ljdp.core.spring.data.DynamicJpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * tt数据库访问层
+ * @author x_pc
+ *
+ */
+public interface OlapCubeTableRelationRepository extends DynamicJpaRepository<OlapCubeTableRelation, Long>, OlapCubeTableRelationRepositoryCustom{
+    @Transactional
+    @Modifying
+    @Query(value = "delete from OLAP_CUBE_TABLE_RELATION t where t.CUBE_ID=:cubeId", nativeQuery = true)
+    void deleteCubeId(@Param("cubeId") Long cubeId);
+
+    List<OlapCubeTableRelation> findByCubeId(Long cubeId);
+
+    @Query(value = "select * from OLAP_CUBE_TABLE_RELATION t  where t.CUBE_ID  in  (select b.ID from OLAP_CUBE b where b.NAME=:cubeName)", nativeQuery = true)
+    ArrayList<OlapCubeTableRelation> findByCubeName(@Param("cubeName") String cubeName);
+}

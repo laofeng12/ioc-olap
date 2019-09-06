@@ -1,7 +1,7 @@
 
 const creatTableRelation = {
   state: {
-    jointResult: {
+    jointResultData: {
       name: 'joint',
       description: '',
       fact_table: '',
@@ -31,12 +31,35 @@ const creatTableRelation = {
         //   }
         // }
       ]
+    },
+    // 存储连后对应的fk
+    foreignKeyData: []
+  },
+  mutations: {
+    SaveJointResult (state, payload) {
+      state.jointResultData = payload
+      payload.lookups.map(res => {
+        if (res.join.foreign_key.length > 1) {
+          res.join.foreign_key.forEach(item => {
+            state.foreignKeyData = state.foreignKeyData.concat(item)
+          })
+        } else {
+          state.foreignKeyData.push(res.join.foreign_key.join(','))
+        }
+      })
+      state.foreignKeyData = [...new Set(state.foreignKeyData)]
+      // console.log('foreignKeyData===', [...new Set(state.foreignKeyData)])
     }
   },
   actions: {
-    SaveJointResult ({ state }, data) {
-      state.jointResult = data
-      console.log(state.jointResult, '啦啦啦啦啦')
+    resetList ({ state }) {
+      state.jointResultData = {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      }
+      state.foreignKeyData = []
     }
   }
 }

@@ -5,10 +5,10 @@
        <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
-        :key="index" @click="changeLi(titleData[index], dataList.fact_table, index)">
+        :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
-         {{titleData[index]}}
-         <span v-if="titleData[index]===dataList.fact_table">事实表</span>
+         <span class="tableTitle">{{titleData[index]}}</span>
+         <span class="filds" v-if="titleData[index]===dataList.fact_table">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -19,6 +19,7 @@
 <script>
 import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     setfactTable
@@ -28,6 +29,8 @@ export default {
       value: '',
       current: '',
       colors: 'red',
+      ids: '',
+      primary_key: '',
       titleData: [], // 表名
       // 模拟数据
       dataList: {}
@@ -38,55 +41,122 @@ export default {
   },
   methods: {
     init () {
-      this.dataList = this.saveLeftFiled
-      // 遍历去重数据拿到表名称
+      /**
+       * 1、深拷贝拿到第二步建表生成的数据 this.jointResultData
+       * 2、遍历数据拿到对应的别名（左侧菜单需要展示别名）
+       *
+       */
+      this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
       this.dataList.lookups.map((item, index) => {
-        this.titleData.push(item.table, item.joinTable)
+        this.titleData.push(item.alias)
+        // 取出事实表对应的id以及foreign_key
+        if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
+          this.ids = item.joinId
+          this.primary_key = item.join.foreign_key
+        }
       })
-      this.titleData = [...new Set(this.titleData)]
+      // 创建一条事实表的数据push到集合里
+      let factData = {
+        alias: this.dataList.fact_table,
+        id: this.ids,
+        table: '',
+        joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
+        join: {
+          foreign_key: this.primary_key
+        }
+      }
+      this.dataList.lookups = [factData, ...this.dataList.lookups] // 组合数据
+      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])] // 组合事实表的别名跟普通表的别名
+      this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
       // 初始化已选择的表
       setTimeout(() => {
-        this.changeLi(this.titleData[0], 0)
+        this.changeLi(this.dataList.lookups[0], 0)
         this.current = 0
       }, 300)
       // 接收设置表关系的数据
-      // this.dataList = this.selectTableTotal
       // 接收已选择的表
       this.$root.eventBus.$on('tableNameActive', _ => {
-        setTimeout(() => {
-          this.titleData.forEach((item, index) => {
-            this.saveSelectFiled.forEach((n, i) => {
-              if (item === n.tableName) {
-                this.dataList.lookups[index]['isActive'] = 1
-              }
-            })
-          })
-        }, 300)
+        this.getActiveChange()
       })
-      console.log(this.dataList)
+      this.getActiveChange()
+    },
+    getActiveChange () {
+      this.titleData.forEach((item, index) => {
+        this.saveSelectFiled.forEach((n, i) => {
+          if (item === n.tableName) {
+            this.dataList.lookups[index]['isActive'] = 1
+          }
+        })
+      })
     },
     cahngges (val) {
       this.$refs.dialog.dialog()
     },
-    changeLi (item, name, index) {
+    changeLi (item, index) {
       this.current = index
-      const parmas = {
-        dsDataSourceId: 2,
-        tableName: item
-      }
-      this.$store.dispatch('GetColumnList', parmas).then(res => {
-        res.data && res.data.map((n, i) => {
-          n.mode = n.mode ? n.mode : '2'
-          n.derived = n.columnName
-          n.tableName = item
-          n.filed = item === this.dataList.fact_table ? '1' : '0'
-          n.id = `${item}${i}`
+      // const parmas = {
+      //   dsDataSourceId: 2,
+      //   tableName: item.alias
+      // }
+      // this.$store.dispatch('GetColumnList', parmas).then(res => {
+      //   res.data && res.data.map((n, i) => {
+      //     n.mode = n.mode ? n.mode : '2'
+      //     n.derived = n.columnName
+      //     n.tableName = item
+      //     n.filed = item === this.dataList.fact_table ? '1' : '0'
+      //     n.id = `${item}${i}`
+      //   })
+      //   // 存储选择对应的表
+      //   this.$root.eventBus.$emit('filedTable', res.data, res.code)
+      //   // 存储已选择的表
+      //   this.$store.dispatch('SaveList', res.data)
+      // })
+      // kelin
+      // console.log(item, '====', this.dataList.fact_table)
+      this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
+      // 存储事实表的所有字段
+      if (index === 0) {
+        this.saveSelectAllList.map((item, index) => {
+          let items = JSON.parse(item)
+          if (items.resourceId === this.dataList.lookups[0].id) {
+            let list = {
+              data: items.data.columns,
+              list: this.dataList.lookups[0]
+            }
+            this.$store.commit('SaveFactData', list)
+          }
         })
-        // 存储选择对应的表
-        this.$root.eventBus.$emit('filedTable', res.data, res.code)
-        // 存储已选择的表
-        this.$store.dispatch('SaveList', res.data)
-      })
+      }
+      // ------------------------- 数据湖
+      // this.$store.dispatch('GetResourceInfo', { resourceId: '811937214570250', type: 1 }).then(res => {
+      //   let datas = []
+      //   res.data.column.forEach(item => {
+      //     datas.push(item.columnAlias)
+      //   })
+      //   let obj = {
+      //     params: {
+      //       'columnList': datas,
+      //       'page': 0,
+      //       'size': 0
+      //     },
+      //     data: {
+      //       resourceId: '811937214570250',
+      //       type: 1
+      //     }
+      //   }
+      //   this.$store.dispatch('getResourceData', obj).then(res => {
+      //     res.data.columnList.map((n, i) => {
+      //       n.mode = n.mode ? n.mode : '2'
+      //       n.derived = n.name
+      //       n.dataType = n.dataType ? n.dataType : 'string'
+      //       n.tableName = item.alias ? item.alias : ''
+      //       n.filed = item.alias === this.dataList.fact_table ? '1' : '0'
+      //       n.id = `${item.alias}${i}`
+      //     })
+      //     // 存储选择对应的表
+      //     this.$root.eventBus.$emit('filedTable', res.data.columnList)
+      //   })
+      // })
     }
   },
   beforeDestroy () {
@@ -94,11 +164,15 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
       saveSelectFiled: 'saveSelectFiled',
-      saveLeftFiled: 'saveLeftFiled',
+      jointResultData: 'jointResultData',
       saveSelectFiledTree: 'saveSelectFiledTree'
-    })
+    }),
+    getFeact () {
+      let data = this.dataList.fact_table
+      return data.substring(data.indexOf('.') + 1)
+    }
   }
 }
 </script>
@@ -118,7 +192,14 @@ export default {
       height 30px
       line-height 30px
       color #000000
-      span{
+      .tableTitle{
+        width: 70%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: bottom;
+      }
+      .filds{
         background #009688
         color #ffffff
         padding 2px 6px

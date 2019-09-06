@@ -130,3 +130,42 @@ export function saveolapModeldata (data) {
     data
   })
 }
+
+// 模型列表
+export function getModelDataList (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/cubeList',
+    method: 'get',
+    params
+  })
+}
+
+// 获取Encoding
+export function getEncodingList () {
+  return fetch({
+    url: '/olap/apis/OlapModeling/encodingList',
+    method: 'get'
+  })
+}
+
+// kelin
+export function getselectCatalog (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectCatalog',
+    method: 'get',
+    params
+  })
+}
+export function getselectTable (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectTable',
+    method: 'get',
+    params
+  })
+}
+export function getselectColumn (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/selectColumn?resourceIds=' + params,
+    method: 'get'
+  })
+}

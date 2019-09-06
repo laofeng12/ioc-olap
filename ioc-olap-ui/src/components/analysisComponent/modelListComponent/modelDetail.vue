@@ -3,8 +3,8 @@
     <div class="tabHead_item">
       <div v-for="(item, index) in dataHead" @click="selectTab(item.id, item.view)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
-    <div class="content_box">
-      <component :is="currentView"></component>
+    <div class="content_box" v-loading="isLoading">
+      <component :is="currentView" :jsonData="dataArr"></component>
     </div>
     <el-button type="primary" @click="closeDetail">关闭</el-button>
   </div>
@@ -12,14 +12,22 @@
 
 <script>
 import { selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate } from '@/components/analysisComponent/modelListComponent/moreDetail'
+import { descDataList } from '@/api/modelList'
 export default {
   components: {
     selects, settableLine, setFiled, setMeasure, setReload, setAdvance, setcomplate
+  },
+  props: {
+    jsonData: {
+      type: [Object, Array]
+    }
   },
   data () {
     return {
       cureent: 1,
       currentView: 'selects',
+      isLoading: true,
+      dataArr: [],
       dataHead: [
         { id: '1', value: '1、选择数据源', view: 'selects' },
         { id: '2', value: '2、建立表关系', view: 'settableLine' },
@@ -31,7 +39,20 @@ export default {
       ]
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
+    init () {
+      if (this.jsonData.cubeName) {
+        descDataList(this.jsonData).then(res => {
+          if (res.CubeList) {
+            this.isLoading = false
+            this.dataArr = res
+          }
+        })
+      }
+    },
     selectTab (id, view) {
       this.cureent = id
       this.currentView = view
@@ -46,7 +67,7 @@ export default {
 <style lang="stylus" scoped>
 .modelDetail{
   width 100%
-  overflow hidden
+  // overflow hidden
   .tabHead_item{
     height 25px
     margin 0 auto
@@ -131,6 +152,7 @@ export default {
   }
   .content_box{
     height 300px
+    overflow auto
   }
   >>>.el-button{
     margin-left 50%

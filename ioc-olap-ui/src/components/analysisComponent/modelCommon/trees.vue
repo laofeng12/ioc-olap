@@ -6,11 +6,12 @@
       :data="treeList"
         ref="tree"
         v-loading="treeLoading"
+        auto-expand-parent
         :expand-on-click-node="false"
         node-key="id"
         @node-expand="nodeExpand"
-        :highlight-current="showTree"
         @node-click="getCurrents"
+        highlight-current
         :default-expanded-keys="defaultOpenKeys"
         :render-content="renderContent"
         :filter-node-method="filterNode"
@@ -23,32 +24,21 @@
 <script>
 import { setTimeout } from 'timers'
 import { mapGetters } from 'vuex'
+import { getselectCatalog } from '@/api/olapModel'
 export default {
   data () {
     return {
       treeLoading: false,
       showTree: true,
       serachvalue: '',
-      // treeList: [
-      //   {
-      //     label: '数据湖',
-      //     id: '1337',
-      //     children: []
-      //   },
-      //   {
-      //     label: '自建目录',
-      //     id: '1338',
-      //     children: []
-      //   }
-      // ],
       treeList: [
         {
-          label: 'DEFAULT',
+          label: '数据湖',
           id: '1337',
           children: []
         },
         {
-          label: 'KYLIN',
+          label: '自建目录',
           id: '1338',
           children: []
         }
@@ -57,1018 +47,7 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'label'
-      },
-      jsonData: [
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_ACCOUNT',
-              'column_NAME': 'ACCOUNT_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_ACCOUNT',
-              'column_NAME': 'ACCOUNT_BUYER_LEVEL',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'INTEGER',
-              'data_TYPE': 4,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_ACCOUNT',
-              'column_NAME': 'ACCOUNT_SELLER_LEVEL',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'INTEGER',
-              'data_TYPE': 4,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 3,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_ACCOUNT',
-              'column_NAME': 'ACCOUNT_COUNTRY',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 4,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'DEFAULT',
-          'table_NAME': 'KYLIN_ACCOUNT',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        },
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CAL_DT',
-              'column_NAME': 'CAL_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CAL_DT',
-              'column_NAME': 'YEAR_BEG_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CAL_DT',
-              'column_NAME': 'MONTH_BEG_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 3,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CAL_DT',
-              'column_NAME': 'WEEK_BEG_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 4,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'DEFAULT',
-          'table_NAME': 'KYLIN_CAL_DT',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        },
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'LEAF_CATEG_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'SITE_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'INTEGER',
-              'data_TYPE': 4,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'USER_DEFINED_FIELD1',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 3,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'USER_DEFINED_FIELD3',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 4,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'META_CATEG_NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 5,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'CATEG_LVL2_NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 6,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-              'column_NAME': 'CATEG_LVL3_NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 7,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'DEFAULT',
-          'table_NAME': 'KYLIN_CATEGORY_GROUPINGS',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        },
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_COUNTRY',
-              'column_NAME': 'COUNTRY',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_COUNTRY',
-              'column_NAME': 'NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'DEFAULT',
-          'table_NAME': 'KYLIN_COUNTRY',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        },
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'TRANS_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'PART_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LSTG_FORMAT_NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 3,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LEAF_CATEG_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 4,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LSTG_SITE_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'INTEGER',
-              'data_TYPE': 4,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 5,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'PRICE',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DECIMAL(19, 4)',
-              'data_TYPE': 3,
-              'column_SIZE': 19,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 4,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 19,
-              'ordinal_POSITION': 6,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'SELLER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 7,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'BUYER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 8,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'OPS_USER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 9,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'DEFAULT',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'OPS_REGION',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 10,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'DEFAULT',
-          'table_NAME': 'KYLIN_SALES',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        },
-        {
-          'columns': [
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'TRANS_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 1,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'PART_DT',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DATE',
-              'data_TYPE': 91,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 2,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LSTG_FORMAT_NAME',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 3,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LEAF_CATEG_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 4,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'LSTG_SITE_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'INTEGER',
-              'data_TYPE': 4,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 5,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'PRICE',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'DECIMAL(19, 4)',
-              'data_TYPE': 3,
-              'column_SIZE': 19,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 4,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 19,
-              'ordinal_POSITION': 6,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'SELLER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 7,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'BUYER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'BIGINT',
-              'data_TYPE': -5,
-              'column_SIZE': -1,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': -1,
-              'ordinal_POSITION': 8,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'OPS_USER_ID',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 9,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            },
-            {
-              'table_SCHEM': 'KYLIN',
-              'table_NAME': 'KYLIN_SALES',
-              'column_NAME': 'OPS_REGION',
-              'table_CAT': 'defaultCatalog',
-              'remarks': null,
-              'type_NAME': 'VARCHAR(256) CHARACTER SET "UTF-16LE" COLLATE "UTF-16LE$en_US$primary"',
-              'data_TYPE': 12,
-              'column_SIZE': 256,
-              'buffer_LENGTH': -1,
-              'decimal_DIGITS': 0,
-              'num_PREC_RADIX': 10,
-              'nullable': 1,
-              'column_DEF': null,
-              'sql_DATA_TYPE': -1,
-              'sql_DATETIME_SUB': -1,
-              'char_OCTET_LENGTH': 256,
-              'ordinal_POSITION': 10,
-              'is_NULLABLE': 'YES',
-              'scope_CATLOG': null,
-              'scope_SCHEMA': null,
-              'scope_TABLE': null,
-              'source_DATA_TYPE': -1,
-              'is_AUTOINCREMENT': ''
-            }
-          ],
-          'table_SCHEM': 'KYLIN',
-          'table_NAME': 'KYLIN_SALES',
-          'table_CAT': 'defaultCatalog',
-          'table_TYPE': 'TABLE',
-          'remarks': null,
-          'type_CAT': null,
-          'type_SCHEM': null,
-          'type_NAME': null,
-          'self_REFERENCING_COL_NAME': null,
-          'ref_GENERATION': null
-        }
-      ]
+      }
     }
   },
   watch: {
@@ -1078,7 +57,6 @@ export default {
   },
   mounted () {
     this.init()
-    this.sortDataList()
   },
   methods: {
     init () {
@@ -1091,43 +69,15 @@ export default {
         }, 1000)
       })
     },
-    // 整理模拟数据
-    sortDataList () {
-      let data = this.jsonData || []
-      data.forEach((item, index) => {
-        if (item.table_SCHEM === 'DEFAULT') {
-          // this.treeList[0].id.(item)
-        } else {
-          // this.treeList[1].children.push(item)
-        }
-      })
-      console.log(this.treeList)
-      // let map = {}
-      // let dest = []
-      // for (var i = 0; i < data.length; i++) {
-      //   var ai = data[i]
-      //   if (!map[ai.table_SCHEM]) {
-      //     dest.push({
-      //       table_SCHEM: ai.table_SCHEM,
-      //       table_NAME: ai.table_NAME,
-      //       list: [ai]
-      //     })
-      //     map.table_SCHEM = ai
-      //   } else {
-      //     for (var j = 0; j < dest.length; j++) {
-      //       var dj = dest[j]
-      //       if (dj.table_SCHEM === ai.table_SCHEM) {
-      //         dj.list.push(ai)
-      //         break
-      //       }
-      //     }
-      //   }
-      // }
-      // console.log(dest)
-      // return dest
-    },
     fetchTreeList (val) {
       this.treeLoading = true
+      // this.fetchDatas(val)
+      this.fetchKelinData()
+      // console.log('最后一次点击的', this.lastClickTab)
+      // this.$refs.tree.setCurrentKey(this.lastClickTab)
+    },
+    fetchDatas (val) {
+      /** 数据湖 */
       this.$store.dispatch('GetTreeList').then(res => {
         if (res && res.code === 200) {
           this.treeLoading = false
@@ -1144,13 +94,24 @@ export default {
         this.treeLoading = false
       })
     },
+    fetchKelinData () {
+      // kelin测试
+      getselectCatalog().then(res => {
+        this.treeLoading = false
+        res.map(res => {
+          res.label = res.orgName
+          res.id = res.orgId
+        })
+        this.treeList = res
+      })
+    },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
       // console.log(val)
     },
     setTree (val, type) {
       let item = []
-      val.map((list, i) => {
+      val && val.map((list, i) => {
         let newData = {}
         newData.label = list.orgName
         newData.databaseType = list.databaseType
@@ -1189,26 +150,22 @@ export default {
     },
     // 选中对应的表
     getCurrents (data, node, me) {
-      // if (data.isLeaf === true) {
-      //   if (data.databaseType !== '1') {
-      //     this.$message.warning('暂只支持HIVE类型数据查询')
-      //   } else {
-      //     this.fetchResourceList(data, node.parent.key)
-      //   }
-      // }
-      // // 为资源列表的时候
-      // if (data.isTable === true) {
-      //   // this.fetchResourceInfo(data)
-      // }
-      // 模拟数据
-      let datas = this.jsonData || []
-      let listData = []
-      datas.forEach((item, index) => {
-        if (data.label === item.table_SCHEM) {
-          listData.push(item)
+      if (data.isLeaf === true) {
+        if (data.databaseType !== '1') {
+          this.$message.warning('暂只支持HIVE类型数据查询')
+        } else {
+          // this.fetchResourceList(data, node.parent.key)
         }
-      })
-      this.fetchResourceList(listData)
+      }
+      // 为资源列表的时候
+      if (!data.isTable && data.resNum > 0) {
+        // this.fetchResourceList(data)
+      }
+      // kelin
+      let lastId = node.parent.label ? node.parent.key : node.key
+      this.fetchResourceList(data, lastId)
+      // 保存数据到store
+      this.$store.dispatch('SaveSelectData', data)
     },
     fetchTree (data) {
       this.treeLoading = true
@@ -1228,14 +185,14 @@ export default {
     fetchResourceList (data, nodeId) {
       this.$root.eventBus.$emit('getserchTableList', data, 1)
       // 点击时清除其他选择框
-      this.$root.eventBus.$emit('clearSelect')
+      // this.$root.eventBus.$emit('clearSelect')
       // 存储当前点击的父节点的id
       this.$store.dispatch('setLastClickTab', nodeId)
       // 保存选择的数据源数据
       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     },
     fetchResourceInfo (data, nodeId) {
-      this.$store.dispatch('GetResourceInfo', { resourceId: data.resourceId, type: data.type }).then(res => {
+      this.$store.dispatch('GetResourceInfo', { resourceId: data.orgId, type: data.type }).then(res => {
         if (res.code === 200) {
           this.$root.eventBus.$emit('getserchTableList', res)
           // 点击时清除其他选择框
@@ -1267,7 +224,9 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
+      selectTableTotal: 'selectTableTotal',
       lastClickTab: 'lastClickTab',
+      mockjsonData: 'mockjsonData', // 模拟数据
       serchTableList: 'serchTableList'
     })
   },
@@ -1277,7 +236,10 @@ export default {
     this.$root.eventBus.$off('saveSelectTables')
   },
   created () {
-    // this.fetchTreeList(this.lastClickTab)
+    this.fetchTreeList(this.lastClickTab)
+    this.$nextTick(function () {
+      this.$refs.tree.setCurrentKey(this.lastClickTab)
+    })
   }
 }
 </script>

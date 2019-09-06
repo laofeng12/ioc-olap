@@ -1,12 +1,12 @@
 <template>
-  <div class="factTable">
+  <div class="factTable" onselectstart = "return false">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-button type="text" @click="changes">设置事实表</el-button>
-     <ul v-if="dataList && dataList.length" onselectstart = "return false">
+     <ul v-if="dataList && dataList.length">
        <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          {{item.label}}
-         <span v-if="item.filed === 1">事实表</span>
+         <span v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
         </li>
      </ul>
      <div v-else>暂无数据</div>
@@ -24,6 +24,7 @@ export default {
   data () {
     return {
       factTable: null,
+      fact_tableName: '',
       value: '',
       current: '',
       dataList: []
@@ -66,6 +67,7 @@ export default {
   },
   methods: {
     init () {
+      this.fact_tableName = this.jointResultData.fact_table.split('.')[1]
       this.dataList = [...this.selectTableTotal] || []
       this.checkFactFile()
     },
@@ -84,23 +86,23 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.current = index
           this.$parent.clickTable(item)
         }
       } else {
-        // alert('请先设置事实表')
         this.$message.warning('请先设置事实表')
       }
     },
     dragLi (item) {
+      item.database = item.database || 'test'
       if (this.factTable) {
         if (this.factTable.label !== item.label) {
           this.$parent.dragTable(item)
         }
       } else {
-        // alert('请先设置事实表')
         this.$message.warning('请先设置事实表')
       }
     }
@@ -108,6 +110,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      jointResultData: 'jointResultData',
       savemousedownData: 'savemousedownData'
     })
   }
@@ -116,8 +119,9 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 230px
+  max-width 270px
   // width 200px
+  font-size 12px
   float left
   // padding 0 25px
   border-right 1px solid #f0f0f0

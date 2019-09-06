@@ -3,8 +3,8 @@
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="shareResult" @clickItem="getTableById"
                  :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
     <div class="content" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :duration="duration" :shareList="shareList"
-                 :exportData="exportData"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :shareList="shareList"
+                 @exportFunc="exportFile"></ResultBox>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
 
 import ResultBox from '@/components/analysisComponent/common/ResultBox'
 import FolderAside from '@/components/analysisComponent/common/FolderAside'
-import { getQueryShareApi } from '../../api/instantInquiry'
+import { getQueryShareApi, exportExcelApi, searchOlapByIdApi } from '../../api/instantInquiry'
 
 export default {
   components: { ResultBox, FolderAside },
@@ -49,7 +49,6 @@ export default {
       },
       menuListLoading: false,
       loading: false,
-      duration: '',
       shareList: [],
       exportData: {}
     }
@@ -72,7 +71,7 @@ export default {
     async getTableById (folderData, type) {
       this.loading = true
       try {
-        const { columnMetas, results, duration, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
+        const { columnMetas, results, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })
         const columnMetasList = columnMetas.map(v => {
           return (
             { colspan: 1, rowspan: 1, value: v.label, type: 'th' }
@@ -86,7 +85,6 @@ export default {
           })
           return list
         })
-        this.duration = duration
         this.shareList = shareList
         this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
@@ -97,12 +95,31 @@ export default {
         this.$message.error('查询失败')
       }
       this.loading = false
+    },
+    async exportFile () {
+      const res = await exportExcelApi(this.exportData)
+      const blob = new Blob([res], { type: 'application/vnd.ms-excel' })
+      const fileName = '即席查询文件.xlsx'
+      if ('download' in document.createElement('a')) {
+        let link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+        this.$message.success('导出成功')
+      } else {
+        navigator.msSaveBlob(blob, fileName)
+      }
     }
   }
 }
 </script>
 <style lang="scss" scoped>
   .queries {
+    align-items: stretch;
     .content {
       width: 100%;
       flex-grow: 1;

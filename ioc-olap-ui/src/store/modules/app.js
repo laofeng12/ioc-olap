@@ -29,7 +29,7 @@ const app = {
       resURL: 'nolinkpath222',
       resIcon: '',
       subResList: [{
-        resId: 'asdasdasdasdasd',
+        resId: '1',
         index: '4',
         resName: 'OLAP模型',
         resURL: '/analysisModel',
@@ -72,7 +72,7 @@ const app = {
       state.device = device
     },
     SET_MENU_LIST: (state, menuList) => {
-      // state.menuList = menuList
+      state.menuList = menuList
     },
     CHANGE_MY_ROUTES: (state, myRoutes) => {
       state.myRoutes = myRoutes
@@ -96,7 +96,7 @@ const app = {
         .then(res => {
           let list = res.resources || []
           commit('SET_MENU_LIST', list)
-          // dispatch('GetCatalogMenu')
+          dispatch('GetCatalogMenu')
         })
         .catch(error => {
           console.log(error)

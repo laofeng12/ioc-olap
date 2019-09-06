@@ -41,6 +41,7 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
+      console.log('==========', this.saveNewSortListstructure)
       this.dialogFormVisible = true
       this.options = this.saveNewSortListstructure
     }
@@ -58,7 +59,11 @@ export default {
   >>>.el-dialog__body{
     .el-tag{
       margin-right 20px
+      width 200px
       margin-bottom 10px
+      background #009688
+      color #ffffff
+      text-align center
     }
   }
   .container{
