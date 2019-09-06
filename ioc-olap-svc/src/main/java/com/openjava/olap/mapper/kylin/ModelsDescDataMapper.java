@@ -30,7 +30,7 @@ public class ModelsDescDataMapper {
     @JSONField(name = "dimensions")
     public ArrayList<DimensionsMapper>  dimensions;
     @JSONField(name = "metrics")
-    public String[] metrics;
+    public ArrayList<String> metrics;
     @JSONField(name = "filter_condition")
     public String filter_condition;
     @JSONField(name = "partition_desc")
