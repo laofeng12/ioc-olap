@@ -36,7 +36,7 @@ module.exports = {
         // target: 'http://172.16.60.82:8081', // 左烨本地
         // target: 'http://19.104.40.36', // 测试服务
         // target: 'http://172.16.60.99:9090', // 沛城本地
-        // pathRewrite: { '^/olapweb/olap/': '/olap/' },
+        pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }
       // '/olapweb/olap': {
