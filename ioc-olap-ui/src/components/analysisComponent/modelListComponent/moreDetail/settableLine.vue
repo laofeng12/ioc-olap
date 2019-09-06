@@ -133,8 +133,9 @@ export default {
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
         width: '100%',
-        height: 700,
+        height: '600',
         model: this.graph,
+        class: 'canvast',
         gridSize: 1
       })
 
@@ -506,13 +507,14 @@ export default {
   display none
 }
 .setline{
-  height calc(100vh - 150px)
-  position relative
+  // height calc(100vh - 150px)
+  // position relative
   // overflow auto
-  padding-bottom 100px
+  // padding-bottom 100px
+  height 300px
   .containers{
     position absolute
-    width 100%
+    width 70%
     padding 20px 5px
   }
 }
@@ -530,10 +532,18 @@ export default {
 }
 
 .holder{
-  position relative
-  overflow hidden
+  overflow auto
+  height 300px
 }
-
+#myholder{
+  height 600px
+}
+#myholder{
+  >>>svg{
+    width 200%
+    margin-top -80px
+  }
+}
 .halo-cell-layer{
   display none
   position absolute
@@ -543,9 +553,9 @@ export default {
 .linkSetting{
   position absolute
   right 0
-  width 250px
+  width 30%
   padding-top 10px
-  height 100%
+  height 300px
   // padding-bottom 100px
   overflow auto
   text-align left

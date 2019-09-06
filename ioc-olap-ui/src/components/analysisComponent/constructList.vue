@@ -18,12 +18,10 @@
         <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.job_status === 'FINISHED'" style="color:green;">成功</div>
-            <div v-if="scope.row.job_status === 'STOPPED'" style="color:block;">已暂停</div>
+            <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
-            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
-              <el-progress :percentage="scope.row.progress"></el-progress>
-            </div>
+            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)"><el-progress :percentage="70"></el-progress></div>
           </template>
         </el-table-column>
         <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
@@ -59,7 +57,6 @@
           </template>
         </el-table-column>
       </el-table>
-    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <el-dialog title="查看日志" :visible.sync="logListVisible">
       <div class="logListBox dis-flex">
         <el-timeline>
@@ -120,7 +117,6 @@
 import { mapGetters } from 'vuex'
 import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling, getLogDetailsApi } from '@/api/modelList'
 import { filterTime } from '@/utils/index'
-
 export default {
   data () {
     return {
@@ -285,10 +281,6 @@ export default {
     },
     Translate (time) {
       return filterTime(time)
-    },
-    moreData () {
-      this.offset += 15
-      this.init()
     }
   }
 }
@@ -354,15 +346,6 @@ export default {
     .pre {
       white-space pre-wrap
     }
-  }
-  .more {
-    height 40px
-    line-height 40px
-    background-color #409EFF
-    color #ffffff
-    margin-top 30px
-    text-align center
-    cursor pointer
   }
 }
 </style>

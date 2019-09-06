@@ -872,6 +872,7 @@ export default {
   },
   methods: {
     init () {
+      console.log(this.totalSaveData.cube.cubeDescData.name)
       // this.$store.dispatch('SaveModelAllList', this.json)
       if (this.$route.query.cubeName) {
         this.isLoading = true
