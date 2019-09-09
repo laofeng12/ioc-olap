@@ -257,30 +257,36 @@ const selectStep = {
     },
     // 删除数据胡对应的数据
     delSelectTableList ({ state, dispatch, getters }, data) {
+      console.log(state.saveSelectTable, '====', data)
       state.saveSelectTable.map((item, index) => {
         if (data.delData.id === item.id) {
           state.saveSelectTable.splice(index, 1)
-        }
-      })
-      // 删除保存的对应的表
-      getters.modelSelectData.map((item, index) => {
-        if (data.delData.id === item.resourceId) {
-          getters.modelSelectData.splice(index, 1)
         }
       })
       dispatch('SelectStepList', state.saveSelectTable)
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state, dispatch }, data) {
+      console.log('获取的data', data)
       state.saveLocalSelectTable = []
       data.map(item => {
-        if (!item.children) {
+        if (!item.children && !item.database) {
           state.saveLocalSelectTable.push({
             id: item.id,
             label: item.label,
             database: 'fan',
             type: 2
           })
+        }
+      })
+      dispatch('SelectStepList', state.saveLocalSelectTable)
+    },
+    // 删除本地上传的数据
+    delLocalSelectTableList ({ state, dispatch, getters }, data) {
+      console.log('我也执行了?????', data)
+      state.saveLocalSelectTable.map((item, index) => {
+        if (data.delData.id === item.id) {
+          state.saveLocalSelectTable.splice(index, 1)
         }
       })
       dispatch('SelectStepList', state.saveLocalSelectTable)

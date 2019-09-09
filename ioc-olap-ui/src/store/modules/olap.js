@@ -1,7 +1,6 @@
 const common = {
   state: {
     ModelAllList: [], // 所有的数据集合
-    modelSelectData: [],
     /* 建立表关系 */
     totalSaveData: { // 总数据
       models: {
@@ -213,7 +212,6 @@ const common = {
       getters.selectTableTotal.forEach((item, index) => {
         data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      // dispatch('setSelectTableTotal')
     },
     // 获取编辑的数据
     SaveModelAllList ({ getters, store, state, dispatch }, data) {
@@ -240,6 +238,7 @@ const common = {
           name: res.column ? res.column : res.name,
           dataType: res.column_type,
           tableName: res.table,
+          filed: res.table === data.ModesList.fact_table.split('.')[1] ? '1' : '0',
           id: res.id,
           mode: res.derived ? '2' : '1'
         })

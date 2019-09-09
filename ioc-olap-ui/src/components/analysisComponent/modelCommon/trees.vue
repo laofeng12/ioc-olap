@@ -60,6 +60,10 @@ export default {
   },
   methods: {
     init () {
+      // 默认选择第一行
+      if (this.$route.query.cubeName) {
+        setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
+      }
       this.$root.eventBus.$on('openDefaultTree', res => {
         setTimeout(() => {
           this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
@@ -149,6 +153,7 @@ export default {
     },
     // 选中对应的表
     getCurrents (data, node, me) {
+      console.log(data)
       if (data.isLeaf === true) {
         if (data.databaseType !== '1') {
           this.$message.warning('暂只支持HIVE类型数据查询')
@@ -184,7 +189,7 @@ export default {
     fetchResourceList (data, nodeId) {
       this.$root.eventBus.$emit('getserchTableList', data, 1)
       // 点击时清除其他选择框
-      // this.$root.eventBus.$emit('clearSelect')
+      this.$root.eventBus.$emit('clearSelect')
       // 存储当前点击的父节点的id
       this.$store.dispatch('setLastClickTab', nodeId)
       // 保存选择的数据源数据
@@ -219,7 +224,7 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       saveLocalSelectTable: 'saveLocalSelectTable',
-      selectTableTotal: 'selectTableTotal',
+      ModelAllList: 'ModelAllList',
       lastClickTab: 'lastClickTab',
       mockjsonData: 'mockjsonData', // 模拟数据
       serchTableList: 'serchTableList'

@@ -120,8 +120,9 @@ export default {
         })
       })
       // 判断有乜选择事实表
+      console.log(this.saveSelectFiled)
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        this.flags = item.filed === '1' ? 0 : 1
+        this.flags = item.filed === '1' ? 0 : ''
       })
     },
     // 接收已选择的id 根据id展示对应的复选框
@@ -140,7 +141,7 @@ export default {
       //   return this.$message.warning('对应的foreign_key找不到~')
       // }
       console.log(this.flags)
-      if (this.flags !== 0) return this.$message.warning('事实表字段必选~')
+      // if (this.flags !== 0) return this.$message.warning('事实表字段必选~')
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
       } else {
