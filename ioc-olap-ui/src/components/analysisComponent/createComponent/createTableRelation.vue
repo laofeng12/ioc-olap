@@ -195,7 +195,6 @@ export default {
       })
 
       paper.on('cell:pointerup', (e, d) => {
-        // console.log(e);
         this.linkModalModel = null
 
         if (this.isClick) {
@@ -215,7 +214,16 @@ export default {
               this.linkModalModel = e.model
               this.linkModalFields = fields
             } else if (linkElements.source && linkElements.target) {
-              let sourceAttrs = linkElements.source.get('attrs')
+              let sourceAttrs
+              let targetAttrs
+              // 判断是否连接事实表， 不管先后顺序 事实表都得是主表
+              if (linkElements.target.get('attrs').text.filed === 1) {
+                targetAttrs = linkElements.source.get('attrs')
+                sourceAttrs = linkElements.target.get('attrs')
+              } else {
+                sourceAttrs = linkElements.source.get('attrs')
+                targetAttrs = linkElements.target.get('attrs')
+              }
               let source = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 // field: '',
@@ -223,8 +231,7 @@ export default {
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
-
-              let targetAttrs = linkElements.target.get('attrs')
+              console.log(targetAttrs, '连线啦啦啦啦啦啦啦啦啦啦啦啦啦啦了', sourceAttrs)
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 // field: '',
@@ -288,8 +295,6 @@ export default {
       })
     },
     clickTable (e) {
-      // 存储已选择的表
-      // this.$store.dispatch('SaveMousedownData', e)
       if (e) {
         this.addRectCell(e)
       }

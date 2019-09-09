@@ -53,7 +53,6 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectFiled from '@/components/analysisComponent/dialog/selectFiled'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
-import { debuglog } from 'util'
 export default {
   components: {
     filedTable,
@@ -66,7 +65,8 @@ export default {
       currentPage: 1,
       loading: false,
       totalCount: 1,
-      tableData: []
+      tableData: [],
+      flags: 0
     }
   },
   mounted () {
@@ -119,6 +119,10 @@ export default {
           }
         })
       })
+      // 判断有乜选择事实表
+      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
+        this.flags = item.filed === '1' ? 0 : 1
+      })
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
@@ -132,14 +136,11 @@ export default {
     },
     nextModel (val) {
       // 如果返回 true ，说明用户勾选了延伸模式，但并没有选择指定字段，所以需要提示错误信息。
-      // window.alert([20190904173527, this.iscubeMatch()].join('  '))
-      if (this.iscubeMatch()) {
-        return this.$message.warning('对应的foreign_key找不到~')
-      }
-      let flag
-      this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
-        flag = item.filed === '1' ? 0 : 1
-      })
+      // if (this.iscubeMatch()) {
+      //   return this.$message.warning('对应的foreign_key找不到~')
+      // }
+      console.log(this.flags)
+      if (this.flags !== 0) return this.$message.warning('事实表字段必选~')
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
       } else {
