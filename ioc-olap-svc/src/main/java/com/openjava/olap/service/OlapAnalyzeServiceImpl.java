@@ -364,7 +364,19 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         // 数据分页
-        results = makeDataPaging(pageIndex, pageSize, begin, end, axisYCount, results, rowSummarys, anyDimensionVo);
+        if (isPaging(pageIndex, pageSize)) {
+            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
+            dataResults.addAll(results.subList(0, axisYCount + 1));
+            if (rowSummarys.size() < end) {
+                dataResults.addAll(results.subList(begin + axisYCount + 1, results.size()));
+                rowSummarys = rowSummarys.subList(begin, rowSummarys.size());
+            } else {
+                dataResults.addAll(results.subList(begin + axisYCount + 1, end + axisYCount + 1));
+                rowSummarys = rowSummarys.subList(begin, end);
+            }
+            anyDimensionVo.setTotalRows(results.size() - 1 - axisYCount);
+            results = dataResults;
+        }
         // 行列汇总
         rowAndColumnSummary(anyDimensionVo, results, axisYCount, axisXCount, rowSummarys, columnSummarys);
         return anyDimensionVo;
@@ -500,24 +512,6 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         anyDimensionVo.setResults(results);
-    }
-
-    private List<ArrayList<AnyDimensionCellVo>> makeDataPaging(Integer pageIndex, Integer pageSize, Integer begin, Integer end, Integer axisYCount,
-                                                               List<ArrayList<AnyDimensionCellVo>> results, List<Double> rowSummarys, AnyDimensionVo anyDimensionVo) {
-        if (isPaging(pageIndex, pageSize)) {
-            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
-            dataResults.addAll(results.subList(0, axisYCount + 1));
-            if (rowSummarys.size() < end) {
-                dataResults.addAll(results.subList(begin + axisYCount + 1, results.size()));
-                rowSummarys = rowSummarys.subList(begin, rowSummarys.size());
-            } else {
-                dataResults.addAll(results.subList(begin + axisYCount + 1, end + axisYCount + 1));
-                rowSummarys = rowSummarys.subList(begin, end);
-            }
-            anyDimensionVo.setTotalRows(results.size() - 1 - axisYCount);
-            return dataResults;
-        }
-        return results;
     }
 
     @Override
