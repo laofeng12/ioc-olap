@@ -54,12 +54,13 @@ export default {
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/createTableRelation')
       this.$store.commit('SaveSelectAllListone', this.saveSelectTable)
+      // 清掉第二步创建的表
       this.$store.commit('ClearTableRelation')
     },
     tabClick (val) {
       val.name === '2'
-        ? this.$root.eventBus.$emit('getUploadTable') && this.$store.dispatch('changeSerachtype', 2) && this.$store.dispatch('saveSelctchckouttwo', this.saveLocalSelectTable)
-        : this.$root.eventBus.$emit('getserchTableList', this.serchTableList) && this.$store.dispatch('changeSerachtype', 1) && this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
+        ? this.$root.eventBus.$emit('getUploadTable') && this.$store.dispatch('changeSerachtype', 2)
+        : this.$root.eventBus.$emit('getserchTableList', this.serchTableList) && this.$store.dispatch('changeSerachtype', 1)
       // 推送已选择的复选框按钮到serachTable
       this.$root.eventBus.$emit('saveSelectTables')
     }

@@ -3,10 +3,10 @@
     <el-form :model="formData" v-loading="completeLoading">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
-       <el-form-item label="维度表">{{formData.dimensionLength}}</el-form-item>
-       <el-form-item label="维度字段">{{formData.dimensionFiledLength}}</el-form-item>
-       <el-form-item label="度量字段">{{formData.measureFiledLength}}</el-form-item>
-       <el-form-item label="构建引擎">{{formData.engine}}</el-form-item>
+       <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
+       <el-form-item label="维度字段">{{saveSelectFiled.length}}</el-form-item>
+       <el-form-item label="度量字段">{{measureTableList.length}}</el-form-item>
+       <el-form-item label="构建引擎">{{engine_types === '2' ? 'MapReduce' : 'Spark'}}</el-form-item>
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
            <div>
@@ -52,10 +52,6 @@ export default {
           this.formData.factName = item.label
         }
       })
-      this.formData.dimensionLength = this.jointResultData.lookups.length
-      this.formData.dimensionFiledLength = this.saveSelectFiled.length
-      this.formData.measureFiledLength = this.measureTableList.length
-      this.formData.engine = this.engine_types === '2' ? 'MapReduce' : 'Spark'
       // 整理接口数据-----
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
@@ -64,14 +60,14 @@ export default {
       /**
        * 处理聚合小组
        */
-      this.totalSaveData.cube.cubeDescData.aggregation_groups = this.aggregation_groups
-      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = this.mandatory_dimension_set_list
+      this.totalSaveData.cube.cubeDescData.aggregation_groups = JSON.parse(JSON.stringify(this.aggregation_groups))
+      this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = JSON.parse(JSON.stringify(this.mandatory_dimension_set_list))
       this.totalSaveData.cube.cubeDescData.aggregation_groups.forEach((i, n) => {
         let item = i.select_rule
-        item.hierarchy_dims.forEach((k, idx1) => {
+        item.hierarchy_dims.forEach(k => {
           if (k.length === 0) item.hierarchy_dims = []
         })
-        item.joint_dims.forEach((k, idx1) => {
+        item.joint_dims.forEach(k => {
           if (k.length === 0) item.joint_dims = []
         })
       })
@@ -96,17 +92,20 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
       // models放入所有选择的表字段
-      // this.totalSaveData.models.modelDescData.dimensions = this.saveNewSortListstructure
-      console.log(this.rowkeyData, '李帆', this.saveSelectAllListFiled)
+      /**
+       * models中的dimensions放入所有选择的表字段
+      */
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
         let data = JSON.parse(item)
+        // 遍历第二步存储的表 根据id来找出事实表的那条数据
         this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
           if (data.resourceId === n.id) {
             dest.push({
@@ -117,7 +116,7 @@ export default {
             })
           }
         })
-        if (this.jointResultData.fact_table.substring(this.jointResultData.fact_table.indexOf('.') + 1) === data.name) {
+        if (this.jointResultData.fact_table.split('.')[1] === data.name) {
           dest.push({
             table: data.name,
             columns: data.data.columns.map(res => {
@@ -127,11 +126,9 @@ export default {
         }
         return dest
       })
-      // console.log('最终的', dest)
       this.totalSaveData.models.modelDescData.dimensions = dest
     },
     // 处理 dimensions（选择维度）
-
     nextModel (val) {
       console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {

@@ -46,19 +46,14 @@ export default {
       optionData: [],
       dialogFormVisible: false,
       selctCheckData: [],
-      options: [
-        // { comment: '啦啦啦啦1', value: 'lalalalal1', tableName: 'a1', list: ['lalalal1', 'lalalalal2', 'lalalala3', 'lalalal4'] },
-        // { comment: '啦啦啦啦2', value: 'lalalalal2', tableName: 'a2', list: ['bababab1', 'babababa2', 'babababa3', 'babababa4'] },
-        // { comment: '啦啦啦啦3', value: 'lalalalal3', tableName: 'a3', list: ['kekekek1', 'kekekek2', 'kekekeke3', 'kekekeke4'] },
-        // { comment: '啦啦啦啦4', value: 'lalalalal4', tableName: 'a4', list: ['ppppp1', 'ppppp2', 'ppppp3', 'ppppp4'] }
-      ],
+      options: [],
       index: '',
       type: '',
       findIndex: ''
     }
   },
   mounted () {
-    // console.log(this.saveselectIncludesData)
+    console.log(this.reloadNeedData, '获取的')
   },
   methods: {
     closeBtn () {
@@ -83,10 +78,8 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
+      console.log(this.recordingData, '选择后的', this.saveselectIncludesData)
       this.dialogFormVisible = true
-      // this.options = this.saveNewSortList
-      // console.log('第二步选择的', this.aggregation_groups)
-      // this.options = type !== 6 ? this.reloadNeedData : this.measureTableList.map(item => { return { value: item.name, id: item.id } })
       switch (type) {
         case 1:
           this.options = this.reloadNeedData

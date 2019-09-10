@@ -336,9 +336,11 @@ public class OlapModelingAction extends BaseAction {
     //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
     public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
         OlapCube olapCube = olapCubeService.findTableInfo(cube.cubeDescData.getName());
-        if (StringUtils.isNotBlank(cube.getUuid()) == false && olapCube != null) {
+        if (StringUtils.isNotBlank(cube.getUuid()) && olapCube != null) {
             throw new APIException(400, "该立方体名称已存在！");
         }
+        //保存：没有uuid 名称不重复
+
 
         //验证度量是否有数据measures！
         if (cube.cubeDescData.measures.size() == 0) {

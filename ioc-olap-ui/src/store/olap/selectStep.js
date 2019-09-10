@@ -10,8 +10,6 @@ const selectStep = {
     selectTableTotal: [], // 已选择的总表
     lastClickTab: '', // 存储最后一次点击的tabID
     lateData: [],
-    saveSelctchckoutone: [],
-    saveSelctchckouttwo: [],
     saveSelectAllList: [], // 保存选择的表的所有字段
     saveSelectAllListFiled: [], // 保存连表后对应的所有字段
     SaveFactData: [], // 事实表对应的所有字段
@@ -66,12 +64,6 @@ const selectStep = {
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableTotal = val.filter(item => { return item.label })
     },
-    SAVESELECT_ONE: (state, val) => {
-      state.saveSelctchckoutone = state.saveSelctchckoutone.concat(val)
-    },
-    SAVESELECT_TWO: (state, val) => {
-      state.saveSelctchckouttwo = val
-    },
     // 存储所有选择的表对应的字段
     SaveSelectAllListone (state, val) {
       let columId = val.map(item => { return item.resourceId })
@@ -111,8 +103,6 @@ const selectStep = {
       state.saveLocalSelectTable = []
       state.selectTableTotal = []
       state.lastClickTab = ''
-      state.saveSelctchckoutone = []
-      state.saveSelctchckouttwo = []
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
     },
@@ -193,15 +183,6 @@ const selectStep = {
           resolve(res)
         })
       })
-    },
-    // 存储已选择复选框
-    saveSelctchckoutone ({ commit, state, dispatch }, data) {
-      commit('SAVESELECT_ONE', data)
-      // state.saveSelectTable = []
-      dispatch('setSelectTableTotal')
-    },
-    saveSelctchckouttwo ({ commit }, data) {
-      commit('SAVESELECT_TWO', data)
     },
     // 存储数据源选择的表
     setSerchTable ({ commit }, data) {

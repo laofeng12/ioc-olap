@@ -106,7 +106,7 @@
         <el-form-item label="模型构建引擎">
           <template>
             <div>
-              <el-select v-model="formData.engine_typeTit" placeholder="请选择" @change="changeEngine">
+              <el-select v-model="totalSaveData.cube.cubeDescData.engine_type" placeholder="请选择" @change="changeEngine">
                 <el-option v-for="item in engineOptions" :key="item.engine" :label="item.label" :value="item.engine"></el-option>
               </el-select>
             </div>
@@ -143,7 +143,6 @@ import selectAggregation from '@/components/analysisComponent/dialog/selectAggre
 import { mapGetters } from 'vuex'
 import { getEncodingList } from '@/api/olapModel'
 import { reduceObj } from '@/utils/index'
-import { log } from 'util'
 export default {
   components: {
     steps, selectAggregation
@@ -206,7 +205,7 @@ export default {
           })
         }
       })
-      this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
+      // this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {
@@ -221,7 +220,6 @@ export default {
         })
         return arr
       })
-      // debugger
       this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     resortAggregation () {
@@ -239,8 +237,9 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
-      let hierarchy_dimsLen = this.aggregation_groups[0].select_rule.hierarchy_dims[0].length
-      let joint_dimsLen = this.aggregation_groups[0].select_rule.joint_dims[0].length
+      const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
+      let hierarchy_dimsLen = hierarchy_dims[0].length
+      let joint_dimsLen = joint_dims[0].length
       if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
       if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
       if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
@@ -269,6 +268,7 @@ export default {
     addaAggregation () {
       this.$store.dispatch('addAggregationList')
     },
+    // 删除聚合小组
     handleRms (index) {
       if (this.aggregation_groups.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups.splice(index, 1)
@@ -281,10 +281,12 @@ export default {
     addjointData (index) {
       this.$store.dispatch('AddjointData', index)
     },
+    // 删除层级维度
     removelevelData (index, i) {
       if (this.aggregation_groups[index].select_rule.hierarchy_dims.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups[index].select_rule.hierarchy_dims.splice(i, 1)
     },
+    // 删除联合维度
     removejointData (index, i) {
       if (this.aggregation_groups[index].select_rule.joint_dims.length === 1) return this.$message.error('必须保留一个~')
       this.aggregation_groups[index].select_rule.joint_dims.splice(i, 1)
@@ -293,6 +295,7 @@ export default {
     addimensionData () {
       this.$store.dispatch('AddimensionData')
     },
+    // 删除维度黑白名单
     removedimensionData (index) {
       if (this.mandatory_dimension_set_list.length === 1) return this.$message.error('必须保留一个~')
       this.mandatory_dimension_set_list.splice(index, 1)
@@ -301,6 +304,7 @@ export default {
     addhetComposeData () {
       this.$store.dispatch('AddhetComposeData')
     },
+    // 删除高级列组合
     removehetComposeData (index) {
       this.hbase_mapping.column_family.splice(index, 1)
     },
@@ -309,6 +313,7 @@ export default {
       this.modalIndex = index
       this.$refs.selectFiled.dialog(type, index, findIndex)
     },
+    // 黑白名单or高级列弹框
     lastGetModal (index, type) {
       this.$refs.selectFiled.dialog(type, index)
     },
@@ -322,6 +327,7 @@ export default {
       this.$store.dispatch('RmtagList', list)
     },
     lastrmTag (type, id, findIndex) {
+      console.log(type, id, findIndex)
       const list = {
         id: id,
         type: type,
