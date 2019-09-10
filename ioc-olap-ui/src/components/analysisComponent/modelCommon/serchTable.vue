@@ -22,6 +22,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { reduceObj } from '@/utils/index'
+import { setTimeout } from 'timers'
 export default {
   data () {
     return {
@@ -69,20 +70,25 @@ export default {
       })
       // 接收本地上传传递的信息
       this.$root.eventBus.$on('getUploadTable', res => {
+        // 初始化列表树
         this.dataList[0].children = []
         this.loading = true
+        // 获取本地上传的数据
         this.$store.dispatch('GetdsUploadTable').then(res => {
           if (res.code === 200) {
             this.loading = false
+            // 将获取的数据绑定到列表树上
             res.rows.map(res => {
               this.dataList[0].children.push({
                 id: res.dsUploadTableId,
                 label: res.tableCode
               })
             })
-            if (this.dataList[0].children.length < 1) {
-              this.$refs.trees.setCheckedKeys([])
+            // 判断是否存在已勾选的本地上传数据
+            if (this.saveLocalSelectTable.length < 1) {
+              setTimeout(() => { this.$refs.trees.setCheckedKeys([]) })
             }
+            // 触发复选框的方法
             this.$root.eventBus.$emit('saveSelectTables')
           }
         })
@@ -143,37 +149,33 @@ export default {
         }
         this.$root.eventBus.$emit('getLocalTableHeadList', parmas)
         this.$root.eventBus.$emit('getLocalTableContentList', valparams)
-        // this.$store.dispatch('GetColumnList', parmas).then(data => {
-        //   if (data.code === 200) {
-        //     this.$root.eventBus.$emit('getLocalTableHeadList', data)
-        //   }
-        // })
-        // this.$store.dispatch('GetTableData', valparams).then(res => {
-        //   if (res.code === 200) {
-        //     this.$root.eventBus.$emit('getLocalTableContentList', res)
-        //   }
-        // })
       }
     },
     // 勾选框的选择
     handleCheckChange (data, type, node) {
+      // 拿到当前勾选的数据
+      let nodeData = this.$refs.trees.getCheckedNodes()
+      // 定义一个对象传入当前勾选的状态type和选择的数据
+      let list = {
+        type: type,
+        delData: data
+      }
+      // ${this.$store.state.selectStep.searchType} 根据这个来判断是本地上传还是数据湖
       if (this.$store.state.selectStep.searchType === 1) {
-        let list = {
-          type: type,
-          delData: data
-        }
-        if (type === true) {
-          this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
+        // 判断是否是勾选 勾选的话就存储这条数据
+        if (type) {
+          this.$store.dispatch('getSelectTableList', nodeData)
         } else {
+        // 否则就要删除这条对应的数据
           this.$store.dispatch('delSelectTableList', list)
         }
-      } else {
-        this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
+      } else if (this.$store.state.selectStep.searchType === 2) {
+        if (type) {
+          this.$store.dispatch('getLocalSelectTableList', nodeData)
+        } else {
+          this.$store.dispatch('delLocalSelectTableList', list)
+        }
       }
-      // this.$store.state.selectStep.searchType === 1
-      //   ? this.$store.dispatch('getSelectTableList', this.$refs.trees.getCheckedNodes())
-      //   : this.$store.dispatch('getLocalSelectTableList', this.$refs.trees.getCheckedNodes())
-      // 设置已选择的数据表的数量
       this.$store.dispatch('setSelectTableTotal')
     }
   },

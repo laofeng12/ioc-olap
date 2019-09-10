@@ -78,7 +78,7 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
-      console.log(this.recordingData, '选择后的', this.saveselectIncludesData)
+      console.log(this.selectDataidList, '选择后的123', this.reloadNeedData)
       this.dialogFormVisible = true
       switch (type) {
         case 1:
