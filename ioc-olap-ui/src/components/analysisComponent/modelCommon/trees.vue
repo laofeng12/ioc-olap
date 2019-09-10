@@ -153,7 +153,6 @@ export default {
     },
     // 选中对应的表
     getCurrents (data, node, me) {
-      console.log(data)
       if (data.isLeaf === true) {
         if (data.databaseType !== '1') {
           this.$message.warning('暂只支持HIVE类型数据查询')

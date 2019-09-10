@@ -1,5 +1,5 @@
 import { getselectCatalog, getselectTable, getselectColumn, getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
-import { reduceObj } from '@/utils/index'
+import { reduceObj, setLocalStorage } from '@/utils/index'
 const selectStep = {
   state: {
     treeList: [], // 树形数据
@@ -16,33 +16,38 @@ const selectStep = {
     selectStepList:
     [
       {
-        'orgId': 2,
-        'orgName': 'KYLIN',
-        'tableList': [
-          {
-            'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998', // 表id
-            'table_name': 'KYLIN_SALES', // 表名称
-            'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-            'database': 'KYLIN',
-            'type': 1, // 表类型（数据湖/本地上传）
-            'filed': 0
-          }
-        ]
-      },
-      {
-        'orgId': 2,
-        'orgName': 'KYLIN',
-        'tableList': [
-          {
-            'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-            'table_name': 'KYLIN_SALES',
-            'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-            'database': 'KYLIN',
-            'type': 1,
-            'filed': 0
-          }
-        ]
+        orgId: '11',
+        orgName: '',
+        tableList: []
       }
+      // {
+      //   'orgId': 2,
+      //   'orgName': 'KYLIN',
+      //   'tableList': [
+      //     {
+      //       'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998', // 表id
+      //       'table_name': 'KYLIN_SALES', // 表名称
+      //       'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+      //       'database': 'KYLIN',
+      //       'type': 1, // 表类型（数据湖/本地上传）
+      //       'filed': 0
+      //     }
+      //   ]
+      // },
+      // {
+      //   'orgId': 2,
+      //   'orgName': 'KYLIN',
+      //   'tableList': [
+      //     {
+      //       'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+      //       'table_name': 'KYLIN_SALES',
+      //       'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
+      //       'database': 'KYLIN',
+      //       'type': 1,
+      //       'filed': 0
+      //     }
+      //   ]
+      // }
     ]
   },
   mutations: {
@@ -105,6 +110,11 @@ const selectStep = {
       state.lastClickTab = ''
       state.saveSelectFiled = []
       state.saveSelectFiledTree = []
+      state.selectStepList = [{
+        orgId: '',
+        orgName: '',
+        tableList: []
+      }]
     },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
@@ -198,7 +208,6 @@ const selectStep = {
     },
     // 存储选择后的数据（传给后端的）
     SelectStepList ({ state }, data) {
-      // state.selectStepList.tableList = state.saveSelectTable
       let map = {}
       let dest = []
       let localData = []
@@ -238,7 +247,7 @@ const selectStep = {
       state.selectStepList = dest
     },
     // 存储数据湖的数据
-    getSelectTableList ({ state, dispatch }, data) {
+    getSelectTableList ({ state, dispatch, getters }, data) {
       // state.saveSelectTable = []
       data.map(item => {
         if (!item.children) {
@@ -253,21 +262,23 @@ const selectStep = {
         }
       })
       state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
-      dispatch('SelectStepList', state.saveSelectTable)
+      dispatch('SelectStepList', state.saveSelectTable).then(_ => {
+        getters.ModelAllList.TableList && dispatch('SavestepSelectData', getters.ModelAllList.TableList)
+      })
     },
     // 删除数据胡对应的数据
     delSelectTableList ({ state, dispatch, getters }, data) {
-      console.log(state.saveSelectTable, '====', data)
       state.saveSelectTable.map((item, index) => {
         if (data.delData.id === item.id) {
           state.saveSelectTable.splice(index, 1)
         }
       })
-      dispatch('SelectStepList', state.saveSelectTable)
+      dispatch('SelectStepList', state.saveSelectTable).then(_ => {
+        getters.ModelAllList.TableList && dispatch('SavestepSelectData', getters.ModelAllList.TableList)
+      })
     },
     // 存储本地上传的数据
     getLocalSelectTableList ({ state, dispatch }, data) {
-      console.log('获取的data', data)
       state.saveLocalSelectTable = []
       data.map(item => {
         if (!item.children && !item.database) {
@@ -283,7 +294,6 @@ const selectStep = {
     },
     // 删除本地上传的数据
     delLocalSelectTableList ({ state, dispatch, getters }, data) {
-      console.log('我也执行了?????', data)
       state.saveLocalSelectTable.map((item, index) => {
         if (data.delData.id === item.id) {
           state.saveLocalSelectTable.splice(index, 1)
@@ -304,6 +314,10 @@ const selectStep = {
     SaveSelectData ({ state }, data) {
       state.selectStepList.orgId = data.orgId
       state.selectStepList.orgName = data.orgName
+    },
+    // 赋值保存过来的数据
+    SavestepSelectData ({ state }, data) {
+      state.selectStepList = data
     }
   }
 }

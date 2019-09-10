@@ -105,8 +105,8 @@ export default {
   created () {
   },
   mounted: function () {
-    // this.selectTableTotal.length < 1 && this.$router.push('/analysisModel/createolap/selectStep')
     this.init()
+    console.log('第一步的数据', this.selectStepList, '=========', this.ModelAllList)
   },
   methods: {
     initJointResult (data) {
@@ -960,6 +960,8 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
+      ModelAllList: 'ModelAllList',
+      selectStepList: 'selectStepList',
       jointResultData: 'jointResultData'
     })
   },

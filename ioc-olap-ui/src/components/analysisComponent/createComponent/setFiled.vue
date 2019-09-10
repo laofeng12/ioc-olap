@@ -140,7 +140,6 @@ export default {
       // if (this.iscubeMatch()) {
       //   return this.$message.warning('对应的foreign_key找不到~')
       // }
-      console.log(this.flags)
       // if (this.flags !== 0) return this.$message.warning('事实表字段必选~')
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
