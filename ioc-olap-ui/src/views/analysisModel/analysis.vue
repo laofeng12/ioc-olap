@@ -150,9 +150,12 @@ export default {
         let rowList = []
         let colList = []
         let colLength = results[headLimit.cItems.length + 1].length
+        let againList = []
+        let againNum = []
+        let isAgainNext = 0
         results.forEach((item, index) => {
-          const rowItem = []
-          const colItem = []
+          let rowItem = []
+          let colItem = []
           if (index < headLimit.cItems.length) {
             item.forEach((v, i) => {
               if (i !== 0) {
@@ -167,12 +170,28 @@ export default {
             })
           } else if (headLimit.cItems.length < index) {
             item.forEach((v, i) => {
-              if (i < headLimit.rItems.length) {
-                for (let j = 0; j < v.rowspan; j++) {
+              if (i < headLimit.rItems.length && v !== null) {
+                if (isAgainNext) {
+                  colItem.push({ name: results[headLimit.cItems.length][isAgainNext + i].value, filter: v.value })
+                } else {
                   colItem.push({ name: results[headLimit.cItems.length][i].value, filter: v.value })
+                }
+                if (v.rowspan > 1) {
+                  againList.push({ name: results[headLimit.cItems.length][i].value, filter: v.value })
+                  againNum.push(v.rowspan - 1)
                 }
               }
             })
+            if (againList.length > 0) {
+              colItem = [...colItem, ...againList]
+              const list = againNum.filter(v => v > 0) || []
+              againList = againList.slice(0, list.length)
+              list.forEach(v => {
+                v -= 1
+              })
+              isAgainNext = againList.length
+              againNum = [...list]
+            }
           }
           if (rowItem.length > 0) rowList.push(rowItem)
           colList.push(colItem)
