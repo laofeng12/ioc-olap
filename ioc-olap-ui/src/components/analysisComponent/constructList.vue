@@ -198,11 +198,16 @@ export default {
         case 'lookUserModal':
           this.logData = val.params
           const steps = val.params.steps && val.params.steps.map(v => {
-            const data = Object.assign({}, v, {
-              color: '#00a65b',
-              icon: 'el-icon-check'
-            })
-            return data
+            switch (v.step_status) {
+              case 'FINISHED':
+                return Object.assign({}, v, { color: '#00a65b', icon: 'el-icon-check' })
+              case 'ERROR':
+                return Object.assign({}, v, { color: '#f56c6c', icon: 'el-icon-close' })
+              case 'PENDING':
+                return Object.assign({}, v, { color: '#e6a23c', icon: 'el-icon-more' })
+              default:
+                return Object.assign({}, v, { color: '#e6a23c', icon: 'el-icon-more' })
+            }
           })
           this.steps = steps
           this.logListVisible = true
