@@ -225,7 +225,6 @@ const advancedSet = {
           })
           break
         case 6:
-          // Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
           state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.filter((item, index) => {
             item.id === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
           })
@@ -260,13 +259,8 @@ const advancedSet = {
     },
     // 设置剩余的list
     SetrecordingData ({ state }, data) {
-      console.log('保存新的', data)
       state.recordingData = data
     }
-    // 存储rowkeys设置
-    // SaveRowkeyList ({ state }, data) {
-    //   state.rowkeyData.rowkey_columns = data
-    // }
   }
 }
 

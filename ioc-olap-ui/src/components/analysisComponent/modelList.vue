@@ -278,9 +278,6 @@ export default {
       this.getLoading = false
       this.init()
     },
-    handleSelectionChange () {
-
-    },
     moreData () {
       this.offset += 15
       this.init()

@@ -39,21 +39,25 @@ const setFiled = {
           return item.id !== data.id
         }
       })
-      // 删除对应的表
+      // 删除对应的普通模式的表
       state.saveFiledNormalList = state.saveFiledNormalList.filter(item => {
+        // 取消全选的时候
         if (data.list) {
           return item.tableName !== data.id
         } else {
           return item.id !== data.id
         }
       })
+      // 删除对应的衍生模式的表
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.filter(item => {
+        // 取消全选的时候
         if (data.list) {
           return item.tableName !== data.id
         } else {
           return item.id !== data.id
         }
       })
+      // 删除对应的整合过的数据（普通模式+衍生模式）
       state.reloadNeedData = state.reloadNeedData.filter(item => {
         if (data.list) {
           return item.tableName !== data.id
@@ -67,6 +71,7 @@ const setFiled = {
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
+        modeType: '1',
         name: list.item.titName,
         tableName: list.item.tableName
       })
@@ -84,6 +89,7 @@ const setFiled = {
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
         dataType: list.item.dataType,
+        modeType: '2',
         name: list.item.titName,
         tableName: list.item.tableName
       })
@@ -115,15 +121,20 @@ const setFiled = {
     },
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
+      // 遍历已选择的字段
       state.saveSelectFiled.map((item, index) => {
+        // 如果为全选的时候 就需要遍历${val}取到对应的id
+        // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
         if (val.length) {
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
             }
+            // 如果为事实表的话 mode===1
             if (res.filed === '1') {
               state.saveSelectFiled[index].mode = 1
             }
+            // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
               dispatch('normalFn', { item: item, val: res })
             } else if (String(res.mode) === '2') {
@@ -131,9 +142,11 @@ const setFiled = {
             }
           })
         } else {
+          // 单选勾选框的时候
           if (val.id === item.id) {
             state.saveSelectFiled[index].mode = val.mode
           }
+          // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
           if ((String(val.mode) === '1' && String(item.mode) === '1') || item.filed === '1') {
             dispatch('normalFn', { item: item, val: val })
           } else if (String(val.mode) === '2' && String(item.mode) === '2') {
@@ -149,6 +162,12 @@ const setFiled = {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
+      /**
+       * 1、遍历已经连好线的表lookups 遍历已经选择的维度名称（普通或者衍生模式）
+       * 2、${n.tableName} --- 当前选择的组合名称的表名 根据此表名去匹配lookups的表
+       * 3、取出对应的表对应的foreign_key
+       * 4、如果对应的${foreign_key}是多个的话就绪遍历
+       */
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
@@ -157,6 +176,7 @@ const setFiled = {
                 datas = datas.concat({
                   id: n.id,
                   type: n.dataType,
+                  modeType: '2',
                   value: res
                 })
               })
@@ -164,19 +184,20 @@ const setFiled = {
               datas.push({
                 id: n.id,
                 type: n.dataType,
+                modeType: '2',
                 value: item.join.foreign_key.join(',')
               })
             }
           }
         })
       })
-      // console.log(datas, '衍生对应的数据')
       // 整合正常模式数据
       let nomrlData = []
       state.saveFiledNormalList.map((res, index) => {
         nomrlData = nomrlData.concat({
           id: res.id,
           type: res.dataType,
+          modeType: res.modeType,
           value: res.tableName + '.' + res.name
         })
       })
@@ -190,6 +211,10 @@ const setFiled = {
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {
+          /**
+           * ${mode} =1 就是普通模式
+           * 普通模式需要传入column
+           */
           if (String(item.mode) === '1') {
             state.dimensions.push({
               table: item.tableName,
@@ -199,6 +224,11 @@ const setFiled = {
               column_type: item.dataType,
               name: item.name
             })
+            /**
+             * ${mode} = 2 就是衍生模式
+             * 普通模式需要传入derived
+             * derived 传入的数据为该字段的名称
+            */
           } else {
             state.dimensions.push({
               table: item.tableName,

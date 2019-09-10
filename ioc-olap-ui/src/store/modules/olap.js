@@ -62,7 +62,7 @@ const common = {
           'name': '',
           'uuid': '',
           'model_name': '',
-          'engine_type': 2,
+          'engine_type': '2',
           'description': '',
           'dimensions': [ // 设置维度表
             {
@@ -279,7 +279,6 @@ const common = {
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
-      console.log(getters)
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
       // console.log('第六步===', getters.aggregation_groups)
     }

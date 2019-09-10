@@ -91,11 +91,6 @@ export default {
       this.$root.eventBus.$on('saveSelectTables', _ => {
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
-        // if (this.$store.state.selectStep.searchType === 1) {
-        //   this.saveSelctchckoutone.map(item => { this.defaultKey.push(item.id) })
-        // } else {
-        //   this.saveSelctchckouttwo.map(item => { this.defaultKey.push(item.id) })
-        // }
         this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
         setTimeout(() => {
           this.defaultKey = [...new Set(this.defaultKey)]
@@ -187,8 +182,6 @@ export default {
       treeList: 'treeList',
       saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
-      saveSelctchckoutone: 'saveSelctchckoutone',
-      saveSelctchckouttwo: 'saveSelctchckouttwo',
       serchTableList: 'serchTableList',
       saveLocalSelectTable: 'saveLocalSelectTable'
 

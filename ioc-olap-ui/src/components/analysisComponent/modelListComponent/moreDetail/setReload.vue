@@ -12,15 +12,15 @@
     <ul>
          <div>
            <span>日期字段表</span>
-           <span>{{dataList.tables}}</span>
+           <span>{{dataList.tables || '无'}}</span>
          </div>
          <div>
            <span>日期字段</span>
-           <span>{{dataList.columns}}</span>
+           <span>{{dataList.columns || '无'}}</span>
          </div>
          <div>
            <span>日期格式</span>
-           <span>{{dataList.partition_date_format}}</span>
+           <span>{{dataList.partition_date_format || '无'}}</span>
          </div>
     </ul>
     <p>
@@ -50,21 +50,13 @@ export default {
         columns: '',
         frequencytype: ''
       },
-      descriptionData: [
-        { index: '1', name: 'USER_ID', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '2', name: 'USER_ID1', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '3', name: 'USER_ID2', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '4', name: 'USER_ID3', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '5', name: 'USER_ID4', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '6', name: 'USER_ID5', expression: 'string', value: '用户标识', returntype: '正常模式' },
-        { index: '7', name: 'USER_ID6', expression: 'string', value: '用户标识', returntype: '正常模式' }
-      ],
+      descriptionData: [],
       descriptionHead: [
         { prop: 'index', label: '序号 ' },
-        { prop: 'name', label: '表名称' },
-        { prop: 'expression', label: '字段' },
-        { prop: 'value', label: '过滤方式' },
-        { prop: 'returntype', label: '过滤值' }
+        { prop: 'tableName', label: '表名称' },
+        { prop: 'field', label: '字段' },
+        { prop: 'pattern', label: '过滤方式' },
+        { prop: 'parameter', label: '过滤值' }
       ]
     }
   },
@@ -79,8 +71,7 @@ export default {
         this.dataList.tables = partition_date_column.split('.')[0]
         this.dataList.columns = partition_date_column.split('.')[1]
         this.dataList.frequencytype = frequencytype === 1 ? '小时' : (frequencytype === 2 ? '天' : '月')
-        console.log(this.dataList)
-        // let { partition_date_column, partition_time_format, partition_date_format } = this.jsonData.ModesList.partition_desc
+        this.descriptionData = this.jsonData.filterCondidion
       }
     }
   }

@@ -58,6 +58,7 @@ export function reduceJson (arr, name) {
     obj[next[name]] ? '' : obj[next[name]] = true && item.push({
       id: next[name],
       dataType: next.dataType,
+      modeType: next.modeType,
       name: next.name,
       tableName: next.tableName
     })

@@ -64,7 +64,6 @@ export default {
         setTimeout(() => {
           this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
           this.$store.dispatch('changeSerachtype', 1)
-          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
           this.$root.eventBus.$emit('saveSelectTables')
         }, 1000)
       })
@@ -189,7 +188,6 @@ export default {
       // 存储当前点击的父节点的id
       this.$store.dispatch('setLastClickTab', nodeId)
       // 保存选择的数据源数据
-      this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     },
     fetchResourceInfo (data, nodeId) {
       this.$store.dispatch('GetResourceInfo', { resourceId: data.orgId, type: data.type }).then(res => {
@@ -199,8 +197,6 @@ export default {
           this.$root.eventBus.$emit('clearSelect')
           // 存储当前点击的父节点的id
           this.$store.dispatch('setLastClickTab', nodeId)
-          // 保存选择的数据源数据
-          this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
         }
       })
     }
@@ -215,7 +211,6 @@ export default {
     //       // 存储当前点击的父节点的id
     //       this.$store.dispatch('setLastClickTab', nodeId)
     //       // 保存选择的数据源数据
-    //       this.$store.dispatch('saveSelctchckoutone', this.saveSelectTable)
     //     }
     //   })
     // }
