@@ -163,7 +163,6 @@ export default {
           factVal.push(res.value)
         }
       })
-      // console.log('获取的', factVal, '李帆', dimensionsVal)
       let isRowkey = this.factVal && this.factVal.length ? this.factVal.some(_ => dimensionsVal.includes(_)) : false
       // 是否选择延伸模式
       // 如果为 true 的话，说明不能下一步，提示用户。必须选择指定字段才允许下一步。

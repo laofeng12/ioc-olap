@@ -254,7 +254,6 @@ export default {
     },
     // 选择对应的编码类型
     codingType (val) {
-      console.log(val)
       for (let item in this.getAllcoding.data) {
         if (val.split('(')[0] === item) {
           this.encodingOption = this.getAllcoding.data[item]

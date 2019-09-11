@@ -149,7 +149,7 @@ export default {
       this.init(val)
     },
     createolap () {
-      removeAllStorage()
+      removeAllStorage() // 新增的时候清除本地存储
       this.$router.push('/analysisModel/createolap/selectStep')
     },
     // 展开详情
