@@ -208,6 +208,7 @@ const common = {
       state.totalSaveData.cube.cubeDescData.name = ''
       state.totalSaveData.cube.cubeDescData.uuid = ''
       state.totalSaveData.cube.cubeDescData.description = ''
+      state.ModelAllList = []
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
@@ -251,16 +252,18 @@ const common = {
         getters.measureTableList.push(item)
       })
       // 赋值第五步
-      getters.reloadData.frequencytype = data.timingreFresh.frequencytype
-      getters.reloadData.autoReload = !!data.timingreFresh.interval
-      getters.reloadData.interval = Number(data.timingreFresh.interval)
-      getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
-      let result = data.ModesList.partition_desc.partition_date_column
-      getters.reloadData.data1a = result.split('.')[0]
-      getters.reloadData.data1b = result.split('.')[1]
-      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
-      getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
-      data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
+      if (data.timingreFresh) {
+        getters.reloadData.frequencytype = data.timingreFresh.frequencytype
+        getters.reloadData.autoReload = !!data.timingreFresh.interval
+        getters.reloadData.interval = Number(data.timingreFresh.interval)
+        getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
+        let result = data.ModesList.partition_desc.partition_date_column
+        getters.reloadData.data1a = result.split('.')[0]
+        getters.reloadData.data1b = result.split('.')[1]
+        getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+        getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+        data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
+      }
 
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
@@ -270,6 +273,8 @@ const common = {
         getters.selectDataidList[index].necessaryDataId = item.select_rule.mandatory_dims
         getters.selectDataidList[index].levelDataId = item.select_rule.hierarchy_dims
         getters.selectDataidList[index].jointDataId = item.select_rule.joint_dims
+        item.includes.map(res => { getters.saveselectIncludesData.push(res) })
+
       })
       // hbase_mapping  mandatory_dimension_set_list
       data.CubeList[0].hbase_mapping.column_family.map((item, index) => {

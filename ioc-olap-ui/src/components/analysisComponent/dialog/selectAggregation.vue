@@ -54,18 +54,28 @@ export default {
     }
   },
   mounted () {
-    // 处理编辑的时候
-    this.reloadNeedDataList = JSON.parse(JSON.stringify(this.reloadNeedData))
-    // 如果是编辑的时候 就得需要处理拿到的数据转为对象
-    console.log(this.reloadNeedDataList)
-    if (this.ModelAllList.CubeList) {
-      let data = []
-      this.reloadNeedDataList.map(item => { data.push({ value: item.value }) })
-      this.reloadNeedDataList = [...data]
-    }
-    console.log(this.reloadNeedDataList)
+    this.resortAggregation()
+    this.init()
   },
   methods: {
+    init () {
+      // 处理编辑的时候
+      this.reloadNeedDataList = JSON.parse(JSON.stringify(this.reloadNeedData))
+      // 如果是编辑的时候 就得需要处理拿到的数据转为对象
+      // if (this.ModelAllList.CubeList) {
+      //   this.reloadNeedDataList = JSON.parse(JSON.stringify(this.aggregation_groups[0].includes))
+      //   let data = []
+      //   this.reloadNeedDataList.map(item => { data.push({ value: item }) })
+      //   this.reloadNeedDataList = [...data]
+      // }
+      // console.log(this.reloadNeedDataList, '=====', this.recordingData)
+    },
+    resortAggregation () {
+      this.selectDataidList.forEach(item => {
+        if (item.levelDataId.length === 0) item.levelDataId = [[]]
+        if (item.jointDataId.length === 0) item.jointDataId = [[]]
+      })
+    },
     closeBtn () {
       this.dialogFormVisible = false
     },
@@ -104,9 +114,11 @@ export default {
           // 递减的功能（选择过后下面的就没法选择）
           let arrD = [...new Set(this.recordingData)]
           this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+          console.log('日日日', arrD, this.saveselectIncludesData)
           break
       }
       this.index = index
+      console.log(index, '------', findIndex)
       this.type = type
       this.findIndex = findIndex
       switch (type) {

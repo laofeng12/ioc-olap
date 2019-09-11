@@ -209,13 +209,18 @@ export default {
   width 230px
   float left
   padding 0 5px
-  overflow auto
   border-right 1px solid #f0f0f0
   height 98%
   .trees{
-    // height calc(100vh - 300px)
-    // overflow-y auto
-    width 250px
+    width 230px
+    height 85%
+    overflow auto
+    padding-right 30px
+  }
+  >>>.el-tree{
+    height 100%
+    width 100%
+    overflow auto
   }
   >>>.el-radio{
     display block
@@ -242,8 +247,12 @@ export default {
     }
   }
   >>>.el-tree-node__children{
+    display inline
     .el-tree-node__content{
       padding-left 0!important
+    }
+    .el-tree-node{
+      min-width: 120%;
     }
   }
 }

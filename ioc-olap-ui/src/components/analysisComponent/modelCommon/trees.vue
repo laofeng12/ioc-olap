@@ -256,17 +256,17 @@ export default {
     height 98%
     width 200px
     // height calc(100vh - 150px)
-    overflow auto
+    // overflow auto
     border-right 1px solid #f0f0f0
     .trees{
       width 198px
-      // height 100%
-      // overflow-y auto
+      height 85%
+      // overflow auto
     }
     >>>.el-tree{
-      // min-width 500px
-      overflow: initial
-      width 600px
+      height 100%
+      width 100%
+      overflow auto
     }
     >>>.el-input{
       width 80%
@@ -276,6 +276,10 @@ export default {
       margin-top -10px
     }
     >>>.el-tree{
+    .el-tree-node{
+      min-width: 100%;
+      display: inline-block;
+    }
     .el-tree-node__content{
       font-size: 14px;
       height 25px

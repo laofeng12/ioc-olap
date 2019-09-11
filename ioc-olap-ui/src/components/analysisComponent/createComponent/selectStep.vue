@@ -14,7 +14,9 @@
         </el-tabs>
     </div>
     <select-modal ref="dialog"></select-modal>
-    <steps class="steps" :step="1" @nextModel="nextModel"></steps>
+    <div class="step_dv">
+      <steps class="steps" :step="1" @nextModel="nextModel"></steps>
+    </div>
   </div>
 </template>
 
@@ -42,12 +44,6 @@ export default {
   methods: {
     init () {
       let totalData = this.selectTableTotal.length ? this.selectTableTotal : JSON.parse(getLocalStorage('selectTableTotal'))
-      // if (this.selectTableTotal && this.selectTableTotal.length) {
-      //   let data = this.selectTableTotal.filter(res => {
-      //     return res.label
-      //   })
-      //   this.selectTableTotal = data
-      // }
       totalData && totalData.map(res => {
         this.selectTableTotal.push(res.label)
       })
@@ -106,6 +102,10 @@ export default {
         color green
       }
     }
+  }
+  .step_dv{
+    background #ffffff
+    height 100px
   }
   .steps{
     left 60%
