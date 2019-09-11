@@ -205,7 +205,6 @@ export default {
           })
         }
       })
-      // this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {
@@ -237,6 +236,7 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
+      console.log(this.aggregation_groups[0].select_rule)
       const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
       let hierarchy_dimsLen = hierarchy_dims[0].length
       let joint_dimsLen = joint_dims[0].length

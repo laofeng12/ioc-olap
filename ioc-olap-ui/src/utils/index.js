@@ -4,6 +4,10 @@ export function removeSessionStorage (item) {
   sessionStorage.removeItem(item)
 }
 
+export function removeAllStorage () {
+  localStorage.clear()
+}
+
 export function removeLocalStorage (item) {
   localStorage.removeItem(item)
 }

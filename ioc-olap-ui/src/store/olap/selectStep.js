@@ -56,9 +56,11 @@ const selectStep = {
     },
     GET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
+      setLocalStorage('serchTableList', data)
     },
     SET_SERCHTABLE_LIST: (state, data) => {
       state.serchTableList = data
+      setLocalStorage('serchTableList', data)
     },
     LSATCLICK_TAB: (state, data) => {
       state.lastClickTab = data
@@ -68,6 +70,7 @@ const selectStep = {
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableTotal = val.filter(item => { return item.label })
+      setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 存储所有选择的表对应的字段
     SaveSelectAllListone (state, val) {
@@ -120,7 +123,6 @@ const selectStep = {
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
         getTreeoneList().then(res => {
-          // commit('GET_TREELIST', res)
           resolve(res)
         })
       })
@@ -248,7 +250,6 @@ const selectStep = {
     },
     // 存储数据湖的数据
     getSelectTableList ({ state, dispatch, getters }, data) {
-      // state.saveSelectTable = []
       data.map(item => {
         if (!item.children) {
           state.saveSelectTable = state.saveSelectTable.concat({
@@ -263,6 +264,7 @@ const selectStep = {
       })
       state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
       dispatch('SelectStepList', state.saveSelectTable).then(_ => {
+        // 判断是否是编辑进来的，如实编辑进来的需要主动调用存储第一步的方法
         getters.ModelAllList.TableList && dispatch('SavestepSelectData', getters.ModelAllList.TableList)
       })
     },

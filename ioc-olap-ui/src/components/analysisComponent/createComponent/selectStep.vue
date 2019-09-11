@@ -8,7 +8,7 @@
           <el-tab-pane label="本地上传" name="2">
             <local-upload></local-upload>
           </el-tab-pane>
-          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum" v-if="selectTableTotal && selectTableTotal.length">
+          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum" v-if="selectTableTotal.length > 0">
             <span slot="label" style="cursor:pointer" @click="changes" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
           </el-tab-pane>
         </el-tabs>
@@ -24,7 +24,7 @@ import localUpload from '@/components/analysisComponent/createComponent/selectSt
 import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
+import { getLocalStorage } from '@/utils/index'
 export default {
   components: {
     dataLake, localUpload, selectModal, steps
@@ -32,7 +32,8 @@ export default {
   data () {
     return {
       isLoading: false,
-      activeName: '1'
+      activeName: '1',
+      dataList: []
     }
   },
   mounted () {
@@ -40,13 +41,16 @@ export default {
   },
   methods: {
     init () {
-      // this.selectTableTotal = reduceObj(this.selectTableTotal, 'id')
-      if (this.selectTableTotal && this.selectTableTotal.length) {
-        let data = this.selectTableTotal.filter(res => {
-          return res.label
-        })
-        this.selectTableTotal = data
-      }
+      let totalData = this.selectTableTotal.length ? this.selectTableTotal : JSON.parse(getLocalStorage('selectTableTotal'))
+      // if (this.selectTableTotal && this.selectTableTotal.length) {
+      //   let data = this.selectTableTotal.filter(res => {
+      //     return res.label
+      //   })
+      //   this.selectTableTotal = data
+      // }
+      totalData && totalData.map(res => {
+        this.selectTableTotal.push(res.label)
+      })
     },
     changes (val) {
       this.$refs.dialog.dialog()

@@ -25,6 +25,7 @@
 import { setTimeout } from 'timers'
 import { mapGetters } from 'vuex'
 import { getselectCatalog } from '@/api/olapModel'
+import { getLocalStorage } from '@/utils/index'
 export default {
   data () {
     return {
@@ -61,6 +62,15 @@ export default {
   methods: {
     init () {
       // 默认选择第一行
+      let ModelAllList = this.ModelAllList.length > 0 ? this.ModelAllList : JSON.parse(getLocalStorage('ModelAllList'))
+      let serchTableList = this.serchTableList.length > 0 ? this.serchTableList : JSON.parse(getLocalStorage('serchTableList'))
+      console.log('刷新后的', serchTableList)
+      // 判断是否是刷新过后的
+      // if (this.serchTableList.length < 1 && JSON.parse(getLocalStorage('ModelAllList'))) {
+      //   setTimeout(() => {
+      //     this.$root.eventBus.$emit('getserchTableList', serchTableList, 1)
+      //   }, 500)
+      // }
       if (this.$route.query.cubeName) {
         setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
       }
@@ -76,8 +86,6 @@ export default {
       this.treeLoading = true
       // this.fetchDatas(val)
       this.fetchKelinData()
-      // console.log('最后一次点击的', this.lastClickTab)
-      // this.$refs.tree.setCurrentKey(this.lastClickTab)
     },
     fetchDatas (val) {
       /** 数据湖 */

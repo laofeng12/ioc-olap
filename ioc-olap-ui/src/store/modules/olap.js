@@ -1,3 +1,4 @@
+import { setLocalStorage } from '@/utils/index'
 const common = {
   state: {
     ModelAllList: [], // 所有的数据集合
@@ -217,6 +218,7 @@ const common = {
     // 获取编辑的数据
     SaveModelAllList ({ getters, store, state, dispatch }, data) {
       state.ModelAllList = data
+      setLocalStorage('ModelAllList', data)
       // 赋值第一步已选择的表
       console.log(data, '编辑需要的数据')
       data.TableList.map((item, index) => {
@@ -228,7 +230,6 @@ const common = {
       // 赋值第二步模型的表
       getters.jointResultData.lookups = data.ModesList.lookups
       getters.jointResultData.fact_table = data.ModesList.fact_table
-      // console.log('表的数据', getters.jointResultData.lookups)
       // 赋值第三步
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)

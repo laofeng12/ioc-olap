@@ -43,6 +43,7 @@ export default {
     init () {
       // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
+        console.log(res)
         this.loading = true
         this.dataList[0].children = []
         let orgId = res.orgId
@@ -95,12 +96,13 @@ export default {
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
+        // 初始化默认勾选框数组 以及树列表的复选框
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
+        // 遍历已经勾选的数据赋值到勾选框数组
         this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
-        setTimeout(() => {
-          this.defaultKey = [...new Set(this.defaultKey)]
-        }, 500)
+        // 去重勾选框数组
+        setTimeout(() => { this.defaultKey = [...new Set(this.defaultKey)] }, 500)
       })
       // 重置复选框
       this.$root.eventBus.$on('clearSelect', _ => {
