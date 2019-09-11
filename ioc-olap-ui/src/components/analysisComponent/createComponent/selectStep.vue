@@ -24,6 +24,7 @@ import localUpload from '@/components/analysisComponent/createComponent/selectSt
 import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
+import { reduceObj } from '@/utils/index'
 export default {
   components: {
     dataLake, localUpload, selectModal, steps
@@ -39,6 +40,7 @@ export default {
   },
   methods: {
     init () {
+      // this.selectTableTotal = reduceObj(this.selectTableTotal, 'id')
       if (this.selectTableTotal && this.selectTableTotal.length) {
         let data = this.selectTableTotal.filter(res => {
           return res.label
