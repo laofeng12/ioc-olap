@@ -398,7 +398,7 @@ export default {
           cursor pointer
         }
         >>>.el-tag{
-          width 30%
+          width 32%
           float left
           margin-left 1%
           margin-bottom 10px
@@ -406,16 +406,10 @@ export default {
           text-align center
           background #FBFBFB
           color #555555
-          i{
-            float right!important
-            margin-top 8px
-          }
-          h6{
-            text-overflow: ellipsis;
-            float left
-            width: 90%;
-            overflow: hidden;
-          }
+          // i{
+          //   float right!important
+          //   margin-top 8px
+          // }
         }
         .adds{
           border none!important
@@ -452,6 +446,12 @@ export default {
       }
     }
   }
+  h6{
+    text-overflow: ellipsis;
+    float left
+    width: 90%;
+    overflow: hidden;
+  }
   .listSet{
     margin-top 20px
     span{
@@ -484,7 +484,7 @@ export default {
         }
       }
       >>>.el-tag{
-          width 30%
+          width 32%
           float left
           margin-left 1%
           margin-bottom 10px
@@ -492,10 +492,10 @@ export default {
           text-align center
           background #FBFBFB
           color #555555
-          i{
-            float right!important
-            margin-top 8px
-          }
+          // i{
+          //   float right!important
+          //   margin-top 8px
+          // }
         }
     }
     .nos{

@@ -1,7 +1,6 @@
 const common = {
   state: {
     ModelAllList: [], // 所有的数据集合
-    modelSelectData: [],
     /* 建立表关系 */
     totalSaveData: { // 总数据
       models: {
@@ -189,7 +188,7 @@ const common = {
         autoReload: false, // 是否自动刷新
         dataMany: false // 日期是否存在多列
       },
-      cubeDatalaketableNew: {},
+      cubeDatalaketableNew: [],
       dimensionLength: '',
       dimensionFiledLength: '',
       measureFiledLength: ''
@@ -204,8 +203,9 @@ const common = {
         autoReload: false,
         dataMany: false
       }
-      state.totalSaveData.cubeDatalaketableNew = {}
+      state.totalSaveData.cubeDatalaketableNew = []
       state.totalSaveData.cube.cubeDescData.name = ''
+      state.totalSaveData.cube.cubeDescData.uuid = ''
       state.totalSaveData.cube.cubeDescData.description = ''
     },
     // 合并设置的事实表到总表
@@ -213,14 +213,13 @@ const common = {
       getters.selectTableTotal.forEach((item, index) => {
         data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      // dispatch('setSelectTableTotal')
     },
     // 获取编辑的数据
     SaveModelAllList ({ getters, store, state, dispatch }, data) {
       state.ModelAllList = data
       // 赋值第一步已选择的表
       console.log(data, '编辑需要的数据')
-      data.TableList.map(item => {
+      data.TableList.map((item, index) => {
         item.tableList.map(res => {
           getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
           getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
@@ -240,6 +239,7 @@ const common = {
           name: res.column ? res.column : res.name,
           dataType: res.column_type,
           tableName: res.table,
+          filed: res.table === data.ModesList.fact_table.split('.')[1] ? '1' : '0',
           id: res.id,
           mode: res.derived ? '2' : '1'
         })
@@ -259,7 +259,6 @@ const common = {
       getters.reloadData.data1b = result.split('.')[1]
       getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
       getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
-      console.log(data.filterCondidion, '1')
       data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
 
       // 赋值第六步
@@ -274,8 +273,11 @@ const common = {
       // hbase_mapping  mandatory_dimension_set_list
       data.CubeList[0].hbase_mapping.column_family.map((item, index) => {
         getters.hbase_mapping.column_family[index] = item
-        getters.savehetComposeDataId[index] = item
+        item.columns.map((n, i) => {
+          getters.savehetComposeDataId[index] = n.measure_refs
+        })
       })
+      // 赋值表名、字段数量、维度数量以及保存需要的uuid
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid

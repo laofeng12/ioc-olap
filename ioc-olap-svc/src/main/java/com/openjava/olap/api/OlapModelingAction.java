@@ -191,10 +191,9 @@ public class OlapModelingAction extends BaseAction {
             cube.setProject(userVO.getUserId());
             models.setProject(userVO.getUserId());
             modelMap = modelHttpClient.create(models);
-            try{
+            try {
                 cubeMap = cubeHttpClient.create(cube, modelName);
-            }
-            catch (APIException ex){
+            } catch (APIException ex) {
                 modelHttpClient.delete(modelName);
                 throw ex;
             }
@@ -302,12 +301,15 @@ public class OlapModelingAction extends BaseAction {
 
         //1、检测当前项目是否有该表,如果没有则加入进去
         List<String> tableNameList = new ArrayList<String>();
-        for (CubeDatalaketableNewMapper datalaketableNew : cubeDatalaketableNew) {
-            for (OlapDatalaketable table : datalaketableNew.getTableList()) {
-                String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
-                tableNameList.add(name);
+        if (cubeDatalaketableNew != null) {
+            for (CubeDatalaketableNewMapper datalaketableNew : cubeDatalaketableNew) {
+                for (OlapDatalaketable table : datalaketableNew.getTableList()) {
+                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
+                    tableNameList.add(name);
+                }
             }
         }
+
 
         //1、判断是否有该用户的project,如果没有则创建
         if (!projectList.isPresent()) {
@@ -464,11 +466,11 @@ public class OlapModelingAction extends BaseAction {
             String[] joinFk = l.join.getPrimary_key();
             for (int i = 0; i < joinPk.length; i++) {
                 String joinPkSub = joinPk[i].substring(joinPk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnAlias().equals(joinPkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnName().equals(joinPkSub)).findFirst();
                 pkList.add(EntityPk.get().getColumnType());
 
                 String joinFkSub = joinFk[i].substring(joinFk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnAlias().equals(joinFkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnName().equals(joinFkSub)).findFirst();
                 fkList.add(EntityFk.get().getColumnType());
             }
             l.join.setPk_type(pkList);
