@@ -1,5 +1,5 @@
 # 开发环境配置
-debug: false
+debug: true
 server:
   port: 8080 #tomcat运行端口
   servlet:
