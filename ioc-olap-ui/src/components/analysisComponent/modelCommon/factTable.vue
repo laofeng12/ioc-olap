@@ -140,6 +140,8 @@ export default {
         padding 2px 6px
         font-size 10px
         border-radius 3px
+        margin-left: 3px;
+        vertical-align: middle;
       }
     }
     .actives{

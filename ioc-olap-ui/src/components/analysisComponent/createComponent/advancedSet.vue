@@ -363,6 +363,7 @@ export default {
 <style lang="stylus" scoped>
 .advancedSet{
   padding 30px 100px
+  padding-bottom 100px
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc

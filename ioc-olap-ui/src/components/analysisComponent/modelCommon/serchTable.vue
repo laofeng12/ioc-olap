@@ -1,7 +1,7 @@
 <template>
   <div class="serchTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <div class="trees">
+     <div class="trees" ref="treesBox">
       <el-tree
         ref="trees"
         :data="dataList"
@@ -14,7 +14,7 @@
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
         </el-tree>
-        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;text-align:center;margin-top:50px;display:block;">暂无数据</span>
+        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
      </div>
   </div>
 </template>
@@ -41,9 +41,9 @@ export default {
   },
   methods: {
     init () {
+      // 判断是否有数据 如果没有数据的话就需改变树的高度
       // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
-        console.log(res)
         this.loading = true
         this.dataList[0].children = []
         let orgId = res.orgId
@@ -59,7 +59,7 @@ export default {
         // if (type && type === 1) {
         //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
-        //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+          //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
         //       this.$root.eventBus.$emit('saveSelectTables')
         //     }
@@ -111,6 +111,7 @@ export default {
     },
     handleNodeClick (value) {
       if (value.label === '全选') return
+      this.$refs.treesBox.style.height = this.dataList[0].children.length > 0 ? '80%' : 'auto'
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
         /** 数据湖 */

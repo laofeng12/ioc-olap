@@ -230,6 +230,7 @@ export default {
 
 <style lang="stylus" scoped>
 .setFiled{
+  padding-bottom 100px
   .containers{
     height calc(100vh - 150px)
     padding 20px 5px

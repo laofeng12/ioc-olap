@@ -14,9 +14,7 @@
         </el-tabs>
     </div>
     <select-modal ref="dialog"></select-modal>
-    <div class="step_dv">
-      <steps class="steps" :step="1" @nextModel="nextModel"></steps>
-    </div>
+    <steps class="steps" :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
 
@@ -86,6 +84,7 @@ export default {
 
 <style lang="stylus" scoped>
 .selectStep{
+  padding-bottom 67px
   margin-top 20px
   background #ffffff
   position relattive
@@ -102,13 +101,6 @@ export default {
         color green
       }
     }
-  }
-  .step_dv{
-    background #ffffff
-    height 100px
-  }
-  .steps{
-    left 60%
   }
 }
 </style>
