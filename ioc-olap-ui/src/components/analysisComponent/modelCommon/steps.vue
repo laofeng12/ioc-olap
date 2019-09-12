@@ -45,7 +45,7 @@ export default {
     bottom 0
     left 0
     border-top 1px solid #cccccc
-    box-shadow 0 1px 0px 0
+    // box-shadow 0 -1px 3px 0
   }
 .steps{
   text-align center
