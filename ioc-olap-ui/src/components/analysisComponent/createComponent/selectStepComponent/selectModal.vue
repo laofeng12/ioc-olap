@@ -14,6 +14,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getLocalStorage } from '@/utils/index'
 export default {
   props: {
     border: {
@@ -37,7 +38,7 @@ export default {
     dialog (val, data) {
       this.dialogFormVisible = true
       // this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
-      this.tableData = this.selectTableTotal.filter(res => {
+      this.tableData = (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
         return res.label
       })
     }

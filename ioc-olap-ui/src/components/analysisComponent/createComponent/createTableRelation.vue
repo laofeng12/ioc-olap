@@ -9,11 +9,11 @@
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinTable)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.table)">查看</span></h4>
+          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.id)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
@@ -56,8 +56,6 @@ import factTable from '@/components/analysisComponent/modelCommon/factTable'
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
-import { setTimeout } from 'timers'
-import { constants } from 'crypto'
 
 let joint = require('jointjs')
 /**
@@ -978,6 +976,7 @@ export default {
 
 .tableRelation{
   height calc(100vh - 150px)
+  padding-bottom 100px
   position relative
   .containers{
     height 100%
@@ -1081,6 +1080,12 @@ export default {
   >>>.el-select{
     .el-input__inner{
       font-size 10px
+    }
+    .el-icon-arrow-up{
+      margin-top 5px
+    }
+    .is-reverse{
+      margin-top -5px
     }
   }
   >>>.el-input__inner{

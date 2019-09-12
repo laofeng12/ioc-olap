@@ -43,19 +43,31 @@ export default {
   },
   data () {
     return {
-      optionData: [],
+      optionData: [], // 处理后的数据 递减 如果其他类别选择后就不能选择
+      reloadNeedDataList: [], // 定义一个数组来接收选择的数据
       dialogFormVisible: false,
-      selctCheckData: [],
-      options: [],
-      index: '',
-      type: '',
-      findIndex: ''
+      selctCheckData: [], // 选择的列id
+      options: [], // 接收第三步选择的数据
+      index: '', // 记录当前选择的是维度的哪个框
+      type: '', // 记录当前选择的是哪个维度
+      findIndex: '' // 记录当前点击的是维度下的哪个列
     }
   },
   mounted () {
-    console.log(this.reloadNeedData, '获取的')
+    this.resortAggregation()
+    this.init()
   },
   methods: {
+    init () {
+      // 处理编辑的时候
+      this.reloadNeedDataList = JSON.parse(JSON.stringify(this.reloadNeedData))
+    },
+    resortAggregation () {
+      this.selectDataidList.forEach(item => {
+        if (item.levelDataId.length === 0) item.levelDataId = [[]]
+        if (item.jointDataId.length === 0) item.jointDataId = [[]]
+      })
+    },
     closeBtn () {
       this.dialogFormVisible = false
     },
@@ -78,14 +90,13 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
-      console.log(this.selectDataidList, '选择后的123', this.reloadNeedData)
       this.dialogFormVisible = true
       switch (type) {
         case 1:
-          this.options = this.reloadNeedData
+          this.options = this.reloadNeedDataList
           break
         case 5:
-          this.options = this.reloadNeedData
+          this.options = this.reloadNeedDataList
           break
         case 6:
           this.options = this.measureTableList.map(item => { return { value: item.name, id: item.id } })
@@ -95,9 +106,11 @@ export default {
           // 递减的功能（选择过后下面的就没法选择）
           let arrD = [...new Set(this.recordingData)]
           this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
+          console.log('日日日', arrD, this.saveselectIncludesData)
           break
       }
       this.index = index
+      console.log(index, '------', findIndex)
       this.type = type
       this.findIndex = findIndex
       switch (type) {
@@ -130,6 +143,7 @@ export default {
   computed: {
     ...mapGetters({
       saveNewSortList: 'saveNewSortList',
+      ModelAllList: 'ModelAllList',
       recordingData: 'recordingData',
       aggregation_groups: 'aggregation_groups',
       selectDataidList: 'selectDataidList',

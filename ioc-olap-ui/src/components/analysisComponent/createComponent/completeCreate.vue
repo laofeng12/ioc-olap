@@ -74,8 +74,8 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
-      this.totalSaveData.cube.cubeDescData.dimensions = this.dimensions
-      this.totalSaveData.cube.cubeDescData.hbase_mapping = this.hbase_mapping
+      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
+      this.totalSaveData.cube.cubeDescData.hbase_mapping = JSON.parse(JSON.stringify(this.hbase_mapping))
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
           item.columns[0].measure_refs.push('_COUNT_')

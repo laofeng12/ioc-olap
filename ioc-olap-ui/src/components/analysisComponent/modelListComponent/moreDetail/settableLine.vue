@@ -254,7 +254,7 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
-        router: { name: 'manhattan' }, // 设置连线弯曲样式 manhattan直角
+        router: { name: 'normal' }, // 设置连线弯曲样式 manhattan直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
           'data': item,

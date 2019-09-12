@@ -91,11 +91,10 @@
 <script>
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
-import elementPagination from '@/components/ElementPagination'
-import { filterTime } from '@/utils/index'
+import { filterTime, removeAllStorage } from '@/utils/index'
 export default {
   components: {
-    modelDetail, clones, construct, reloads, merge, sharedTable, elementPagination
+    modelDetail, clones, construct, reloads, merge, sharedTable
   },
   data () {
     return {
@@ -148,6 +147,7 @@ export default {
       this.init(val)
     },
     createolap () {
+      removeAllStorage() // 新增的时候清除本地存储
       this.$router.push('/analysisModel/createolap/selectStep')
     },
     // 展开详情

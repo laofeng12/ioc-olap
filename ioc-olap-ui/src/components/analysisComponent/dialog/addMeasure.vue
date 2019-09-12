@@ -32,7 +32,7 @@
               <el-option v-for="item in backType" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-table :data="formData.answers">
+          <!-- <el-table :data="formData.answers">
             <el-table-column
               label="序号"
               prop='index'
@@ -60,7 +60,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-button type="primary" @click="addtext">+添加字段</el-button>
+          <el-button type="primary" @click="addtext">+添加字段</el-button> -->
         </div>
         <div v-if="formData.computeMode==='TOP_N'" class="coutTopn">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
@@ -150,7 +150,8 @@ export default {
             value: ''
           }
         },
-        answers: []
+        answers: [],
+        type: '6'
       },
       checkedAll: false,
       isNew: 1,
@@ -176,14 +177,16 @@ export default {
       {
         value: 'AVG',
         label: 'AVG'
-      },
-      {
-        value: 'EXTENDED_COLUMN',
-        label: 'EXTENDED_COLUMN'
-      }, {
-        value: 'PERCENTILE',
-        label: 'PERCENTILE'
-      }],
+      }
+      // ,
+      // {
+      //   value: 'EXTENDED_COLUMN',
+      //   label: 'EXTENDED_COLUMN'
+      // }, {
+      //   value: 'PERCENTILE',
+      //   label: 'PERCENTILE'
+      // }
+      ],
       typeOptions: [
         { value: 'column', label: 'column' },
         { value: 'constant', label: 'constant' }
@@ -244,7 +247,8 @@ export default {
             value: ''
           }
         },
-        answers: []
+        answers: [],
+        type: '6'
       }
     },
     closeBtn () {
