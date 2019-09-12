@@ -78,7 +78,6 @@ export default {
   methods: {
     dialog (data) {
       this.shareVisible = true
-      console.info('data', data)
       this.getShareUserList(data)
     },
     async getShareUserList (data) {

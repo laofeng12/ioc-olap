@@ -9,14 +9,10 @@
               <div slot="content">
                 <el-form-item class="m-b-0">
                   <el-select v-model="selectCubeId" placeholder="请选择olap模型" size="small">
-                             <!--@change="getFileName(dashBoardForm.fileName)" size="small">-->
                     <el-option v-for="(item, index) in menuList" :key="index" :label="item.name" :value="item.cubeId">
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <!--<el-form-item label="" prop="statementName">-->
-                  <!--<el-input v-model="dashBoardForm.statementName" placeholder="请输入报表名称（1～20字）" size="small"></el-input>-->
-                <!--</el-form-item>-->
               </div>
             </shirink-pannel>
 
@@ -308,6 +304,7 @@ export default {
     },
     selectCubeId (val) {
       this.changeCubeId(val)
+      this.cleanAllList()
     },
     editData (val) {
       this.selectCubeId = val.cubeId
@@ -621,6 +618,12 @@ export default {
       const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
       this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.rItems, cItems: this.cItems })
+    },
+    cleanAllList () {
+      this.nItems = []
+      this.bItems = []
+      this.rItems = []
+      this.cItems = []
     }
   }
 }
