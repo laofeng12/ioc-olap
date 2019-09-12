@@ -20,8 +20,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
               <el-dropdown-item command="0">编辑</el-dropdown-item>
-              <el-dropdown-item command="1">分享</el-dropdown-item>
-              <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
+              <el-dropdown-item command="1" v-if="node.parent.parent">分享</el-dropdown-item>
               <el-dropdown-item command="3">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
