@@ -32,7 +32,7 @@
                 <template slot-scope="scope">
                   <div class="play">
                     <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
-                      <el-radio label="1">正常模式</el-radio>
+                      <el-radio label="1">正常模式{{scope.row.mode}}</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
                   </div>
@@ -87,11 +87,12 @@ export default {
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
+            console.log(items)
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
               n.titName = n.name
-              n.tableName = data.alias ? data.alias.substring(data.alias.indexOf('.') + 1) : ''
+              n.tableName = data.alias ? data.alias : ''
               n.id = `${data.alias}${i}`
               n.filed = data.alias === code ? '1' : '0'
             })
@@ -105,11 +106,13 @@ export default {
                * 匹配两者相同的id对应的数据放到${arr}
                * 执行toggleSelection 存放匹配到的数据
                */
+              console.log(this.saveSelectFiled, '啊啊')
+              this.processData(code)
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                   if (val.id === item.id) {
-                    this.tableData[i].name = val.name
-                    this.tableData[i].mode = val.mode
+                    this.tableData[i].name = String(val.name)
+                    this.tableData[i].mode = String(val.mode)
                     arr.push(item)
                   }
                 })
@@ -120,10 +123,63 @@ export default {
         })
       })
       // 判断有乜选择事实表
-      console.log(this.saveSelectFiled)
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
         this.flags = item.filed === '1' ? 0 : ''
       })
+    },
+    // 处理第二步建立的模型对应的字段
+    processData (code) {
+      // 处理所有表对应的字段
+      let values = []
+      console.log(code, '事实表')
+      this.saveSelectAllListFiled.map((item, index) => {
+        let items = JSON.parse(item)
+        items.data.columns.map((res, i) => {
+          values.push({
+            tableName: items.name,
+            name: res.name,
+            titName: res.name,
+            id: `${items.name}${i}`,
+            mode: items.name === code ? '1' : '2',
+            derived: res.name,
+            filed: items.name === code ? '1' : '0'
+          })
+        })
+      })
+      // 获取第二步建表的数据
+      const data = JSON.parse(JSON.stringify(this.jointResultData))
+      // 创建一个存储对应的主表字段的盒子
+      let foreign_keys = []
+      // 创建一个存储对应的子表字段的盒子
+      let primary_keys = []
+      // 最终的数据要存放的盒子
+      let resultData = []
+      // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
+      data.lookups.map((item, index) => {
+        let val = item.join
+        val.foreign_key.map(_ => { foreign_keys.push(_) })
+        val.primary_key.map(_ => { primary_keys.push(_) })
+      })
+      let result = [...foreign_keys, ...primary_keys]
+      // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
+      values.map(res => {
+        let { tableName, titName } = res
+        result.map(n => {
+          let table = n.split('.')[0]
+          let columns = n.split('.')[1]
+          if (tableName === table && titName === columns) {
+            resultData = [...resultData, res]
+          }
+        })
+      })
+      console.log(resultData, '万靓')
+      console.log('wanliang', this.saveSelectFiled)
+      // 调用默认选中的数据
+      this.toggleSelection(resultData)
+      // 存放到store
+      this.$store.dispatch('SaveSelectFiled', resultData)
+      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+      this.$store.dispatch('SaveFiledData')
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
@@ -177,6 +233,7 @@ export default {
      * 根据rows的长度来判断是选择还是取消
      */
     selectcheck (rows, row) {
+      console.log(row, '点击后的')
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
@@ -198,6 +255,11 @@ export default {
       this.$store.dispatch('SaveFiledData')
     },
     selectFiled () {
+      /*
+      * 判断新增还是编辑
+        判断是否存在已选择的维度
+        如果没有的话就是新增，就要勾选列后筛选出对应的维度
+      */
       this.saveNewSortListstructure.length < 1 ? this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) : this.saveNewSortListstructure
       this.$refs.dialog.dialog()
     },
@@ -220,7 +282,10 @@ export default {
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'
-    })
+    }),
+    strings (val) {
+      return String(val)
+    }
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')

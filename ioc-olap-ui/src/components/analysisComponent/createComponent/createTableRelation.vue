@@ -104,7 +104,6 @@ export default {
   },
   mounted: function () {
     this.init()
-    console.log('第一步的数据', this.selectStepList, '=========', this.ModelAllList)
   },
   methods: {
     initJointResult (data) {
@@ -180,7 +179,7 @@ export default {
 
       this.bindEvent(paper)
     },
-
+    
     bindEvent (paper) {
       // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
       paper.on('blank:pointerup', () => {
@@ -229,7 +228,6 @@ export default {
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
-              console.log(targetAttrs, '连线啦啦啦啦啦啦啦啦啦啦啦啦啦啦了', sourceAttrs)
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 // field: '',
