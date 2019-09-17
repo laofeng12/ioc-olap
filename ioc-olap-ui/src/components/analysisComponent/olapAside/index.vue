@@ -80,21 +80,21 @@
               <div slot="content" class="filtrate-wrap">
                 <ul class="has-dataset draw-list drawListClass" id="drawList">
                   <header>维度(X轴)：</header>
-                  <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-for="(item,index) in rItems" :name="item.columnChName" :key="index" :index="index"
                                :items="rItems" :showEdit="false" @deleteIndex="delRow" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawColClass">
                   <header>维度(Y轴)：</header>
-                  <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-for="(item,index) in cItems" :name="item.columnChName" :key="index" :index="index"
                                :items="cItems" :showEdit="false" @deleteIndex="delCol" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawValClass">
                   <header>数值：</header>
-                  <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动度量字段到此处</div>
                   <filter-temp v-for="(item,index) in nItems" :name="item.columnChName" :key="index" :index="index"
                                :items="nItems" :showEdit="false" @deleteIndex="delVal" class="filtered">
                   </filter-temp>
@@ -106,7 +106,7 @@
             <shirink-pannel name="筛选器">
               <div slot="content" class="filtrate-wrap">
                 <ul class="has-dataset filtrate-list filtrateClass" id="filtrate">
-                  <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-else v-for="(item,index) in bItems" :name="item.columnChName" :key="index" :index="index"
                                :items="bItems" @editClick="editF(item, index)" @deleteIndex="delFiter" class="filtered">
                   </filter-temp>
