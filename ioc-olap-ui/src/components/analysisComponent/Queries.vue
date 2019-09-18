@@ -147,6 +147,7 @@ export default {
       if (res.createId) {
         await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
+        this.$emit('changeActive', '2')
       }
     },
     reset () {
