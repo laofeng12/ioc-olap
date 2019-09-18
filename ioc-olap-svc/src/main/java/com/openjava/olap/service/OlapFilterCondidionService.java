@@ -27,4 +27,6 @@ public interface OlapFilterCondidionService {
 	void doDelete(Long id);
 	void doRemove(String ids);
 	void deleteFilterId(Long filterId);
+
+    void deleteByCubeName(String name);
 }

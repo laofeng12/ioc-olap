@@ -68,6 +68,11 @@ public class OlapFilterCondidion implements Persistable<Long>,Serializable {
 	@Column(name = "IDS")
 	private String ids;
 
+	@ApiModelProperty("立方体名称")
+	@Length(min=0, max=50)
+	@Column(name = "CUBE_NAME")
+	private String cubeName;
+
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;

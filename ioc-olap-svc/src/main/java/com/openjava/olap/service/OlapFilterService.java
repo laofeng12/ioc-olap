@@ -22,8 +22,6 @@ public interface OlapFilterService {
 
     List<OlapFilter> queryDataOnly(OlapFilterDBParam params, Pageable pageable);
 
-    List<OlapFilter> filter(CubeDescMapper cube, List<OlapFilterCondidion> filterCondidionList, Date date, OaUserVO userVO);
-
     OlapFilter findTableInfo(String cubeName, Long createId);
 
     OlapFilter get(Long id);
