@@ -2,14 +2,6 @@
   <div class="slectFiled">
     <el-dialog title="选择维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
-        <!-- <div class="item" v-for="(n, index) in options" :key="index">
-          <p>{{n.tableName}}</p>
-          <div class="itemFind">
-            <el-checkbox-group ref="group" v-model="selctCheckData">
-              <el-checkbox-button v-for="item in n.list" @change="selectChange" :label="item" :key="item">{{item}}</el-checkbox-button>
-            </el-checkbox-group>
-          </div>
-        </div> -->
         <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1" size="mini">
           <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
@@ -20,7 +12,7 @@
           <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" size="mini" v-else>
-          <el-checkbox-button v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
+          <el-checkbox-button v-if="optionData && optionData.length > 0" v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
           <!-- <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
         </el-checkbox-group>
       </div>
@@ -47,7 +39,9 @@ export default {
       reloadNeedDataList: [], // 定义一个数组来接收选择的数据
       dialogFormVisible: false,
       selctCheckData: [], // 选择的列id
-      options: [], // 接收第三步选择的数据
+      options: [
+        { value: '1111', id: '1' }, { value: '2222', id: '2' }
+      ], // 接收第三步选择的数据
       index: '', // 记录当前选择的是维度的哪个框
       type: '', // 记录当前选择的是哪个维度
       findIndex: '' // 记录当前点击的是维度下的哪个列
@@ -106,11 +100,9 @@ export default {
           // 递减的功能（选择过后下面的就没法选择）
           let arrD = [...new Set(this.recordingData)]
           this.optionData = [...this.getArrDifference(this.saveselectIncludesData, arrD)]
-          console.log('日日日', arrD, this.saveselectIncludesData)
           break
       }
       this.index = index
-      console.log(index, '------', findIndex)
       this.type = type
       this.findIndex = findIndex
       switch (type) {

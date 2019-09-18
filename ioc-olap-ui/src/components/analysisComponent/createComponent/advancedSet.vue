@@ -73,15 +73,14 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <!-- <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="isOutput"></el-input> -->
-                  <el-input type="text" v-model="scope.row.lengths" @change="encodingIpt" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="changeShardby">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -333,14 +332,6 @@ export default {
         findIndex: findIndex
       }
       this.$store.dispatch('RmtagList', list)
-    },
-    // 改变对应的长度格式
-    encodingIpt () {
-      // console.log(this.rowkey.rowkey_columns)
-    },
-    changeShardby () {
-      // this.$store.dispatch('SaveRowkeyList', )
-      // console.log(this.rowkey.rowkey_columns)
     }
   },
   computed: {
