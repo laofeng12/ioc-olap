@@ -137,9 +137,9 @@ export default {
       tableOptions: [],
       textOptions: [],
       formatOptions: [
-        { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
-        { id: 2, value: 'yyyy-MM-dd' },
-        { id: 3, value: 'hh:mm:ss' }
+        { id: 1, value: 'HH:mm:ss' },
+        { id: 2, value: 'HH:mm' },
+        { id: 3, value: 'HH' }
       ],
       tableData: [],
       rules: {
