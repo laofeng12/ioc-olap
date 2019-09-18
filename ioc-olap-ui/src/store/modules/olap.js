@@ -225,8 +225,8 @@ const common = {
       console.log(data, '编辑需要的数据')
       data.TableList.map((item, index) => {
         item.tableList.map(res => {
-          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
-          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
+          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
         })
       })
       // 赋值第二步模型的表

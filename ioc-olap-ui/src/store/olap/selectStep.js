@@ -1,5 +1,5 @@
 import { getselectCatalog, getselectTable, getselectColumn, getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
-import { reduceObj, setLocalStorage } from '@/utils/index'
+import { reduceObj, setLocalStorage, reduceObjisId } from '@/utils/index'
 const selectStep = {
   state: {
     treeList: [], // 树形数据

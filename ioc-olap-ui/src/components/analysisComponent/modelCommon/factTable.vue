@@ -69,6 +69,9 @@ export default {
     init () {
       this.fact_tableName = this.jointResultData.fact_table.split('.')[1]
       this.dataList = [...this.selectTableTotal] || []
+      this.dataList.map(item => {
+        if (item.table_name === this.fact_tableName) item.filed = '1'
+      })
       this.checkFactFile()
     },
     checkFactFile () {
