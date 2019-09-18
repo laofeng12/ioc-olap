@@ -38,8 +38,8 @@ const advancedSet = {
         jointDataId: [[]]
       }
     ],
-    savedimensionDataId: [[]],
-    savehetComposeDataId: [[]],
+    savedimensionDataId: [[]], // 黑白名单id
+    savehetComposeDataId: [[]], // 高级列id
     recordingData: [], // 记录已选择的
     engine_types: '2', // 构建引擎
     rowkeyData: {
