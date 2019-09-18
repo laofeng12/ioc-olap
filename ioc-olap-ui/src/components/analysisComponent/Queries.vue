@@ -27,7 +27,7 @@
         </div>
       </div>
       <div v-loading="loading">
-        <ResultBox v-if="tableData.length > 0" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
+        <ResultBox v-if="tableData.length > 0 && isSearch" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
                    @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData">
         </ResultBox>
       </div>
@@ -73,7 +73,8 @@ export default {
       menuListLoading: false,
       loading: false,
       exportData: {},
-      formData: {}
+      formData: {},
+      isSearch: false
     }
   },
   computed: {
@@ -90,6 +91,9 @@ export default {
         }
         this.searchOlap()
       }
+    },
+    textarea: function () {
+      this.isSearch = false
     }
   },
   mounted () {
@@ -125,6 +129,7 @@ export default {
           return list
         })
         this.tableData = [...[columnMetasList], ...resultsList]
+        this.isSearch = true
         this.$message.success('查询完成')
       } catch (e) {
         console.error(e)
@@ -147,6 +152,7 @@ export default {
       if (res.createId) {
         await this.$store.dispatch('getSaveFolderListAction')
         this.$message.success('保存成功')
+        this.$emit('changeActive', '2')
       }
     },
     reset () {
@@ -213,24 +219,6 @@ export default {
           }
         }
       }
-      /*.result {*/
-        /*overflow: auto;*/
-        /*.resultBox {*/
-          /*.top {*/
-            /*.left {*/
-              /*.item {*/
-                /*margin-right: 10px;*/
-                /*.tit {*/
-                  /*margin-right: 2px;*/
-                /*}*/
-              /*}*/
-            /*}*/
-            /*.right {*/
-              /*margin: 20px 0;*/
-            /*}*/
-          /*}*/
-        /*}*/
-      /*}*/
     }
     .visible {
       .visibleInput {

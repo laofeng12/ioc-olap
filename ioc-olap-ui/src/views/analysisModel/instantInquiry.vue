@@ -2,7 +2,7 @@
   <div>
     <el-tabs v-model="activeName">
       <el-tab-pane label="新建查询" name="1">
-        <Queries :editInfo="editInfo"></Queries>
+        <Queries :editInfo="editInfo" @changeActive="changeActive"></Queries>
       </el-tab-pane>
       <el-tab-pane label="已保存结果" name="2">
         <SaveResult @changeActive="changeActive"></SaveResult>
@@ -32,9 +32,9 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
-    changeActive (index, data) {
+    changeActive (index, data = {}) {
       this.activeName = index
-      this.editInfo = data.attrs
+      this.editInfo = data.attrs || ''
     }
   }
 }
