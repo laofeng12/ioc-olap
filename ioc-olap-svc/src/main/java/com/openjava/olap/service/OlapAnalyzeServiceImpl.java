@@ -107,7 +107,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().orElse(null);
 
         if (relation == null) {
-            throw new APIException("结构错误！");
+            throw new APIException(10002,"结构错误！");
         }
         if (!relation.getTableId().equals(dict.getCubeTableId())) {
             writeJoinTable(dict, relations, joinTables, cubeTables, relation.getTableId());

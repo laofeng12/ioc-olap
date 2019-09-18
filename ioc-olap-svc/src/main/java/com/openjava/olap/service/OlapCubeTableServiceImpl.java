@@ -103,7 +103,7 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
             cubeTable.setCubeId(cubeId);//立方体ID
             cubeTable.setTableName(tableName);//表名称
             cubeTable.setTableAlias(lm.getAlias());//表别名
-            cubeTable.setIsDict(lm.getJoinTable() == factTableName ? 1 : 0);//是否是事实表
+            cubeTable.setIsDict(cubeTable.getTableName().equals(factTableName) ? 1 : 0);//是否是事实表
             cubeTable.setDatabaseName(libraryName);//数据库名称
             cubeTable.setSAxis(lm.getSAxis());//S轴
             cubeTable.setYAxis(lm.getYAxis());//Y轴
@@ -132,7 +132,7 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
             cubeJoinTable.setCubeId(cubeId);//立方体ID
             cubeJoinTable.setTableName(datalaketable.getTable_name());//表名称
             cubeJoinTable.setTableAlias(lm.getJoinAlias());//表别名
-            cubeJoinTable.setIsDict(lm.getJoinTable() == factTableName ? 1 : 0);//是否是事实表
+            cubeJoinTable.setIsDict(datalaketable.getTable_name().equals(factTableName) ? 1 : 0);//是否是事实表
             cubeJoinTable.setDatabaseName(datalaketable.getDatabase());//数据库名称
             cubeJoinTable.setSAxis(lm.getSAxis());//S轴
             cubeJoinTable.setYAxis(lm.getYAxis());//Y轴
