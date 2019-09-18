@@ -31,7 +31,7 @@ export default {
     return {
       dropdownItemList: [],
       // dropdownItemList: [{ icon: 'notice', itemName: '公告', itemChild: [{ itemChildName: '消息', itemChildNum: 3, path: '/', link: 'https://www.baidu.com' }] }],
-      portalInfo: { logo: '', portalTitle: '政务数据服务平台' },
+      portalInfo: { logo: require('../../assets/img/logo.png'), portalTitle: '政务数据服务平台' },
       svgArr: []
     }
   },

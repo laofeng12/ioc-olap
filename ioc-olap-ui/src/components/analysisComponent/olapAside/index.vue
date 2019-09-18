@@ -9,14 +9,10 @@
               <div slot="content">
                 <el-form-item class="m-b-0">
                   <el-select v-model="selectCubeId" placeholder="请选择olap模型" size="small">
-                             <!--@change="getFileName(dashBoardForm.fileName)" size="small">-->
                     <el-option v-for="(item, index) in menuList" :key="index" :label="item.name" :value="item.cubeId">
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <!--<el-form-item label="" prop="statementName">-->
-                  <!--<el-input v-model="dashBoardForm.statementName" placeholder="请输入报表名称（1～20字）" size="small"></el-input>-->
-                <!--</el-form-item>-->
               </div>
             </shirink-pannel>
 
@@ -84,21 +80,21 @@
               <div slot="content" class="filtrate-wrap">
                 <ul class="has-dataset draw-list drawListClass" id="drawList">
                   <header>维度(X轴)：</header>
-                  <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawListClass" v-if="rItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-for="(item,index) in rItems" :name="item.columnChName" :key="index" :index="index"
                                :items="rItems" :showEdit="false" @deleteIndex="delRow" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawColClass">
                   <header>维度(Y轴)：</header>
-                  <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawColClass" v-if="cItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-for="(item,index) in cItems" :name="item.columnChName" :key="index" :index="index"
                                :items="cItems" :showEdit="false" @deleteIndex="delCol" class="filtered">
                   </filter-temp>
                 </ul>
                 <ul class="has-dataset draw-list drawValClass">
                   <header>数值：</header>
-                  <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset drawValClass" v-if="nItems.length === 0">拖动度量字段到此处</div>
                   <filter-temp v-for="(item,index) in nItems" :name="item.columnChName" :key="index" :index="index"
                                :items="nItems" :showEdit="false" @deleteIndex="delVal" class="filtered">
                   </filter-temp>
@@ -110,7 +106,7 @@
             <shirink-pannel name="筛选器">
               <div slot="content" class="filtrate-wrap">
                 <ul class="has-dataset filtrate-list filtrateClass" id="filtrate">
-                  <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动数据到此处</div>
+                  <div class="no-dataset filtrateClass" id="no-filtrate" v-if="bItems.length === 0">拖动维度字段到此处</div>
                   <filter-temp v-else v-for="(item,index) in bItems" :name="item.columnChName" :key="index" :index="index"
                                :items="bItems" @editClick="editF(item, index)" @deleteIndex="delFiter" class="filtered">
                   </filter-temp>
@@ -308,6 +304,7 @@ export default {
     },
     selectCubeId (val) {
       this.changeCubeId(val)
+      this.cleanAllList()
     },
     editData (val) {
       this.selectCubeId = val.cubeId
@@ -621,6 +618,12 @@ export default {
       const newColList = this.cItems.length > 0 ? this.cItems.map(v => Object.assign({}, v, { type: 2 })) : []
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
       this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.rItems, cItems: this.cItems })
+    },
+    cleanAllList () {
+      this.nItems = []
+      this.bItems = []
+      this.rItems = []
+      this.cItems = []
     }
   }
 }

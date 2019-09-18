@@ -41,13 +41,14 @@ export default {
       activeName: '1',
       dialogFormVisible: false,
       loadingPlan: false,
+      couponList: [],
       managementData: [],
       managementHead: [],
       descriptionData: [],
       descriptionHead: [
-        { prop: 'comment', label: '字段名称' },
+        { prop: 'name', label: '字段名称' },
         { prop: 'dataType', label: '字段类型' },
-        { prop: 'columnName', label: '字段描述' }
+        { prop: 'dataType', label: '字段描述' }
       ]
     }
   },
@@ -61,26 +62,33 @@ export default {
     closeBtn () {
       this.dialogFormVisible = false
     },
-    dialog (name) {
+    dialog (id) {
       this.dialogFormVisible = true
-      this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: name }).then(res => {
-        this.managementHead = []
-        this.loadingPlan = true
-        if (res.code === 200) {
-          this.loadingPlan = false
-          this.descriptionData = res.data
-          res.data.map((res, index) => {
-            this.managementHead.push({ label: res.comment })
-          })
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        if (items.resourceId === id) {
+          this.descriptionData = items.data.columns || []
         }
       })
-      this.$store.dispatch('GetTableData', { dsDataSourceId: 2, dbType: 0, tableName: name }).then(res => {
-        this.loadingPlan = true
-        if (res.code === 200) {
-          this.loadingPlan = false
-          this.managementData = res.data.data
-        }
-      })
+      console.log(this.descriptionData)
+      // this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: name }).then(res => {
+      //   this.managementHead = []
+      //   this.loadingPlan = true
+      //   if (res.code === 200) {
+      //     this.loadingPlan = false
+      //     this.descriptionData = res.data
+      //     res.data.map((res, index) => {
+      //       this.managementHead.push({ label: res.comment })
+      //     })
+      //   }
+      // })
+      // this.$store.dispatch('GetTableData', { dsDataSourceId: 2, dbType: 0, tableName: name }).then(res => {
+      //   this.loadingPlan = true
+      //   if (res.code === 200) {
+      //     this.loadingPlan = false
+      //     this.managementData = res.data.data
+      //   }
+      // })
     },
     handleClick () {
 
@@ -88,7 +96,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList'
     })
   }
 }

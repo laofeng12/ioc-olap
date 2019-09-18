@@ -99,6 +99,6 @@ export default {
 
 <style lang="stylus" scoped>
 .setMeasure{
-
+  padding-bottom 100px
 }
 </style>

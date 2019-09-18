@@ -20,8 +20,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
               <el-dropdown-item command="0">编辑</el-dropdown-item>
-              <el-dropdown-item command="1">分享</el-dropdown-item>
-              <!--<el-dropdown-item command="2" v-if="node.level !== 1">移动</el-dropdown-item>-->
+              <el-dropdown-item command="1" v-if="node.parent.parent">分享</el-dropdown-item>
               <el-dropdown-item command="3">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -34,10 +33,10 @@
     <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
         <el-form-item label="文件夹名称" label-width="100px" prop="name">
-          <el-input v-model="folderForm.name"></el-input>
+          <el-input v-model="folderForm.name" maxlength="20" show-word-limit></el-input>
         </el-form-item>
         <el-form-item label="文件夹序号" label-width="100px" prop="sortNum">
-          <el-input type="number" v-model="folderForm.sortNum"></el-input>
+          <el-input type="number" v-model="folderForm.sortNum" maxlength="20" show-word-limit></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -336,6 +335,7 @@ export default {
       list.reverse()
       list.forEach(v => this.shareList.splice(v, 1))
       this.showShareList = this.shareList
+      this.shareCheckList = []
       this.cleanShare()
     },
     cleanShare () {

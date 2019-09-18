@@ -205,7 +205,6 @@ export default {
           })
         }
       })
-      // this.formData.engine_typeTit = String(this.totalSaveData.cube.cubeDescData.engine_type)
       let datas = [...this.reloadNeedData]
       let arr = []
       datas.map(item => {
@@ -237,6 +236,7 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
+      console.log(this.aggregation_groups[0].select_rule)
       const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
       let hierarchy_dimsLen = hierarchy_dims[0].length
       let joint_dimsLen = joint_dims[0].length
@@ -254,7 +254,6 @@ export default {
     },
     // 选择对应的编码类型
     codingType (val) {
-      console.log(val)
       for (let item in this.getAllcoding.data) {
         if (val.split('(')[0] === item) {
           this.encodingOption = this.getAllcoding.data[item]
@@ -364,6 +363,7 @@ export default {
 <style lang="stylus" scoped>
 .advancedSet{
   padding 30px 100px
+  padding-bottom 100px
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc

@@ -78,7 +78,6 @@ export default {
   methods: {
     dialog (data) {
       this.shareVisible = true
-      console.info('data', data)
       this.getShareUserList(data)
     },
     async getShareUserList (data) {
@@ -153,6 +152,7 @@ export default {
       list.reverse()
       list.forEach(v => this.shareList.splice(v, 1))
       this.showShareList = this.shareList
+      this.shareCheckList = []
       this.cleanShare()
     },
     cleanShare () {
