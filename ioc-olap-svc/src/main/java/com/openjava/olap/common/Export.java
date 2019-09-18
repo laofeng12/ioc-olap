@@ -253,6 +253,10 @@ public class Export {
                         }
                         else{
                             cell.setCellValue("-");//单元格写入数据
+                            datacellStyle.setAlignment(HorizontalAlignment.CENTER);
+                            font.setFontName("宋体");
+                            cellStyle.setFont(font);
+                            cell.setCellStyle(datacellStyle);
                         }
                     }
                     else {

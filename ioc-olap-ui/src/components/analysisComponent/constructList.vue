@@ -57,6 +57,7 @@
           </template>
         </el-table-column>
       </el-table>
+    <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <el-dialog title="查看日志" :visible.sync="logListVisible">
       <div class="logListBox dis-flex">
         <el-timeline>
@@ -156,20 +157,22 @@ export default {
     clearTimeout(this.setTimeout)
   },
   methods: {
-    async update () {
+    async update (val) {
       const params = {
         limit: this.tableData.length,
-        offset: 0
+        offset: 0,
+        ...val
       }
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res
+      this.getLoading = false
       this.setTimeout = setTimeout(this.update, 3000)
     },
-    async init (val) {
+    async init () {
+      clearTimeout(this.setTimeout)
       const params = {
         limit: 15,
-        offset: this.offset,
-        ...val
+        offset: this.offset
       }
       this.getLoading = true
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
@@ -184,7 +187,8 @@ export default {
     },
     searchFetch (val) {
       this.getLoading = true
-      this.init(val)
+      clearTimeout(this.setTimeout)
+      this.update(val)
     },
     handleCommand (val) {
       // clearTimeout(this.setTimeout)
@@ -235,7 +239,8 @@ export default {
           if (type === 'pauseJob') {
             await pauseJobListModeling(list).then(res => {
               this.$message.success('已暂停')
-              this.init()
+              clearTimeout(this.setTimeout)
+              this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -243,7 +248,8 @@ export default {
           if (type === 'cancelJob') {
             await cancelJobListModeling(list).then(res => {
               this.$message.success('已停止')
-              this.init()
+              clearTimeout(this.setTimeout)
+              this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -251,7 +257,8 @@ export default {
           if (type === 'resumeJob') {
             await resumeJobListModeling(list).then(res => {
               this.$message.success('已运行')
-              this.init()
+              clearTimeout(this.setTimeout)
+              this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -259,7 +266,8 @@ export default {
           if (type === 'delete') {
             await deleteJobListModeling(list).then(res => {
               this.$message.success('已删除')
-              this.init()
+              clearTimeout(this.setTimeout)
+              this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -286,6 +294,10 @@ export default {
     },
     Translate (time) {
       return filterTime(time)
+    },
+    moreData () {
+      this.offset += 15
+      this.init()
     }
   }
 }

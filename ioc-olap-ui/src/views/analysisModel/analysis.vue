@@ -1,7 +1,7 @@
 <template>
   <div class="dis-flex" v-loading="loading">
-    <OlapAside v-if="showOlapAside" :changeRowAndCol="changeRowAndCol" :auto="auto" :editData="editData"
-               @searchFunc="searchFunc"></OlapAside>
+    <OlapAside :changeRowAndCol="changeRowAndCol" :auto="auto" :editData="editData"
+               @searchFunc="searchFunc" ref="olapAside"></OlapAside>
     <div class="olapTable">
       <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
@@ -74,7 +74,6 @@ export default {
       },
       reqDataList: [],
       showSum: false,
-      showOlapAside: true,
       changeRowAndCol: false,
       auto: false,
       editData: {},
@@ -265,7 +264,6 @@ export default {
       }
     },
     reset () {
-      this.showOlapAside = false
       this.realTableData = []
       this.tableData = []
       this.pageData = {
@@ -276,7 +274,7 @@ export default {
         totalRows: 1,
         pageSize: 20
       }
-      setTimeout(() => this.showOlapAside = true, 0)
+      this.$refs.olapAside.cleanAllList()
     },
     showSumFunc () {
       this.showSum = !this.showSum

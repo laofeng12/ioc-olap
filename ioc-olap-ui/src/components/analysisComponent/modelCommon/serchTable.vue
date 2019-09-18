@@ -1,7 +1,7 @@
 <template>
   <div class="serchTable">
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <div class="trees">
+     <div class="trees" ref="treesBox">
       <el-tree
         ref="trees"
         :data="dataList"
@@ -14,7 +14,7 @@
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
         </el-tree>
-        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;text-align:center;margin-top:50px;display:block;">暂无数据</span>
+        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
      </div>
   </div>
 </template>
@@ -41,6 +41,7 @@ export default {
   },
   methods: {
     init () {
+      // 判断是否有数据 如果没有数据的话就需改变树的高度
       // 接收数据湖传递的信息
       this.$root.eventBus.$on('getserchTableList', (res, type) => {
         this.loading = true
@@ -58,7 +59,7 @@ export default {
         // if (type && type === 1) {
         //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
-        //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+          //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
         //       this.$root.eventBus.$emit('saveSelectTables')
         //     }
@@ -95,12 +96,13 @@ export default {
       })
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
+        // 初始化默认勾选框数组 以及树列表的复选框
         this.defaultKey = []
         this.$refs.trees.setCheckedKeys([])
+        // 遍历已经勾选的数据赋值到勾选框数组
         this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
-        setTimeout(() => {
-          this.defaultKey = [...new Set(this.defaultKey)]
-        }, 500)
+        // 去重勾选框数组
+        setTimeout(() => { this.defaultKey = [...new Set(this.defaultKey)] }, 500)
       })
       // 重置复选框
       this.$root.eventBus.$on('clearSelect', _ => {
@@ -109,6 +111,7 @@ export default {
     },
     handleNodeClick (value) {
       if (value.label === '全选') return
+      this.$refs.treesBox.style.height = this.dataList[0].children.length > 0 ? '80%' : 'auto'
       let searchType = this.$store.state.selectStep.searchType
       if (searchType === 1) {
         /** 数据湖 */
@@ -207,13 +210,18 @@ export default {
   width 230px
   float left
   padding 0 5px
-  overflow auto
   border-right 1px solid #f0f0f0
   height 98%
   .trees{
-    // height calc(100vh - 300px)
-    // overflow-y auto
-    width 250px
+    width 230px
+    height 85%
+    overflow auto
+    padding-right 30px
+  }
+  >>>.el-tree{
+    height 100%
+    width 100%
+    overflow auto
   }
   >>>.el-radio{
     display block
@@ -240,8 +248,12 @@ export default {
     }
   }
   >>>.el-tree-node__children{
+    display inline
     .el-tree-node__content{
       padding-left 0!important
+    }
+    .el-tree-node{
+      min-width: 120%;
     }
   }
 }

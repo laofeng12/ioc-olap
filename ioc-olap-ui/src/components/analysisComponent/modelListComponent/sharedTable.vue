@@ -19,8 +19,12 @@
           </div>
         </div>
         <div class="centerButton">
-          <el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>
-          <el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>
+          <div>
+            <el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>
+          </div>
+          <div class="m-t-20">
+            <el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>
+          </div>
         </div>
         <div class="box">
           <div class="title">已选择用户</div>
@@ -74,7 +78,6 @@ export default {
   methods: {
     dialog (data) {
       this.shareVisible = true
-      console.info('data', data)
       this.getShareUserList(data)
     },
     async getShareUserList (data) {
@@ -149,6 +152,7 @@ export default {
       list.reverse()
       list.forEach(v => this.shareList.splice(v, 1))
       this.showShareList = this.shareList
+      this.shareCheckList = []
       this.cleanShare()
     },
     cleanShare () {

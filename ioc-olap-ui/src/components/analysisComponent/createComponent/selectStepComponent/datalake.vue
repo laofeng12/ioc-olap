@@ -104,12 +104,14 @@ export default {
 <style lang="stylus" scoped>
 .datalake {
   position absolute
+  width 100%
   height 95%
   // width 100%
   display flex
   .step_tab{
-    flex 1
-    min-width 800px
+    width 100%
+    // flex 1
+    // min-width 800px
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
