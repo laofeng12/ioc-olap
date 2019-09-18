@@ -99,6 +99,7 @@ export default {
       await this.$store.dispatch('getSaveFolderListAction')
     },
     async editSave (data) {
+      this.tableData = []
       this.$emit('changeActive', '1', data)
     },
     async exportFile () {
