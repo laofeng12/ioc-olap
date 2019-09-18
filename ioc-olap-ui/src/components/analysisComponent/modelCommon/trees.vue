@@ -62,9 +62,9 @@ export default {
   methods: {
     init () {
       // 默认选择第一行
-      let ModelAllList = this.ModelAllList.length > 0 ? this.ModelAllList : JSON.parse(getLocalStorage('ModelAllList'))
-      let serchTableList = this.serchTableList.length > 0 ? this.serchTableList : JSON.parse(getLocalStorage('serchTableList'))
-      console.log('刷新后的', serchTableList)
+      // let ModelAllList = this.ModelAllList.length > 0 ? this.ModelAllList : JSON.parse(getLocalStorage('ModelAllList'))
+      // let serchTableList = this.serchTableList.length > 0 ? this.serchTableList : JSON.parse(getLocalStorage('serchTableList'))
+      // console.log('刷新后的', serchTableList)
       // 判断是否是刷新过后的
       // if (this.serchTableList.length < 1 && JSON.parse(getLocalStorage('ModelAllList'))) {
       //   setTimeout(() => {

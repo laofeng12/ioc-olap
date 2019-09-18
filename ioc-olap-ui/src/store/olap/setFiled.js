@@ -122,6 +122,7 @@ const setFiled = {
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
       // 遍历已选择的字段
+      console.log(val, '获取的字段', state.saveSelectFiled)
       state.saveSelectFiled.map((item, index) => {
         // 如果为全选的时候 就需要遍历${val}取到对应的id
         // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
@@ -132,7 +133,7 @@ const setFiled = {
             }
             // 如果为事实表的话 mode===1
             if (res.filed === '1') {
-              state.saveSelectFiled[index].mode = 1
+              // state.saveSelectFiled[index].mode = 1
             }
             // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
@@ -170,7 +171,7 @@ const setFiled = {
        */
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
-          if (item.alias.substring(item.alias.indexOf('.') + 1) === n.tableName) {
+          if (item.alias === n.tableName) {
             if (item.join.foreign_key.length > 1) {
               item.join.foreign_key.forEach(res => {
                 datas = datas.concat({
