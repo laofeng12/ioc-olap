@@ -88,7 +88,6 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 	public void saveCubeTableColumn(CubeDescMapper cube, ModelsDescDataMapper modelDescData, Long
 			cubeId, List<OlapCubeTable> dmEntity) {
 		CubeDescDataMapper cubeDescData = cube.getCubeDescData();
-		ArrayList<String> column = new ArrayList<>();
 		ArrayList<LookupsMapper> lookups = modelDescData.getLookups();
 		SequenceService ss = ConcurrentSequence.getInstance();
 		ArrayList<MeasureMapper> measuresList = cubeDescData.getMeasures();
@@ -121,8 +120,6 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 				CubeTableColumn.setIsNew(true);
 				CubeTableColumn.setExpressionFull("{0}.{1} as {2}");//完整表达式
 				doSave(CubeTableColumn);
-
-				column.add(mm.getTable() + "." + CubeTableColumn.getColumnName());
 			}
 		}
 
@@ -155,61 +152,19 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 				CubeTableColumn.setName(columnTableName);//列中文名称
 				CubeTableColumn.setColumnName(columnTableName);//真实列名称
 
-				String primaryType = mm.function.getExpression() == "AVG" ? null : mm.function.getExpression();
 				String columnType = mm.function.getExpression();
-
-				String expression = columnType + "({0}.{1}) as {2}";
 				CubeTableColumn.setColumnType(mm.function.getReturntype());//列类型 HIVE基本数据类型
 				CubeTableColumn.setIsNew(true);
-				CubeTableColumn.setPrimaryType(primaryType);//原类型为(AVG会转换成SUM,所以需要定义一个原类型,方便编辑的时候用到)
+				CubeTableColumn.setPrimaryType(columnType.equalsIgnoreCase("AVG") ? "SUM" : mm.function.getExpression());//原类型为(AVG会转换成SUM,所以需要定义一个原类型,方便编辑的时候用到)
 				CubeTableColumn.setExpressionType(columnType);//表达式类型max、min、sum
-				CubeTableColumn.setExpressionFull(expression);//完整表达式
+				if(columnType.equalsIgnoreCase("COUNT_DISTINCT")){
+					CubeTableColumn.setExpressionFull("COUNT(DISTINCT {0}.{1}) as {2}");//完整表达式
+				}
+				else{
+					CubeTableColumn.setExpressionFull(columnType + "({0}.{1}) as {2}");//完整表达式
+				}
 				doSave(CubeTableColumn);
-
-				column.add(tableColumn + "." + CubeTableColumn.getColumnName());
 			}
-		}
-
-		//models里lookups的处理
-		for (LookupsMapper lk : lookups) {
-
-			for (int i = 0; i < lk.join.getForeign_key().length; i++) {
-				String join = lk.join.getForeign_key()[i];
-				String columnType = lk.join.getFk_type().get(i);
-				saveColumn(column, dmEntity, join, columnType, cubeId);
-
-				String joinPk = lk.join.getPrimary_key()[i];
-				String columnTypePk = lk.join.getPk_type().get(i);
-				saveColumn(column, dmEntity, joinPk, columnTypePk, cubeId);
-			}
-		}
-	}
-
-	public void saveColumn(ArrayList<String> column, List<OlapCubeTable> dmEntity, String join, String
-			columnType, Long cubeId) {
-		SequenceService ss = ConcurrentSequence.getInstance();
-		String tableName = join.substring(0, join.indexOf("."));
-		String columnName = join.substring(join.indexOf(".") + 1);
-
-		boolean isColumn = column.contains(join);
-
-		Optional<OlapCubeTable> dmCube = dmEntity.stream()
-				.filter(p -> p.getTableAlias().equals(tableName)).findFirst();
-		//判断是否有这个表
-		if (isColumn == false) {
-			OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
-			CubeTableColumn.setCubeTableColumnId(ss.getSequence());
-			CubeTableColumn.setCubeId(cubeId);//立方体ID
-
-			CubeTableColumn.setColumnType(columnType);//列类型 HIVE基本数据类型
-			CubeTableColumn.setTableId(dmCube.get().getId());//表ID
-			CubeTableColumn.setIsNew(true);
-			CubeTableColumn.setExpressionFull("{0}.{1} as {2}");//完整表达式
-
-			CubeTableColumn.setName(columnName);//列中文名称
-			CubeTableColumn.setColumnName(columnName);//列名称
-			CubeTableColumn.setColumnAlias(columnName);//列别名
-			doSave(CubeTableColumn);
 		}
 	}
 }

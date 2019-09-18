@@ -25,4 +25,9 @@ public interface OlapFilterCondidionRepository extends DynamicJpaRepository<Olap
 
     @Query(value = "select * from OLAP_FILTER_CONDIDION t  where t.FILTER_ID=:filterId", nativeQuery = true)
     ArrayList<OlapFilterCondidion> findByFilterId(@Param("filterId") Long filterId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from OLAP_FILTER_CONDIDION t where t.CUBE_NAME=:cubeName", nativeQuery = true)
+    void deleteByCubeName(String cubeName);
 }

@@ -72,7 +72,7 @@ const app = {
       state.device = device
     },
     SET_MENU_LIST: (state, menuList) => {
-      state.menuList = menuList
+      // state.menuList = menuList
     },
     CHANGE_MY_ROUTES: (state, myRoutes) => {
       state.myRoutes = myRoutes

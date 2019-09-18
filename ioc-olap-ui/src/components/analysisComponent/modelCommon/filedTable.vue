@@ -8,7 +8,7 @@
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;"></i>
          <span class="tableTitle">{{titleData[index]}}</span>
-         <span class="filds" v-if="titleData[index]===dataList.fact_table">事实表</span>
+         <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
        </li>
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
@@ -48,25 +48,26 @@ export default {
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
       this.dataList.lookups.map((item, index) => {
+        // 存储所有的事实表名
         this.titleData.push(item.alias)
         // 取出事实表对应的id以及foreign_key
-        if (this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1) === item.joinTable) {
+        if (this.dataList.fact_table.split('.')[1] === item.joinTable) {
           this.ids = item.joinId
           this.primary_key = item.join.foreign_key
         }
       })
       // 创建一条事实表的数据push到集合里
       let factData = {
-        alias: this.dataList.fact_table,
+        alias: this.dataList.fact_table.split('.')[1],
         id: this.ids,
         table: '',
-        joinTable: this.dataList.fact_table.substring(this.dataList.fact_table.indexOf('.') + 1),
+        joinTable: this.dataList.fact_table.split('.')[1],
         join: {
           foreign_key: this.primary_key
         }
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups] // 组合数据
-      this.titleData = [...new Set([this.dataList.fact_table, ...this.titleData])] // 组合事实表的别名跟普通表的别名
+      this.titleData = [...new Set([this.dataList.fact_table.split('.')[1], ...this.titleData])] // 组合事实表的别名跟普通表的别名
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
       // 初始化已选择的表
       setTimeout(() => {
@@ -113,7 +114,7 @@ export default {
       // })
       // kelin
       // console.log(item, '====', this.dataList.fact_table)
-      this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table)
+      this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table.split('.')[1])
       // 存储事实表的所有字段
       if (index === 0) {
         this.saveSelectAllList.map((item, index) => {

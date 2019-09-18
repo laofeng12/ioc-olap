@@ -87,8 +87,7 @@ public class OlapTimingrefreshServiceImpl implements OlapTimingrefreshService {
     //创建定时任务
     public void timingTasks(OlapTimingrefresh task, CubeDescMapper cube, Date date, OaUserVO userVO) {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
-        SequenceService ss = ConcurrentSequence.getInstance();
-        Long freshId = ss.getSequence();
+        Long freshId =  ConcurrentSequence.getInstance().getSequence();
 
         //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据并修改olap_timingrefresh表数据
         if (StringUtils.isNotBlank(cubeDescData.getUuid())) {

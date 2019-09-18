@@ -65,4 +65,9 @@ public class OlapFilterCondidionServiceImpl implements OlapFilterCondidionServic
     public void deleteFilterId(Long filterId) {
         olapFilterCondidionRepository.deleteFilterId(filterId);
     }
+
+    @Override
+    public void deleteByCubeName(String cubeName) {
+        olapFilterCondidionRepository.deleteByCubeName(cubeName);
+    }
 }
