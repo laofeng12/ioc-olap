@@ -87,7 +87,6 @@ export default {
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
           if (items.resourceId === data.id) {
-            console.log(items)
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
               n.derived = n.name
@@ -131,7 +130,6 @@ export default {
     processData (code) {
       // 处理所有表对应的字段
       let values = []
-      console.log(code, '事实表')
       this.saveSelectAllListFiled.map((item, index) => {
         let items = JSON.parse(item)
         items.data.columns.map((res, i) => {
@@ -172,8 +170,6 @@ export default {
           }
         })
       })
-      console.log(resultData, '万靓')
-      console.log('wanliang', this.saveSelectFiled)
       // 调用默认选中的数据
       this.toggleSelection(resultData)
       // 存放到store
@@ -233,7 +229,6 @@ export default {
      * 根据rows的长度来判断是选择还是取消
      */
     selectcheck (rows, row) {
-      console.log(row, '点击后的')
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
