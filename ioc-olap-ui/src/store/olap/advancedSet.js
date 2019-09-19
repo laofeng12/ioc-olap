@@ -17,15 +17,15 @@ const advancedSet = {
     mandatory_dimension_set_list: [[]], // 存储维度黑白名单
     hbase_mapping: { // 存储高级设置组合
       'column_family': [
-        // {
-        //   'name': 'F1', // 序号
-        //   'columns': [
-        //     {
-        //       'qualifier': 'M', // 写死
-        //       'measure_refs': []
-        //     }
-        //   ]
-        // }
+        {
+          'name': 'F1', // 序号
+          'columns': [
+            {
+              'qualifier': 'M', // 写死
+              'measure_refs': []
+            }
+          ]
+        }
       ]
     },
     NewDataList: [], // 根据id存储的
@@ -63,7 +63,17 @@ const advancedSet = {
       state.filterMappingData = []
       state.mandatory_dimension_set_list = [[]]
       state.hbase_mapping = {
-        column_family: []
+        column_family: [
+          {
+            'name': 'F1', // 序号
+            'columns': [
+              {
+                'qualifier': 'M', // 写死
+                'measure_refs': []
+              }
+            ]
+          }
+        ]
       }
       state.NewDataList = []
       state.selectDataidList = [

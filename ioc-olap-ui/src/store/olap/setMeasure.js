@@ -15,7 +15,7 @@ const setMeasure = {
       state.measureTableList = []
     },
     // 新增的table表
-    MeasureTableList ({ state }, data) {
+    MeasureTableList ({ state, dispatch }, data) {
       return new Promise((resolve, reject) => {
         if (data.isNew === 0) {
           state.measureTableList.push(data)
@@ -28,6 +28,7 @@ const setMeasure = {
             }
           })
         }
+        dispatch('GivehbaseMapping', data)
       })
     },
     // 根据生成的id删除对应表
@@ -35,6 +36,14 @@ const setMeasure = {
       state.measureTableList.forEach((item, index) => {
         item.id === id && state.measureTableList.splice(index, 1)
       })
+    },
+    // 将新增的表添加到高级设置中的高级列组合中
+    GivehbaseMapping ({ state, getters }, data) {
+      console.log('需要存储到高级列的', data, '====', getters.hbase_mapping)
+      // 添加对应的id
+      getters.savehetComposeDataId[0].push(data.name)
+      getters.hbase_mapping.column_family[0].columns[0].measure_refs.push(data.name)
+      console.log('生成的', getters.hbase_mapping.column_family)
     }
   }
 }
