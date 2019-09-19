@@ -68,7 +68,7 @@
         </el-form-item> -->
         <el-form-item label="日期格式">
           <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
-            <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
+            <el-option v-for="item in formatOptionsMore" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         </div>
@@ -137,6 +137,11 @@ export default {
       tableOptions: [],
       textOptions: [],
       formatOptions: [
+        { id: 1, value: 'yyyy-MM-dd hh:mm:ss' },
+        { id: 2, value: 'yyyy-MM-dd' },
+        { id: 3, value: 'hh:mm:ss' }
+      ],
+      formatOptionsMore: [
         { id: 1, value: 'HH:mm:ss' },
         { id: 2, value: 'HH:mm' },
         { id: 3, value: 'HH' }
