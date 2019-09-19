@@ -187,6 +187,7 @@ export default {
   mounted () {
     this.resortAggregation()
     this.init()
+    console.log(this.hbase_mapping.column_family)
   },
   methods: {
     init () {
