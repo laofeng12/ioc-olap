@@ -290,10 +290,11 @@ const common = {
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
-      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList[0].model_name
+      state.totalSaveData.cube.cubeDescData.cube_name = data.CubeList[0].model_name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.uuid = data.ModesList.uuid
+      state.totalSaveData.models.modelDescData.name = data.ModesList.name
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
     }
   }
