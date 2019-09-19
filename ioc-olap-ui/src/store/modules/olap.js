@@ -270,7 +270,6 @@ const common = {
       }
       data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
       getters.reloadData.partition_type = !!resultTime
-      console.log(getters.reloadData.partition_type)
 
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
@@ -291,6 +290,7 @@ const common = {
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
+      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList[0].model_name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.uuid = data.ModesList.uuid
