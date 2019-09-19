@@ -7,7 +7,7 @@
           <template>
             <div>
               <el-switch
-                v-model.number="formData.autoReload"
+                v-model="formData.autoReload"
                 @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
@@ -56,7 +56,7 @@
           </template>
         </el-form-item>
         <div v-if="formData.partition_type">
-        <el-form-item label="日期字段表" class="datarowmore">
+        <el-form-item label="日期字段表" class="datarowmore" prop="data2a">
           <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
@@ -66,7 +66,7 @@
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期格式">
+        <el-form-item label="日期格式" prop="partition_time_format">
           <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
             <el-option v-for="item in formatOptionsMore" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
@@ -154,7 +154,13 @@ export default {
         data2b: [
           { required: false, message: '请选择日期字段', trigger: 'change' }
         ],
+        data2a: [
+          { required: false, message: '请选择表', trigger: 'change' }
+        ],
         partition_date_format: [
+          { required: false, message: '请选择日期格式', trigger: 'change' }
+        ],
+        partition_time_format: [
           { required: false, message: '请选择日期格式', trigger: 'change' }
         ],
         interval: [
@@ -178,7 +184,7 @@ export default {
       this.fetchDeac(this.tableOptions[0].label)
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
-      this.formData = this.reloadData
+      this.formData = JSON.parse(JSON.stringify(this.reloadData))
     },
     nextModel (val) {
       this.processReloadData()
@@ -189,6 +195,7 @@ export default {
         }
       })
     },
+
     // 处理后端需要的数据
     processReloadData () {
       /**
@@ -200,6 +207,8 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
       if (this.formData.partition_type === true) {
+        // 如果开启就选择表跟字段
+        this.rules.data2a[0].required = true
         // 如果开启了日期多列就添加第二个日期格式
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
@@ -209,7 +218,7 @@ export default {
       if (this.formData.data2a) this.rules.data2b[0].required = true
       // 如果选择了字段表 日期格式就得变成必填
       if (this.formData.data1b) this.rules.partition_date_format[0].required = true
-      if (this.formData.data2b) this.rules.partition_date_format[0].required = true
+      if (this.formData.data2b) this.rules.partition_time_format[0].required = true
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -257,7 +266,7 @@ export default {
     },
     // 改变日期是否存在多列按钮
     changeDataMany (val) {
-      if (val !== true) {
+      if (!val) {
         // 倘若关闭是否存在多列就得关闭第二个对应的日期格式
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_column
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_format
