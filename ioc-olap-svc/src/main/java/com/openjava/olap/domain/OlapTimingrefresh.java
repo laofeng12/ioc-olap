@@ -101,10 +101,6 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Column(name = "AUTORELOAD")
 	private Long autoReload;
 
-	@ApiModelProperty("是否多字段")
-	@Column(name = "DATAMANY")
-	private Long dataMany;
-
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;

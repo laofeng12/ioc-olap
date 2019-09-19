@@ -380,7 +380,7 @@ public class OlapModelingAction extends BaseAction {
     //1、保存所有数据
     @Transactional(readOnly = false)
     public boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
-            List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
+                             List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
                              OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions) {
         OlapFilter olapFilter = null;
         if (olapCube.getIsNew() == false) {
@@ -397,6 +397,17 @@ public class OlapModelingAction extends BaseAction {
                 olapFilter.setIsNew(false);
                 olapFilterService.doSave(olapFilter);
             }
+            else {
+                olapFilter = new OlapFilter();
+                olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
+                olapFilter.setFilterSql(modelDescData.getFilter_condition());
+                olapFilter.setCubeName(olapCube.getName());
+                olapFilter.setCreateTime(date);//创建时间
+                olapFilter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+                olapFilter.setCreateName(userVO.getUserAccount());//创建人名称
+                olapFilter.setIsNew(true);
+                olapFilterService.doSave(olapFilter);
+            }
         } else {
             olapFilter = new OlapFilter();
             olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
@@ -409,7 +420,7 @@ public class OlapModelingAction extends BaseAction {
             olapFilterService.doSave(olapFilter);
         }
 
-        for (OlapFilterCondidion fc : condidions){
+        for (OlapFilterCondidion fc : condidions) {
             OlapFilterCondidion filterCondion = new OlapFilterCondidion();
             filterCondion.setId(ConcurrentSequence.getInstance().getSequence());
             filterCondion.setFilterId(olapFilter.getId());            //过滤表ID
@@ -448,9 +459,7 @@ public class OlapModelingAction extends BaseAction {
         //保存OLAP_CUBE_TABLE_COLUMN表
         olapCubeTableColumnService.saveCubeTableColumn(cube, modelDescData, olapCube.getCubeId(), cubeTablesList);
         //保存CUBE刷新频率
-        if (timingreFresh.getAutoReload() != 0 || timingreFresh.getDataMany() != 0) {
-            olapTimingrefreshService.timingTasks(timingreFresh, cube, date, userVO);
-        }
+        olapTimingrefreshService.timingTasks(timingreFresh, cube, date, userVO);
         return true;
     }
 

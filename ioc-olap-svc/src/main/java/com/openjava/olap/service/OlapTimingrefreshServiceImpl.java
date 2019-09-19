@@ -86,27 +86,43 @@ public class OlapTimingrefreshServiceImpl implements OlapTimingrefreshService {
 
     //创建定时任务
     public void timingTasks(OlapTimingrefresh task, CubeDescMapper cube, Date date, OaUserVO userVO) {
-        CubeDescDataMapper cubeDescData = cube.getCubeDescData();
-        Long freshId =  ConcurrentSequence.getInstance().getSequence();
-
         //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据并修改olap_timingrefresh表数据
-        if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
-            OlapTimingrefresh olapFilter = findTableInfo(cubeDescData.getName(), Long.parseLong(userVO.getUserId()));
-            freshId = olapFilter.getId();
-
-            task.setUpdateId(Long.parseLong(userVO.getUserId()));
-            task.setUpdateName(userVO.getUserAccount());
-            task.setUpdateTime(date);
-            task.setIsNew(false);
+        if (StringUtils.isNotBlank(cube.getCubeDescData().getUuid())) {
+            OlapTimingrefresh olapTimingrefresh = findTableInfo(cube.getCubeDescData().getName(), Long.parseLong(userVO.getUserId()));
+            if (olapTimingrefresh != null) {
+                olapTimingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
+                olapTimingrefresh.setUpdateName(userVO.getUserAccount());
+                olapTimingrefresh.setUpdateTime(date);
+                olapTimingrefresh.setIsNew(false);
+                olapTimingrefresh.setInterval(task.getInterval());
+                olapTimingrefresh.setFrequencytype(task.getFrequencytype());
+                olapTimingrefresh.setAutoReload(task.getAutoReload());
+                calcExcuteTime(olapTimingrefresh);
+                doSave(olapTimingrefresh);
+            }
+            else{
+                task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+                task.setCreateName(userVO.getUserAccount());//创建人名称
+                task.setCreateTime(date);//创建时间
+                task.setIsNew(true);
+                task.setId(ConcurrentSequence.getInstance().getSequence());
+                task.setCubeName(cube.getCubeDescData().getName());//立方体名称
+                calcExcuteTime(task);
+                doSave(task);
+            }
         } else {
             task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
             task.setCreateName(userVO.getUserAccount());//创建人名称
             task.setCreateTime(date);//创建时间
             task.setIsNew(true);
+            task.setId(ConcurrentSequence.getInstance().getSequence());
+            task.setCubeName(cube.getCubeDescData().getName());//立方体名称
+            calcExcuteTime(task);
+            doSave(task);
         }
-        task.setId(freshId);
-        task.setCubeName(cubeDescData.getName());//立方体名称
+    }
 
+    private void calcExcuteTime(OlapTimingrefresh task) {
         //1 是开启,0 是未开启
         if (task.getAutoReload() == 1) {
             int interval = task.getInterval().intValue();
@@ -138,6 +154,5 @@ public class OlapTimingrefreshServiceImpl implements OlapTimingrefreshService {
             Date nextDate = calendar.getTime();
             task.setNextExecutionTime(nextDate);//下一次执行执行时间
         }
-        doSave(task);
     }
 }
