@@ -48,15 +48,15 @@ public class CubeAction extends KylinAction {
     @ApiOperation(value = "创建立方体")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @Security(session = true)
-    public CubeDescNewMapper create(CubeDescMapper cube, String modelName) throws APIException {
-        return cubeHttpClient.create(cube,modelName);
+    public CubeDescNewMapper create(CubeDescMapper cube) throws APIException {
+        return cubeHttpClient.create(cube);
     }
 
     @ApiOperation(value = "修改立方体")
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     @Security(session = true)
-    public CubeDescNewMapper update(CubeDescMapper cube, String modelName) throws APIException {
-       return cubeHttpClient.update(cube,modelName);
+    public CubeDescNewMapper update(CubeDescMapper cube) throws APIException {
+       return cubeHttpClient.update(cube);
     }
 
     @ApiOperation(value = "获取CUBE描述信息")

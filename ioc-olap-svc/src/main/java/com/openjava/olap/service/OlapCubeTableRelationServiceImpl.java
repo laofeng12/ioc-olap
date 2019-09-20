@@ -81,11 +81,6 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 		SequenceService ss = ConcurrentSequence.getInstance();
 		List<OlapCubeTableRelation> olapcubeList = new ArrayList<>();
 
-		//根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据olap_cube的Id删除column里的数据
-		if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
-			deleteCubeId(cubeId);
-		}
-
 		for (LookupsMapper lm : modelDescData) {
 			OlapCubeTableRelation Relation = new OlapCubeTableRelation();
 

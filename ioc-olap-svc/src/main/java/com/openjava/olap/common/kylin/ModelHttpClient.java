@@ -23,30 +23,27 @@ public class ModelHttpClient extends KylinHttpClient {
 
     public ModelsDescDataMapper entity(String postman) throws APIException {
         String url = config.address + "/kylin/api/model/" + postman;
-        Class<ModelsDescDataMapper> clazz = (Class<ModelsDescDataMapper>) new ModelsDescDataMapper().getClass();
-        ModelsDescDataMapper result = HttpClient.get2(url, config.authorization, clazz);
+        ModelsDescDataMapper result = HttpClient.get2(url, config.authorization, ModelsDescDataMapper.class);
         return result;
     }
 
-    public ModelsNewMapper create(ModelsMapper body) throws APIException {
+    public ModelsMapper create(ModelsMapper body) throws APIException {
         String url = config.address + "/kylin/api/models";
         HashMap hash = new HashMap();
         hash.put("modelDescData", JSON.toJSONString(body.modelDescData));
         hash.put("project", body.project);
-        Class<ModelsNewMapper> clazz = (Class<ModelsNewMapper>) new ModelsNewMapper().getClass();
-        ModelsNewMapper result = HttpClient.post2(url, JSON.toJSONString(hash), config.authorization, clazz);
-        return result;
+        ModelsNewMapper result = HttpClient.post2(url, JSON.toJSONString(hash), config.authorization, ModelsNewMapper.class);
+        return result.resolve();
     }
 
-    public ModelsNewMapper update(ModelsMapper body) throws APIException {
+    public ModelsMapper update(ModelsMapper body) throws APIException {
         String url = config.address + "/kylin/api/models";
         HashMap hash = new HashMap();
         hash.put("modelDescData", JSON.toJSONString(body.modelDescData));
         hash.put("project", body.project);
         hash.put("modelName", body.modelName);
-        Class<ModelsNewMapper> clazz = (Class<ModelsNewMapper>) new ModelsNewMapper().getClass();
-        ModelsNewMapper result = HttpClient.put2(url, JSON.toJSONString(hash), config.authorization, clazz);
-        return result;
+        ModelsNewMapper result = HttpClient.put2(url, JSON.toJSONString(hash), config.authorization, ModelsNewMapper.class);
+        return result.resolve();
     }
 
     public void delete(String modelsName) throws APIException {
