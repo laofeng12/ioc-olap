@@ -6,9 +6,11 @@ const common = {
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
-          'name': 'model1',
+          'name': '',
           'description': '',
           'uuid': '',
+          'last_modified': '',
+          'version': '',
           'fact_table': 'KYLIN.KYLIN_SALES',
           'lookups': [
             {
@@ -65,6 +67,8 @@ const common = {
           'model_name': '',
           'engine_type': '2',
           'description': '',
+          'last_modified': '',
+          'version': '',
           'dimensions': [ // 设置维度表
             {
               'name': 'USER_DEFINED_FIELD1',
@@ -225,8 +229,8 @@ const common = {
       console.log(data, '编辑需要的数据')
       data.TableList.map((item, index) => {
         item.tableList.map(res => {
-          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
-          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId })
+          getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          getters.saveSelectTable.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
         })
       })
       // 赋值第二步模型的表
@@ -257,14 +261,19 @@ const common = {
         getters.reloadData.frequencytype = data.timingreFresh.frequencytype
         getters.reloadData.autoReload = !!data.timingreFresh.interval
         getters.reloadData.interval = Number(data.timingreFresh.interval)
-        getters.reloadData.partition_type = !!data.ModesList.partition_desc.partition_time_format
-        let result = data.ModesList.partition_desc.partition_date_column
-        getters.reloadData.data1a = result.split('.')[0]
-        getters.reloadData.data1b = result.split('.')[1]
-        getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
-        getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
-        data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
       }
+      let resultDate = data.ModesList.partition_desc.partition_date_column
+      let resultTime = data.ModesList.partition_desc.partition_time_column
+      getters.reloadData.data1a = resultDate.split('.')[0]
+      getters.reloadData.data1b = resultDate.split('.')[1]
+      getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
+      if (resultTime) {
+        getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
+        getters.reloadData.data2a = resultTime.split('.')[0]
+        getters.reloadData.data2b = resultTime.split('.')[1]
+      }
+      data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
+      getters.reloadData.partition_type = !!resultTime
 
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
@@ -285,11 +294,16 @@ const common = {
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
+      state.totalSaveData.cube.cubeDescData.version = data.CubeList[0].version
+      state.totalSaveData.cube.cubeDescData.last_modified = data.CubeList[0].last_modified
+      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList[0].model_name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.uuid = data.ModesList.uuid
+      state.totalSaveData.models.modelDescData.name = data.ModesList.name
+      state.totalSaveData.models.modelDescData.version = data.ModesList.version
+      state.totalSaveData.models.modelDescData.last_modified = data.ModesList.last_modified
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
-      // console.log('第六步===', getters.aggregation_groups)
     }
   }
 }

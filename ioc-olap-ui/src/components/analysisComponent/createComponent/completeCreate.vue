@@ -126,7 +126,8 @@ export default {
         }
         return dest
       })
-      this.totalSaveData.models.modelDescData.dimensions = dest
+      // this.totalSaveData.models.modelDescData.dimensions = dest
+      this.totalSaveData.models.modelDescData.dimensions = []
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {

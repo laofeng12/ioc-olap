@@ -19,8 +19,6 @@ public class ModelsMapper {
     public boolean successful;
     @JSONField(name = "message")
     public String message;
-    @JSONField(name = "metrics")
-    public ArrayList<String> metrics;
     @JSONField(name = "project")
     public String project;
     @JSONField(name = "ccInCheck")

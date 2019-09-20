@@ -57,8 +57,8 @@ export default {
         { value: '2', label: '>' },
         { value: '3', label: '<' },
         { value: '4', label: '>=' },
-        { value: '5', label: '<=' },
-        { value: '6', label: 'BETWEED' }
+        { value: '5', label: '<=' }
+        // { value: '6', label: 'BETWEED' }
       ],
       rules: {
         tableName: [
@@ -81,7 +81,9 @@ export default {
   },
   methods: {
     init () {
-      this.tableOptions = [...this.selectTableTotal] || []
+      this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
+      this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
+      // this.tableOptions = [...this.selectTableTotal] || []
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -140,6 +142,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      jointResultData: 'jointResultData',
       saveSelectAllList: 'saveSelectAllList'
     })
   }

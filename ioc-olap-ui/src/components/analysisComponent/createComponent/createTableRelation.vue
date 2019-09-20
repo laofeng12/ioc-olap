@@ -179,19 +179,21 @@ export default {
 
       this.bindEvent(paper)
     },
-    
+
     bindEvent (paper) {
-      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      // 鼠标点击空白处
       paper.on('blank:pointerup', () => {
         this.hideCellLayer()
       })
 
-      // 有鼠标点击，鼠标拖拽等等事件,cell:在源码里面找--利用自带的事件，可以获取到点击元素的信息，便于之后的增删改等操作
+      // 鼠标点击
       paper.on('cell:pointerclick', (e, d) => {
         d.stopPropagation()
       })
 
+      // 鼠标拖拽
       paper.on('cell:pointerup', (e, d) => {
+        console.log('拖起来')
         this.linkModalModel = null
 
         if (this.isClick) {
@@ -221,40 +223,40 @@ export default {
                 sourceAttrs = linkElements.source.get('attrs')
                 targetAttrs = linkElements.target.get('attrs')
               }
+              // 连线的主表
               let source = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
-                // field: '',
                 label: sourceAttrs.text.label,
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
+              // 连线的次表
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
-                // field: '',
                 label: `${targetAttrs.text.label}`,
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
-
+              // 定义需要传给后台的格式
               linkModal = {
-                'joinTable': source.label || '',
-                'joinAlias': source.alias || '',
-                'joinId': source.id || '',
-                'alias': target.alias || '',
-                'id': target.id || '',
-                'table': target.label || '',
+                'joinTable': source.label || '', // 主表名
+                'joinAlias': source.alias || '', // 主表别名
+                'joinId': source.id || '', // 主表id
+                'alias': target.alias || '', // 子表别名
+                'id': target.id || '', // 子表id
+                'table': target.label || '', // 子表名
                 'kind': 'LOOKUP',
                 'join': {
-                  'type': '', // inner
-                  'primary_key': [],
-                  'foreign_key': [],
+                  'type': '', // 连接方式（left||inner）
+                  'primary_key': [], // 子表与选择的字段
+                  'foreign_key': [], // 主表与选择的字段
                   'isCompatible': [true],
-                  'pk_type': [],
-                  'fk_type': []
+                  'pk_type': [], // 子表字段对应的类型
+                  'fk_type': [] // 主表字段对应的类型
                 }
               }
 
-              this.addFields()
+              this.addFields() // 调用添加关联字段
 
               this.linkModal = linkModal
               this.linkModalModel = e.model
@@ -296,6 +298,7 @@ export default {
       }
     },
     papersClick (e) {
+      console.log(e)
       let element = this.cellLayerData || {}
       let model = element.model
       let position = model.get('position')
@@ -322,7 +325,6 @@ export default {
               this.linkModalModel = null
             }
           })
-          console.log('设置别名后', this.jointResult)
           break
         case 'link': // 连线
           let link = new joint.shapes.standard.Link({
@@ -337,6 +339,9 @@ export default {
                 stroke: '#333333', // SVG attribute and value
                 'stroke-width': 0.5// 连线粗细
               }
+            },
+            ports: {
+              a: {}
             },
             router: { name: 'normal' }// 设置连线弯曲样式 normal直角
           })
@@ -585,6 +590,9 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
+        ports: {
+          a: {}
+        },
         router: { name: 'normal' }, // 设置连线弯曲样式 normal直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
         attrs: {
@@ -625,7 +633,7 @@ export default {
     },
 
     addFields (field) {
-      if (!field || {}.toString.call(field) != '[object Array]') {
+      if (!field || {}.toString.call(field) !== '[object Array]') {
         field = [{
           primary_key: '',
           foreign_key: '',

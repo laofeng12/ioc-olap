@@ -10,11 +10,12 @@
             <el-option v-for="item in computeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="类型" :label-width="formLabelWidth" prop="function.parameter.type">
+        <el-form-item label="类型" :label-width="formLabelWidth" prop="column">column</el-form-item>
+        <!-- <el-form-item label="类型" :label-width="formLabelWidth" prop="function.parameter.type">
           <el-select v-model="formData.function.parameter.type" placeholder="请选择" :disabled="isDisabledtype" @change="selectType">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="选择字段" :label-width="formLabelWidth" prop="function.parameter.value">
           <el-select v-model="formData.function.parameter.value" placeholder="请选择" :disabled="isDisabledtext" @change="selectValue">
             <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
@@ -131,7 +132,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deflate } from 'zlib'
 export default {
   props: {
     border: {
@@ -146,7 +146,7 @@ export default {
           expression: '',
           returntype: '',
           parameter: {
-            type: '',
+            type: 'column',
             value: ''
           }
         },
@@ -188,8 +188,8 @@ export default {
       // }
       ],
       typeOptions: [
-        { value: 'column', label: 'column' },
-        { value: 'constant', label: 'constant' }
+        { value: 'column', label: 'column' }
+        // { value: 'constant', label: 'constant' }
       ],
       backType: [
         { value: '1', label: 'Error Rate <9.75%' },
@@ -243,7 +243,7 @@ export default {
           expression: '',
           returntype: '',
           parameter: {
-            type: '',
+            type: 'column',
             value: ''
           }
         },
@@ -260,10 +260,10 @@ export default {
         return res.label === val
       })
       this.formData.function.returntype = result[0].dataType
-      if (this.jsonType.indexOf(result[0].dataType) === -1) {
-        this.$message.warning('不支持当前字段类型~')
-        this.formData.function.parameter.value = ''
-      }
+      // if (this.jsonType.indexOf(result[0].dataType) === -1) {
+      //   this.$message.warning('不支持当前字段类型~')
+      //   this.formData.function.parameter.value = ''
+      // }
     },
     selectType (val) {
       if (val === 'constant') {
@@ -361,8 +361,8 @@ export default {
           break
         case 'COUNT_DISTINCT':
           this.formData.function.parameter.value = ''
-          this.isDisabledtext = true
-          this.isDisabledtext = true
+          this.isDisabledtype = true
+          this.formData.function.returntype = 'bitmap'
           break
         default:
           this.isDisabledtype = false
