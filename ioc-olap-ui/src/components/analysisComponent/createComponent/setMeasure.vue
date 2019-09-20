@@ -58,8 +58,9 @@ export default {
     },
     nextModel (val) {
       if (this.measureTableList.length > 0) {
-        this.$router.push('/analysisModel/createolap/reloadSet')
-        this.$parent.getStepCountAdd(val)
+        console.log(this.measureTableList)
+        // this.$router.push('/analysisModel/createolap/reloadSet')
+        // this.$parent.getStepCountAdd(val)
       } else {
         this.$message.warning('至少添加一条度量')
       }

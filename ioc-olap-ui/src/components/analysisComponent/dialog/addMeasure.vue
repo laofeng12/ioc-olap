@@ -259,7 +259,7 @@ export default {
       let result = this.fieldtextOption.filter((res, index) => {
         return res.label === val
       })
-      this.formData.function.returntype = result[0].dataType
+      this.formData.function.returntype = this.formData.function.expression === 'COUNT_DISTINCT' ? 'bitmap' : result[0].dataType
       // if (this.jsonType.indexOf(result[0].dataType) === -1) {
       //   this.$message.warning('不支持当前字段类型~')
       //   this.formData.function.parameter.value = ''
@@ -268,7 +268,7 @@ export default {
     selectType (val) {
       if (val === 'constant') {
         this.formData.function.parameter.value = 1
-        this.formData.function.returntype = 'bigint'
+        // this.formData.function.returntype = 'bigint'
         this.isDisabledtext = true
       } else {
         this.formData.function.parameter.value = ''
@@ -353,20 +353,12 @@ export default {
           this.isDisabledtype = true
           this.isDisabledtext = true
           break
-        case 'PERCENTILE':
-          this.formData.function.parameter.type = 'column'
-          this.formData.function.parameter.value = ''
-          this.isDisabledtype = true
-          this.isDisabledtext = false
-          break
         case 'COUNT_DISTINCT':
           this.formData.function.parameter.value = ''
           this.isDisabledtype = true
-          this.formData.function.returntype = 'bitmap'
           break
         default:
           this.isDisabledtype = false
-          // this.formData.fieldtext = ''
           this.isDisabledtext = false
           break
       }
