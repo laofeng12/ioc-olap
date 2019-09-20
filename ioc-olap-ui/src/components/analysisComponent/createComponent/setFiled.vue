@@ -32,7 +32,7 @@
                 <template slot-scope="scope">
                   <div class="play">
                     <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
-                      <el-radio label="1">正常模式{{scope.row.mode}}</el-radio>
+                      <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
                   </div>
@@ -86,6 +86,7 @@ export default {
          */
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
+          console.log(items)
           if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
@@ -105,7 +106,6 @@ export default {
                * 匹配两者相同的id对应的数据放到${arr}
                * 执行toggleSelection 存放匹配到的数据
                */
-              console.log(this.saveSelectFiled, '啊啊')
               this.processData(code)
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
@@ -140,6 +140,7 @@ export default {
             id: `${items.name}${i}`,
             mode: items.name === code ? '1' : '2',
             derived: res.name,
+            dataType: res.dataType,
             filed: items.name === code ? '1' : '0'
           })
         })

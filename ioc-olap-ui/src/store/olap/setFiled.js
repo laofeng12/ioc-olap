@@ -209,6 +209,7 @@ const setFiled = {
     SaveFiledData ({ state }) {
       // 对接数据格式
       state.dimensions = []
+      // console.log('清洗过后的数据', state.saveSelectFiled)
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {

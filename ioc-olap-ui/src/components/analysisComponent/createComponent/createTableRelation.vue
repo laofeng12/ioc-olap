@@ -93,6 +93,18 @@ export default {
         fact_table: '',
         lookups: []
       },
+      port: {
+        // id: 'abc', // generated if `id` value is not present
+        group: 'a',
+        args: {}, // extra arguments for the port layout function, see `layout.Port` section
+        label: {
+          position: {
+            name: 'right',
+            args: { y: 6 } // extra arguments for the label layout function, see `layout.PortLabel` section
+          },
+          markup: '<text class="label-text" fill="blue"/>'
+        }
+      },
       linkModal: null,
       linkModalModel: null,
       linkModalFields: []
@@ -340,9 +352,7 @@ export default {
                 'stroke-width': 0.5// 连线粗细
               }
             },
-            ports: {
-              a: {}
-            },
+            connector: { name: 'smooth' },
             router: { name: 'normal' }// 设置连线弯曲样式 normal直角
           })
           this.graph.addCell(link)
@@ -498,7 +508,7 @@ export default {
       if (cells.length > 0) {
         cells.forEach(t => {
           let attrs = t.get('attrs')
-          if (attrs && attrs.text && attrs.text.label === item.label && item.alias == attrs.text.alias) {
+          if (attrs && attrs.text && attrs.text.label === item.label && item.alias === attrs.text.alias) {
             itemCell = t
           }
         })
@@ -534,7 +544,7 @@ export default {
           this.clearCells()
         }
         // 设置主表
-        if (item.filed == 1 && !this.jointResult.fact_table) {
+        if (item.filed === 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = `${item.label}`
         }
 
@@ -546,10 +556,16 @@ export default {
             x: (item.position && item.position.x) || randomPosition.x,
             y: (item.position && item.position.y) || randomPosition.y
           },
+          // ports: {
+          //   groups: {
+          //     'a': {}
+          //   },
+          //   items: [this.port]
+          // },
           size: { width: text.length * 9, height: randomPosition.height },
           attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
-
+        // newRect.addPort(this.port)
         this.graph.addCell(newRect)
       }
 
@@ -590,11 +606,14 @@ export default {
       let newLink = new joint.shapes.standard.Link({
         source: sourceItem || { x: 50, y: 50 },
         target: targetItem || { x: 50, y: 50 },
-        ports: {
-          a: {}
-        },
+        connector: { name: 'smooth' },
         router: { name: 'normal' }, // 设置连线弯曲样式 normal直角
         labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
+        // ports: {
+        //   groups: {
+        //     'a': {}
+        //   },
+        // },
         attrs: {
           'data': item,
           '.marker-target': {
@@ -607,7 +626,7 @@ export default {
           }
         }
       })
-
+      // newLink(this.port)
       this.graph.addCell(newLink)
 
       return newLink
@@ -657,7 +676,7 @@ export default {
     getModalRelationSelected (e) {
 
     },
-
+    // 选择子表对应的字段
     getModalPrimarySelected (e) {
       console.log(e)
 
@@ -682,7 +701,7 @@ export default {
         }
       }
     },
-
+    // 选择主表对应的字段
     getModalForeignSelected (e) {
       console.log(e)
 
@@ -707,7 +726,7 @@ export default {
         }
       }
     },
-
+    // 存储已选择表对应的字段
     updateFields (alias, joinAlias, fields) {
       let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
 
@@ -723,17 +742,14 @@ export default {
       this.linkModal.join.foreign_key = foreign_key
       this.linkModal.join.pk_type = pk_type
       this.linkModal.join.fk_type = fk_type
+      // 判断是否选中了关联对应的字段
       if (primary_key.length > 0 && this.linkModalModel.labels) {
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
+        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'color': '#59aff9', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
       console.log(JSON.stringify(result))
       this.$store.commit('SaveJointResult', result)
-    },
-
-    getModalRelationSelected (e) {
-
     },
 
     getElementPosition () {

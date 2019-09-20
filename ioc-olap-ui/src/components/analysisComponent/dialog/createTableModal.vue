@@ -70,7 +70,6 @@ export default {
           this.descriptionData = items.data.columns || []
         }
       })
-      console.log(this.descriptionData)
       // this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: name }).then(res => {
       //   this.managementHead = []
       //   this.loadingPlan = true

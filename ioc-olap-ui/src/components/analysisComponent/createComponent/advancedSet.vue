@@ -187,7 +187,6 @@ export default {
   mounted () {
     this.resortAggregation()
     this.init()
-    console.log(this.hbase_mapping.column_family)
   },
   methods: {
     init () {
@@ -236,7 +235,6 @@ export default {
       this.$router.push('/analysisModel/createolap/completeCreate')
     },
     judgeSuccess () {
-      console.log(this.aggregation_groups[0].select_rule)
       const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
       let hierarchy_dimsLen = hierarchy_dims[0].length
       let joint_dimsLen = joint_dims[0].length
