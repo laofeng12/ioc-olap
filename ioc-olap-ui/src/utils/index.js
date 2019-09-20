@@ -56,6 +56,7 @@ export function reduceObj (arr, name) {
   return arrs
 }
 
+// 针对为json格式的处理
 export function reduceJson (arr, name) {
   let obj = {}
   let arrs = arr.reduce((item, next) => {
@@ -66,6 +67,16 @@ export function reduceJson (arr, name) {
       name: next.name,
       tableName: next.tableName
     })
+    return item
+  }, [])
+  return arrs
+}
+
+//
+export function reduceObjisId (arr, name) {
+  let obj = {}
+  let arrs = arr.reduce((item, next) => {
+    obj[next[name]] ? '' : obj[next[name]] = true && item.push(next)
     return item
   }, [])
   return arrs

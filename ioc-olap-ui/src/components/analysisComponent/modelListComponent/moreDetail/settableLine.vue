@@ -134,6 +134,7 @@ export default {
         el: document.querySelector('#myholder'),
         width: '100%',
         height: '600',
+        interactive: false,
         model: this.graph,
         class: 'canvast',
         gridSize: 1

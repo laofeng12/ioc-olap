@@ -6,9 +6,11 @@ const common = {
     totalSaveData: { // 总数据
       models: {
         modelDescData: {
-          'name': 'model1',
+          'name': '',
           'description': '',
           'uuid': '',
+          'last_modified': '',
+          'version': '',
           'fact_table': 'KYLIN.KYLIN_SALES',
           'lookups': [
             {
@@ -65,6 +67,8 @@ const common = {
           'model_name': '',
           'engine_type': '2',
           'description': '',
+          'last_modified': '',
+          'version': '',
           'dimensions': [ // 设置维度表
             {
               'name': 'USER_DEFINED_FIELD1',
@@ -290,11 +294,15 @@ const common = {
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
       state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
-      state.totalSaveData.cube.cubeDescData.cube_name = data.CubeList[0].model_name
+      state.totalSaveData.cube.cubeDescData.version = data.CubeList[0].version
+      state.totalSaveData.cube.cubeDescData.last_modified = data.CubeList[0].last_modified
+      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList[0].model_name
       state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
       state.totalSaveData.cube.cubeDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.name = data.ModesList.name
+      state.totalSaveData.models.modelDescData.version = data.ModesList.version
+      state.totalSaveData.models.modelDescData.last_modified = data.ModesList.last_modified
       state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
     }
   }
