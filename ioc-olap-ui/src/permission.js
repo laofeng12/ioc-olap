@@ -19,7 +19,6 @@ router.beforeEach((to, from, next) => {
   // 如果有token
   if (access_token) {
     // 判断是否在创建模型
-    console.log('当前路由', to.path.split('/'))
     let PATH = to.path.split('/')
     if (!PATH.includes('createolap')) store.dispatch('resetList')
     if (to.path === '/login') {

@@ -234,7 +234,7 @@ export default {
     })
   },
   mounted () {
-    console.log(this.formData)
+    // console.log(this.formData)
   },
   methods: {
     resetData () {
