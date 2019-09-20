@@ -185,17 +185,16 @@ public class OlapModelingAction extends BaseAction {
 
         //处理逻辑如下：
         //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
-        if (StringUtils.isNotBlank(body.getModels().getUuid())) {
+        if (!StringUtils.isNotBlank(body.getModels().getUuid())) {
             //为models的name给一个唯一值
-            SequenceService ss = ConcurrentSequence.getInstance();
-            String modelName = String.valueOf(ss.getSequence());
+            String modelName = String.valueOf( ConcurrentSequence.getInstance().getSequence());
             models.modelDescData.setName(modelName);
-            cube.cubeDescData.setModel_name(modelName);
-            cube.setCubeName(cubeName);
-            cube.setProject(userVO.getUserId());
             models.setProject(userVO.getUserId());
             modelMap = modelHttpClient.create(models);
             try {
+                cube.cubeDescData.setModel_name(modelName);
+                cube.setCubeName(cubeName);
+                cube.setProject(userVO.getUserId());
                 cubeMap = cubeHttpClient.create(cube);
             } catch (Exception ex) {
                 modelHttpClient.delete(modelName);

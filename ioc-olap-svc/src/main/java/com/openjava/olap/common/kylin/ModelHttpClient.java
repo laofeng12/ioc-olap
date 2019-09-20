@@ -48,6 +48,6 @@ public class ModelHttpClient extends KylinHttpClient {
 
     public void delete(String modelsName) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/models/{1}", config.address, modelsName);
-        HttpClient.delete2(url, "", config.authorization, void.class);
+        HttpClient.delete2(url, "", config.authorization, String.class);
     }
 }
