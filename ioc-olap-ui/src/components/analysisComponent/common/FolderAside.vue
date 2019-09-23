@@ -199,20 +199,16 @@ export default {
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
           try {
-            const { createId } = await newOlapFolderApi(data)
-            if (createId) {
-              this.$message.success('新建成功')
-              this.newVisible = false
-              if (this.$route.name === 'instantInquiry') {
-                await this.$store.dispatch('getSaveFolderListAction')
-              } else {
-                this.$emit('getAnalysisList')
-              }
+            await newOlapFolderApi(data)
+            this.$message.success('操作成功')
+            this.newVisible = false
+            if (this.$route.name === 'instantInquiry') {
+              await this.$store.dispatch('getSaveFolderListAction')
             } else {
-              this.$message.error('新建失败')
+              this.$emit('getAnalysisList')
             }
           } catch (e) {
-            this.$message.error('新建失败')
+            this.$message.error('操作成功')
           }
         }
       })
@@ -239,7 +235,7 @@ export default {
       } else {
         this.newVisible = true
         this.folderForm = {
-          id: data.id,
+          folderId: data.id,
           isNew: false,
           name: data.name,
           sortNum: data.attrs.sortNum
