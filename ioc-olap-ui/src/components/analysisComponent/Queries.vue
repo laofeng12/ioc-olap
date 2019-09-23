@@ -107,6 +107,7 @@ export default {
       this.menuListLoading = false
     },
     async searchOlap () {
+      if (this.textarea.length <= 0) return this.$message.error('请先填写sql语句')
       this.loading = true
       const data = {
         limit: this.checked ? this.lineNumber : -1,
