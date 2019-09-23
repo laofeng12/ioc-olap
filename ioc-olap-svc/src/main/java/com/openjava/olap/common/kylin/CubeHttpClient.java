@@ -34,6 +34,10 @@ public class CubeHttpClient extends KylinHttpClient {
         for (MeasureMapper measure : cube.cubeDescData.measures) {
             if (measure.function.getExpression().equals("AVG")) {
                 measure.function.setExpression("SUM");
+                measure.function.setRequestExpression("AVG");
+            }
+            else{
+                measure.function.setRequestExpression(measure.function.getExpression());
             }
         }
         String url = config.address + "/kylin/api/cubes";
@@ -45,6 +49,15 @@ public class CubeHttpClient extends KylinHttpClient {
     }
 
     public CubeDescNewMapper update(CubeDescMapper cube) throws APIException {
+        for (MeasureMapper measure : cube.cubeDescData.measures) {
+            if (measure.function.getExpression().equals("AVG")) {
+                measure.function.setExpression("SUM");
+                measure.function.setRequestExpression("AVG");
+            }
+            else{
+                measure.function.setRequestExpression(measure.function.getExpression());
+            }
+        }
         String url = config.address + "/kylin/api/cubes";
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));

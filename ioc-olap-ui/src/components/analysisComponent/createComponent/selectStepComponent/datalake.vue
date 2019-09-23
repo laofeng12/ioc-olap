@@ -65,7 +65,6 @@ export default {
       })
       // 数据湖获取表的数据
       this.$root.eventBus.$on('getTabdataList', (res, columnData) => {
-        console.log(columnData)
         this.managementHead = []
         this.managementData = []
         if (res.code === 200) {

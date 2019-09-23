@@ -262,7 +262,7 @@ export default {
       })
     },
     changeUploadNum (val) {
-      console.log(val)
+      // console.log(val)
     },
     // 改变日期是否存在多列按钮
     changeDataMany (val) {

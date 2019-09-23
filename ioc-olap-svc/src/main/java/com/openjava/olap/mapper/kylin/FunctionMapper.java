@@ -9,4 +9,5 @@ public class FunctionMapper {
     public String expression;
     public String returntype;
     public ParameterMapper parameter;
+    public String requestExpression;
 }
