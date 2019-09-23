@@ -1,7 +1,7 @@
 <template>
   <div class="addMeasure">
     <el-dialog title="过滤设置" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-form :model="formData" :rules="rules" ref="formData">
+      <el-form :model="formData" :rules="rules" ref="formDataModel">
         <el-form-item label="选择字段表" :label-width="formLabelWidth" prop="tableName">
           <el-select v-model="formData.tableName" placeholder="请选择字段表" @change="selectTable">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
@@ -87,7 +87,7 @@ export default {
     },
     closeBtn () {
       this.dialogFormVisible = false
-      this.$refs.formData.clearValidate()
+      this.$refs.formDataModel.clearValidate()
     },
     selectTable (val) {
       // const params = {
@@ -108,7 +108,7 @@ export default {
       })
     },
     submitBtn () {
-      this.$refs.formData.validate((valid) => {
+      this.$refs.formDataModel.validate((valid) => {
         if (valid) {
           this.dialogFormVisible = false
           let ids = Math.random().toString(36).substr(3)
@@ -119,7 +119,7 @@ export default {
               this.$message.success('保存成功~')
               this.formData = {}
               this.$parent.init()
-              this.$refs.formData.clearValidate()
+              this.$refs.formDataModel.clearValidate()
             }
           })
         }
@@ -134,7 +134,7 @@ export default {
         this.formData = {}
         this.isNew = 0
         setTimeout(() => {
-          this.$refs.formData.clearValidate()
+          this.$refs.formDataModel.clearValidate()
         }, 100)
       }
     }

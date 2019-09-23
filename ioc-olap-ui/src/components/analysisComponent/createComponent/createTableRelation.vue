@@ -171,10 +171,12 @@ export default {
       }
     },
     init () {
+      // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      // debugger
       let list = this.jointResult.lookups || []
+      // 新建图形
       this.graph = new joint.dia.Graph()
+      // 实例化参数
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
         width: '100%',
@@ -310,7 +312,6 @@ export default {
       }
     },
     papersClick (e) {
-      console.log(e)
       let element = this.cellLayerData || {}
       let model = element.model
       let position = model.get('position')
@@ -332,7 +333,7 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-
+              console.log('设置别名后', result)
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -402,7 +403,7 @@ export default {
       })
       return data
     },
-
+    // 设置别名
     setAlias (val) {
       // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
@@ -516,14 +517,15 @@ export default {
 
       return itemCell
     },
-
+    // 移出图形
     clearCells () {
       this.linkModal = null
       this.linkModalModel = null
       this.graph.clear()
     },
-
+    // 拖入到画布的表
     addRectCell (item) {
+      // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
       let isAdd = true
@@ -687,7 +689,7 @@ export default {
       let fk_type = this.linkModalFields[index].fk_type
 
       if (index >= 0 && primary_key && pk_type) {
-        if (fk_type && pk_type && pk_type != fk_type) {
+        if (fk_type && pk_type && pk_type !== fk_type) {
           this.$message.warning('请选择类型一致的字段')
           primary_key = ''
           pk_type = ''
@@ -712,7 +714,7 @@ export default {
       let fk_type = e.fk_type
 
       if (index >= 0 && foreign_key && fk_type) {
-        if (fk_type && pk_type && pk_type != fk_type) {
+        if (fk_type && pk_type && pk_type !== fk_type) {
           this.$message.warning('请选择类型一致的字段')
           foreign_key = ''
           fk_type = ''
@@ -832,7 +834,7 @@ export default {
           }
         })
 
-        if (replaceIdx == -1) {
+        if (replaceIdx === -1) {
           this.jointResult.lookups.push(item)
         } else {
           this.jointResult.lookups.splice(replaceIdx, 1, item)
