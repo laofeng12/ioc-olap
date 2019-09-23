@@ -132,7 +132,7 @@ export default {
         this.isSearch = true
         this.$message.success('查询完成')
       } catch (e) {
-        console.error(e)
+        console.error('您的查询语句有问题')
       }
       this.loading = false
     },
