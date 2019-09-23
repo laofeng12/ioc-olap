@@ -228,25 +228,25 @@ export default {
         })
       }
       if (type === 'construct') {
-        if (params.segments.length > 0 && params.partitionDateColumn) {
-          this.$refs['construct'].dialog(params)
-        } else {
-          return this.$confirm('是否构建该模型', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(async () => {
-            this.getLoading = true
-            // this.$throttle(() => {
-            await buildModeling({ cubeName: params.name, start: 0, end: 0 }).then(res => {
-              this.$message.success('构建成功~')
-              this.init()
-            }).catch(_ => {
-              this.getLoading = false
-            })
-            // }, 1000)
-          })
-        }
+        this.$refs['construct'].dialog(params)
+        // if (params.segments.length > 0 && params.partitionDateColumn) {
+        // } else {
+        //   return this.$confirm('是否构建该模型', {
+        //     confirmButtonText: '确定',
+        //     cancelButtonText: '取消',
+        //     type: 'warning'
+        //   }).then(async () => {
+        //     this.getLoading = true
+        //     // this.$throttle(() => {
+        //     await buildModeling({ cubeName: params.name, start: 0, end: 0 }).then(res => {
+        //       this.$message.success('构建成功~')
+        //       this.init()
+        //     }).catch(_ => {
+        //       this.getLoading = false
+        //     })
+        //     // }, 1000)
+        //   })
+        // }
       }
       if (type === 'lookUserModal') {
         return this.$router.push({

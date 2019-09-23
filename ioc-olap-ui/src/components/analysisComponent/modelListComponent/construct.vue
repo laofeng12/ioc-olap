@@ -54,12 +54,13 @@ export default {
         this.$parent.changeLoading()
         let parmas = {
           cubeName: this.dataList.name,
-          start: Date.parse(new Date(this.form.startTime)) / 1000,
-          end: Date.parse(new Date(this.form.endTime)) / 1000
+          start: this.form.startTime ? (Date.parse(new Date(this.form.startTime)) / 1000) : '',
+          end: this.form.endTime ? (Date.parse(new Date(this.form.endTime)) / 1000) : ''
         }
         this.$throttle(async () => {
           await buildModeling(parmas).then(res => {
             this.$message.success('构建成功~')
+            this.form.endTime = ''
             this.$parent.closeChangeLoading()
           }).catch(_ => {
             this.$parent.closeChangeLoading()
@@ -70,8 +71,9 @@ export default {
     dialog (val) {
       this.dataList = val
       this.dialogFormVisible = true
+      console.log('time===', val)
       val.segments.forEach(item => {
-        this.form.startTime = item.last_build_time
+        this.form.startTime = item.last_build_time ? item.last_build_time : ''
       })
     }
   }

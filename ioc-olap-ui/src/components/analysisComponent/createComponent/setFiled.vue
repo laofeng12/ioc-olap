@@ -159,26 +159,38 @@ export default {
       // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
       data.lookups.map((item, index) => {
         let val = item.join
-        val.foreign_key.map(_ => { foreign_keys.push(_) })
+        val.foreign_key.map(n => {
+          foreign_keys.push({
+            name: n,
+            id: `${n.split('.')[0]}${index}`
+          })
+        })
         /*
           判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
         */
-        val.primary_key.map(_ => { primary_keys.push(_) })
         // val.primary_key.map(n => {
-        //   if (item.alias !== item.table) {
-        //     foreign_keys.push(`${item.table.split('.')[1]}.${n.split('.')[1]}`)
-        //   }
+        //   primary_keys.push({
+        //     name: n,
+        //     id: `${n.split('.')[0]}${index}`
+        //   })
         // })
+        val.primary_key.map((n, i) => {
+          if (item.alias !== item.table) {
+            foreign_keys.push({
+              name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              id: `${item.table.split('.')[1]}${index}`,
+              tit: `${n.split('.')[0]}${index}`
+            })
+          }
+        })
       })
-      let result = [...foreign_keys, ...primary_keys]
+      let result = [ ...foreign_keys, ...primary_keys ]
+
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      console.log(result, '=====')
+      console.log(result, '=====', values)
       values.map(res => {
-        let { tableName, titName } = res
         result.map(n => {
-          let [table, columns] = n.split('.')
-          if (tableName === table && titName === columns) {
-            res.tableName = table
+          if (res.id === n.id) {
             resultData = [...resultData, res]
             selectRows.push(res)
           }
