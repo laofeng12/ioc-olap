@@ -122,16 +122,6 @@ public class OlapCubeTableColumn implements Persistable<Long>,Serializable {
 		this.columnName = columnName;
 	}
 
-
-	@Column(name = "PRIMARYTYPE")
-	public String getPrimaryType() {
-		return primaryType;
-	}
-	public void setPrimaryType(String primaryType) {
-		this.primaryType = primaryType;
-	}
-
-
 	@Column(name = "COLUMN_ALIAS")
 	public String getColumnAlias() {
 		return columnAlias;
