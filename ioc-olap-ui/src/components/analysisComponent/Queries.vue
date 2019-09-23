@@ -108,6 +108,7 @@ export default {
     },
     async searchOlap () {
       if (this.textarea.length <= 0) return this.$message.error('请先填写sql语句')
+      if (!/^[1-9]|[1-9][0-9]*$/.test(this.lineNumber)) return this.$message.error('请正确填写限制行数')
       this.loading = true
       const data = {
         limit: this.checked ? this.lineNumber : -1,
