@@ -94,12 +94,13 @@ export default {
               n.derived = n.name
               n.titName = n.name
               n.tableName = data.alias ? data.alias : ''
-              n.id = `${data.alias}${i}`
+              // n.id = `${data.alias}${i}`
+              n.id = `${data.alias}${n.name}`
               n.filed = data.alias === code ? '1' : '0'
             })
             // 获取对应的字段赋值到列表
             this.tableData = items.data.columns
-            // this.processData(code, data.alias)
+            this.processData(code, data.alias)
             let arr = []
             setTimeout(() => {
               /**
@@ -138,7 +139,7 @@ export default {
             tableName: items.name,
             name: res.name,
             titName: res.name,
-            id: `${items.name}${i}`,
+            id: `${items.name}${res.name}`,
             mode: items.code ? items.code : '2',
             derived: res.name,
             dataType: res.dataType,
@@ -157,50 +158,51 @@ export default {
       // 创建一个要存储建表的数据
       let selectRows = []
       // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
-      data.lookups.map((item, index) => {
+      data.lookups.map(item => {
         let val = item.join
-        val.foreign_key.map(n => {
+        val.foreign_key.map((n, i) => {
           foreign_keys.push({
             name: n,
-            id: `${n.split('.')[0]}${index}`
+            id: `${n.split('.')[0]}${n.split('.')[1]}`
           })
         })
         /*
           判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
         */
-        // val.primary_key.map(n => {
-        //   primary_keys.push({
-        //     name: n,
-        //     id: `${n.split('.')[0]}${index}`
-        //   })
-        // })
         val.primary_key.map((n, i) => {
           if (item.alias !== item.table) {
             foreign_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              // id: `${item.table.split('.')[1]}${index}`,
-              id: `${n.split('.')[0]}${index}`,
-              tit: `${n.split('.')[0]}${index}`
+              id: `${item.table.split('.')[1]}${n.split('.')[1]}`,
+              titid: `${n.split('.')[0]}${n.split('.')[1]}`
             })
           }
         })
       })
+      // 组合第二步设置完的表名
       let result = [ ...foreign_keys, ...primary_keys ]
 
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      console.log(result, '=====', values)
       values.map(res => {
         result.map(n => {
-          if (res.id === n.id) {
+          if (res.id === n.id || res.id === n.titid) {
+            res.id = n.titid ? n.titid : n.id
             resultData = [...resultData, res]
             selectRows.push(res)
           }
         })
       })
-      console.log(resultData, '获取的', this.tableData)
       setTimeout(() => {
         // 调用默认选中的数据
         this.toggleSelection(resultData)
+        this.tableData && this.tableData.forEach((item, i) => {
+          this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+            if (val.id === item.id) {
+              this.tableData[i].name = String(val.name)
+              this.tableData[i].mode = String(val.mode)
+            }
+          })
+        })
         // 存放到store
         this.$store.dispatch('SaveSelectFiled', resultData)
         this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
@@ -266,6 +268,7 @@ export default {
      * 取消全选的时候需要把rows以及tableName带过去过滤
      */
     selectAllCheck (rows) {
+      console.log(this.tableData)
       let list = {
         list: rows,
         id: this.tableData[0].tableName

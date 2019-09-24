@@ -294,7 +294,7 @@ export default {
     }
   }
   >>>.el-loading-spinner{
-    width 30%
+    width 100%
     top 30%
     .circular{
       width 30px
