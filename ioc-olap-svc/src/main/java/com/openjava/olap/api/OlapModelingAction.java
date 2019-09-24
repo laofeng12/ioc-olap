@@ -17,6 +17,7 @@ import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
+import org.openjava.boot.conf.aop.ApiExceptionAOP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -162,7 +163,7 @@ public class OlapModelingAction extends BaseAction {
         String cubeName = cube.cubeDescData.getName();
         Date date = new Date();
 
-        ModelsNewMapper modelMap = new ModelsNewMapper();
+        ModelsMapper modelMap = new ModelsMapper();
         CubeDescNewMapper cubeMap = new CubeDescNewMapper();
 
 
@@ -185,25 +186,43 @@ public class OlapModelingAction extends BaseAction {
 
         //处理逻辑如下：
         //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
-        if (!StringUtils.isNotBlank(body.getModels().getUuid())) {
+        if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
             //为models的name给一个唯一值
-            SequenceService ss = ConcurrentSequence.getInstance();
-            String modelName = String.valueOf(ss.getSequence());
+            String modelName = String.valueOf( ConcurrentSequence.getInstance().getSequence());
             models.modelDescData.setName(modelName);
-            cube.cubeDescData.setModel_name(modelName);
-            cube.setCubeName(cubeName);
-            cube.setProject(userVO.getUserId());
+            models.modelDescData.setVersion(null);
             models.setProject(userVO.getUserId());
             modelMap = modelHttpClient.create(models);
             try {
-                cubeMap = cubeHttpClient.create(cube, modelName);
-            } catch (APIException ex) {
+                cube.cubeDescData.setModel_name(modelName);
+                cube.cubeDescData.setVersion(null);
+                cube.setCubeName(cubeName);
+                cube.setProject(userVO.getUserId());
+                cubeMap = cubeHttpClient.create(cube);
+            } catch (Exception ex) {
                 modelHttpClient.delete(modelName);
                 throw ex;
             }
         } else {
+            ModelsDescDataMapper modelsDescDataMapper = modelHttpClient.entity(models.getModelDescData().getName());
+            models.getModelDescData().setVersion(modelsDescDataMapper.getVersion());
+            models.getModelDescData().setLast_modified(modelsDescDataMapper.getLast_modified());
             modelMap = modelHttpClient.update(models);
-            cubeMap = cubeHttpClient.update(cube, models.modelDescData.getName());
+            try {
+                cube.project = userVO.getUserId();
+                cube.cubeName = cube.cubeDescData.getName();
+                cube.cubeDescData.setModel_name(models.modelDescData.getName());
+                cubeMap = cubeHttpClient.update(cube);
+            } catch (Exception ex) {
+                modelMap.modelDescData.setPartition_desc(modelsDescDataMapper.getPartition_desc());
+                modelMap.modelDescData.setLookups(modelsDescDataMapper.getLookups());
+                modelMap.modelDescData.setFact_table(modelsDescDataMapper.getFact_table());
+                modelMap.modelDescData.setMetrics(modelsDescDataMapper.getMetrics());
+                modelMap.modelDescData.setDimensions(modelsDescDataMapper.getDimensions());
+                modelMap.modelDescData.setFilter_condition(modelsDescDataMapper.getFilter_condition());
+                modelHttpClient.update(modelMap);
+                throw ex;
+            }
         }
 
         paramMap.put("ModesList", modelMap);
@@ -350,12 +369,21 @@ public class OlapModelingAction extends BaseAction {
         //验证度量是否有数据measures！
         if (cube.cubeDescData.measures.size() == 0) {
             throw new APIException(400, "度量不可为空！");
-        } else {
-            String[] companyType = {"SUM", "MIN", "MAX"};
+        }
+        else if(cube.getCubeDescData().getDimensions().size()==0){
+            throw new APIException(400, "维度不可为空！");
+        }
+        else{
+            String[] companyType = {"SUM", "AVG"};
             String[] supportType = {"smallint", "int4", "double", "smallint", "int4", "double", "tinyint", "numeric", "long8", "integer", "real", "float", "decimal(19,4)", "bigint"};
             for (MeasureMapper measure : cube.cubeDescData.getMeasures()) {
                 if (Arrays.asList(companyType).contains(measure.getFunction().getExpression()) == true && Arrays.asList(supportType).contains(measure.getFunction().getReturntype()) == false) {
                     throw new APIException(400, "度量计算方式与字段类型不匹配！");
+                }
+            }
+            for (DimensionMapper dimensionMapper :cube.getCubeDescData().getDimensions()){
+                if(StringUtils.isBlank(dimensionMapper.column_type)){
+                    throw new APIException(400,"维度列类型不能为空！");
                 }
             }
         }
@@ -396,8 +424,7 @@ public class OlapModelingAction extends BaseAction {
                 olapFilter.setUpdateTime(date);
                 olapFilter.setIsNew(false);
                 olapFilterService.doSave(olapFilter);
-            }
-            else {
+            } else {
                 olapFilter = new OlapFilter();
                 olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
                 olapFilter.setFilterSql(modelDescData.getFilter_condition());
@@ -471,7 +498,7 @@ public class OlapModelingAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         ModelsDescDataMapper model = modelHttpClient.entity(models);
 
-        List<CubeDescDataMapper> cube = (cubeHttpClient.desc(cubeName));
+        List<CubeDescDataMapper> cube = cubeHttpClient.desc(cubeName);
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         //事实表
@@ -546,19 +573,10 @@ public class OlapModelingAction extends BaseAction {
             if (measure.getName().equals("_COUNT_")) {
                 me = measure;
             }
-            //2、将原AVG转换成SUM的再次转换回AVG
-            if (measure.function.getExpression().equals("SUM")) {
-                String name = measure.function.parameter.getValue();
-
-                String tableName = name.substring(0, name.indexOf("."));
-                String columnName = name.substring(name.indexOf(".") + 1);
-
-                Optional<OlapCubeTableColumn> cubeColumnEntity = column.stream()
-                        .filter(p -> p.getColumnName().equals(tableName) && p.getColumnAlias().equals(columnName)).findFirst();
-                //如果能查到该表的数据并且有原类型的话则替换成该原类型
-                if (cubeColumnEntity.isPresent() && !StringUtils.isNotBlank(cubeColumnEntity.get().getPrimaryType())) {
-                    measure.function.setExpression(cubeColumnEntity.get().getPrimaryType());
-                }
+            Optional<OlapCubeTableColumn> cubeColumnEntity = column.stream()
+                    .filter(p -> p.getColumnAlias().equals(measure.getName())).findFirst();
+            if (cubeColumnEntity.isPresent()) {
+                measure.function.setExpression(cubeColumnEntity.get().getExpressionType());
             }
         }
         if (me != null) {

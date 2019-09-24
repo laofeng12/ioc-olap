@@ -80,16 +80,9 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
     //保存OLAP_CUBE_TABLE表
     public List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) {
         ModelsDescDataMapper modelDescData = models.modelDescData;
-
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         SequenceService ss = ConcurrentSequence.getInstance();
         List<OlapCubeTable> cubeTablesList = new ArrayList<>();
-
-        //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据olap_cube的Id删除table里的数据
-        if (StringUtils.isNotBlank(cubeDescData.getUuid())) {
-            deleteCubeId(cubeId);
-        }
-
         String factTable = models.modelDescData.getFact_table();
 
         for (LookupsMapper lm : modelDescData.getLookups()) {

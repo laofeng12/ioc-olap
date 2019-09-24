@@ -245,7 +245,7 @@ export default {
     },
     async saveOlap (data) {
       if (!this.cubeId || !this.reqDataList) {
-        this.$message.error('请先查询数据')
+        return this.$message.error('请先查询数据')
       }
       const reqData = {
         cubeId: this.cubeId,
@@ -370,7 +370,7 @@ export default {
       }
     },
     async exportFile () {
-      if (this.reqDataList.length <= 0) return this.$message.success('请先查询数据')
+      if (this.reqDataList.length <= 0) return this.$message.error('请先查询数据')
       const res = await olapAnalyzeExportApi({
         cubeId: this.cubeId,
         pageIndex: this.page,

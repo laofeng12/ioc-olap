@@ -36,7 +36,7 @@ public class ModelsAction extends KylinAction {
     @ApiOperation(value = "新增模型")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @Security(session = true)
-    public ModelsNewMapper create(@RequestBody ModelsMapper body) throws APIException {
+    public ModelsMapper create(@RequestBody ModelsMapper body) throws APIException {
         return modelHttpClient.create(body);
     }
 
@@ -44,7 +44,7 @@ public class ModelsAction extends KylinAction {
     @ApiOperation(value = "修改指定的模型")
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @Security(session = true)
-    public ModelsNewMapper update(@RequestBody ModelsMapper body) throws APIException {
+    public ModelsMapper update(@RequestBody ModelsMapper body) throws APIException {
         return modelHttpClient.update(body);
     }
 

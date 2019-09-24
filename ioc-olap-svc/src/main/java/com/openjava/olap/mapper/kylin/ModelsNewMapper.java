@@ -1,6 +1,8 @@
 package com.openjava.olap.mapper.kylin;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.openjava.olap.common.JsonUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,4 +25,17 @@ public class ModelsNewMapper {
     public String ccInCheck;
     @JSONField(name = "seekingExprAdvice")
     public boolean seekingExprAdvice;
+
+    public ModelsMapper resolve(){
+        ModelsMapper mapper=new ModelsMapper();
+        mapper.modelDescData= JsonUtil.jsonToPojo(modelDescData,ModelsDescDataMapper.class);
+        mapper.uuid=uuid;
+        mapper.modelName=modelName;
+        mapper.project=project;
+        mapper.ccInCheck=ccInCheck;
+        mapper.message=message;
+        mapper.seekingExprAdvice=seekingExprAdvice;
+        mapper.successful=successful;
+        return mapper;
+    }
 }

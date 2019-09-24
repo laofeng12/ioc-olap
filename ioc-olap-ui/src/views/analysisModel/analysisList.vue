@@ -15,7 +15,8 @@
       </el-row>
     </el-aside>
     <div class="cus-right" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" showType="needNew" @handlePage="handlePage"
+      <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
+                 :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
                  :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
     </div>
   </el-container>
@@ -46,7 +47,8 @@ export default {
           }
         }
       },
-      tableData: [],
+      tableDataByMy: [],
+      tableDataByShare: [],
       loading: false,
       fileData: {},
       shareList: [],
@@ -101,9 +103,11 @@ export default {
             })
           )
         })
-        this.tableData = tableData
-        // this.shareList = shareList
-        // this.exportData = { sql: fileData.attrs.sql, limit: fileData.attrs.limit }
+        if (this.activeTab === 'my') {
+          this.tableDataByMy = tableData
+        } else {
+          this.tableDataByShare = tableData
+        }
         if (type !== 'share') {
           this.$message.success('查询完成')
         }

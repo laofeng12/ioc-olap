@@ -133,11 +133,7 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 			}
 
 			//measures需要用列名前面的表别名去cubetabla里拿到数据
-			String tableNameColumn = mm.function.parameter.getValue();
-			if (!mm.function.getExpression().equals("COUNT")) {
-				tableNameColumn = tableNameColumn.substring(0, tableNameColumn.indexOf("."));
-			}
-			String tableColumn = tableNameColumn;
+			String tableColumn = mm.function.parameter.getValue().substring(0, mm.function.parameter.getValue().indexOf("."));;
 			Optional<OlapCubeTable> dmCube = dmEntity.stream()
 					.filter(p -> p.getTableAlias().equals(tableColumn)).findFirst();
 
@@ -148,20 +144,17 @@ public class OlapCubeTableColumnServiceImpl implements OlapCubeTableColumnServic
 				CubeTableColumn.setTableId(dmCube.get().getId());//表ID
 
 				String columnTableName = mm.function.parameter.getValue().substring(mm.function.parameter.getValue().indexOf(".") + 1);
-				CubeTableColumn.setColumnAlias(columnTableName);//列别名
-				CubeTableColumn.setName(columnTableName);//列中文名称
+				CubeTableColumn.setColumnAlias(mm.getName());//列别名
+				CubeTableColumn.setName(mm.getName());//列中文名称
 				CubeTableColumn.setColumnName(columnTableName);//真实列名称
-
-				String columnType = mm.function.getExpression();
 				CubeTableColumn.setColumnType(mm.function.getReturntype());//列类型 HIVE基本数据类型
 				CubeTableColumn.setIsNew(true);
-				CubeTableColumn.setPrimaryType(columnType.equalsIgnoreCase("AVG") ? "SUM" : mm.function.getExpression());//原类型为(AVG会转换成SUM,所以需要定义一个原类型,方便编辑的时候用到)
-				CubeTableColumn.setExpressionType(columnType);//表达式类型max、min、sum
-				if(columnType.equalsIgnoreCase("COUNT_DISTINCT")){
+				CubeTableColumn.setExpressionType(mm.function.getRequestExpression());//表达式类型max、min、sum
+				if(mm.function.getRequestExpression().equalsIgnoreCase("COUNT_DISTINCT")){
 					CubeTableColumn.setExpressionFull("COUNT(DISTINCT {0}.{1}) as {2}");//完整表达式
 				}
 				else{
-					CubeTableColumn.setExpressionFull(columnType + "({0}.{1}) as {2}");//完整表达式
+					CubeTableColumn.setExpressionFull(mm.function.getRequestExpression() + "({0}.{1}) as {2}");//完整表达式
 				}
 				doSave(CubeTableColumn);
 			}
