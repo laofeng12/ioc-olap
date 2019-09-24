@@ -41,7 +41,7 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      console.log('合并后的表', this.saveNewTitle, '需要的', this.saveNewSortListstructure)
+      // 如果修改了表的别名 需要把之前存在的表去掉
       this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
         this.dialogFormVisible = true
         this.options = this.saveNewSortListstructure

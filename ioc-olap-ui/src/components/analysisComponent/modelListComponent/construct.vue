@@ -54,8 +54,8 @@ export default {
         this.$parent.changeLoading()
         let parmas = {
           cubeName: this.dataList.name,
-          start: this.form.startTime ? (Date.parse(new Date(this.form.startTime)) / 1000) : '',
-          end: this.form.endTime ? (Date.parse(new Date(this.form.endTime)) / 1000) : ''
+          start: this.form.startTime ? this.form.startTime : '',
+          end: this.form.endTime ? (Date.parse(new Date(this.form.endTime))) : ''
         }
         this.$throttle(async () => {
           await buildModeling(parmas).then(res => {

@@ -262,11 +262,13 @@ const setFiled = {
     },
     // 如果修改了别名 就需要把原先的去掉  加入新的别名对应的数据
     changeAlias ({ state }, data) {
-      data.map(res => {
-        state.saveNewSortListstructure.filter(item => {
-          return item.table === res
+      let val = []
+      state.saveNewSortListstructure.map(item => {
+        data.map(res => {
+          if (item.table === res) val.push(item)
         })
       })
+      state.saveNewSortListstructure = [...val]
     }
   }
 }
