@@ -41,13 +41,17 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      this.dialogFormVisible = true
-      this.options = this.saveNewSortListstructure
+      console.log('合并后的表', this.saveNewTitle, '需要的', this.saveNewSortListstructure)
+      this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
+        this.dialogFormVisible = true
+        this.options = this.saveNewSortListstructure
+      })
     }
   },
   computed: {
     ...mapGetters({
-      saveNewSortListstructure: 'saveNewSortListstructure'
+      saveNewSortListstructure: 'saveNewSortListstructure',
+      saveNewTitle: 'saveNewTitle'
     })
   }
 }

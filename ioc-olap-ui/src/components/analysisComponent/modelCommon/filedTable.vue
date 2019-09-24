@@ -68,6 +68,8 @@ export default {
       }
       this.dataList.lookups = [factData, ...this.dataList.lookups] // 组合数据
       this.titleData = [...new Set([this.dataList.fact_table.split('.')[1], ...this.titleData])] // 组合事实表的别名跟普通表的别名
+      // 存储已组合的名称到store
+      this.$store.dispatch('SaveLeftTitle', this.titleData)
       this.dataList.lookups = reduceObj(this.dataList.lookups, 'alias')
       // 初始化已选择的表
       setTimeout(() => {
