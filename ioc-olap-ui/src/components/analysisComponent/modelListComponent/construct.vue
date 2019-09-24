@@ -38,7 +38,7 @@ export default {
     return {
       dataList: {},
       form: {},
-      isDisabled: true,
+      isDisabled: false,
       formLabelWidth: '120px',
       dialogFormVisible: false
     }
@@ -73,7 +73,7 @@ export default {
       this.dialogFormVisible = true
       console.log('time===', val)
       val.segments.forEach(item => {
-        this.form.startTime = item.last_build_time ? item.last_build_time : ''
+        this.form.startTime = item.date_range_end ? item.date_range_end : ''
       })
     }
   }

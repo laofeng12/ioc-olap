@@ -9,7 +9,8 @@ const setFiled = {
     dimensions: [], // 存储已选择的(传给后端的结构)------------------------
     reloadNeedData: [],
     saveNewSortListstructure: [], // 存储最新分类后的维度
-    saveNewSortList: [] // 存储最新分类后的维度
+    saveNewSortList: [], // 存储最新分类后的维度
+    saveNewTitle: [] // 存储左侧列表组合的表名
   },
   actions: {
     resetList ({ state }) {
@@ -254,6 +255,18 @@ const setFiled = {
     },
     SaveList ({ state }, data) {
       state.saveList = data
+    },
+    // 存储左侧组合的表名
+    SaveLeftTitle ({ state }, data) {
+      state.saveNewTitle = data
+    },
+    // 如果修改了别名 就需要把原先的去掉  加入新的别名对应的数据
+    changeAlias ({ state }, data) {
+      data.map(res => {
+        state.saveNewSortListstructure.filter(item => {
+          return item.table === res
+        })
+      })
     }
   }
 }

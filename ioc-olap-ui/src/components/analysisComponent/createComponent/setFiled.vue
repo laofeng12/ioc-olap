@@ -187,7 +187,7 @@ export default {
       let result = [ ...foreign_keys, ...primary_keys ]
 
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      console.log(result, '=====', values)
+      // console.log(result, '=====', values)
       values.map(res => {
         result.map(n => {
           if (res.id === n.id) {
@@ -196,7 +196,7 @@ export default {
           }
         })
       })
-      console.log(resultData, '获取的', selectRows)
+      // console.log(resultData, '获取的', selectRows)
       setTimeout(() => {
         // 调用默认选中的数据
         this.toggleSelection(resultData)
