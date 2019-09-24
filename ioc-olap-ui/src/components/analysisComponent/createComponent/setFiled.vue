@@ -178,7 +178,8 @@ export default {
           if (item.alias !== item.table) {
             foreign_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              id: `${item.table.split('.')[1]}${index}`,
+              // id: `${item.table.split('.')[1]}${index}`,
+              id: `${n.split('.')[0]}${index}`,
               tit: `${n.split('.')[0]}${index}`
             })
           }
@@ -199,7 +200,7 @@ export default {
       console.log(resultData, '获取的', this.tableData)
       setTimeout(() => {
         // 调用默认选中的数据
-        // this.toggleSelection(resultData)
+        this.toggleSelection(resultData)
         // 存放到store
         this.$store.dispatch('SaveSelectFiled', resultData)
         this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
