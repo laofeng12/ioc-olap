@@ -1,12 +1,14 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input v-model="searchData.cubeName" placeholder="请输入服务名称" clearable>
-        <template slot="append">
-          <el-button type="primary" size="small" icon="el-icon-search" @click.native="searchFetch(searchData)">搜索</el-button>
-        </template>
+      <el-input v-model="searchData.cubeName" size="small" placeholder="请输入服务名称" clearable>
+
       </el-input>
-      <el-button type="success" size="small" icon="el-icon-plus" @click="createolap">新建模型</el-button>
+      <div class="nhc-elbtnwarp">
+        <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
+      </div>
+
+      <el-button type="primary" size="small" @click="createolap">新建模型</el-button>
     </header>
     <el-table
         :data="tableData"
@@ -17,48 +19,47 @@
          class="statusDiv"
         tooltip-effect="dark"
         @row-click="clickTable"
-        style="width: 100%;margin-top: 10px;">
-        <el-table-column align="center" show-overflow-tooltip type="expand">
+        :header-cell-class-name="tableHead"
+        stripe>
+        <el-table-column show-overflow-tooltip type="expand" min-width="100%">
           <template>
             <el-popover>
               <model-detail @closeExpands="closeExpands" :jsonData="jsonData"></model-detail>
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="status" label="模型状态" align="center" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="name" label="模型名称" show-overflow-tooltip> </el-table-column>
+        <el-table-column min-width="100%" prop="status" label="模型状态" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>{{scope.row.status === 'DISABLED' ? '禁用' : '准备中'}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="size_kb" label="模型大小" align="center" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="size_kb" label="模型大小" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>{{scope.row.size_kb}}.00kb</div>
           </template>
         </el-table-column>
-        <el-table-column prop="input_records_count" label="资源记录" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="last_modified" label="上次构建的时间" align="center" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="input_records_count" label="资源记录" show-overflow-tooltip> </el-table-column>
+        <el-table-column min-width="100%" prop="last_modified" label="上次构建的时间" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>
                {{scope.row.last_modified | formatDate}}
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="partitionDateStart" label="创建时间" align="center" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="partitionDateStart" label="创建时间" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>
                {{scope.row.create_time_utc | formatDate}}
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="模型来源" align="center" show-overflow-tooltip>
+        <el-table-column min-width="100%" label="模型来源" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>自建</div>
           </template>
         </el-table-column>
-        <el-table-column
-          label="操作"
-          align="center">
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <div class="play">
               <el-dropdown trigger="click" @command="handleCommand">
@@ -279,6 +280,9 @@ export default {
     moreData () {
       this.offset += 15
       this.init()
+    },
+    tableHead(row, column, rowIndex, columnIndex){
+       return 'tableHead'
     }
   }
 }
@@ -287,15 +291,21 @@ export default {
 <style lang="stylus" scoped>
 .modelList{
   header{
-    height 60px
-    background #C9E8FF
-    padding 15px
+    overflow:hidden;
+    background:#fff;
     >>>.el-input{
-      width 250px
-      float left
+     width 240px
+     float left
+     padding 16px 0 0 16px
     }
     >>>.el-button{
       float right
+      margin 16px 16px 0 0
+    }
+    .nhc-elbtnwarp{
+      overflow: hidden;
+      position: absolute;
+      left: 256PX;
     }
   }
   >>>.el-table__row{
@@ -303,12 +313,7 @@ export default {
       opacity 0
     }
   }
-  >>>.el-table__body-wrapper{
-    .el-button{
-      width 80px!important
-      text-align center
-    }
-  }
+
   >>>.el-table__expanded-cell{
     height 500px
     overflow auto
