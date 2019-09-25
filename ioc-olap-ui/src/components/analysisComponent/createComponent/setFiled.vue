@@ -178,7 +178,8 @@ export default {
           if (item.alias !== item.table) {
             foreign_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              id: `${item.table.split('.')[1]}${index}`,
+              // id: `${item.table.split('.')[1]}${index}`,
+              id: `${n.split('.')[0]}${index}`,
               tit: `${n.split('.')[0]}${index}`
             })
           }
@@ -196,7 +197,7 @@ export default {
           }
         })
       })
-      console.log(resultData, '获取的', selectRows)
+      console.log(resultData, '获取的', this.tableData)
       setTimeout(() => {
         // 调用默认选中的数据
         this.toggleSelection(resultData)

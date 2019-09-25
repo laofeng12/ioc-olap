@@ -31,7 +31,7 @@
         <el-table-column min-width="100%" prop="name" label="模型名称" show-overflow-tooltip> </el-table-column>
         <el-table-column min-width="100%" prop="status" label="模型状态" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>{{scope.row.status === 'DISABLED' ? '禁用' : '准备中'}}</div>
+            <div>{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="size_kb" label="模型大小" show-overflow-tooltip>
@@ -69,8 +69,8 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status === 'DISABLED'" :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
+                  <el-dropdown-item v-else :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'clones', params: scope.row}">复制</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>
@@ -137,7 +137,25 @@ export default {
       }
       const res = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [...res, ...this.tableData]
+        this.tableData = [...this.tableData, ...res]
+        if (res.length < 15) this.moreShow = false
+      } else {
+        this.moreShow = false
+        // this.$message.success('已加载所有数据')
+      }
+      this.getLoading = false
+    },
+    async update (val) {
+      this.getLoading = true
+      const params = {
+        limit: this.tableData.length,
+        offset: 0,
+        dateType: 1,
+        ...val
+      }
+      const res = await getModelDataList(params)
+      if (res.length > 0) {
+        this.tableData = res
       } else {
         this.moreShow = false
         // this.$message.success('已加载所有数据')
@@ -220,7 +238,7 @@ export default {
           if (type === 'dels') {
             await deleteCubeModeling({ cubeName: params.name }).then(res => {
               this.$message.success('删除成功~')
-              this.init()
+              this.update()
             }).catch(_ => {
               this.getLoading = false
             })

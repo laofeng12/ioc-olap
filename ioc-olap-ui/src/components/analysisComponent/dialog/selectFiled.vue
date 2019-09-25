@@ -41,13 +41,17 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      this.dialogFormVisible = true
-      this.options = this.saveNewSortListstructure
+      // 如果修改了表的别名 需要把之前存在的表去掉
+      this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
+        this.dialogFormVisible = true
+        this.options = this.saveNewSortListstructure
+      })
     }
   },
   computed: {
     ...mapGetters({
-      saveNewSortListstructure: 'saveNewSortListstructure'
+      saveNewSortListstructure: 'saveNewSortListstructure',
+      saveNewTitle: 'saveNewTitle'
     })
   }
 }
