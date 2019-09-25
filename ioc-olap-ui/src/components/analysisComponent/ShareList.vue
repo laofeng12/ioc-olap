@@ -29,9 +29,7 @@
         <el-table-column prop="name" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="status" label="模型状态" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>
-              <el-button size="mini" :type="scope.row.status === 'DISABLED' ? 'type' : 'success'">{{scope.row.status === 'DISABLED' ? '禁用' : '准备中'}}</el-button>
-            </div>
+            <div>{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
           </template>
         </el-table-column>
         <el-table-column prop="size_kb" label="模型大小" align="center" show-overflow-tooltip>

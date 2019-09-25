@@ -21,7 +21,9 @@
             <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
-            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)"><el-progress :percentage="70"></el-progress></div>
+            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
+              <el-progress :percentage="scope.row.progress"></el-progress>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
@@ -153,7 +155,7 @@ export default {
       cubeObjListData: 'cubeObjListData'
     })
   },
-  destroyed () {
+  beforeDestroy () {
     clearTimeout(this.setTimeout)
   },
   methods: {
