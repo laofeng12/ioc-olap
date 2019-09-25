@@ -1,18 +1,20 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input v-model="searchData.cubeName" placeholder="请输入服务名称" clearable>
-        <template slot="append">
-          <el-button type="primary" size="small" icon="el-icon-search" @click.native="searchFetch(searchData)">搜索</el-button>
-        </template>
+      <el-input v-model="searchData.cubeName"  size="small" placeholder="请输入服务名称" clearable>
       </el-input>
+      <div class="nhc-elbtnwarp">
+        <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
+      </div>
     </header>
     <el-table
         v-loading="getLoading"
         :data="tableData"
         ref="multipleTable"
         tooltip-effect="dark"
-        style="width: 100%;margin-top: 10px;">
+        :header-cell-class-name="tableHead"
+        stripe
+        >
         <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
@@ -300,6 +302,9 @@ export default {
     moreData () {
       this.offset += 15
       this.init()
+    },
+    tableHead(row, column, rowIndex, columnIndex){
+       return 'tableHead'
     }
   }
 }
@@ -308,15 +313,21 @@ export default {
 <style lang="stylus" scoped>
 .modelList{
   header{
-    height 60px
-    background #C9E8FF
-    padding 15px
+    overflow:hidden;
+    background:#fff;
     >>>.el-input{
-      width 250px
-      float left
+     width 240px
+     float left
+     padding 16px 0 0 16px
     }
     >>>.el-button{
       float right
+      margin 16px 16px 0 0
+    }
+    .nhc-elbtnwarp{
+      overflow: hidden;
+      position: absolute;
+      left: 256PX;
     }
   }
   >>>.el-progress-bar{

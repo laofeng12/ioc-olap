@@ -59,5 +59,8 @@ module.exports = {
       .options({
         symbolId: 'icon-[name]'
       })
-  }
+
+    config.resolve.alias
+    .set('@P', resolve('./node_modules/nhc-portal/packages'))
+    }
 }
