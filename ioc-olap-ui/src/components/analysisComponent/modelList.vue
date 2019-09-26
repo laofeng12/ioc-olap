@@ -31,7 +31,7 @@
         <el-table-column min-width="100%" prop="name" label="模型名称" show-overflow-tooltip> </el-table-column>
         <el-table-column min-width="100%" prop="status" label="模型状态" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
+            <div :style="{color: statusReviewFilter(scope.row.status, 4)}">{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="size_kb" label="模型大小" show-overflow-tooltip>
@@ -92,7 +92,7 @@
 <script>
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
-import { filterTime, removeAllStorage } from '@/utils/index'
+import { filterTime, removeAllStorage,statusReviewFilter} from '@/utils/index'
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable
@@ -114,7 +114,8 @@ export default {
       tableData: [],
       jsonData: {},
       offset: 0,
-      moreShow: true
+      moreShow: true,
+      statusReviewFilter: statusReviewFilter // 调用方法
     }
   },
   filters: {
