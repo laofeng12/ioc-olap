@@ -105,12 +105,11 @@ export default {
   position absolute
   width 100%
   height 95%
-  // width 100%
   display flex
   .step_tab{
+    margin-left 10px
     width 100%
-    // flex 1
-    // min-width 800px
+    height 100%
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
@@ -119,7 +118,9 @@ export default {
     >>>.el-tabs__content{
       padding 0px!important
       overflow-y auto
+      background #ffffff!important
       padding-bottom 100px!important
+      height: calc(100vh - 290px)!important;
     }
     >>>.el-table{
       margin-top 10px

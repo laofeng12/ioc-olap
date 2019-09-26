@@ -122,9 +122,11 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 270px
+  max-width 240px
+  padding 10px
   font-size 12px
   float left
+  background #ffffff
   border-right 1px solid #f0f0f0
   height calc(100vh - 100px)
   ul{

@@ -181,6 +181,7 @@ export default {
         el: document.querySelector('#myholder'),
         width: '100%',
         height: 700,
+        backgroundColor: '#ffffff',
         model: this.graph,
         gridSize: 1
       })
@@ -945,9 +946,11 @@ export default {
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
+      // 存储当前连线的id
       this.jointResult.lookups.forEach((item, index) => {
         arrId.push(item.id, item.joinId)
       })
+      // 根据当前的id 去获取所有对应的字段
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {
@@ -1023,6 +1026,10 @@ export default {
 .holder{
   position relative
   overflow hidden
+  #myholder{
+    background #ffffff!important
+    margin-left 15px
+  }
 }
 
 .halo-cell-layer{
@@ -1087,6 +1094,7 @@ export default {
 
 .linkSetting{
   float right
+  background #ffffff
   width 200px
   height 100%
   overflow auto

@@ -95,11 +95,12 @@ export default {
               n.titName = n.name
               n.tableName = data.alias ? data.alias : ''
               // n.id = `${data.alias}${i}`
-              n.id = `${data.alias}${n.name}`
+              n.id = `${data.alias}.${n.name}`
               n.filed = data.alias === code ? '1' : '0'
             })
             // 获取对应的字段赋值到列表
             this.tableData = items.data.columns
+            // 调用获取默认勾选的方法
             this.processData(code, data.alias)
             let arr = []
             setTimeout(() => {
@@ -139,7 +140,7 @@ export default {
             tableName: items.name,
             name: res.name,
             titName: res.name,
-            id: `${items.name}${res.name}`,
+            id: `${items.name}.${res.name}`,
             mode: items.code ? items.code : '2',
             derived: res.name,
             dataType: res.dataType,
@@ -163,7 +164,7 @@ export default {
         val.foreign_key.map((n, i) => {
           foreign_keys.push({
             name: n,
-            id: `${n.split('.')[0]}${n.split('.')[1]}`
+            id: `${n.split('.')[0]}.${n.split('.')[1]}`
           })
         })
         /*
@@ -173,8 +174,8 @@ export default {
           if (item.alias !== item.table) {
             foreign_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              id: `${item.table.split('.')[1]}${n.split('.')[1]}`,
-              titid: `${n.split('.')[0]}${n.split('.')[1]}`
+              id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              titid: `${n.split('.')[0]}.${n.split('.')[1]}`
             })
           }
         })
@@ -203,9 +204,9 @@ export default {
             }
           })
         })
-        // 存放到store
-        this.$store.dispatch('SaveSelectFiled', resultData)
-        this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
+        // // 存放到store
+        this.$store.dispatch('SaveSelectFiled', selectRows)
+        // this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
       }, 500)
     },
@@ -220,6 +221,7 @@ export default {
       }
     },
     nextModel (val) {
+      console.log(this.saveNewSortListstructure)
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
       } else {
@@ -255,7 +257,6 @@ export default {
      * 根据rows的长度来判断是选择还是取消
      */
     selectcheck (rows, row) {
-      console.log(row)
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
