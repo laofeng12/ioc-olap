@@ -86,10 +86,13 @@ export default {
 <style lang="stylus" scoped>
 .creates{
   position relative
-  margin-top -25px
+  // margin-top -25px
   width 100%
+  >>>.el-form{
+    padding:0px!important;
+  }
   header{
-    height 40px
+    height 40px!important
     width 100%
     background: #333333;
     margin-bottom 15px

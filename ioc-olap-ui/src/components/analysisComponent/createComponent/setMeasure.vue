@@ -29,7 +29,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" style="float:right;margin-top:20px;" @click="addMeasure()">添加度量</el-button>
+        <el-button type="primary" style="float:right;margin-top:20px;margin-right:20px;" @click="addMeasure()">添加度量</el-button>
     </el-form>
     <add-measure ref="dialog"></add-measure>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
@@ -100,5 +100,17 @@ export default {
 <style lang="stylus" scoped>
 .setMeasure{
   padding-bottom 100px
+  margin-top 30px
+  background #ffffff
+  >>>.el-table__body tr:nth-child(even){
+      background #F5F7FA
+    }
+  >>>.el-table__header th{
+      background #444444
+      padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+    }
 }
 </style>
