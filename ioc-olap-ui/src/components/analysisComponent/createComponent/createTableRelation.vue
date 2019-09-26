@@ -4,11 +4,11 @@
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal" ref="linkSetting">
         <h2 class="title">设置关联关系</h2>
-        <el-select name="public-choice"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
+        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
           <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
-          <h3 class="itemTitle">关联字段{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
+          <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
@@ -18,7 +18,7 @@
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
         </div>
-        <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">添加关联字段</a></div>
+        <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
       </div>
       <!-- <task-wark></task-wark> -->
       <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=1 || dragRectPosition.y>=1) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
@@ -285,7 +285,7 @@ export default {
           let element = this.getDragElement(e.targetPoint)
           if (element) {
             e.model.target(element)
-            e.model.labels([{ position: 0.5, attrs: { '.marker-target': { fill: '#009688', stroke: '#ffffff' }, text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
+            e.model.labels([{ position: 0.5, attrs: { '.marker-target': { fill: '#67C23A', stroke: '#ffffff' }, text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
           }
         }
       })
@@ -346,12 +346,12 @@ export default {
             target: { x: position.x, y: position.y - 5 },
             attrs: {
               '.marker-target': {
-                fill: '#333333', // 箭头颜色
+                fill: '#D8D8D8', // 箭头颜色
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
               line: {
-                stroke: '#333333', // SVG attribute and value
-                'stroke-width': 0.5// 连线粗细
+                stroke: '#D8D8D8', // SVG attribute and value
+                'stroke-width': 2// 连线粗细
               }
             },
             connector: { name: 'smooth' },
@@ -536,7 +536,7 @@ export default {
       if (cell) return cell
 
       if (isAdd) {
-        let fillColor = item.filed ? '#59AFF9' : '#009688'
+        let fillColor = item.filed ? '#0486FE' : '#67C23A'
 
         if (item.database) {
           this.jointResult.name = item.database
@@ -611,7 +611,7 @@ export default {
         target: targetItem || { x: 50, y: 50 },
         connector: { name: 'smooth' },
         router: { name: 'normal' }, // 设置连线弯曲样式 normal直角
-        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
+        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#0486FE' } } }],
         // ports: {
         //   groups: {
         //     'a': {}
@@ -620,12 +620,12 @@ export default {
         attrs: {
           'data': item,
           '.marker-target': {
-            fill: '##59aff9', // 箭头颜色
+            fill: '#0486FE', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
           },
           line: {
-            stroke: '#59aff9', // SVG attribute and value
-            'stroke-width': 0.5// 连线粗细
+            stroke: '#0486FE', // SVG attribute and value
+            'stroke-width': 2// 连线粗细
           }
         }
       })
@@ -1003,7 +1003,7 @@ export default {
 
 .tableRelation{
   height calc(100vh - 150px)
-  padding-bottom 100px
+  // padding-bottom 100px
   position relative
   .containers{
     height 100%
@@ -1015,7 +1015,7 @@ export default {
   position absolute
   width 100px
   height 30px
-  background #009688
+  background #67C23A
   z-index 10000
   text-align center
   line-height 30px
@@ -1096,17 +1096,54 @@ export default {
   float right
   background #ffffff
   width 200px
-  height 100%
+  height 98%
   overflow auto
   text-align left
-  padding-left 20px
+  padding 0 20px
   border-left 1px solid #cccccc
+  .title{
+    font-size: 14px;
+    color: #303133;
+    height 35px
+    line-height 35px
+    border-bottom 1px solid #E4E7ED
+    letter-spacing: 0;
+  }
+  .itemTitle{
+    font-size: 14px;
+    color: #B6B6B6;
+    letter-spacing: 0;
+    line-height: 12px;
+    margin-top:10px;
+    font-family: PingFangSC-Regular;
+  }
   h2,h3,.itemTableTitle{
     margin 5px 0
+    font-size: 14px;
+    color: #5A5A5A;
+    text-align: left;
+    line-height: 22px;
+    text-overflow: ellipsis;
+    overflow: hidden;
     span{
-      margin-left 10px
-      color #009688
+      font-size: 14px;
+      color: #0486FE;
       cursor pointer
+      float right
+    }
+  }
+  .itemAdd{
+    background: #FFFFFF;
+    border: 1px solid #0486FE;
+    width:100%;
+    text-align:center;
+    margin-top:15px;
+    a{
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+      color: #0486FE;
+      text-align: center;
+      line-height: 22px;
     }
   }
   >>>.el-select{
