@@ -8,15 +8,16 @@
         v-model="searchKey">
       </el-input>
     </el-row>
-    <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
+    <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList" :props="menuDefault"
              default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">
-            <el-button type="primary" size="mini">
-              操作<i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
+            <!--<el-button type="primary" size="mini">-->
+              <!--操作<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
+            <!--</el-button>-->
+            <div style="color: #0486FE">操作</div>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
               <el-dropdown-item command="0">编辑</el-dropdown-item>
@@ -25,7 +26,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </span>
-       </span>
+      </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
       <el-button type="primary" size="small" @click="newFolder">新建文件夹</el-button>
@@ -124,6 +125,10 @@ export default {
     vueType: {
       type: String,
       required: true
+    },
+    iconType: {
+      type: String,
+      required: false
     }
   },
   data () {
@@ -443,14 +448,26 @@ export default {
     .el-tree {
       height: calc(100vh - 299px);
       overflow: auto;
+      .icon-cube {
+        background-image: url("../../../icons/png/cube.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
       .el-tree-node__expand-icon.expanded {
         transform: none;
       }
-      .el-tree-node__expand-icon.expanded:before {
+      .el-icon-folder:before {
         content: "\e784";
+      }
+      .icon-cube:before {
+        background-image: url("../../../icons/png/cube.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        /*content: url("../../../icons/png/cube.png");*/
       }
       .el-tree-node__expand-icon {
         color: #c0c4cc;
+        margin: 0 5px;
       }
     }
     .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {
