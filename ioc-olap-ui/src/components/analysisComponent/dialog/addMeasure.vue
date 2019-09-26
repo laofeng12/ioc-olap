@@ -167,6 +167,10 @@ export default {
       }, {
         value: 'MAX',
         label: 'MAX'
+      },
+      {
+        value: 'COUNT',
+        label: 'COUNT'
       }, {
         value: 'MIN',
         label: 'MIN'
@@ -178,11 +182,7 @@ export default {
         value: 'AVG',
         label: 'AVG'
       }
-      // ,
-      // {
-      //   value: 'EXTENDED_COLUMN',
-      //   label: 'EXTENDED_COLUMN'
-      // }, {
+      // , {
       //   value: 'PERCENTILE',
       //   label: 'PERCENTILE'
       // }
@@ -346,13 +346,13 @@ export default {
     selectChange (val) {
       this.formData.function.parameter.value = ''
       switch (val) {
-        case 'COUNT':
-          this.formData.function.parameter.type = 'constant'
-          this.formData.function.parameter.value = 1
-          this.formData.function.returntype = 'bigint'
-          this.isDisabledtype = true
-          this.isDisabledtext = true
-          break
+        // case 'COUNT':
+        //   this.formData.function.parameter.type = 'constant'
+        //   this.formData.function.parameter.value = 1
+        //   this.formData.function.returntype = 'bigint'
+        //   this.isDisabledtype = true
+        //   this.isDisabledtext = true
+        //   break
         case 'COUNT_DISTINCT':
           this.formData.function.parameter.value = ''
           this.isDisabledtype = true

@@ -81,6 +81,7 @@ export default {
 
 .container-wrapper {
   padding: 24px;
+  background:#F2F2F2;
   min-height: $containerWrapperMinHeight;
 }
 </style>

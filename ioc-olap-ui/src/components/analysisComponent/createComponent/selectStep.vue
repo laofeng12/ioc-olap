@@ -1,7 +1,7 @@
 <template>
   <div class="selectStep">
     <div class="containers" v-loading="isLoading">
-        <el-tabs v-model="activeName" type="border-card" @tab-click="tabClick">
+        <el-tabs v-model="activeName" @tab-click="tabClick">
           <el-tab-pane label="数据湖" name="1">
             <data-lake></data-lake>
           </el-tab-pane>
@@ -89,6 +89,7 @@ export default {
   background #ffffff
   position relattive
   .containers{
+    background #F2F2F2
     height calc(100vh - 150px)
     >>>.el-tabs__content{
       height calc(100vh - 200px)
@@ -96,10 +97,18 @@ export default {
       overflow-x auto
       background #ffffff
     }
+    >>>.el-tabs__header{
+      background #ffffff
+      padding-left:10px;
+      border:none;
+    }
     >>>.selctNum{
       i{
         color green
       }
+    }
+    >>>.el-tabs__content{
+      background: #F2F2F2;
     }
   }
 }
