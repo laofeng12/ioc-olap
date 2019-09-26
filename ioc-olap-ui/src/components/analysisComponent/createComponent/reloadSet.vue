@@ -184,7 +184,8 @@ export default {
       this.fetchDeac(this.tableOptions[0].label)
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
-      this.formData = JSON.parse(JSON.stringify(this.reloadData))
+      this.formData = this.reloadData
+      console.log(this.formData)
     },
     nextModel (val) {
       this.processReloadData()

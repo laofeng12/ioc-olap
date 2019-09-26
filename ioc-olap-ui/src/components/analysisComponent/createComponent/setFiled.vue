@@ -84,9 +84,10 @@ export default {
          * 遍历所有字段
          * 根据从左侧菜单带过来的${data.id}来进行匹配${item.resourceId} 获取对应的所有字段
          */
+        // 这个需要判断是否是第一次进入。。 如果是第一次进入的话就需要调用已勾选的方法。。 不然就不需要调用此方法
+        // if (this.tableData.length < 1) this.processData(code, data.alias)
         this.saveSelectAllListFiled.forEach((item, index) => {
           let items = JSON.parse(item)
-          console.log(items)
           if (items.resourceId === data.id) {
             items.data.columns && items.data.columns.map((n, i) => {
               n.mode = n.mode ? n.mode : '2'
@@ -98,6 +99,7 @@ export default {
             })
             // 获取对应的字段赋值到列表
             this.tableData = items.data.columns
+            // this.processData(code, data.alias)
             let arr = []
             setTimeout(() => {
               /**
@@ -106,7 +108,6 @@ export default {
                * 匹配两者相同的id对应的数据放到${arr}
                * 执行toggleSelection 存放匹配到的数据
                */
-              this.processData(code)
               this.tableData && this.tableData.forEach((item, i) => {
                 this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                   if (val.id === item.id) {
@@ -127,7 +128,7 @@ export default {
       })
     },
     // 处理第二步建立的模型对应的字段
-    processData (code) {
+    processData (code, alias) {
       // 处理所有表对应的字段
       let values = []
       this.saveSelectAllListFiled.map((item, index) => {
@@ -138,7 +139,7 @@ export default {
             name: res.name,
             titName: res.name,
             id: `${items.name}${i}`,
-            mode: items.name === code ? '1' : '2',
+            mode: items.code ? items.code : '2',
             derived: res.name,
             dataType: res.dataType,
             filed: items.name === code ? '1' : '0'
@@ -153,30 +154,58 @@ export default {
       let primary_keys = []
       // 最终的数据要存放的盒子
       let resultData = []
+      // 创建一个要存储建表的数据
+      let selectRows = []
       // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
       data.lookups.map((item, index) => {
         let val = item.join
-        val.foreign_key.map(_ => { foreign_keys.push(_) })
-        val.primary_key.map(_ => { primary_keys.push(_) })
-      })
-      let result = [...foreign_keys, ...primary_keys]
-      // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      values.map(res => {
-        let { tableName, titName } = res
-        result.map(n => {
-          let table = n.split('.')[0]
-          let columns = n.split('.')[1]
-          if (tableName === table && titName === columns) {
-            resultData = [...resultData, res]
+        val.foreign_key.map(n => {
+          foreign_keys.push({
+            name: n,
+            id: `${n.split('.')[0]}${index}`
+          })
+        })
+        /*
+          判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
+        */
+        // val.primary_key.map(n => {
+        //   primary_keys.push({
+        //     name: n,
+        //     id: `${n.split('.')[0]}${index}`
+        //   })
+        // })
+        val.primary_key.map((n, i) => {
+          if (item.alias !== item.table) {
+            foreign_keys.push({
+              name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              // id: `${item.table.split('.')[1]}${index}`,
+              id: `${n.split('.')[0]}${index}`,
+              tit: `${n.split('.')[0]}${index}`
+            })
           }
         })
       })
-      // 调用默认选中的数据
-      this.toggleSelection(resultData)
-      // 存放到store
-      this.$store.dispatch('SaveSelectFiled', resultData)
-      this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-      this.$store.dispatch('SaveFiledData')
+      let result = [ ...foreign_keys, ...primary_keys ]
+
+      // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
+      console.log(result, '=====', values)
+      values.map(res => {
+        result.map(n => {
+          if (res.id === n.id) {
+            resultData = [...resultData, res]
+            selectRows.push(res)
+          }
+        })
+      })
+      console.log(resultData, '获取的', this.tableData)
+      setTimeout(() => {
+        // 调用默认选中的数据
+        this.toggleSelection(resultData)
+        // 存放到store
+        this.$store.dispatch('SaveSelectFiled', resultData)
+        this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
+        this.$store.dispatch('SaveFiledData')
+      }, 500)
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
@@ -189,11 +218,6 @@ export default {
       }
     },
     nextModel (val) {
-      // 如果返回 true ，说明用户勾选了延伸模式，但并没有选择指定字段，所以需要提示错误信息。
-      // if (this.iscubeMatch()) {
-      //   return this.$message.warning('对应的foreign_key找不到~')
-      // }
-      // if (this.flags !== 0) return this.$message.warning('事实表字段必选~')
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
       } else {
@@ -205,7 +229,6 @@ export default {
     iscubeMatch () {
       let dimensionsVal = []
       let factVal = []
-      // console.log('获取的', this.reloadNeedData)
       this.reloadNeedData.map(res => {
         if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '1') {
           // 获取事实表的value
@@ -230,6 +253,7 @@ export default {
      * 根据rows的长度来判断是选择还是取消
      */
     selectcheck (rows, row) {
+      console.log(row)
       let selected = rows.length && rows.indexOf(row) !== -1
       selected ? this.$store.dispatch('SaveSelectFiled', row) : this.$store.dispatch('RemoveSelectFiled', row)
       this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)

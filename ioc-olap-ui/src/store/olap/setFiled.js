@@ -9,7 +9,8 @@ const setFiled = {
     dimensions: [], // 存储已选择的(传给后端的结构)------------------------
     reloadNeedData: [],
     saveNewSortListstructure: [], // 存储最新分类后的维度
-    saveNewSortList: [] // 存储最新分类后的维度
+    saveNewSortList: [], // 存储最新分类后的维度
+    saveNewTitle: [] // 存储左侧列表组合的表名
   },
   actions: {
     resetList ({ state }) {
@@ -122,7 +123,6 @@ const setFiled = {
     // 存储点击维度组合名称
     changePushSelectFiled ({ state, dispatch }, val) {
       // 遍历已选择的字段
-      console.log(val, '获取的字段', state.saveSelectFiled)
       state.saveSelectFiled.map((item, index) => {
         // 如果为全选的时候 就需要遍历${val}取到对应的id
         // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
@@ -132,9 +132,11 @@ const setFiled = {
               state.saveSelectFiled[index].mode = res.mode
             }
             // 如果为事实表的话 mode===1
-            if (res.filed === '1') {
-              // state.saveSelectFiled[index].mode = 1
-            }
+            // if (res.filed === '1') {
+            //   state.saveSelectFiled[index].mode = 1
+            // } else {
+            //   state.saveSelectFiled[index].mode = res.mode
+            // }
             // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
               dispatch('normalFn', { item: item, val: res })
@@ -203,7 +205,7 @@ const setFiled = {
         })
       })
       state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      console.log('啦啦啦啦', state.reloadNeedData)
+      console.log('生成的rowkey数据', state.reloadNeedData)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
@@ -253,6 +255,20 @@ const setFiled = {
     },
     SaveList ({ state }, data) {
       state.saveList = data
+    },
+    // 存储左侧组合的表名
+    SaveLeftTitle ({ state }, data) {
+      state.saveNewTitle = data
+    },
+    // 如果修改了别名 就需要把原先的去掉  加入新的别名对应的数据
+    changeAlias ({ state }, data) {
+      let val = []
+      state.saveNewSortListstructure.map(item => {
+        data.map(res => {
+          if (item.table === res) val.push(item)
+        })
+      })
+      state.saveNewSortListstructure = [...val]
     }
   }
 }

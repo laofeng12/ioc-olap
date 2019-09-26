@@ -8,7 +8,6 @@
         <el-form-item label="开始时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.startTime"
-            :disabled="isDisabled"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
@@ -37,8 +36,10 @@ export default {
   data () {
     return {
       dataList: {},
-      form: {},
-      isDisabled: true,
+      form: {
+        startTime: '',
+        endTime: ''
+      },
       formLabelWidth: '120px',
       dialogFormVisible: false
     }
@@ -54,12 +55,14 @@ export default {
         this.$parent.changeLoading()
         let parmas = {
           cubeName: this.dataList.name,
-          start: Date.parse(new Date(this.form.startTime)) / 1000,
-          end: Date.parse(new Date(this.form.endTime)) / 1000
+          start: this.form.startTime ? (Date.parse(new Date(this.form.startTime))) : '',
+          end: this.form.endTime ? (Date.parse(new Date(this.form.endTime))) : ''
         }
         this.$throttle(async () => {
           await buildModeling(parmas).then(res => {
             this.$message.success('构建成功~')
+            this.form.startTime = ''
+            this.form.endTime = ''
             this.$parent.closeChangeLoading()
           }).catch(_ => {
             this.$parent.closeChangeLoading()
@@ -70,8 +73,9 @@ export default {
     dialog (val) {
       this.dataList = val
       this.dialogFormVisible = true
+      console.log('time===', val)
       val.segments.forEach(item => {
-        this.form.startTime = item.last_build_time
+        this.form.startTime = item.date_range_end ? (Date.parse(new Date(item.date_range_end))) : ''
       })
     }
   }

@@ -171,6 +171,8 @@ export default {
   },
   methods: {
     analysisSearch () {
+      if (this.newColList.length <= 0 && this.newRowList.length <= 0) return this.$message.error('至少填入一个维度值')
+      if (this.newValueList.length <= 0) return this.$message.error('至少填入一个数值')
       const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign({}, v, { type: 3 })) : []
       const newFilterList = this.newFilterList.length > 0 ? this.newFilterList.map(v => Object.assign({}, v, { type: 4 })) : []
       const newRowList = this.newRowList.length > 0 ? this.newRowList.map(v => Object.assign({}, v, { type: 1 })) : []
