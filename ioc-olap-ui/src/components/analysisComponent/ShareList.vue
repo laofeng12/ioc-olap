@@ -316,9 +316,10 @@ export default {
     }
   }
   .more {
+    font-size 14px;
     height 40px
     line-height 40px
-    background-color #409EFF
+    background-color #0486FE
     color #ffffff
     margin-top 30px
     text-align center
