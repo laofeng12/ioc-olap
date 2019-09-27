@@ -377,5 +377,14 @@ export default {
       white-space pre-wrap
     }
   }
+  .more {
+    height 40px
+    line-height 40px
+    background-color #409EFF
+    color #ffffff
+    margin-top 30px
+    text-align center
+    cursor pointer
+  }
 }
 </style>

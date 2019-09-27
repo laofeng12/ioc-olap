@@ -41,11 +41,14 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
+      console.log(this.saveNewTitle)
       // 如果修改了表的别名 需要把之前存在的表去掉
-      this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
-        this.dialogFormVisible = true
-        this.options = this.saveNewSortListstructure
-      })
+      this.dialogFormVisible = true
+      this.options = this.saveNewSortListstructure
+      // this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
+      //   this.dialogFormVisible = true
+      //   this.options = this.saveNewSortListstructure
+      // })
     }
   },
   computed: {

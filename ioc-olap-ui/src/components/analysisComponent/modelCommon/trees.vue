@@ -165,7 +165,7 @@ export default {
         if (data.databaseType !== '1') {
           this.$message.warning('暂只支持HIVE类型数据查询')
         } else {
-          // this.fetchResourceList(data, node.parent.key)
+          this.fetchResourceList(data, node.parent.key)
         }
       }
       // 为资源列表的时候
@@ -253,6 +253,8 @@ export default {
 
 <style lang="stylus" scoped>
   .mechanism{
+    background #ffffff
+    padding-top 15px
     height 98%
     width 200px
     // height calc(100vh - 150px)
@@ -278,7 +280,7 @@ export default {
     >>>.el-tree{
     .el-tree-node{
       min-width: 100%;
-      display: inline-block;
+      display: table-footer-group;
     }
     .el-tree-node__content{
       font-size: 14px;
@@ -294,7 +296,7 @@ export default {
     }
   }
   >>>.el-loading-spinner{
-    width 30%
+    width 100%
     top 30%
     .circular{
       width 30px

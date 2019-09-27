@@ -39,7 +39,7 @@ export default {
   .tabHead_item{
     height 25px
     margin 0 auto
-    width 90%
+    width 96%
     display:flex;
       &>div{
       flex:1;
@@ -49,8 +49,11 @@ export default {
       line-height 25px
       font-size 10px
       text-align center
+      margin-left 30px
       background #f5f5f6
       color #8a8a8a
+      border-top 1px solid #0486FE
+      border-bottom 1px solid #0486FE
       position relative
       span{
         width 23px
@@ -65,47 +68,58 @@ export default {
         display inline-block
       }
     }
-    &>div:nth-child(1)::before{
+    &>div:nth-child(1){
+      margin-left:0;
+    }
+    // &>div:nth-child(1)::before{
+    //   content: "";
+    //   position: absolute;
+    //   left: -12px;
+    //   top: 1px;
+    //   width: 23px;
+    //   height: 23px;
+    //   background: #ffffff;
+    //   border-left: 5px solid #ffffff
+    //   border-bottom: 5px solid #ffffff;
+    //   transform: rotate(225deg);
+    //   z-index:10;
+    // }
+    &>div::before{
       content: "";
       position: absolute;
-      left: -12px;
+      left: -13px;
       top: 1px;
-      width: 23px;
-      height: 23px;
-      background: #ffffff;
-      border-left: 5px solid #ffffff
-      border-bottom: 5px solid #ffffff;
+      width: 22px;
+      height: 20px;
+      border-left: 1px solid #0486FE
+      border-bottom: 1px solid #0486FE;
       transform: rotate(225deg);
       z-index:10;
     }
     &>div::after{
       content: "";
       position: absolute;
-      right: -12px;
+      right: -9px;
       top: 1px;
-      width: 23px;
-      height: 23px;
-      background: #f5f5f6;
-      border-left: 5px solid #ffffff
-      border-bottom: 5px solid #ffffff;
+      width: 22px;
+      height: 20px;
+      border-left: 1px solid #0486FE
+      border-bottom: 1px solid #0486FE;
       transform: rotate(225deg);
       z-index:10;
     }
     &>div.actives{
-      background #59AFF9
+      background #0486FE
       color #ffffff
       span{
         background #3085d7
       }
     }
-    &>div.actives::after{
-      content: "";
-      position: absolute;
-      right: -12px;
-      top: 1px;
-      width: 23px;
-      height: 23px;
-      background: #59AFF9!important;
+    &>div:nth-child(1).actives::before{
+      background ''
+    }
+    &>div.actives::before{
+      background #F2F2F2
     }
     &>div.actives::after{
       content: "";
@@ -114,7 +128,7 @@ export default {
       top: 1px;
       width: 23px;
       height: 23px;
-      background: #59AFF9!important;
+      background: #0486FE!important;
     }
   }
 }

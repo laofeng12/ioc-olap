@@ -28,7 +28,17 @@ const setFiled = {
     // 存储已选择的维度
     SaveSelectFiled ({ state, dispatch, getters }, data) {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
-      state.saveSelectFiled = datas
+      dispatch('changeFiled', datas)
+    },
+    // 设置别名后的维度
+    changeFiled ({ state, dispatch }, data) {
+      data.map(res => {
+        let isId = res.tableName + '.' + res.titName
+        if (isId !== res.id) {
+          res.tableName = res.id.split('.')[0]
+        }
+      })
+      state.saveSelectFiled = data
       dispatch('changePushSelectFiled', data)
     },
     // 删除取消的selct
@@ -244,12 +254,12 @@ const setFiled = {
             })
           }
           state.dimensions = reduceObj(state.dimensions, 'tableId')
-          // console.log('获取的维度啊', state.dimensions)
         }, 300)
       })
     },
     // 存储最新分类后的维度
     SaveNewSortList ({ state }, data) {
+      console.log('设置别名后', data)
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
     },
@@ -260,15 +270,27 @@ const setFiled = {
     SaveLeftTitle ({ state }, data) {
       state.saveNewTitle = data
     },
-    // 如果修改了别名 就需要把原先的去掉  加入新的别名对应的数据
-    changeAlias ({ state }, data) {
+    changeAlias ({ state, dispatch }, data) {
       let val = []
+      // 如果修改了别名 就需要把原先的去掉  加入新的别名对应的数据
       state.saveNewSortListstructure.map(item => {
         data.map(res => {
           if (item.table === res) val.push(item)
         })
       })
       state.saveNewSortListstructure = [...val]
+      // 删除对应已选择的字段
+      let saveSelectFiledData = []
+      state.saveSelectFiled.map(item => {
+        data.map(res => {
+          if (item.tableName === res) saveSelectFiledData.push(item)
+        })
+      })
+      state.saveSelectFiled = [...saveSelectFiledData]
+      console.log(state.saveSelectFiled, '啦啦啦123')
+      state.saveFiledNormalList = []
+      state.saveFiledDerivativelList = []
+      dispatch('changePushSelectFiled', state.saveSelectFiled)
     }
   }
 }

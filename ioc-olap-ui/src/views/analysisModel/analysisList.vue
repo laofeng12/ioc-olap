@@ -14,10 +14,13 @@
         </el-tabs>
       </el-row>
     </el-aside>
-    <div class="cus-right" v-loading="loading">
+    <div class="cus-right dis-flex" v-loading="loading">
       <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
                  :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
                  :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
+      <div v-else class="replace-table">
+        <img src="../../assets/img/replace_table.png" />
+      </div>
     </div>
   </el-container>
 </template>
@@ -176,6 +179,7 @@ export default {
     .cus-right {
       flex-grow: 1;
       margin-left: 20px;
+      background-color: #fff;
     }
   }
 </style>

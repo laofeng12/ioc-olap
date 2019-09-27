@@ -92,7 +92,11 @@
 <script>
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
+<<<<<<< HEAD
 import { filterTime, removeAllStorage,statusReviewFilter} from '@/utils/index'
+=======
+import { filterTime, removeAllStorage,statusReviewFilter } from '@/utils/index'
+>>>>>>> develop
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable
@@ -115,7 +119,11 @@ export default {
       jsonData: {},
       offset: 0,
       moreShow: true,
+<<<<<<< HEAD
       statusReviewFilter: statusReviewFilter // 调用方法
+=======
+      statusReviewFilter:statusReviewFilter
+>>>>>>> develop
     }
   },
   filters: {
@@ -216,7 +224,7 @@ export default {
               ? this.$message.warning('该模型已禁用~')
               : await disableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已禁用')
-                this.init()
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -231,7 +239,7 @@ export default {
               ? this.$message.warning('该模型已启用~')
               : await enableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已启用')
-                this.init()
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -301,7 +309,7 @@ export default {
       this.init()
     },
     tableHead(row, column, rowIndex, columnIndex){
-       return 'tableHead'
+      return 'tableHead'
     }
   }
 }

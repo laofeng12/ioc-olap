@@ -92,7 +92,11 @@
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
+<<<<<<< HEAD
 import { filterTime,statusReviewFilter } from '@/utils/index'
+=======
+import { filterTime,statusReviewFilter} from '@/utils/index'
+>>>>>>> develop
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable, elementPagination
@@ -115,9 +119,13 @@ export default {
       jsonData: {},
       offset: 0,
       moreShow: true,
+<<<<<<< HEAD
       statusReviewFilter:statusReviewFilter
+=======
+>>>>>>> develop
     //   shareVisible: false,
     //   shareLoading: false
+    statusReviewFilter:statusReviewFilter
     }
   },
   filters: {
