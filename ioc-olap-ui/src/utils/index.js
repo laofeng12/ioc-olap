@@ -46,6 +46,44 @@ export function throttle (fn, wait = 500, scope) {
   }, wait)
 }
 
+// 状态显示判断
+export function statusReviewFilter (status, type) {
+  console.log("status",status,type)
+  // 共享状态
+  const statusMap1 = {
+    0: '#F56C6C',
+    1: '#67C23A'
+  }
+  // 审核状态
+  const statusMap2 = {
+    0: '#F56C6C',
+    1: '#67C23A',
+    3: 'block'
+  }
+  // 创建状态
+  const statusMap3 = {
+    0: '#F56C6C',
+    1: '#67C23A'
+  }
+  //审核状态
+  const statusMap4 = {
+    DISABLED: '#F56C6C',
+    READY: '#67C23A'
+  }
+  if (type === 1) {
+    return statusMap1[status]
+  }
+  if (type === 2) {
+    return statusMap2[status]
+  }
+  if (type === 3) {
+    return statusMap3[status]
+  }
+  if (type === 4) {
+    return statusMap4[status]
+  }
+}
+
 // 去重对象
 export function reduceObj (arr, name) {
   let obj = {}
