@@ -405,18 +405,19 @@ export default {
 
 <style lang="scss">
   .folderAside {
-    width: 200px;
+    width: 240px;
     flex-shrink: 0;
-    background-color: white;
+    background: #FFFFFF;
+    box-shadow: 5px 0 10px 0 rgba(0,0,0,0.05);
     margin-right: 20px;
     position: relative;
     .left-search {
-      padding: 0 5px 5px 5px;
+      margin: 16px;
     }
     .cus-node-content {
       //display: none;
       opacity: 0;
-      filter:Alpha(opacity=0);
+      filter: Alpha(opacity=0);
       transition: opacity .5s;
       position: absolute;
       right: 5px;
@@ -430,7 +431,7 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
       .cus-node-title {
-        color: #5558da;
+        color: #262626;
         font-size: 14px;
       }
     }
@@ -441,7 +442,7 @@ export default {
       .cus-node-content {
         display: inline-block;
         opacity: 1;
-        filter:Alpha(opacity=100);
+        filter: Alpha(opacity=100);
         transition: opacity .5s;
       }
     }
@@ -449,7 +450,6 @@ export default {
       height: calc(100vh - 299px);
       overflow: auto;
       .icon-cube {
-        margin: 0 5px;
         background-image: url("../../../icons/png/cube.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
@@ -458,7 +458,7 @@ export default {
         transform: none;
       }
       .el-icon-folder:before {
-        content: "\e784";
+        content: "\e786";
       }
       .icon-cube:before {
         background-image: url("../../../icons/png/cube.png");
@@ -467,6 +467,7 @@ export default {
       }
       .el-tree-node__expand-icon {
         color: #c0c4cc;
+        margin: 0 5px;
       }
     }
     .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {

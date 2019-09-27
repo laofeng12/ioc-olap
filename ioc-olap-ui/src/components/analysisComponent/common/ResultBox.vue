@@ -265,6 +265,7 @@ export default {
 <style lang="scss" scoped>
   .result {
     overflow: auto;
+    margin: 0 24px 24px 12px;
     .resultBox {
       .top {
         .right {
