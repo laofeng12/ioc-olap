@@ -31,7 +31,7 @@
         <el-table-column prop="name" label="模型名称"  min-width="100%" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="status" label="模型状态"  min-width="100%" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
+            <div :style="{color: statusReviewFilter(scope.row.status, 4)}">{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
           </template>
         </el-table-column>
         <el-table-column prop="size_kb" label="模型大小"  min-width="100%" show-overflow-tooltip>
@@ -92,7 +92,7 @@
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
-import { filterTime } from '@/utils/index'
+import { filterTime,statusReviewFilter} from '@/utils/index'
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable, elementPagination
@@ -114,9 +114,10 @@ export default {
       tableData: [],
       jsonData: {},
       offset: 0,
-      moreShow: true
+      moreShow: true,
     //   shareVisible: false,
     //   shareLoading: false
+    statusReviewFilter:statusReviewFilter
     }
   },
   filters: {
@@ -315,6 +316,7 @@ export default {
     }
   }
   .more {
+    font-size 14px;
     height 40px
     line-height 40px
     background-color #409EFF

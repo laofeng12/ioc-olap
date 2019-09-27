@@ -29,7 +29,7 @@
       </span>
     </el-tree>
     <div style="text-align: center;" v-if="needNewFolder">
-      <el-button type="primary" size="small" @click="newFolder">新建文件夹</el-button>
+       <el-button style="width: 100%;padding: 0 16px;color: #0486FE; background: #fff!important;border:border: 1px solid #0486FE;" type="primary" size="small" @click="newFolder">新建文件夹</el-button>
     </div>
     <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
@@ -449,6 +449,7 @@ export default {
       height: calc(100vh - 299px);
       overflow: auto;
       .icon-cube {
+        margin: 0 5px;
         background-image: url("../../../icons/png/cube.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
@@ -463,11 +464,9 @@ export default {
         background-image: url("../../../icons/png/cube.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        /*content: url("../../../icons/png/cube.png");*/
       }
       .el-tree-node__expand-icon {
         color: #c0c4cc;
-        margin: 0 5px;
       }
     }
     .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {
