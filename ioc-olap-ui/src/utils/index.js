@@ -68,11 +68,7 @@ export function statusReviewFilter (status, type) {
   //审核状态
   const statusMap4 = {
     DISABLED: '#F56C6C',
-<<<<<<< HEAD
-    READY: '#67C23A' 
-=======
     READY: '#67C23A'
->>>>>>> develop
   }
   if (type === 1) {
     return statusMap1[status]

@@ -92,11 +92,7 @@
 <script>
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
-<<<<<<< HEAD
-import { filterTime, removeAllStorage,statusReviewFilter} from '@/utils/index'
-=======
 import { filterTime, removeAllStorage,statusReviewFilter } from '@/utils/index'
->>>>>>> develop
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable
