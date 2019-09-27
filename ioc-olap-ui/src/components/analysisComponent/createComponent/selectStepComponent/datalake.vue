@@ -105,6 +105,7 @@ export default {
   position absolute
   width 100%
   height 95%
+  margin-top 10px
   display flex
   .step_tab{
     margin-left 10px
@@ -120,7 +121,7 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      height: calc(100vh - 290px)!important;
+      height: calc(100vh - 270px)!important;
     }
     >>>.el-table{
       margin-top 10px

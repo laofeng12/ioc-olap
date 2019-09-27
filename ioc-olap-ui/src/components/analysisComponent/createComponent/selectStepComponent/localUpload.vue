@@ -88,6 +88,7 @@ export default {
 .datalake {
   position absolute
   height 95%
+  margin-top 10px
   width 100%
   display flex
   .trees{
@@ -106,7 +107,7 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      height: calc(100vh - 290px)!important;
+      height: calc(100vh - 270px)!important;
     }
     >>>.el-table{
       margin-top 10px

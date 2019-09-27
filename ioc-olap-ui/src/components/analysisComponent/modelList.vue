@@ -299,8 +299,8 @@ export default {
       this.offset += 15
       this.init()
     },
-    tableHead(row, column, rowIndex, columnIndex){
-       return 'tableHead'
+    tableHead (row, column, rowIndex, columnIndex) {
+      return 'tableHead'
     }
   }
 }
@@ -328,7 +328,9 @@ export default {
   }
   >>>.el-table__row{
     .el-table__expand-column{
-      opacity 0
+      .cell{
+        visibility: hidden;
+      }
     }
   }
 

@@ -209,7 +209,6 @@ export default {
 <style lang="stylus" scoped>
 .serchTable{
   background #ffffff
-  margin-left:10px;
   width 230px
   float left
   padding 15px
@@ -250,6 +249,9 @@ export default {
       content: ''
       margin-top -100px
     }
+  }
+  >>>.expanded{
+    margin-top:-100px!important;
   }
   >>>.el-tree-node__children{
     display inline

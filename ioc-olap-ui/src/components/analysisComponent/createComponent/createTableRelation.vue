@@ -9,11 +9,11 @@
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle">{{linkModal.joinTable}}<span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
+          <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
-          <h4 class="itemTableTitle">{{linkModal.table}}<span @click="lookDetailData(linkModal.id)">查看</span></h4>
+          <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
           <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
           <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
           </el-select>
@@ -1002,11 +1002,10 @@ export default {
 }
 
 .tableRelation{
-  height calc(100vh - 150px)
-  // padding-bottom 100px
+  height calc(100vh)
   position relative
   .containers{
-    height 100%
+    height 90%
     padding 20px 5px
   }
 }
@@ -1026,6 +1025,7 @@ export default {
 .holder{
   position relative
   overflow hidden
+  height 100%
   #myholder{
     background #ffffff!important
     margin-left 15px
@@ -1096,7 +1096,7 @@ export default {
   float right
   background #ffffff
   width 200px
-  height 98%
+  height 100%
   overflow auto
   text-align left
   padding 0 20px
@@ -1119,13 +1119,17 @@ export default {
   }
   h2,h3,.itemTableTitle{
     margin 5px 0
-    font-size: 14px;
-    color: #5A5A5A;
-    text-align: left;
-    line-height: 22px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    span{
+    display flex
+    span:nth-child(1){
+      font-size: 12px;
+      color: #5A5A5A;
+      text-align: left;
+      line-height: 22px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width:80%;
+    }
+    span:nth-child(2){
       font-size: 14px;
       color: #0486FE;
       cursor pointer

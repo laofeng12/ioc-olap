@@ -186,7 +186,7 @@ export default {
   padding 10px
   background #ffffff
   float left
-  height calc(100vh - 100px)
+  height calc(100vh - 40px)
   ul{
     cursor pointer
     overflow auto

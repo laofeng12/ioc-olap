@@ -255,11 +255,9 @@ export default {
   .mechanism{
     background #ffffff
     padding-top 15px
+    margin-right:10px;
     height 98%
     width 200px
-    // height calc(100vh - 150px)
-    // overflow auto
-    border-right 1px solid #f0f0f0
     .trees{
       width 198px
       height 85%

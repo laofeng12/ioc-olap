@@ -316,6 +316,9 @@ export default {
     margin-bottom 3px
     border-bottom 1px solid #cccccc
   }
+  >>>.el-table__body, >>>.el-table__header{
+    width auto!important
+  }
   >>>.el-form-item{
     margin-top:20px;
   }
@@ -336,7 +339,7 @@ export default {
     }
   }
   >>>.el-input__suffix{
-    top 10px
+    // top 10px
   }
   >>>.is-focus{
     .el-input__suffix{
