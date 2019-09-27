@@ -6,7 +6,7 @@ import 'normalize.css/normalize.css'
 // import Layout from 'ch-vue-portal-layout'
 import Layout from 'nhc-portal'
 import ElementUI from 'element-ui'
-import "nhc-portal/lib/nhc-portal.css"
+// import "nhc-portal/lib/nhc-portal.css"
 // import 'element-ui/lib/theme-chalk/index.css'
 // import 'ch-vue-portal-layout/lib/ch-vue-portal-layout.css'
 import '@/styles/element-variables.scss'

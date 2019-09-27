@@ -28,8 +28,8 @@
         </span>
       </span>
     </el-tree>
-    <div style="text-align: center;" v-if="needNewFolder">
-      <el-button type="primary" size="small" @click="newFolder">新建文件夹</el-button>
+    <div  v-if="needNewFolder">
+      <el-button style="width: 100%;padding: 0 16px;color: #0486FE; background: #fff!important;border:border: 1px solid #0486FE;" type="primary" size="small" @click="newFolder">新建文件夹</el-button>
     </div>
     <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
