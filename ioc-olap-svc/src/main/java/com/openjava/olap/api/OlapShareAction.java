@@ -6,6 +6,7 @@ import com.openjava.olap.service.OlapShareService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class OlapShareAction {
     @ApiOperation(value = "读取共享")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @Security(session = true)
-    public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) {
+    public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (StringUtils.isNotBlank(cubeName)) {
             return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()), cubeName);
