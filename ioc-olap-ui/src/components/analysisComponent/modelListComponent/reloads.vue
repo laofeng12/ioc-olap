@@ -62,10 +62,12 @@ export default {
           await reloadModel(parmas).then(res => {
             this.$message.success('刷新成功~')
             this.$parent.closeChangeLoading()
+            this.$parent.update()
           }).catch(_ => {
             this.$parent.closeChangeLoading()
           }).finally(_ => {
             this.$parent.closeChangeLoading()
+            this.$parent.update()
           })
         })
       })

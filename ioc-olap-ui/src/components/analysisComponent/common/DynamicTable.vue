@@ -5,7 +5,7 @@
         <tbody>
           <tr v-for="(item, index) in tableData" :key="index" :class="`${index%2 && 'dark'}`">
             <td v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
-                :class="`${ (tdItem.type === 'th' || tdItem.type !== 4) && 'table-header' } ${(tdItem.type === 4 && canClick) && 'cur-pointer'}`"
+                :class="`${ (tdItem.type === 'th' || (tdItem.type !== 4 && tdItem.type !== 'td')) && 'table-header' } ${(tdItem.type === 4 && canClick) && 'cur-pointer'}`"
                 :rowspan="tdItem.rowspan" :key="`${index}-${tdIndex}`" @click="`${(tdItem.type === 4 && canClick) && tdClick(tdItem, canClick)}`">
               <div class="cell">
                 {{tdItem.value}}
