@@ -1,6 +1,6 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault"
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" iconType="cube"
                  :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
                  :showDo="false"></FolderAside>
     <div class="content">

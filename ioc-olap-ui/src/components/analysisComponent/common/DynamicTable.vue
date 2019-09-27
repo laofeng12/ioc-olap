@@ -3,9 +3,9 @@
     <div class="showCon allScreen" :style="`width: ${isPop ? '100%' :tableBoxWidth + 'px'}; max-height: ${tableBoxHeight}px`">
       <table border='1' cellpadding="0" cellspacing="0">
         <tbody>
-          <tr v-for="(item, index) in tableData" :key="index">
+          <tr v-for="(item, index) in tableData" :key="index" :class="`${index%2 && 'dark'}`">
             <td v-for="(tdItem, tdIndex) in item" :colspan="tdItem.colspan"
-                :class="`${ (tdItem.type === 'th' || tdItem.type !== 4) && 'table-header' } ${(tdItem.type === 4 && canClick) && 'cur-pointer'}`"
+                :class="`${ (tdItem.type === 'th' || (tdItem.type !== 4 && tdItem.type !== 'td')) && 'table-header' } ${(tdItem.type === 4 && canClick) && 'cur-pointer'}`"
                 :rowspan="tdItem.rowspan" :key="`${index}-${tdIndex}`" @click="`${(tdItem.type === 4 && canClick) && tdClick(tdItem, canClick)}`">
               <div class="cell">
                 {{tdItem.value}}
@@ -39,7 +39,7 @@ export default {
     },
     diffWidth: {
       type: Number,
-      default: 536
+      default: 284
     },
     isPop: {
       type: Boolean,
@@ -112,12 +112,15 @@ export default {
         word-break: break-all;
         min-width: 100%;
         text-align: center;
+        .dark {
+          background-color: #F5F7FA;
+        }
         td {
           min-width: 150px;
           height: 50px;
         }
         .table-header {
-          background-color: #f4f9fb;
+          background-color: #ECEEF5;
           font-weight: bold;
         }
         .cur-pointer {

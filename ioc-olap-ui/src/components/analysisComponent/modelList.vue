@@ -215,7 +215,7 @@ export default {
               ? this.$message.warning('该模型已禁用~')
               : await disableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已禁用')
-                this.init()
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -230,7 +230,7 @@ export default {
               ? this.$message.warning('该模型已启用~')
               : await enableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已启用')
-                this.init()
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -300,7 +300,7 @@ export default {
       this.init()
     },
     tableHead(row, column, rowIndex, columnIndex){
-       return 'tableHead'
+      return 'tableHead'
     }
   }
 }
