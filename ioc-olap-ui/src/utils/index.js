@@ -79,11 +79,7 @@ export function statusReviewFilter (status, type) {
   if (type === 3) {
     return statusMap3[status]
   }
-<<<<<<< HEAD
-  if (status === "DISABLED") {
-=======
   if (type === 4) {
->>>>>>> develop
     return statusMap4[status]
   }
 }

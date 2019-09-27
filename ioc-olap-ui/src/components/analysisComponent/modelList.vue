@@ -115,11 +115,7 @@ export default {
       jsonData: {},
       offset: 0,
       moreShow: true,
-<<<<<<< HEAD
       statusReviewFilter: statusReviewFilter // 调用方法
-=======
-      statusReviewFilter:statusReviewFilter
->>>>>>> develop
     }
   },
   filters: {
