@@ -43,8 +43,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.totalSaveData.cube.cubeDescData.name)
-      // this.$store.dispatch('SaveModelAllList', this.json)
       if (this.$route.query.cubeName) {
         this.isLoading = true
         let { cubeName, models } = this.$route.query
@@ -101,7 +99,7 @@ export default {
       float left
       border none
       font-size 20px
-      height 38px
+      height 40px!important
       color #ffffff
       border-right 1px solid #ccc
     }

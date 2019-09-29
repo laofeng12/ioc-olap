@@ -124,7 +124,6 @@ export default {
       }
     },
     init () {
-      // this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jsonData.ModesList.lookups)))
       // debugger
       let list = this.jointResult.lookups || []

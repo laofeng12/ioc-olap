@@ -278,7 +278,7 @@ export default {
     >>>.el-tree{
     .el-tree-node{
       min-width: 100%;
-      display: table-footer-group;
+      // display: table-footer-group;
     }
     .el-tree-node__content{
       font-size: 14px;

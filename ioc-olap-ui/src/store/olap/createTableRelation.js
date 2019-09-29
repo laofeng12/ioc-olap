@@ -48,7 +48,6 @@ const creatTableRelation = {
         }
       })
       state.foreignKeyData = [...new Set(state.foreignKeyData)]
-      // console.log('foreignKeyData===', [...new Set(state.foreignKeyData)])
     }
   },
   actions: {

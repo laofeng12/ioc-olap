@@ -46,6 +46,7 @@ export default {
   },
   methods: {
     handlebtn () {
+      console.log('time===', this.getTimezoneOffset(this.form.startTime))
       this.$confirm('确定构建此模型？', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -55,8 +56,8 @@ export default {
         this.$parent.changeLoading()
         let parmas = {
           cubeName: this.dataList.name,
-          start: this.form.startTime ? (Date.parse(new Date(this.form.startTime))) : '',
-          end: this.form.endTime ? (Date.parse(new Date(this.form.endTime))) : ''
+          start: this.form.startTime ? this.getTimezoneOffset(this.form.startTime) : '',
+          end: this.form.endTime ? this.getTimezoneOffset(this.form.endTime) : ''
         }
         this.$throttle(async () => {
           await buildModeling(parmas).then(res => {
@@ -73,15 +74,29 @@ export default {
     dialog (val) {
       this.dataList = val
       this.dialogFormVisible = true
-      console.log('time===', val)
       val.segments.forEach(item => {
-        this.form.startTime = item.date_range_end ? (Date.parse(new Date(item.date_range_end))) : ''
+        this.form.startTime = item.date_range_end ? item.date_range_end : ''
       })
+    },
+    getTimezoneOffset (time) {
+      let zoneOffset = 8
+      // 算出时差,并转换为毫秒：
+      let offset2 = new Date(time).getTimezoneOffset() * 60 * 1000
+      // 算出现在的时间：
+      let nowDate2 = new Date(time).getTime()
+      // 此时东8区的时间
+      let currentZoneDate = new Date(nowDate2 + offset2 + zoneOffset * 60 * 60 * 1000)
+      return Date.parse(new Date(currentZoneDate)) / 1000
     }
+
   }
 }
 </script>
 
 <style lang="stylus" scoped>
-.rename{}
+.rename{
+  >>>.el-form-item{
+    margin-bottom 20px!important
+  }
+}
 </style>
