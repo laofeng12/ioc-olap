@@ -86,31 +86,28 @@ export default {
 <style lang="stylus" scoped>
 .creates{
   position relative
-  margin-top -25px
   width 100%
   header{
-    height 40px
     width 100%
-    background: #333333;
-    margin-bottom 15px
+    margin-bottom 16px
+    .el-form {
+       overflow: hidden;
+       background: #f2f2f2;
+       padding: 0 !important;
+    }
     >>>.el-button{
-      background #333333
-      float left
-      border none
-      font-size 20px
-      height 38px
-      color #ffffff
-      border-right 1px solid #ccc
+       background: #f2f2f2;
+       border: none;
+       padding: 0 !important;
+       .el-icon-arrow-left{font-size:18px}
     }
     >>>.el-input{
-      float left
       width 200px
-      margin-left 20px
-      height 30px
-      margin-top 5px
+      margin-left 48px
+      height 32px
       .el-input__inner{
         border-radius 0
-        height 30px
+        height 32px
       }
     }
   }
