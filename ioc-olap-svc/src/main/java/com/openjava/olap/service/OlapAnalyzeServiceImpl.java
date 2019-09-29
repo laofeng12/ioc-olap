@@ -301,7 +301,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
-        QueryResultMapper resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, "learn_kylin");
+        QueryResultMapper resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, userId);
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
@@ -539,8 +539,8 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
         }
         String countSql = MessageFormat.format("select count(*) from ({0})M", sql);
-        QueryResultMapper countMapper = cubeHttpClient.query(countSql, 0, 100, "learn_kylin");
-        QueryResultMapper mapper = cubeHttpClient.query(sql, offeset, limit, "learn_kylin");
+        QueryResultMapper countMapper = cubeHttpClient.query(countSql, 0, 100, userId.toString());
+        QueryResultMapper mapper = cubeHttpClient.query(sql, offeset, limit, userId.toString());
         Integer count = Integer.parseInt(countMapper.results.get(0).get(0));
         mapper.setTotalRecord(count);
         return mapper;

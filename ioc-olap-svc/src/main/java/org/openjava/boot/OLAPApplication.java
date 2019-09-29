@@ -7,6 +7,7 @@ import org.ljdp.cache.spring.CacheKeyGenerator;
 import org.ljdp.common.spring.SpringContext;
 import org.ljdp.core.db.jpa.JPASessionFactoryRouter;
 import org.ljdp.secure.validate.SessionValidator;
+import org.mybatis.spring.annotation.MapperScan;
 import org.openjava.boot.util.CacheBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -32,6 +33,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 		basePackages={"org.ljdp.support.**.repository",
 				"com.openjava.**.repository"},
 		repositoryFactoryBeanClass=org.ljdp.core.spring.data.LjdpJpaRepositoryFactoryBean.class)
+@MapperScan({
+		"com.openjava.**.dao",
+		"com.openjava.**.mapper"
+})
 @EnableTransactionManagement(mode=AdviceMode.ASPECTJ)
 @SpringBootApplication(
 		scanBasePackages={
@@ -42,6 +47,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 				"com.openjava.**.component",
 				"com.openjava.**.common",
 				"com.openjava.**.dao",
+				"com.openjava.**.mapper",
 				"com.openjava.**.api",
 				"org.openjava.boot.conf",
 				})

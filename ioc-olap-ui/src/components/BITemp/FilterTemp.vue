@@ -65,6 +65,8 @@ export default {
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      height: 22px;
+      line-height: 22px;
     }
     .filtrate-btn-box{
       flex-shrink: 0;

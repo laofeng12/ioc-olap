@@ -175,7 +175,7 @@ public class OlapRealQueryAction extends BaseAction {
 		if(limit==-1){
 			limit=Integer.MAX_VALUE;
 		}
-		return cubeHttpClient.query(sql,0,limit,"learn_kylin");
+		return cubeHttpClient.query(sql,0,limit,userVO.getUserId());
 	}
 
 	@ApiOperation(value = "通过ID查询数据")
@@ -184,7 +184,7 @@ public class OlapRealQueryAction extends BaseAction {
 	public QueryResultMapperVo queryById(Long id) throws APIException {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		OlapRealQuery m = olapRealQueryService.get(id);
-		QueryResultMapper mapper= cubeHttpClient.query(m.getSql(),0,m.getLimit(),"learn_kylin");//获取数据
+		QueryResultMapper mapper= cubeHttpClient.query(m.getSql(),0,m.getLimit(),userVO.getUserId());//获取数据
 		List<ShareUserDto> shareList=olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
 		QueryResultMapperVo mapperVo=new QueryResultMapperVo();
 		MyBeanUtils.copyPropertiesNotBlank(mapperVo, mapper);//复制mapper属性到VO中
@@ -223,7 +223,7 @@ public class OlapRealQueryAction extends BaseAction {
 	@Security(session=true)
 	public void export(String sql,Integer limit, HttpServletResponse response) throws Exception {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		QueryResultMapper mapper= cubeHttpClient.query(sql,0,limit,"learn_kylin");
+		QueryResultMapper mapper= cubeHttpClient.query(sql,0,limit,userVO.getUserId());
 		Export.dualDate(mapper,response);
 	}
 

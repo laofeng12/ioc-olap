@@ -630,11 +630,13 @@ export default {
 </script>
 <style lang="scss" scoped>
   @import '~@/styles/variables.scss';
-
+  .grid-content {
+    padding-left: 0!important;
+  }
   .chart-setting-box {
     flex-shrink: 0;
-    margin-right: 20px;
-    width: 400px;
+    /*margin-right: 20px;*/
+    width: 480px;
     .cus-drag-setting {
       overflow: auto;
     }
@@ -678,11 +680,13 @@ export default {
     }
 
     .no-dataset {
+      height: 32px;
+      line-height: 32px;
       color: #cccccc;
       font-size: 13px;
       text-align: center;
       border: 1px dashed #ccc;
-      padding: 5px;
+      /*padding: 5px;*/
       /*>>> .custom-tree-node { // 小图标*/
         /*width: 84%;*/
         /*overflow: hidden;*/
@@ -732,7 +736,7 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         span {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -777,6 +781,7 @@ export default {
         display: block;
         margin-left: 15px;
         cursor: move;
+        height: 18px;
       }
       .parent {
         margin-left: 0;

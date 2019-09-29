@@ -21,9 +21,9 @@
           <el-input class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
         </div>
         <div class="bottom">
-          <el-button type="primary" size="mini" @click="searchOlap" :loading="loading">查询</el-button>
           <el-checkbox class="checkbox" v-model="checked">限制查询行数</el-checkbox>
-          <el-input class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini"></el-input>
+          <el-input-number class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini" controls-position="right"></el-input-number>
+          <el-button class="querybutton" type="primary" size="mini" @click="searchOlap" :loading="loading">查询</el-button>
         </div>
       </div>
       <div v-loading="loading">
@@ -193,12 +193,15 @@ export default {
       .editSql {
         .editor {
           display: flex;
+          background: #FFFFFF;
+          border: 1px solid #D9D9D9;
+          margin: 24px 24px 21px 12px;
           .number {
             width: 40px;
+            height: 320px;
             text-align: center;
-            height: 30px;
             line-height: 30px;
-            margin-top: 7px;
+            background: #EBEBEB;
           }
           .textarea {
             overflow: hidden;
@@ -211,13 +214,17 @@ export default {
         .bottom {
           display: flex;
           align-items: center;
-          justify-content: center;
-          margin-top: 20px;
+          justify-content: flex-end;
+          padding-right: 24px;
+          margin: 20px 0 24px 0px;
           .checkbox {
-            margin-left: 20px;
+          }
+          .querybutton{
+            margin-left: 17px;
           }
           .lineNumber {
-            width: 60px;
+            width: 115px;
+            margin-left: 8px;
           }
         }
       }

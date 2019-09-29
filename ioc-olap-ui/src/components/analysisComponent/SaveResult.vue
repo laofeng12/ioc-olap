@@ -88,7 +88,6 @@ export default {
         this.shareList = shareList
         this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
         this.tableData = [...[columnMetasList], ...resultsList]
-        debugger
         if (type !== 'share') {
           this.$message.success('查询完成')
         }
