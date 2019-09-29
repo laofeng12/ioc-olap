@@ -99,7 +99,7 @@ export default {
     },
     diffWidth: {
       type: Number,
-      default: 536
+      default: 284
     },
     shareList: {
       type: Array,

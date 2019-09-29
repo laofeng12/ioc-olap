@@ -5,7 +5,7 @@
      <ul v-if="dataList && dataList.length">
        <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
-         <span class="tableTitle">{{item.label}}</span>
+         <span class="tableTitle" :class="item.filed === 1 || item.label === fact_tableName ? 'factClass' : ''">{{item.label}}</span>
          <span class="factTitle" v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
         </li>
      </ul>
@@ -122,26 +122,34 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 270px
+  max-width 240px
+  padding 10px
   font-size 12px
   float left
+  background #ffffff
   border-right 1px solid #f0f0f0
   height calc(100vh - 100px)
   ul{
     cursor pointer
     overflow auto
     width 100%
-    height 80%
+    height 74%
     li{
       height 30px
       line-height 30px
       color #000000
-      // display flex
+      display inline-flex
+      min-width 100%
       .factTitle{
-        background #009688
-        color #ffffff
-        padding 2px 6px
-        font-size 10px
+        width 52px
+        height 20px
+        font-size: 13px;
+        color: #0486FE;
+        text-align: center;
+        line-height: 20px;
+        background: #67C23A;
+        margin-top 5px
+        border: 1px solid #0486FE;
         border-radius 3px
         margin-left: 3px;
         vertical-align: middle;
@@ -149,6 +157,10 @@ export default {
     }
     .actives{
       color #009688
+    }
+    .factClass{
+      font-size: 14px;
+      color: #0486FE;
     }
   }
   >>>.el-input{

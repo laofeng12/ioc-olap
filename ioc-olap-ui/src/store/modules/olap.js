@@ -212,7 +212,14 @@ const common = {
       state.totalSaveData.cubeDatalaketableNew = []
       state.totalSaveData.cube.cubeDescData.name = ''
       state.totalSaveData.cube.cubeDescData.uuid = ''
+      state.totalSaveData.cube.cubeDescData.model_name = ''
+      state.totalSaveData.cube.cubeDescData.last_modified = ''
+      state.totalSaveData.cube.cubeDescData.version = ''
       state.totalSaveData.cube.cubeDescData.description = ''
+      state.totalSaveData.models.modelDescData.uuid = ''
+      state.totalSaveData.models.modelDescData.name = ''
+      state.totalSaveData.models.modelDescData.version = ''
+      state.totalSaveData.models.modelDescData.last_modified = ''
       state.ModelAllList = []
     },
     // 合并设置的事实表到总表

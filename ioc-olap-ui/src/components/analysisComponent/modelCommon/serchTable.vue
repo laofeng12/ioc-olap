@@ -59,7 +59,7 @@ export default {
         // if (type && type === 1) {
         //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
         //     if (res.code === 200) {
-          //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
+        //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
         //       this.loading = false
         //       this.$root.eventBus.$emit('saveSelectTables')
         //     }
@@ -110,6 +110,7 @@ export default {
       })
     },
     handleNodeClick (value) {
+      console.log(value)
       if (value.label === '全选') return
       this.$refs.treesBox.style.height = this.dataList[0].children.length > 0 ? '80%' : 'auto'
       let searchType = this.$store.state.selectStep.searchType
@@ -207,9 +208,11 @@ export default {
 
 <style lang="stylus" scoped>
 .serchTable{
+  background #ffffff
+  margin-left:10px;
   width 230px
   float left
-  padding 0 5px
+  padding 15px
   border-right 1px solid #f0f0f0
   height 98%
   .trees{
@@ -245,6 +248,7 @@ export default {
   >>>.el-tree-node__content{
     .el-tree-node__expand-icon::before{
       content: ''
+      margin-top -100px
     }
   }
   >>>.el-tree-node__children{

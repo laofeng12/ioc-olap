@@ -36,14 +36,14 @@ const app = {
         resIcon: 'fa fa-columns',
         subResList: []
       }, {
-        resId: '1',
+        resId: '11',
         index: '5',
         resName: 'OLAP分析',
         resURL: '/analysisList',
         resIcon: 'fa fa-columns',
         subResList: []
       }, {
-        resId: '1',
+        resId: '122',
         index: '5',
         resName: '即系查询',
         resURL: '/instantInquiry',
@@ -72,7 +72,7 @@ const app = {
       state.device = device
     },
     SET_MENU_LIST: (state, menuList) => {
-      state.menuList = menuList
+      //state.menuList = menuList
     },
     CHANGE_MY_ROUTES: (state, myRoutes) => {
       state.myRoutes = myRoutes
