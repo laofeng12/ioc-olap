@@ -225,6 +225,7 @@ export default {
     height 100%
     width 100%
     overflow auto
+    padding-top 16px
   }
   >>>.el-radio{
     display block
