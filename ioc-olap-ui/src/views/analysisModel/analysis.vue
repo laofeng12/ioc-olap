@@ -40,7 +40,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import OlapAside from '../../components/analysisComponent/olapAside'
-import ResultBox from '../../components/analysisComponent/common/ResultBox'
+import ResultBox from '../../components/analysisComponent/common/ResultBoxMini'
 import DynamicTable from '../../components/analysisComponent/common/DynamicTable'
 import {
   getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi, olapAnalyzeExportApi
@@ -407,6 +407,9 @@ export default {
 </script>
 <style lang="scss" scoped>
   .olapTable {
+    width: calc(100% - 480px);
+    background-color: white;
+    margin-left: 16px;
     .top {
       .form-item {
         width: 300px;
