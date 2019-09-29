@@ -105,6 +105,7 @@ export default {
   position absolute
   width 100%
   height 95%
+  margin-top 10px
   display flex
   .step_tab{
     box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)

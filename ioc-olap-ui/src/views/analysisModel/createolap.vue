@@ -43,8 +43,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.totalSaveData.cube.cubeDescData.name)
-      // this.$store.dispatch('SaveModelAllList', this.json)
       if (this.$route.query.cubeName) {
         this.isLoading = true
         let { cubeName, models } = this.$route.query
@@ -87,6 +85,9 @@ export default {
 .creates{
   position relative
   width 100%
+  >>>.el-form{
+    padding:0px!important;
+  }
   header{
     width 100%
     margin-bottom 16px

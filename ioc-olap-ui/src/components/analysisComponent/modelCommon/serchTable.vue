@@ -250,6 +250,9 @@ export default {
       margin-top -100px
     }
   }
+  >>>.expanded{
+    margin-top:-100px!important;
+  }
   >>>.el-tree-node__children{
     display inline
     .el-tree-node__content{

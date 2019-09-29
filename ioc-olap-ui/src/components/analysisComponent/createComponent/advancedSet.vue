@@ -324,7 +324,6 @@ export default {
       this.$store.dispatch('RmtagList', list)
     },
     lastrmTag (type, id, findIndex) {
-      console.log(type, id, findIndex)
       const list = {
         id: id,
         type: type,
@@ -352,7 +351,9 @@ export default {
 
 <style lang="stylus" scoped>
 .advancedSet{
-  padding 30px 100px
+  padding 30px
+  margin-top 30px
+  background #ffffff
   padding-bottom 100px
   .item_line{
     margin-bottom 3px

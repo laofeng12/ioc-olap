@@ -88,6 +88,7 @@ export default {
 .datalake {
   position absolute
   height 95%
+  margin-top 10px
   width 100%
   display flex
   .trees{

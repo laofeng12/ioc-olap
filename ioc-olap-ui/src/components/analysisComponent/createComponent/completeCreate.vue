@@ -180,7 +180,9 @@ export default {
 
 <style lang="stylus" scoped>
 .completeCreate{
-  padding 30px 100px
+  padding 30px
+  margin-top 30px
+  background #ffffff
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
