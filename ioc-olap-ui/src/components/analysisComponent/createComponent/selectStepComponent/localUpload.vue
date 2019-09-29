@@ -106,7 +106,7 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      height: calc(100vh - 290px)!important;
+      height: calc(100vh - 280px)!important;
     }
     >>>.el-table{
       margin-top 10px
