@@ -2,39 +2,51 @@
   <div class="result">
     <div class="resultBox">
       <div class="f-w-b f-s-16" v-if="titleShow">查询结果</div>
-      <div class="top m-t-10">
+      <div class="top m-t-10 dis-flex">
+        <div class="left dis-flex">
+          <div class="case" v-if="showType === 'isAnalysis'" @click="changeRowAndColFunc">
+            <div class="icon icon-change"></div>
+            <div>行列转换</div>
+          </div>
+          <div class="case" v-if="showType === 'isAnalysis'" @click="toggleTransverseDrillDown">
+            <div class="icon icon-horizontal-drilling"></div>
+            <div>横行下钻</div>
+          </div>
+          <div class="case" v-if="showType === 'isAnalysis'" @click="toggleDrillDown">
+            <div class="icon icon-drill-down"></div>
+            <div>下钻</div>
+          </div>
+          <div class="case" v-if="showType === 'isAnalysis'" @click="showSum">
+            <div class="icon icon-sum"></div>
+            <div>求和</div>
+          </div>
+        </div>
         <div class="right dis-flex">
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
-            新建OLAP分析
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">
-            保存结果
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset">重置</el-button>
-          <el-button class="button" type="primary" size="mini" v-if="shareList.length > 0"
-                     @click="showShareListVisible = true">
-            查看分享人
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="analysisSearch">
-            查询
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
-                     @click="handleAutoSearch">
-            {{autoSearch ? '关闭' : '开启'}}自动查询
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'"
-                     @click="changeRowAndColFunc">
-            行列转换
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleTransverseDrillDown">
-            横行下钻
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="toggleDrillDown">
-            下钻
-          </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
-          <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
-          <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
+          <div class="case" v-if="showType === 'isAnalysis'" @click="analysisSearch">
+            <div class="icon icon-search"></div>
+            <div>查询</div>
+          </div>
+          <div class="case" v-if="showType === 'isAnalysis'"
+               @click="handleAutoSearch">
+            <div class="icon icon-automatic-polling"></div>
+            <div>{{autoSearch ? '关闭' : '开启'}}自动查询</div>
+          </div>
+          <div class="case" v-if="resetShow" @click="reset">
+            <div class="icon icon-reset"></div>
+            <div>重置</div>
+          </div>
+          <div class="case" @click="exportTable">
+            <div class="icon icon-export"></div>
+            <div>导出结果</div>
+          </div>
+          <div class="case" v-if="resetShow" @click="newFormVisible = true">
+            <div class="icon icon-save"></div>
+            <div>保存</div>
+          </div>
+          <div class="case" @click="fullscreenToggle">
+            <div class="icon icon-full-screen"></div>
+            <div>全屏</div>
+          </div>
         </div>
       </div>
       <DynamicTable :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
@@ -61,12 +73,6 @@
         <el-button @click="newFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitNewForm()">确 定</el-button>
       </div>
-    </el-dialog>
-    <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
-      <el-table :data="shareList" max-height="250" border style="width: 100%">
-        <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
-        <el-table-column prop="createTime" label="分享时间" align="center"></el-table-column>
-      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -101,10 +107,6 @@ export default {
       type: Number,
       default: 284
     },
-    shareList: {
-      type: Array,
-      default: () => ([])
-    },
     saveFolderListByProp: {
       type: Array,
       default: () => ([])
@@ -138,7 +140,6 @@ export default {
           { required: true, message: '请选择文件夹', trigger: 'change' }
         ]
       },
-      showShareListVisible: false,
       // treeVisible: false,
       // treeDefault: {
       //   children: 'children',
@@ -203,9 +204,6 @@ export default {
         }
       })
     },
-    goNewOlap () {
-      this.$router.push('/newOlapAnalysis')
-    },
     handleAutoSearch () {
       this.autoSearch = !this.autoSearch
       this.$message.success(`已${this.autoSearch ? '开启' : '关闭'}自动查询`)
@@ -264,19 +262,53 @@ export default {
 
 <style lang="scss" scoped>
   .result {
+    background-color: white;
     overflow: auto;
     margin: 0 24px 24px 12px;
     .resultBox {
       .top {
-        .right {
-          flex-wrap: wrap;
-          margin: 20px 0;
-          .button {
-            margin-bottom: 10px;
-            margin-right: 10px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 20px 0;
+        .case {
+          margin: 0 10px;
+          cursor: pointer;
+          .icon {
+            width: 20px;
+            height: 20px;
+            margin: 0 auto;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
           }
-          .button + .button {
-            margin-left: 0;
+          .icon-change {
+            background-image: url("../../../icons/png/icon-change.png");
+          }
+          .icon-horizontal-drilling {
+            background-image: url("../../../icons/png/icon-horizontal-drilling.png");
+          }
+          .icon-drill-down {
+            background-image: url("../../../icons/png/icon-drill-down.png");
+          }
+          .icon-sum {
+            background-image: url("../../../icons/png/icon-sum.png");
+          }
+          .icon-search {
+            background-image: url("../../../icons/png/icon-search.png");
+          }
+          .icon-automatic-polling {
+            background-image: url("../../../icons/png/icon-automatic-polling.png");
+          }
+          .icon-reset {
+            background-image: url("../../../icons/png/icon-reset.png");
+          }
+          .icon-export {
+            background-image: url("../../../icons/png/icon-export.png");
+          }
+          .icon-save {
+            background-image: url("../../../icons/png/icon-save.png");
+          }
+          .icon-full-screen {
+            background-image: url("../../../icons/png/icon-full-screen.png");
           }
         }
       }
