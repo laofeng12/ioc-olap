@@ -455,7 +455,7 @@ export default {
         transform: none;
       }
       .el-icon-folder:before {
-        content: "\e786";
+        content: "\e784";
       }
       .icon-cube:before {
         background-image: url("../../../icons/png/cube.png");

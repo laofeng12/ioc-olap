@@ -99,7 +99,7 @@ export default {
     },
     diffWidth: {
       type: Number,
-      default: 284
+      default: 312
     },
     shareList: {
       type: Array,
@@ -269,6 +269,7 @@ export default {
     .resultBox {
       .top {
         .right {
+          flex-direction: row-reverse;
           flex-wrap: wrap;
           margin: 20px 0;
           .button {

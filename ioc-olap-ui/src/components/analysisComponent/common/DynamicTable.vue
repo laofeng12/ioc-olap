@@ -39,7 +39,7 @@ export default {
     },
     diffWidth: {
       type: Number,
-      default: 284
+      default: 312
     },
     isPop: {
       type: Boolean,
