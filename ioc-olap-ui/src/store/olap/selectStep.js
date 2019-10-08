@@ -215,6 +215,7 @@ const selectStep = {
       let dest = []
       let localData = []
       data.map((item, i) => {
+        // 如果是本地上传的数据
         if (item.type === 2) {
           localData.push({
             orgId: item.orgId,
@@ -223,6 +224,7 @@ const selectStep = {
             table_id: item.id
           })
         } else {
+          // 如果是数据湖的数据
           if (!map[item.database]) {
             dest.push({
               orgId: item.orgId,
