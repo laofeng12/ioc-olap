@@ -77,7 +77,6 @@ export default {
       this.$emit('tdClick', item, type)
     },
     handleCurrentChange (val) {
-      debugger
       if (!Number(this.input) && this.input !== '0') {
         return this.$message.error('查询行数只能为数字')
       } else if (Number(this.input) <= 0) {
