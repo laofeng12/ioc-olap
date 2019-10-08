@@ -162,7 +162,7 @@ export default {
     width 100%
   }
   .reloadSet .el-input{
-    width 100%
+    width 100%!important
   }
   >>>.is-focus{
     .el-input__suffix{

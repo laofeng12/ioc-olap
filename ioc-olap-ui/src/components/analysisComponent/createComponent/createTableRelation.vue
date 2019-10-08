@@ -71,6 +71,7 @@ export default {
   },
   data () {
     return {
+      url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
       filedPosition: {
@@ -590,13 +591,27 @@ export default {
           ports: { // 定义连接点
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
+          attrs: { image: { 'xlink:href': 'images/' + this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
         // newRect.addPort(this.port)
         this.graph.addCell(newRect)
+        // this.member()
       }
 
       return newRect
+    },
+    // 设置icon
+    member () {
+      var cell = new joint.shapes.org.Member({
+        attrs: {
+          image: {
+            'xlink:href': 'images/' + this.url,
+            opacity: 0.7
+          }
+        }
+      })
+      this.graph.addCell(cell)
+      return cell
     },
     // test
     addLinkCell (item) {

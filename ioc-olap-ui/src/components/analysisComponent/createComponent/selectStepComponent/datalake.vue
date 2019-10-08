@@ -109,7 +109,7 @@ export default {
   display flex
   .step_tab{
     margin-left 10px
-    width 100%
+    min-width 800px
     height 100%
     >>>.el-tabs__header{
       margin-top 0px
