@@ -253,30 +253,32 @@ export default {
     initData (val) {
       this.fieldtextOption = []
       let n = val || false
-      // 创建接收不是事实表的盒子
-      let AllData = []
+      // 创建count计算方式需要的
+      let selectData = []
       // 创建一个接收事实表的盒子
       let factData = []
+      // 创建一个接受所有维度的盒子
+      let AllData = []
       // 遍历筛选出第三步所有勾选的数据
-      // this.saveSelectAllList.forEach((item, index) => {
-      //   let items = JSON.parse(item)
-      //   this.jointResultData.lookups.forEach((n, i) => {
-      //     if (items.resourceId === n.id) {
-      //       items.data.columns.forEach((k, i) => {
-      //         AllData.push({
-      //           label: n.alias + '.' + k.name,
-      //           id: k.id,
-      //           dataType: k.dataType
-      //         })
-      //       })
-      //     }
-      //   })
-      // })
-      // 遍历筛选出第三步勾选的数据（去掉事实表的）
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        this.jointResultData.lookups.forEach((n, i) => {
+          if (items.resourceId === n.id) {
+            items.data.columns.forEach((k, i) => {
+              AllData.push({
+                label: n.alias + '.' + k.name,
+                id: k.id,
+                dataType: k.dataType
+              })
+            })
+          }
+        })
+      })
+      // 遍历筛选出第三步勾选的数据（去掉事实表的）(如果为count计算方式的时候)
       this.saveSelectFiled.map(res => {
-        if (res.filed !== '1') {
-          AllData.push({ label: res.tableName + '.' + res.titName, id: res.id, dataType: res.dataType })
-        }
+        // if (res.filed !== '1') {
+        selectData.push({ label: res.tableName + '.' + res.titName, id: res.id, dataType: res.dataType })
+        // }
       })
       // 遍历筛选出所有事实表的数据
       this.SaveFactData.map(item => {
@@ -284,7 +286,9 @@ export default {
           { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
         )
       })
-      this.fieldtextOption = n === true ? [...factData, ...AllData] : [...factData]
+      // this.fieldtextOption = n === true ? [...factData, ...AllData] : [...factData]
+      this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -359,7 +363,7 @@ export default {
       this.formData.checkedAll = false
       switch (val) {
         case 'COUNT':
-          this.initData(true)
+          this.initData(3)
           break
         case 'COUNT_DISTINCT':
           this.formData.function.parameter.value = ''

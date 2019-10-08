@@ -13,6 +13,11 @@
         :default-checked-keys="defaultKey"
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
+        <span class="custom-tree-node" slot-scope="{ node,data  }">
+          <el-tooltip class="node__item-tip" effect="dark" :enterable="false" :content="node.label ? node.label : ''" placement="right" popper-class="my-dep-toolTip">
+            <span>{{ node.label ? node.label : '全选' }}</span>
+          </el-tooltip>
+        </span>
         </el-tree>
         <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
      </div>
@@ -21,7 +26,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { reduceObj } from '@/utils/index'
 import { setTimeout } from 'timers'
 export default {
   data () {

@@ -292,7 +292,7 @@ export default {
   background #ffffff
   margin-top 30px
   padding 20px 30px
-  padding-bottom 100px
+  padding-bottom 150px
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;
