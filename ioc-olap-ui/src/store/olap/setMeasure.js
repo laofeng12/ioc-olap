@@ -1,4 +1,4 @@
-
+import { reduceObj } from '@/utils/index'
 const setMeasure = {
   state: {
     /* 度量 */
@@ -42,6 +42,7 @@ const setMeasure = {
       // 添加对应的id
       getters.savehetComposeDataId[0].push(data.name)
       getters.hbase_mapping.column_family[0].columns[0].measure_refs.push(data.name)
+      getters.hbase_mapping.column_family[0].columns[0].measure_refs = [...new Set(getters.hbase_mapping.column_family[0].columns[0].measure_refs)]
     }
   }
 }

@@ -190,6 +190,7 @@ export default {
   },
   methods: {
     init () {
+      console.log(this.hbase_mapping.column_family)
       // 获取对应的字段
       getEncodingList().then(res => {
         // this.getAllcoding = res

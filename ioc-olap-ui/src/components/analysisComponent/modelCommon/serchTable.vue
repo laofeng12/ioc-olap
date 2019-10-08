@@ -13,7 +13,7 @@
         :default-checked-keys="defaultKey"
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
-        <span class="custom-tree-node" slot-scope="{ node,data  }">
+        <span class="custom-tree-node" slot-scope="{ node  }">
           <el-tooltip class="node__item-tip" effect="dark" :enterable="false" :content="node.label ? node.label : ''" placement="right" popper-class="my-dep-toolTip">
             <span>{{ node.label ? node.label : '全选' }}</span>
           </el-tooltip>
