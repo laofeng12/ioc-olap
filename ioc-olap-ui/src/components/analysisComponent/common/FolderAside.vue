@@ -411,9 +411,6 @@ export default {
     box-shadow: 5px 0 10px 0 rgba(0,0,0,0.05);
     margin-right: 20px;
     position: relative;
-    .left-search {
-      margin: 16px;
-    }
     .cus-node-content {
       //display: none;
       opacity: 0;
@@ -458,7 +455,7 @@ export default {
         transform: none;
       }
       .el-icon-folder:before {
-        content: "\e786";
+        content: "\e784";
       }
       .icon-cube:before {
         background-image: url("../../../icons/png/cube.png");

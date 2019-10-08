@@ -92,7 +92,7 @@
 <script>
 import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
-import { filterTime, removeAllStorage,statusReviewFilter } from '@/utils/index'
+import { filterTime, removeAllStorage, statusReviewFilter } from '@/utils/index'
 export default {
   components: {
     modelDetail, clones, construct, reloads, merge, sharedTable
@@ -300,7 +300,7 @@ export default {
       this.offset += 15
       this.init()
     },
-    tableHead(row, column, rowIndex, columnIndex){
+    tableHead (row, column, rowIndex, columnIndex) {
       return 'tableHead'
     }
   }
@@ -329,7 +329,9 @@ export default {
   }
   >>>.el-table__row{
     .el-table__expand-column{
-      opacity 0
+      .cell{
+        visibility: hidden;
+      }
     }
   }
 

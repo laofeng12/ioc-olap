@@ -224,6 +224,7 @@ export default {
     height 100%
     width 100%
     overflow auto
+    padding-top 16px
   }
   >>>.el-radio{
     display block
@@ -248,6 +249,9 @@ export default {
       content: ''
       margin-top -100px
     }
+  }
+  >>>.expanded{
+    margin-top:-100px!important;
   }
   >>>.el-tree-node__children{
     display inline

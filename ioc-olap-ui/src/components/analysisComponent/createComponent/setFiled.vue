@@ -2,10 +2,10 @@
   <div class="setFiled">
     <div class="containers">
       <filed-table></filed-table>
-      <div class="dimension" style="margin-left:270px;">
+      <div class="dimension">
         <p>
           <span>维度选择</span>
-          <span style="color:green;margin-left:10px;cursor:pointer" @click="selectFiled">已选维度</span>
+          <span @click="selectFiled">已选维度</span>
         </p>
         <el-form>
           <el-table
@@ -13,6 +13,7 @@
               v-loading="loading"
               ref="multipleTable"
               tooltip-effect="dark"
+              class="statusDiv"
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
@@ -319,10 +320,34 @@ export default {
 
 <style lang="stylus" scoped>
 .setFiled{
-  padding-bottom 100px
+  padding-bottom 60px
   .containers{
-    height calc(100vh - 150px)
+    // height calc(100vh - 150px)
     padding 20px 5px
+    .dimension{
+      background #ffffff
+      margin-left:245px;
+      padding-top:10px;
+      p{
+        margin-left:10px;
+        span:nth-child(1){
+          font-family: PingFangSC-Medium;
+          font-size: 16px;
+          color: #262626;
+          letter-spacing: 0;
+        }
+        span:nth-child(2){
+          font-family: PingFangSC-Regular;
+          font-size: 14px;
+          color: #0486FE;
+          letter-spacing: 0;
+          text-align: center;
+          line-height: 14px;
+          margin-left:15px;
+          cursor pointer
+        }
+      }
+    }
     >>>.el-table::before{
     content: ''!important
     height 0!important
@@ -348,11 +373,14 @@ export default {
       padding 5px 0!important
     }
     >>>.el-table__body tr:nth-child(even){
-      background #F2F2F2
+      background #F5F7FA
     }
     >>>.el-table__header th{
-      background #F2F2F2
+      background #444444
       padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
     }
     >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
       content: ''

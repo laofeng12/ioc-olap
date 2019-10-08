@@ -137,7 +137,7 @@ export default {
   float left
   background #ffffff
   border-right 1px solid #f0f0f0
-  height calc(100vh - 100px)
+  height 100%
   ul{
     cursor pointer
     overflow auto
@@ -156,7 +156,7 @@ export default {
         color: #0486FE;
         text-align: center;
         line-height: 20px;
-        background: #67C23A;
+        background: #EFF7FF;
         margin-top 5px
         border: 1px solid #0486FE;
         border-radius 3px

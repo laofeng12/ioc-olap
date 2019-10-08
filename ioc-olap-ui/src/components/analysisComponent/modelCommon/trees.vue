@@ -255,7 +255,7 @@ export default {
   .mechanism{
     background #ffffff
     height 98%
-   
+
     .trees{
       width 208px
       height 85%

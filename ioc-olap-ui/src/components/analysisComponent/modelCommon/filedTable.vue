@@ -6,7 +6,7 @@
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
         :key="index" @click="changeLi(item, index)">
-         <i class="el-icon-date" style="margin-right:3px;"></i>
+         <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
          <span class="tableTitle">{{titleData[index]}}</span>
          <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
        </li>
@@ -183,18 +183,21 @@ export default {
 <style lang="stylus" scoped>
 .factTable{
   max-width 230px
-  // width 200px
+  padding 10px
+  background #ffffff
   float left
-  // padding 0 25px
-  border-right 1px solid #f0f0f0
-  height calc(100vh - 100px)
-  overflow auto
+  height calc(100vh - 40px)
   ul{
     cursor pointer
+    overflow auto
+    width 100%
+    height 74%
     li{
       height 30px
       line-height 30px
       color #000000
+      display inline-flex
+      min-width 100%
       .tableTitle{
         width: 70%;
         text-overflow: ellipsis;
@@ -203,11 +206,18 @@ export default {
         vertical-align: bottom;
       }
       .filds{
-        background #009688
-        color #ffffff
-        padding 2px 6px
-        font-size 10px
+        width 52px
+        height 20px
+        font-size: 13px;
+        color: #0486FE;
+        text-align: center;
+        line-height: 20px;
+        background: #EFF7FF;
+        margin-top 5px
+        border: 1px solid #0486FE;
         border-radius 3px
+        margin-left: 3px;
+        vertical-align: middle;
       }
     }
     .actives{
