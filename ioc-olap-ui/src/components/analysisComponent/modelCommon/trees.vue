@@ -254,7 +254,7 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     background #ffffff
-    height 98%
+    height 100%
 
     .trees{
       width 208px

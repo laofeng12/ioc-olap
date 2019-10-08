@@ -77,8 +77,10 @@
           :data="relaodFilterList"
           ref="multipleTable"
           tooltip-effect="dark"
+		  header-cell-class-name="tableHead" 
+		  stripe
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
@@ -290,8 +292,8 @@ export default {
 <style lang="stylus" scoped>
 .reloadSet{
   background #ffffff
-  margin-top 30px
-  padding 20px 30px
+  margin-top: 16px;
+  padding: 16px;
   padding-bottom 100px
   h3{
     font-family: PingFangSC-Medium;
@@ -331,7 +333,7 @@ export default {
   }
   >>>.el-input{
     height 40px
-    width 500px
+    width 100%
     margin-left 15px
     margin-right 30px
     .el-input__inner{

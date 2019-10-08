@@ -401,7 +401,7 @@ export default {
     >>>.el-form-item{
       margin-bottom 20px!important
       .el-input__inner{
-        height 30px
+        height 32px
         .el-input__suffix{
           top 5px
         }
