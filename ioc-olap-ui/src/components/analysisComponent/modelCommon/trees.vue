@@ -256,8 +256,8 @@ export default {
     background #ffffff
     padding-top 15px
     margin-right:10px;
-    height 98%
     width 200px
+    height 100%
     .trees{
       width 198px
       height 85%

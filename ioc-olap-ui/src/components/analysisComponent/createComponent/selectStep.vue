@@ -86,7 +86,7 @@ export default {
 .selectStep{
   padding-bottom 67px
   margin-top 16px
-  background #ffffff
+  // background #ffffff
   position relattive
   .containers{
     background #F2F2F2

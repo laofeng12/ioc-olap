@@ -576,7 +576,7 @@ export default {
     }
   }
   >>>.el-input__inner{
-    height 30px
+    height 32px
   }
 }
 </style>
