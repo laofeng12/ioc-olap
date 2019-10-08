@@ -56,7 +56,8 @@
     <el-dialog title="保存查询结果" :visible.sync="newFormVisible" width="30%">
       <el-form :model="newForm" :rules="newFormRules" ref="newForm">
         <el-form-item label="文件夹" label-width="100px" prop="folder">
-          <el-select v-if="saveFolderListByProp && saveFolderListByProp.length > 0" class="w-100" v-model="newForm.folder" placeholder="请选择文件夹">
+          <el-select v-if="saveFolderListByProp && saveFolderListByProp.length > 0" class="w-100"
+                     v-model="newForm.folder" placeholder="请选择文件夹">
             <el-option v-for="(item, index) in saveFolderListByProp" :key="index" :label="item.name"
                        :value="item.id"></el-option>
           </el-select>
@@ -165,9 +166,15 @@ export default {
     },
     saveFolderListByProp (val) {
       if (this.$route.query.folderId) {
-        this.newForm.folder = this.$route.query.folderId
+        val.map(v => {
+          if (v.id === this.$route.query.folderId) {
+            this.newForm = {
+              folder: v.id,
+              resultName: ''
+            }
+          }
+        })
       }
-      this.newForm = this.formData
     }
   },
   methods: {
