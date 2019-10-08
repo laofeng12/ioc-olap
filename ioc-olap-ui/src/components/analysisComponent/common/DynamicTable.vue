@@ -77,7 +77,7 @@ export default {
       this.$emit('tdClick', item, type)
     },
     handleCurrentChange (val) {
-      if (!Number(this.input)) {
+      if (!Number(this.input) && this.input !== '0') {
         return this.$message.error('查询行数只能为数字')
       } else if (Number(this.input) <= 0) {
         return this.$message.error('查询行数最小为1')
@@ -86,7 +86,7 @@ export default {
       this.$emit('handlePage', val, this.input)
     },
     sure () {
-      if (!Number(this.input)) {
+      if (!Number(this.input) && this.input !== '0') {
         return this.$message.error('查询行数只能为数字')
       } else if (Number(this.input) <= 0) {
         return this.$message.error('查询行数最小为1')

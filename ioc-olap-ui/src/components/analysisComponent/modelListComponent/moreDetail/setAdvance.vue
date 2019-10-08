@@ -55,7 +55,7 @@
           </div>
         </div>
         <el-form-item label="模型构建引擎">
-          {{list.engine_type === '1' ? 'MapReduce' : 'Spark' }}
+          {{list.engine_type === 2 ? 'MapReduce' : 'Spark' }}
         </el-form-item>
         <div class="listSet hetCompose">
           <span>高级列组合</span>

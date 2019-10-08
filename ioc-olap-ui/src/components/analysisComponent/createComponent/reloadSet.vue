@@ -212,8 +212,8 @@ export default {
         // 如果开启就选择表跟字段
         this.rules.data2a[0].required = true
         // 如果开启了日期多列就添加第二个日期格式
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = this.formData.data2a ? `${this.formData.data2a}.${this.formData.data2b}` : ''
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format ? this.formData.partition_time_format : ''
       }
       // 如果选择了数据表 字段表就得变成必填
       if (this.formData.data1a) this.rules.data1b[0].required = true
@@ -295,6 +295,9 @@ export default {
   margin-top: 16px;
   padding: 16px;
   padding-bottom 100px
+  margin-top 30px
+  padding 20px 30px
+  padding-bottom 150px
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;

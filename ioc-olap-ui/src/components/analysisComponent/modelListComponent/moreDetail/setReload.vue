@@ -72,6 +72,7 @@ export default {
         this.dataList.columns = partition_date_column.split('.')[1]
         this.dataList.frequencytype = frequencytype === 1 ? '小时' : (frequencytype === 2 ? '天' : '月')
         this.descriptionData = this.jsonData.filterCondidion
+        this.descriptionData.map((res, index) => { res.index = index + 1 })
       }
     }
   }

@@ -268,8 +268,8 @@ export default {
       this.offset += 15
       this.init()
     },
-    tableHead(row, column, rowIndex, columnIndex){
-       return 'tableHead'
+    tableHead (row, column, rowIndex, columnIndex) {
+      return 'tableHead'
     }
   }
 }

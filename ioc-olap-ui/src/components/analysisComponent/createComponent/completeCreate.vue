@@ -182,6 +182,9 @@ export default {
 .completeCreate{
   padding: 0 16px 16px 16px;
   margin-top: 16px;
+  padding 30px
+  margin-top 30px
+  padding-bottom 100px
   background #ffffff
   .item_line{
     margin-bottom 3px
