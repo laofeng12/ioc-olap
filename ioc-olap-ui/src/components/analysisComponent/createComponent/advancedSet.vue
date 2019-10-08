@@ -534,18 +534,17 @@ export default {
           .el-tag__close {
               color: #5A5A5A !important;
           }
-          
-        width 200px
-        margin-bottom 3px
-        float left
-        margin-left 1%
-        font-size 11px
-        margin-top:5px;
-        height 22px
-        line-height 22px
-        text-align center
-        background #FBFBFB
-        color #555555
+        // width 200px
+        // margin-bottom 3px
+        // float left
+        // margin-left 1%
+        // font-size 11px
+        // margin-top:5px;
+        // height 22px
+        // line-height 22px
+        // text-align center
+        // background #FBFBFB
+        // color #555555
         }
     }
     .nos{
