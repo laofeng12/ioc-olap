@@ -281,7 +281,6 @@ const common = {
       }
       data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
       getters.reloadData.partition_type = !!resultTime
-
       // 赋值第六步
       data.CubeList[0].aggregation_groups.map((item, index) => {
         getters.aggregation_groups[index].includes = item.includes
