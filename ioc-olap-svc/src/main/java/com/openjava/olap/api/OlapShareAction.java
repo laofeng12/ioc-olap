@@ -1,5 +1,6 @@
 package com.openjava.olap.api;
 
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.service.OlapShareService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 @Api(tags = "共享接口")
@@ -28,6 +30,13 @@ public class OlapShareAction {
     @Security(session = true)
     public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        if (userIds != null) {
+            for (Long userId : userIds) {
+                if (userId.equals(Long.parseLong(userVO.getUserId()))) {
+                    throw new APIException(400, "不能分享给自己！");
+                }
+            }
+        }
         if (StringUtils.isNotBlank(cubeName)) {
             olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName(), cubeName);
         } else {

@@ -393,12 +393,17 @@ public class OlapModelingAction extends BaseAction {
     //1、保存前各个数据模块校验
     //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
     public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
-        OlapCube olapCube = olapCubeService.findTableInfo(cube.cubeDescData.getName());
-        if (StringUtils.isBlank(cube.getUuid()) && olapCube != null) {
+        CubeDescDataMapper cubeDescDataMapper = cubeHttpClient.desc(cube.cubeDescData.getName());
+        if (StringUtils.isBlank(cube.getCubeDescData().getUuid()) && cubeDescDataMapper != null) {
             throw new APIException(400, "该立方体名称已存在！");
         }
-        if (StringUtils.isNotBlank(cube.getUuid()) && !olapCube.getCubeId().equals(cube.getUuid())) {
-            throw new APIException(400, "该立方体名称已存在！");
+        //编辑验证
+        if (StringUtils.isNotBlank(cube.getCubeDescData().getUuid())) {
+            if (cubeDescDataMapper == null || !cube.getCubeDescData().getUuid().equals(cubeDescDataMapper.getUuid())) {
+                throw new APIException(400, "不能修改立方体名称！");
+            }
+            cube.getCubeDescData().setVersion(cubeDescDataMapper.getVersion());
+            cube.getCubeDescData().setVersion(cubeDescDataMapper.getLast_modified());
         }
 
         //验证度量是否有数据measures！
@@ -517,7 +522,7 @@ public class OlapModelingAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         ModelsDescDataMapper model = modelHttpClient.entity(models);
 
-        List<CubeDescDataMapper> cube = cubeHttpClient.desc(cubeName);
+        CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         //事实表
@@ -584,7 +589,7 @@ public class OlapModelingAction extends BaseAction {
         //第四步
         //1、移除后端自动添加的_COUNT_   2、将原AVG转换成SUM的再次转换回AVG
         ArrayList<OlapCubeTableColumn> column = olapCubeTableColumnService.findByColumn(cubeName);
-        ArrayList<MeasureMapper> measuresList = cube.get(0).getMeasures();
+        ArrayList<MeasureMapper> measuresList = cube.getMeasures();
         MeasureMapper me = null;
         for (MeasureMapper measure : measuresList) {
             //1、移除后端自动添加的_COUNT_
@@ -598,7 +603,7 @@ public class OlapModelingAction extends BaseAction {
             }
         }
         if (me != null) {
-            cube.get(0).measures.remove(me);
+            cube.measures.remove(me);
         }
 
         List<OlapCubeTableColumn> countColumns = column.stream().filter(p -> p.getExpressionType() != null && p.getExpressionType().equalsIgnoreCase("COUNT")).
@@ -614,12 +619,12 @@ public class OlapModelingAction extends BaseAction {
             OlapCubeTable countTable = cubetable.stream().filter(p -> p.getCubeTableId().equals(countColumn.getTableId())).findFirst().orElse(null);
             mapper.getFunction().getParameter().setValue(countTable.getTableAlias() + "." + countColumn.getColumnName());
             mapper.getFunction().getParameter().setType("column");
-            cube.get(0).hbase_mapping.column_family.get(0).getColumns().get(0).measure_refs.add(countColumn.getName());
+            cube.hbase_mapping.column_family.get(0).getColumns().get(0).measure_refs.add(countColumn.getName());
             measuresList.add(mapper);
         }
 
         //处理cube里dimensions的数据
-        for (DimensionMapper dimension : cube.get(0).getDimensions()) {
+        for (DimensionMapper dimension : cube.getDimensions()) {
             //拿到列,这里的衍生模式是为数组(暂时没发现他为什么要用数组.),我是只取第一个(也只有一个)
             String columu = (dimension.getColumn() != null) == true ? dimension.getColumn() : dimension.getDerived().get(0);
             //查出表信息
@@ -721,8 +726,8 @@ public class OlapModelingAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Date date = new Date();
 
-        List<CubeDescDataMapper> cubeList = cubeHttpClient.desc(cubeNameClone);
-        if (cubeList.size() != 0) {
+        CubeDescDataMapper cube = cubeHttpClient.desc(cubeNameClone);
+        if (cube != null) {
             throw new APIException(400, "已存在该立方体名称！");
         }
         //拿到OLAP_CUBE表数据
