@@ -1,13 +1,13 @@
 <template>
   <div class="factTable">
-     <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
+     <el-input type="text" suffix-icon="el-icon-search" placeholder="请输入关键词" v-model="value" clearable style="margin-bottom: 16px;"></el-input>
      <ul v-if="dataList.lookups && dataList.lookups.length">
        <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
         :key="index" @click="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
-         <span class="tableTitle">{{titleData[index]}}</span>
+         <span class="tableTitle" :title="titleData[index]">{{titleData[index]}}</span>
          <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
        </li>
      </ul>
@@ -28,7 +28,7 @@ export default {
     return {
       value: '',
       current: '',
-      colors: 'red',
+      colors: '#0486FE',
       ids: '',
       primary_key: '',
       titleData: [], // 表名
@@ -182,11 +182,12 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 230px
-  padding 10px
+  max-width 240px
+  padding 16px
   background #ffffff
   float left
   height calc(100vh - 40px)
+  font-size 14px
   ul{
     cursor pointer
     overflow auto
@@ -196,8 +197,9 @@ export default {
       height 30px
       line-height 30px
       color #000000
-      display inline-flex
+      /*display inline-flex*/
       min-width 100%
+      position relative
       .tableTitle{
         width: 70%;
         text-overflow: ellipsis;
@@ -215,13 +217,14 @@ export default {
         background: #EFF7FF;
         margin-top 5px
         border: 1px solid #0486FE;
-        border-radius 3px
         margin-left: 3px;
         vertical-align: middle;
+        position: absolute;
+        right 1px
       }
     }
     .actives{
-      color #009688
+      color #262626
     }
   }
   >>>.el-input{
