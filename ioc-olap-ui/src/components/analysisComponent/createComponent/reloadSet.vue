@@ -47,7 +47,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.partition_type"
+                v-model="formData.ispartition_type"
                 active-color="#13ce66"
                 @change="changeDataMany"
                 inactive-color="#cccccc">
@@ -55,7 +55,7 @@
             </div>
           </template>
         </el-form-item>
-        <div v-if="formData.partition_type">
+        <div v-if="formData.ispartition_type">
         <el-form-item label="日期字段表" class="datarowmore" prop="data2a">
           <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
@@ -77,8 +77,10 @@
           :data="relaodFilterList"
           ref="multipleTable"
           tooltip-effect="dark"
+		  header-cell-class-name="tableHead" 
+		  stripe
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
@@ -121,7 +123,7 @@ export default {
     return {
       formData: {
         autoReload: false,
-        partition_type: false,
+        ispartition_type: false,
         idx: 0,
         data1a: '',
         data1b: '',
@@ -206,7 +208,8 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
-      if (this.formData.partition_type === true) {
+      console.log('力帆', this.formData.ispartition_type)
+      if (this.formData.ispartition_type === true) {
         // 如果开启就选择表跟字段
         this.rules.data2a[0].required = true
         // 如果开启了日期多列就添加第二个日期格式
@@ -266,6 +269,7 @@ export default {
     },
     // 改变日期是否存在多列按钮
     changeDataMany (val) {
+      console.log(val)
       if (!val) {
         // 倘若关闭是否存在多列就得关闭第二个对应的日期格式
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_column
@@ -290,9 +294,9 @@ export default {
 <style lang="stylus" scoped>
 .reloadSet{
   background #ffffff
-  margin-top 30px
-  padding 20px 30px
-  padding-bottom 150px
+  margin-top: 16px;
+  padding: 16px;
+  padding-bottom 100px
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;
@@ -331,7 +335,7 @@ export default {
   }
   >>>.el-input{
     height 40px
-    width 500px
+    width 100%
     margin-left 15px
     margin-right 30px
     .el-input__inner{

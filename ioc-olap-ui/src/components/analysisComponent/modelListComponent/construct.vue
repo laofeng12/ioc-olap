@@ -9,7 +9,6 @@
           <el-date-picker
             v-model="form.startTime"
             type="datetime"
-            :picker-options="pickerOptions1"
             placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
@@ -46,7 +45,7 @@ export default {
       dialogFormVisible: false,
       pickerOptions2: {
         disabledDate: (time) => {
-          // return time.getTime() < this.form.startTime
+          return time.getTime() < this.form.startTime
         }
       }
     }

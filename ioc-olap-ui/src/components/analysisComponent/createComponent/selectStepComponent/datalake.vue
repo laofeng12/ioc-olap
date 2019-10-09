@@ -104,15 +104,14 @@ export default {
 .datalake {
   position absolute
   width 100%
-  height 95%
-  margin-top 10px
+  height 100%
+  // margin-top 10px
   display flex
   .step_tab{
     box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)
     width 100%
-    margin-left 10px
-    min-width 800px
     height 100%
+    background #fff
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
