@@ -38,13 +38,13 @@ export default {
 <style lang="stylus" scoped>
 .step_dv{
     background #ffffff
-    height 60px
+    height 52px
+    line-height 52px
     width 100%
     position fixed
     z-index 10
     bottom 0
     left 0
-    padding-top 15px
   }
 .steps{
   position: fixed;
