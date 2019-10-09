@@ -157,7 +157,7 @@ export function filterTime (time) {
     'q+': Math.floor((d.getMonth() + 3) / 3),
     'S': d.getMilliseconds()
   }
-  var format = 'yyyy-MM-dd mm:ss'
+  var format = 'yyyy-MM-dd hh:mm:ss'
   if (/(y+)/.test(format)) {
     format = format.replace(RegExp.$1, (d.getFullYear() + '').substr(4 - RegExp.$1.length))
   }
