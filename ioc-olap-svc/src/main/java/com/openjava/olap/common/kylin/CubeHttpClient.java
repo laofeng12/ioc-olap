@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
 @Component
 public class CubeHttpClient extends KylinHttpClient {
     public List<CubeMapper> list(String cubeName, String projectName, Integer limit, Integer offset) throws APIException {
@@ -48,15 +49,14 @@ public class CubeHttpClient extends KylinHttpClient {
         return result;
     }
 
-    public List<CubeDescDataMapper> desc(String cubeName) throws APIException {
+    public CubeDescDataMapper desc(String cubeName) throws APIException {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
         Class<CubeDescDataMapper[]> claszz = CubeDescDataMapper[].class;
         CubeDescDataMapper[] result = HttpClient.get2(url, config.authorization, claszz);
-        if (result == null) {
-            List<CubeDescDataMapper> resultList = new ArrayList<CubeDescDataMapper>();
-            return resultList;
+        if (result == null || result.length == 0) {
+            return null;
         } else {
-            return Arrays.asList(result);
+            return result[0];
         }
     }
 

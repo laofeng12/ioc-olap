@@ -515,9 +515,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     }
 
     @Override
-    public AnyDimensionVo query(Long analyzeId, Long cubeId, String userId) throws APIException {
+    public AnyDimensionVo query(Long analyzeId, Long cubeId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql(), 0, 0);
+        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), 0, 0);
     }
 
     @Override
@@ -552,9 +552,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     }
 
     @Override
-    public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId, String userId) throws APIException {
+    public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), userId, analyzeVo.getSql(), pageIndex, pageSize);
+        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), pageIndex, pageSize);
     }
 
     private boolean isStringType(String columnType) {

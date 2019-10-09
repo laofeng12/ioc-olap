@@ -71,7 +71,7 @@ public class OlapShareServiceImpl implements OlapShareService {
     @Transactional(readOnly = false)
     public void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName) {
         olapShareRepository.deleteByFkIdAndSourceId(sourceId, sourceType);
-        if(shareUserIds!=null){
+        if (shareUserIds != null) {
             for (Long shareUserId : shareUserIds) {
                 OlapShare share = new OlapShare();
                 share.setCreateId(userId);
@@ -93,7 +93,7 @@ public class OlapShareServiceImpl implements OlapShareService {
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
 
         olapShareRepository.deleteByFkIdAndSourceId(olapCube.getCubeId(), sourceType);
-        if(shareUserIds!=null){
+        if (shareUserIds != null) {
             for (Long shareUserId : shareUserIds) {
                 OlapShare share = new OlapShare();
                 share.setCreateId(userId);

@@ -62,7 +62,7 @@ public class CubeAction extends KylinAction {
     @ApiOperation(value = "获取CUBE描述信息")
     @RequestMapping(value = "desc", method = RequestMethod.GET)
     @Security(session = true)
-    public List<CubeDescDataMapper> desc(String cubeName) throws APIException {
+    public CubeDescDataMapper desc(String cubeName) throws APIException {
         return cubeHttpClient.desc(cubeName);
     }
 

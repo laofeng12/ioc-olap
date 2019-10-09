@@ -39,11 +39,11 @@ public interface OlapAnalyzeService {
 
     AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises,String userId) throws APIException;
 
-	AnyDimensionVo query(Long analyzeId, Long cubeId,String userId) throws APIException;
+	AnyDimensionVo query(Long analyzeId, Long cubeId) throws APIException;
 
     QueryResultMapper queryDimension(Long tableId, Long columnId, Long userId,String key,Integer offeset,Integer limit) throws APIException;
 
     AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long cubeId, List<AnalyzeAxisVo> axises, String userId) throws APIException;
 
-	AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId, String userId) throws APIException;
+	AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId) throws APIException;
 }
