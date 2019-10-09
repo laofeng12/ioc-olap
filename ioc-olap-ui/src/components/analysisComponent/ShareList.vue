@@ -140,7 +140,7 @@ export default {
       }
       const res = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [...this.tableData, ...res]
+        this.tableData = [ ...res, ...this.tableData]
       } else {
         this.moreShow = false
         // this.$message.success('已加载所有数据')

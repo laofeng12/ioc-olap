@@ -138,7 +138,7 @@ export default {
       }
       const res = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [...this.tableData, ...res]
+        this.tableData = [...res, ...this.tableData]
         if (res.length < 15) this.moreShow = false
       } else {
         this.moreShow = false
