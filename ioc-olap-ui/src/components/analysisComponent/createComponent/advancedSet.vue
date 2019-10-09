@@ -5,7 +5,7 @@
         <div class="aggregation">
           <div class="aggregation_head">
             <span>维度分组聚合</span>
-            <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
+            <span style="color:#0486FE;margin-left:10px;cursor:pointer;" @click="addaAggregation">添加聚合小组</span>
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
@@ -465,18 +465,18 @@ export default {
       color: #444444;
     }
     .listSet__box{
-
+      width: 100%;
       .adds{
         display flex
         width 100%
-        margin-bottom 10px
+        margin-bottom 16px
         div{
-          margin-left 120px
           flex 1
           border 1px solid #cccccc
           cursor pointer
           height 32px;
           line-height 32px;
+          margin-top: 8px;
         }
       }
       p{
