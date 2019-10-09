@@ -50,7 +50,7 @@
         <div class="box">
           <div class="title">未选择用户</div>
           <div class="dis-flex">
-            <el-input placeholder="请输入内容" size="mini" v-model="searchUser"></el-input>
+            <el-input placeholder="请输入用户账号" size="mini" v-model="searchUser"></el-input>
             <el-button size="mini" type="primary" icon="el-icon-search" @click="searchUserFunc('search')"></el-button>
           </div>
           <el-checkbox-group v-model="userCheckList" class="list">
@@ -97,6 +97,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { newOlapFolderApi, deleteOlapFolderApi, getShareUserApi, saveShareApi } from '../../../api/instantInquiry'
 import { getUserListApi } from '../../../api/login'
 
@@ -170,6 +171,9 @@ export default {
       userPage: 0,
       totalPage: 0
     }
+  },
+  computed: {
+    ...mapGetters(['userInfo'])
   },
   watch: {
     searchKey (val) {
@@ -285,7 +289,7 @@ export default {
         const userList = rows.map(item => {
           let disabled = false
           res.forEach(v => {
-            if (v.shareUserId === item.userid) {
+            if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
               disabled = true
             }
           })
@@ -343,7 +347,7 @@ export default {
       const userList = this.userRows.map(item => {
         let disabled = false
         this.shareList.forEach(v => {
-          if (v.key === item.userid) {
+          if (v.key === item.userid || item.userid == this.userInfo.userId) {
             disabled = true
           }
         })
@@ -376,7 +380,7 @@ export default {
         const userList = rows.map(item => {
           let disabled = false
           this.shareList.forEach(v => {
-            if (v.shareUserId === item.userid) {
+            if (v.key === item.userid || item.userid == this.userInfo.userId) {
               disabled = true
             }
           })
