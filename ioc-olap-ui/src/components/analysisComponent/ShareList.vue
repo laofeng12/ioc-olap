@@ -138,13 +138,11 @@ export default {
         dateType: 0,
         ...val
       }
-      const res = await getModelDataList(params)
+      const { cubeMappers: res, next } = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [ ...res, ...this.tableData]
-      } else {
-        this.moreShow = false
-        // this.$message.success('已加载所有数据')
+        this.tableData = [...res, ...this.tableData]
       }
+      this.moreShow = next
       this.getLoading = false
     },
     searchFetch (val) {
