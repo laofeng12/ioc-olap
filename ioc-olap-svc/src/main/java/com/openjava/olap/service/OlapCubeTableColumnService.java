@@ -27,8 +27,6 @@ public interface OlapCubeTableColumnService {
 
     OlapCubeTableColumn doSave(OlapCubeTableColumn m);
 
-    void saveCubeTableColumn(CubeDescMapper cube, Long cubeId, List<OlapCubeTable> dmEntity, ArrayList<MeasureMapper> countMappers);
-
     void doDelete(Long id);
 
     void doRemove(String ids);

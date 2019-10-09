@@ -2,7 +2,9 @@ package com.openjava.olap.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.JsonUtil;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
@@ -152,21 +154,19 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "第七步——完成创建")
     @RequestMapping(value = "/createModeling", method = RequestMethod.POST)
     @Security(session = true)
-    public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws APIException {
+    public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws Exception {
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String cubeName = cube.cubeDescData.getName();
+        String modelName = "";
         Date date = new Date();
 
         ModelsMapper modelMap = new ModelsMapper();
         CubeDescNewMapper cubeMap = new CubeDescNewMapper();
-
-        //处理逻辑如下：
-        //1、保存前各个数据模块校验
-        //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
-        saveVerification(cube, models);
+        ModelsDescDataMapper oldModel = null;
+        CubeDescDataMapper oldCube = saveVerification(cube, models);
 
         //处理逻辑如下：
         //1、反推models里选择的维度字段
@@ -183,8 +183,7 @@ public class OlapModelingAction extends BaseAction {
         //处理逻辑如下：
         //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
         if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
-            //为models的name给一个唯一值
-            String modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
+            modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
             models.modelDescData.setName(modelName);
             models.modelDescData.setVersion(null);
             models.setProject(userVO.getUserId());
@@ -201,9 +200,10 @@ public class OlapModelingAction extends BaseAction {
                 throw ex;
             }
         } else {
-            ModelsDescDataMapper modelsDescDataMapper = modelHttpClient.entity(models.getModelDescData().getName());
-            models.getModelDescData().setVersion(modelsDescDataMapper.getVersion());
-            models.getModelDescData().setLast_modified(modelsDescDataMapper.getLast_modified());
+            modelName = models.getModelDescData().getName();
+            oldModel = modelHttpClient.entity(models.getModelDescData().getName());
+            models.getModelDescData().setVersion(oldModel.getVersion());
+            models.getModelDescData().setLast_modified(oldModel.getLast_modified());
             modelMap = modelHttpClient.update(models);
             try {
                 cube.project = userVO.getUserId();
@@ -212,19 +212,10 @@ public class OlapModelingAction extends BaseAction {
                 cube.cubeDescData.setStorage_type("2");
                 cubeMap = cubeHttpClient.update(cube);
             } catch (Exception ex) {
-                modelMap.modelDescData.setPartition_desc(modelsDescDataMapper.getPartition_desc());
-                modelMap.modelDescData.setLookups(modelsDescDataMapper.getLookups());
-                modelMap.modelDescData.setFact_table(modelsDescDataMapper.getFact_table());
-                modelMap.modelDescData.setMetrics(modelsDescDataMapper.getMetrics());
-                modelMap.modelDescData.setDimensions(modelsDescDataMapper.getDimensions());
-                modelMap.modelDescData.setFilter_condition(modelsDescDataMapper.getFilter_condition());
-                modelHttpClient.update(modelMap);
+                restoreModel(modelMap, oldModel);
                 throw ex;
             }
         }
-
-        paramMap.put("ModesList", modelMap);
-        paramMap.put("CubeList", cubeMap);
 
         //处理逻辑如下：
         //1、保存OLAP_CUBE表
@@ -238,11 +229,45 @@ public class OlapModelingAction extends BaseAction {
         //1、保存OLAP_CUBE_TABLE_RELATION表
         List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
 
-        //处理逻辑如下：
-        //1、保存所有数据
-        saveTable(olapCube, cubeTablesList, olapcubeList, body.getCubeDatalaketableNew(), cube, models.getModelDescData(), body.getTimingreFresh(),
-                date, userVO, body.getFilterCondidion(), countMappers);
+        try {
+            //保存所有数据
+            olapCubeService.saveTable(olapCube, cubeTablesList, olapcubeList, body.getCubeDatalaketableNew(), cube, models.getModelDescData(), body.getTimingreFresh(),
+                    date, userVO, body.getFilterCondidion(), countMappers);
+        } catch (Exception ex) {
+            if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
+                modelHttpClient.delete(modelName);
+                cubeHttpClient.delete(cubeName);
+            } else {
+                restoreModel(modelMap, oldModel);
+                restoreCube(cubeMap, oldCube);
+            }
+            throw ex;
+        }
+
+        paramMap.put("ModesList", modelMap);
+        paramMap.put("CubeList", cubeMap);
         return paramMap;
+    }
+
+    private void restoreCube(CubeDescNewMapper cubeMap, CubeDescDataMapper oldCube) throws APIException {
+        CubeDescDataMapper newCube = cubeHttpClient.desc(cubeMap.cubeName);
+        CubeDescMapper cubeDescMapper = new CubeDescMapper();
+        cubeDescMapper.setCubeName(oldCube.getName());
+        cubeDescMapper.setProject(cubeMap.project);
+        cubeDescMapper.setCubeDescData(oldCube);
+        cubeDescMapper.setUuid(newCube.getUuid());
+        oldCube.setLast_modified(newCube.getLast_modified());
+        cubeHttpClient.update(cubeDescMapper);
+    }
+
+    private void restoreModel(ModelsMapper modelMap, ModelsDescDataMapper oldModel) throws APIException {
+        modelMap.modelDescData.setPartition_desc(oldModel.getPartition_desc());
+        modelMap.modelDescData.setLookups(oldModel.getLookups());
+        modelMap.modelDescData.setFact_table(oldModel.getFact_table());
+        modelMap.modelDescData.setMetrics(oldModel.getMetrics());
+        modelMap.modelDescData.setDimensions(oldModel.getDimensions());
+        modelMap.modelDescData.setFilter_condition(oldModel.getFilter_condition());
+        modelHttpClient.update(modelMap);
     }
 
     private String makeFilterSql(List<OlapFilterCondidion> filterCondidion) {
@@ -392,7 +417,7 @@ public class OlapModelingAction extends BaseAction {
     //处理逻辑如下：
     //1、保存前各个数据模块校验
     //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
-    public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
+    public CubeDescDataMapper saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
         CubeDescDataMapper cubeDescDataMapper = cubeHttpClient.desc(cube.cubeDescData.getName());
         if (StringUtils.isBlank(cube.getCubeDescData().getUuid()) && cubeDescDataMapper != null) {
             throw new APIException(400, "该立方体名称已存在！");
@@ -425,93 +450,8 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
-    }
 
-
-    //处理逻辑如下：
-    //1、保存所有数据
-    @Transactional(readOnly = false)
-    public boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
-                             List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
-                             OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions, ArrayList<MeasureMapper> countMappers) {
-        OlapFilter olapFilter = null;
-        if (olapCube.getIsNew() == false) {
-            olapCubeTableService.deleteCubeId(olapCube.getCubeId());
-            olapCubeTableColumnService.deleteCubeId(olapCube.getCubeId());
-            olapCubeTableRelationService.deleteCubeId(olapCube.getCubeId());
-            olapFilterCondidionService.deleteByCubeName(olapCube.getName());
-            olapFilter = olapFilterService.findTableInfo(olapCube.getName(), Long.parseLong(userVO.getUserId()));
-            if (olapFilter != null) {
-                olapFilter.setFilterSql(modelDescData.getFilter_condition());
-                olapFilter.setUpdateId(Long.parseLong(userVO.getUserId()));
-                olapFilter.setUpdateName(userVO.getUserAccount());
-                olapFilter.setUpdateTime(date);
-                olapFilter.setIsNew(false);
-                olapFilterService.doSave(olapFilter);
-            } else {
-                olapFilter = new OlapFilter();
-                olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
-                olapFilter.setFilterSql(modelDescData.getFilter_condition());
-                olapFilter.setCubeName(olapCube.getName());
-                olapFilter.setCreateTime(date);//创建时间
-                olapFilter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
-                olapFilter.setCreateName(userVO.getUserAccount());//创建人名称
-                olapFilter.setIsNew(true);
-                olapFilterService.doSave(olapFilter);
-            }
-        } else {
-            olapFilter = new OlapFilter();
-            olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
-            olapFilter.setFilterSql(modelDescData.getFilter_condition());
-            olapFilter.setCubeName(olapCube.getName());
-            olapFilter.setCreateTime(date);//创建时间
-            olapFilter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
-            olapFilter.setCreateName(userVO.getUserAccount());//创建人名称
-            olapFilter.setIsNew(true);
-            olapFilterService.doSave(olapFilter);
-        }
-
-        for (OlapFilterCondidion fc : condidions) {
-            OlapFilterCondidion filterCondion = new OlapFilterCondidion();
-            filterCondion.setId(ConcurrentSequence.getInstance().getSequence());
-            filterCondion.setFilterId(olapFilter.getId());            //过滤表ID
-            filterCondion.setTableName(fc.getTableName());  //表名称
-            filterCondion.setField(fc.getField());          //表字段
-            filterCondion.setPattern(fc.getPattern());      //过滤方式
-            filterCondion.setParameter(fc.getParameter());  //过滤值
-            filterCondion.setIds(fc.getIds());                //前端需要的ID
-            filterCondion.setIsNew(true);
-            filterCondion.setCubeName(olapCube.getName());
-            olapFilterCondidionService.doSave(filterCondion);
-        }
-
-        olapCubeService.doSave(olapCube);
-
-        for (OlapCubeTable tableItem : cubeTablesList) {
-            olapCubeTableService.doSave(tableItem);
-        }
-
-        for (OlapCubeTableRelation relationItem : olapcubeList) {
-            olapCubeTableRelationService.doSave(relationItem);
-        }
-
-        if (cubeDatalaketableNew != null) {
-            //保存构建时选择的第一步表
-            for (CubeDatalaketableNewMapper cdn : cubeDatalaketableNew) {
-                for (OlapDatalaketable od : cdn.tableList) {
-                    od.setId(ConcurrentSequence.getInstance().getSequence());
-                    od.setOrgName(od.getDatabase());
-                    od.setIsNew(true);
-                    od.setCubeName(olapCube.getName());
-                    olapDatalaketableService.doSave(od);
-                }
-            }
-        }
-        //保存OLAP_CUBE_TABLE_COLUMN表
-        olapCubeTableColumnService.saveCubeTableColumn(cube, olapCube.getCubeId(), cubeTablesList, countMappers);
-        //保存CUBE刷新频率
-        olapTimingrefreshService.timingTasks(timingreFresh, cube, date, userVO);
-        return true;
+        return cubeDescDataMapper;
     }
 
 
