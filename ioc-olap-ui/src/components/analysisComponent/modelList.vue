@@ -136,6 +136,7 @@ export default {
         ...val
       }
       const res = await getModelDataList(params)
+      console.log('得到的', res)
       if (res.length > 0) {
         this.tableData = [...this.tableData, ...res]
         if (res.length < 15) this.moreShow = false
@@ -268,12 +269,14 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
-        return this.$router.push({
-          path: '/analysisModel/createolap/selectStep',
-          query: {
-            cubeName: params.name, models: params.model
-          }
-        })
+        console.log('获取的', params)
+
+        // return this.$router.push({
+        //   path: '/analysisModel/createolap/selectStep',
+        //   query: {
+        //     cubeName: params.name, models: params.model
+        //   }
+        // })
       }
       this.$refs[type].dialog(params)
     },
@@ -294,6 +297,9 @@ export default {
     closeChangeLoading () {
       this.getLoading = false
       this.init()
+    },
+    closeChangeLoadingLoser () {
+      this.getLoading = false
     },
     moreData () {
       this.offset += 15

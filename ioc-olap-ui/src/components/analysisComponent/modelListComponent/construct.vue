@@ -8,6 +8,7 @@
         <el-form-item label="开始时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.startTime"
+            value-format="timestamp"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
@@ -15,9 +16,8 @@
         <el-form-item label="结束时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="form.endTime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            :picker-options="pickerOptions2"
+            value-format="timestamp"
+            :picker-options="pickerOptions"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
@@ -43,7 +43,7 @@ export default {
       },
       formLabelWidth: '120px',
       dialogFormVisible: false,
-      pickerOptions2: {
+      pickerOptions: {
         disabledDate: (time) => {
           return time.getTime() < this.form.startTime
         }
@@ -52,7 +52,6 @@ export default {
   },
   methods: {
     handlebtn () {
-      console.log('time===', this.getTimezoneOffset(this.form.startTime))
       this.$confirm('确定构建此模型？', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -72,7 +71,9 @@ export default {
             this.form.endTime = ''
             this.$parent.closeChangeLoading()
           }).catch(_ => {
-            this.$parent.closeChangeLoading()
+            this.$parent.closeChangeLoadingLoser()
+            this.form.startTime = ''
+            this.form.endTime = ''
           })
         })
       })
