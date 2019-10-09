@@ -43,8 +43,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.totalSaveData.cube.cubeDescData.name)
-      // this.$store.dispatch('SaveModelAllList', this.json)
       if (this.$route.query.cubeName) {
         this.isLoading = true
         let { cubeName, models } = this.$route.query
@@ -86,28 +84,34 @@ export default {
 <style lang="stylus" scoped>
 .creates{
   position relative
+  // margin-top -25px
   width 100%
+  >>>.el-form{
+    padding:0px!important;
+  }
   header{
+    height 40px!important
     width 100%
-    margin-bottom 16px
-    .el-form {
-       overflow: hidden;
-       background: #f2f2f2;
-       padding: 0 !important;
-    }
+    background: #333333;
+    margin-bottom 15px
     >>>.el-button{
-       background: #f2f2f2;
-       border: none;
-       padding: 0 !important;
-       .el-icon-arrow-left{font-size:18px}
+      background #333333
+      float left
+      border none
+      font-size 20px
+      height 40px!important
+      color #ffffff
+      border-right 1px solid #ccc
     }
     >>>.el-input{
+      float left
       width 200px
-      margin-left 48px
-      height 32px
+      margin-left 20px
+      height 30px
+      margin-top 5px
       .el-input__inner{
         border-radius 0
-        height 32px
+        height 30px
       }
     }
   }

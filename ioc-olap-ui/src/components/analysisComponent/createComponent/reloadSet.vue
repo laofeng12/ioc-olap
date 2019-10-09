@@ -1,9 +1,9 @@
 <template>
   <div class="reloadSet">
      <el-form :model="formData" :rules="rules" ref="formData">
-        <el-form-item label="刷新设置" class="item_line"></el-form-item>
-        <el-form-item label="自动刷新" class="item_line"></el-form-item>
-        <el-form-item label="自动刷新模型？">
+      <h3>刷新设置</h3>
+      <h4>自动刷新</h4>
+        <el-form-item label="自动刷新模型?">
           <template>
             <div>
               <el-switch
@@ -27,7 +27,7 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="日期字段" class="item_line"></el-form-item>
+        <h4 style="margin-top:30px;">日期字段</h4>
         <el-form-item label="日期字段表" class="datarowmore">
           <el-select v-model="formData.data1a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)">
             <el-option v-for="(item, index) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
@@ -47,7 +47,7 @@
           <template>
             <div>
               <el-switch
-                v-model="formData.partition_type"
+                v-model="formData.ispartition_type"
                 active-color="#13ce66"
                 @change="changeDataMany"
                 inactive-color="#cccccc">
@@ -55,7 +55,7 @@
             </div>
           </template>
         </el-form-item>
-        <div v-if="formData.partition_type">
+        <div v-if="formData.ispartition_type">
         <el-form-item label="日期字段表" class="datarowmore" prop="data2a">
           <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
@@ -72,13 +72,15 @@
           </el-select>
         </el-form-item>
         </div>
-        <el-form-item label="过滤设置" class="item_line"></el-form-item>
+        <h4>过滤设置</h4>
         <el-table
           :data="relaodFilterList"
           ref="multipleTable"
           tooltip-effect="dark"
+		  header-cell-class-name="tableHead" 
+		  stripe
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+          <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
           <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
           <el-table-column prop="field" label="字段" align="center"> </el-table-column>
           <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
@@ -121,7 +123,7 @@ export default {
     return {
       formData: {
         autoReload: false,
-        partition_type: false,
+        ispartition_type: false,
         idx: 0,
         data1a: '',
         data1b: '',
@@ -185,7 +187,6 @@ export default {
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
       this.formData = this.reloadData
-      console.log(this.formData)
     },
     nextModel (val) {
       this.processReloadData()
@@ -207,12 +208,13 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
-      if (this.formData.partition_type === true) {
+      console.log('力帆', this.formData.ispartition_type)
+      if (this.formData.ispartition_type === true) {
         // 如果开启就选择表跟字段
         this.rules.data2a[0].required = true
         // 如果开启了日期多列就添加第二个日期格式
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = `${this.formData.data2a}.${this.formData.data2b}`
-        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_column = this.formData.data2a ? `${this.formData.data2a}.${this.formData.data2b}` : ''
+        this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format ? this.formData.partition_time_format : ''
       }
       // 如果选择了数据表 字段表就得变成必填
       if (this.formData.data1a) this.rules.data1b[0].required = true
@@ -267,6 +269,7 @@ export default {
     },
     // 改变日期是否存在多列按钮
     changeDataMany (val) {
+      console.log(val)
       if (!val) {
         // 倘若关闭是否存在多列就得关闭第二个对应的日期格式
         delete this.totalSaveData.models.modelDescData.partition_desc.partition_time_column
@@ -290,25 +293,57 @@ export default {
 
 <style lang="stylus" scoped>
 .reloadSet{
-  padding 30px 100px
+  background #ffffff
+  margin-top: 16px;
+  padding: 16px;
   padding-bottom 100px
+  h3{
+    font-family: PingFangSC-Medium;
+    font-size: 16px;
+    color: #262626;
+    letter-spacing: 0;
+    margin-left -10px
+    margin-bottom 20px
+  }
+  h4{
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    color: #444444;
+    letter-spacing: 0;
+    line-height: 12px;
+    width 100%
+    border-bottom 1px solid #D9D9D9
+    height 30px
+    line-height 30px
+  }
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
   }
+  >>>.el-table__body, >>>.el-table__header{
+    width auto!important
+  }
+  >>>.el-form-item{
+    margin-top:20px;
+  }
   >>>.el-form-item__label{
-    width 120px
-    text-align left
+    width 180px
+    text-align right
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    color: #5A5A5A;
   }
   >>>.el-input{
-    height 30px
+    height 40px
+    width 100%
+    margin-left 15px
     margin-right 30px
     .el-input__inner{
-      height 30px
+      height 40px
     }
   }
   >>>.el-input__suffix{
-    top 10px
+    // top 10px
   }
   >>>.is-focus{
     .el-input__suffix{
@@ -322,6 +357,22 @@ export default {
     float left
     >>>.el-input{
       width 100px
+    }
+  }
+  >>>.el-table__body tr:nth-child(even){
+      background #F5F7FA
+    }
+  >>>.el-table__header th{
+      background #444444
+      padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+    }
+  >>>.el-table{
+    overflow initial!important
+    .el-table__body-wrapper{
+      overflow initial!important
     }
   }
 }

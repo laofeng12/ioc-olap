@@ -344,7 +344,7 @@ export default {
     async getCubes () {
       const menuList = await getCubesApi()
       this.menuList = menuList
-      this.changeCubeId(this.selectCubeId)
+      if (this.selectCubeId) this.changeCubeId(this.selectCubeId)
     },
     changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]

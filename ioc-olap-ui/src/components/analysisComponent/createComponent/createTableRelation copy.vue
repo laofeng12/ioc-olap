@@ -71,7 +71,6 @@ export default {
   },
   data () {
     return {
-      url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
       filedPosition: {
@@ -102,7 +101,7 @@ export default {
         label: {
           position: {
             name: 'right',
-            args: { y: 6 } // extra arguments for the label layout function, see `layout.PortLabel` section
+            args: { y: 100 } // extra arguments for the label layout function, see `layout.PortLabel` section
           },
           markup: '<text class="label-text" fill="blue"/>'
         }
@@ -288,12 +287,12 @@ export default {
           if (element) {
             e.model.target(element)
             e.model.labels([{ position: 0.5,
-              attrs: { '.marker-target': { fill: 'red', stroke: '#ffffff' },
+              attrs: { '.marker-target': { fill: '#67C23A', stroke: '#ffffff' },
                 '.marker-source': {
                   fill: '#0486FE', // 箭头颜色
                   d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
                 },
-                text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px', 'z-index': '-1' } } }])
+                text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px' } } }])
           }
         }
       })
@@ -303,20 +302,8 @@ export default {
         this.filedPosition = e.model.get('position')
       })
 
-      // 鼠标移到连线上
-      paper.on('cell:mouseover', (e, d) => {
-      })
-
-      // 鼠标离开连线
-      paper.on('cell:mouseout', (e, d) => {
-      })
-
-      // 鼠标点击连线
-      paper.on('link:pointerdown', (e, d) => {
-        d.stopPropagation()
-      })
-
       paper.on('cell:pointermove', (e, d) => {
+        console.log('出发~~')
         let attrs = e.model.get('attrs')
 
         if (attrs.text && attrs.text.filed) {
@@ -371,7 +358,7 @@ export default {
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
               '.marker-source': {
-                fill: '#D8D8D8', // 箭头颜色
+                fill: '#0486FE', // 箭头颜色
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
               line: {
@@ -584,34 +571,20 @@ export default {
             x: (item.position && item.position.x) || randomPosition.x,
             y: (item.position && item.position.y) || randomPosition.y
           },
-          // "连接点"（port）的风格
-          portMarkup: '<rect class="joint-port-body" width="10" height="3" style="fill:black" />',
-          // "连接点"（port）标签文字的显示风格
-          portLabelMarkup: '<text class="port-label joint-port-label" font-size="10" y="0" fill="#000" /> ',
-          ports: { // 定义连接点
+          ports: {
+            groups: {
+              'a': {}
+            },
+            items: [this.port]
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { image: { 'xlink:href': 'images/' + this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
+          attrs: { rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
-        // newRect.addPort(this.port)
+        newRect.addPort(this.port)
         this.graph.addCell(newRect)
-        // this.member()
       }
 
       return newRect
-    },
-    // 设置icon
-    member () {
-      var cell = new joint.shapes.org.Member({
-        attrs: {
-          image: {
-            'xlink:href': 'images/' + this.url,
-            opacity: 0.7
-          }
-        }
-      })
-      this.graph.addCell(cell)
-      return cell
     },
     // test
     addLinkCell (item) {
@@ -812,9 +785,8 @@ export default {
 
       return result
     },
-    // 编辑对应的数据
+
     formatJointList: function (data) {
-      // 获取对应的坐标
       let posList = this.getElementPosition() || {}
       let factText = data.fact_table + data.fact_table
       let result = {
@@ -895,7 +867,6 @@ export default {
 
       for (let i = 0; i < eles.length; i++) {
         let ele = eles[i]
-        // 判断删除的是表还是线
         if (ele.attributes.type === 'standard.Link') {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
             ele.remove()
@@ -911,7 +882,7 @@ export default {
         }
       }
     },
-    // 获取当前线对应的两个表的数据
+
     getLinkElements: function (ele) {
       let source = ele.getSourceElement() || null
       let target = ele.getTargetElement() || null
@@ -948,7 +919,7 @@ export default {
 
       return element
     },
-    // 操作按钮的弹框
+
     hideCellLayer () {
       this.cellLayerStyle = ''
       this.cellLayerData = null
@@ -1090,9 +1061,9 @@ export default {
 
 .papers .linkRemove{
   left 50%
-  top 54%
-  height 18px
-  width 18px
+  top 50%
+  height 15px
+  width 15px
   background-size 100% 100%
   tranform translate(-50%, -50%)
 }
@@ -1145,8 +1116,8 @@ export default {
   .title{
     font-size: 14px;
     color: #303133;
-    height 42px
-    line-height 42px
+    height 32px
+    line-height 32px
     border-bottom 1px solid #E4E7ED
     letter-spacing: 0;
   }
@@ -1201,7 +1172,7 @@ export default {
       margin-top 5px !important
     }
     .is-reverse{
-      margin-top -5px !important
+      margin-top 5px !important
     }
   }
   >>>.el-input__inner{

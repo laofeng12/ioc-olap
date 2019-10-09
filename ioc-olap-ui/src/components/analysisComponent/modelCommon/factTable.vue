@@ -1,7 +1,16 @@
 <template>
   <div class="factTable" onselectstart = "return false">
-     <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <el-button type="text" @click="changes">设置事实表</el-button>
+     <!-- <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input> -->
+     <el-row class="left-search">
+       <el-input
+         size="small"
+         suffix-icon="el-icon-search"
+         placeholder="请输入关键词"
+         v-model="value"
+         clearable>
+       </el-input>
+     </el-row>
+     <el-button type="text" @click="changes" style="margin: 16px 0;width: 100%;color: #0486FE; background: #fff!important;border: 1px solid #0486FE;"  size="small">设置事实表</el-button>
      <ul v-if="dataList && dataList.length">
        <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
          <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
@@ -123,12 +132,12 @@ export default {
 <style lang="stylus" scoped>
 .factTable{
   max-width 240px
-  padding 10px
-  font-size 12px
+  padding 16px
+  font-size 14px
   float left
   background #ffffff
   border-right 1px solid #f0f0f0
-  height calc(100vh - 100px)
+  height 100%
   ul{
     cursor pointer
     overflow auto
@@ -147,7 +156,7 @@ export default {
         color: #0486FE;
         text-align: center;
         line-height: 20px;
-        background: #67C23A;
+        background: #EFF7FF;
         margin-top 5px
         border: 1px solid #0486FE;
         border-radius 3px
@@ -163,14 +172,10 @@ export default {
       color: #0486FE;
     }
   }
-  >>>.el-input{
-    height 30px
-    .el-input__inner{
-      height 30px
-    }
-  }
-  >>>.el-input__suffix{
-    margin-top -5px
-  }
+
+  // >>>.el-input__suffix{
+  //   margin-top -5px
+  // }
 }
+
 </style>

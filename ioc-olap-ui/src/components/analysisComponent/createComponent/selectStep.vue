@@ -14,7 +14,7 @@
         </el-tabs>
     </div>
     <select-modal ref="dialog"></select-modal>
-    <steps class="steps" :step="1" @nextModel="nextModel"></steps>
+    <steps :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
 
@@ -86,7 +86,7 @@ export default {
 .selectStep{
   padding-bottom 67px
   margin-top 16px
-  background #ffffff
+  // background #ffffff
   position relattive
   .containers{
     background #F2F2F2
@@ -101,6 +101,7 @@ export default {
       background #ffffff
       padding-left:10px;
       border:none;
+      height 40px!important
     }
     >>>.selctNum{
       i{
@@ -109,6 +110,8 @@ export default {
     }
     >>>.el-tabs__content{
       background: #F2F2F2;
+    }
+    >>>.el-tabs__nav-wrap::after{
     }
   }
 }

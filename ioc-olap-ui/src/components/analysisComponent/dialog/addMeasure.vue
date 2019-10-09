@@ -1,6 +1,6 @@
 <template>
   <div class="addMeasure">
-    <el-dialog title="新增度量" :visible.sync="dialogFormVisible" @close="closeBtn">
+    <el-dialog :title="titles" :visible.sync="dialogFormVisible" @close="closeBtn">
       <el-form :model="formData" ref="formData" :rules="rules">
         <el-form-item label="度量名称" :label-width="formLabelWidth" prop="name">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
@@ -22,7 +22,7 @@
           </el-select>
         </el-form-item>
         <el-form-item  v-if="formData.function.expression !== 'COUNT'" style="margin-top:-10px;" :label-width="formLabelWidth">
-          <el-checkbox label="显示所有字段" v-model="checkedAll" @change="changeAll"></el-checkbox>
+          <el-checkbox label="显示所有字段" v-model="formData.checkedAll" @change="changeAll"></el-checkbox>
         </el-form-item>
         <el-form-item label="扩展列长度" v-if="formData.function.expression === 'EXTENDED_COLUMN'" :label-width="formLabelWidth">
           <el-input v-model="formData.name" autocomplete="off" placeholder="请输入长度数值"></el-input>
@@ -151,9 +151,10 @@ export default {
           }
         },
         answers: [],
-        type: '6'
+        type: '6',
+        checkedAll: false
       },
-      checkedAll: false,
+      titles: '',
       isNew: 1,
       formLabelWidth: '100px',
       dialogFormVisible: false,
@@ -182,10 +183,6 @@ export default {
         value: 'AVG',
         label: 'AVG'
       }
-      // , {
-      //   value: 'PERCENTILE',
-      //   label: 'PERCENTILE'
-      // }
       ],
       typeOptions: [
         { value: 'column', label: 'column' }
@@ -219,7 +216,7 @@ export default {
           { required: true, message: '请选择类型', trigger: 'change' }
         ],
         'function.parameter.value': [
-          { required: false, message: '请选择字段', trigger: 'change' }
+          { required: true, message: '请选择字段', trigger: 'change' }
         ]
       }
     }
@@ -248,8 +245,50 @@ export default {
           }
         },
         answers: [],
-        type: '6'
+        type: '6',
+        checkedAll: false
       }
+    },
+    // 初始化需要选择的字段
+    initData (val) {
+      this.fieldtextOption = []
+      let n = val || false
+      // 创建count计算方式需要的
+      let selectData = []
+      // 创建一个接收事实表的盒子
+      let factData = []
+      // 创建一个接受所有维度的盒子
+      let AllData = []
+      // 遍历筛选出第三步所有勾选的数据
+      this.saveSelectAllList.forEach((item, index) => {
+        let items = JSON.parse(item)
+        this.jointResultData.lookups.forEach((n, i) => {
+          if (items.resourceId === n.id) {
+            items.data.columns.forEach((k, i) => {
+              AllData.push({
+                label: n.alias + '.' + k.name,
+                id: k.id,
+                dataType: k.dataType
+              })
+            })
+          }
+        })
+      })
+      // 遍历筛选出第三步勾选的数据（去掉事实表的）(如果为count计算方式的时候)
+      this.saveSelectFiled.map(res => {
+        // if (res.filed !== '1') {
+        selectData.push({ label: res.tableName + '.' + res.titName, id: res.id, dataType: res.dataType })
+        // }
+      })
+      // 遍历筛选出所有事实表的数据
+      this.SaveFactData.map(item => {
+        factData.push(
+          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+        )
+      })
+      // this.fieldtextOption = n === true ? [...factData, ...AllData] : [...factData]
+      this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -279,15 +318,18 @@ export default {
       this.$refs.formData.validate((valid) => {
         if (valid) {
           this.dialogFormVisible = false
+          // 创建随机唯一标识id
           let id = Math.random().toString(36).substr(3)
           this.formData['id'] = id
           this.formData['isNew'] = this.isNew
           this.formData['showDim'] = true
+          this.formData['checkedAll'] = this.formData.checkedAll
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('设置成功~')
               this.$refs.formData.clearValidate()
               this.checkedAll = false
+              this.resetData()
             }
           })
           this.$parent.init()
@@ -296,70 +338,42 @@ export default {
     },
     dialog (data) {
       this.dialogFormVisible = true
-      this.fieldtextOption = []
-      this.SaveFactData.map(item => {
-        this.fieldtextOption.push(
-          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
-        )
-      })
+      let checkedAll = data ? data.checkedAll : ''
+      this.initData(checkedAll)
       if (data) {
         this.formData = data
         this.isNew = 1
+        this.titles = '编辑度量'
       } else {
         this.resetData()
+        this.titles = '新增度量'
         this.isNew = 0
         setTimeout(() => {
           this.$refs.formData.clearValidate()
         }, 100)
       }
     },
+    // 选择显示所有字段
     changeAll (n) {
-      this.fieldtextOption = []
       this.formData.function.parameter.value = ''
-      let AllData = []
-      this.saveSelectAllList.forEach((item, index) => {
-        let findData = []
-        let items = JSON.parse(item)
-        this.jointResultData.lookups.forEach((n, i) => {
-          if (items.resourceId === n.id) {
-            items.data.columns.forEach((k, i) => {
-              findData.push({
-                name: n.alias + '.' + k.name,
-                id: k.id,
-                dataType: k.dataType
-              })
-            })
-          }
-        })
-        AllData = AllData.concat(findData)
-      })
-      n === true
-        ? AllData.map(res => {
-          this.fieldtextOption.push({ id: res.id, dataType: res.dataType, label: res.name })
-        })
-        : this.SaveFactData.map(item => {
-          this.fieldtextOption.push(
-            { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
-          )
-        })
+      this.initData(n)
     },
     selectChange (val) {
       this.formData.function.parameter.value = ''
+      this.formData.checkedAll = false
       switch (val) {
-        // case 'COUNT':
-        //   this.formData.function.parameter.type = 'constant'
-        //   this.formData.function.parameter.value = 1
-        //   this.formData.function.returntype = 'bigint'
-        //   this.isDisabledtype = true
-        //   this.isDisabledtext = true
-        //   break
+        case 'COUNT':
+          this.initData(3)
+          break
         case 'COUNT_DISTINCT':
           this.formData.function.parameter.value = ''
           this.isDisabledtype = true
+          this.initData(false)
           break
         default:
           this.isDisabledtype = false
           this.isDisabledtext = false
+          this.initData(false)
           break
       }
     },
@@ -376,29 +390,27 @@ export default {
 
 <style lang="stylus" scoped>
 .addMeasure{
-  height 300px
-  padding 20px
-  overflow auto
   >>>.el-dialog__body{
     .el-tag{
       margin-right 20px
       margin-bottom 10px
     }
   }
+  >>>.el-dialog{
+
+  }
   >>>.el-select{
     width 100%
   }
-  .coutDistinct, .coutTopn{
     >>>.el-form-item{
-      margin-bottom 10px
+      margin-bottom 20px!important
       .el-input__inner{
-        height 30px
+        height 32px
         .el-input__suffix{
           top 5px
         }
       }
     }
-  }
   .container::-webkit-scrollbar{
     width 8px
     height 8px

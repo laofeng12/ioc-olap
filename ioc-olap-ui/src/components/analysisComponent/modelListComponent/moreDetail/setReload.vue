@@ -3,11 +3,11 @@
     <h4>刷新设置</h4>
     <p style="margin-top:15px;">
       <span>自动刷新模型？</span>
-      <span>{{ !dataList.interval ? '否' : '是' }}</span>
+      <span>{{ this.jsonData.timingreFresh.autoReload !== 1 ? '否' : '是' }}</span>
     </p>
-    <p v-if="dataList.interval">
+    <p v-if="this.jsonData.timingreFresh.autoReload === 1" style="margin-top:10px;">
       <span>更新频率</span>
-      <span>{{dataList.frequencytype}}/{{dataList.interval}}</span>
+      <span>{{frequencytypes(this.jsonData.timingreFresh.frequencytype)}}/{{this.jsonData.timingreFresh.interval}}次</span>
     </p>
     <ul>
          <div>
@@ -72,7 +72,12 @@ export default {
         this.dataList.columns = partition_date_column.split('.')[1]
         this.dataList.frequencytype = frequencytype === 1 ? '小时' : (frequencytype === 2 ? '天' : '月')
         this.descriptionData = this.jsonData.filterCondidion
+        this.descriptionData.map((res, index) => { res.index = index + 1 })
       }
+    },
+    frequencytypes (val) {
+      let obj = ['', '小时', '天', '月']
+      return obj[val]
     }
   }
 }

@@ -202,6 +202,7 @@ export default {
             text-align: center;
             line-height: 30px;
             background: #EBEBEB;
+            padding-top: 5px;
           }
           .textarea {
             overflow: hidden;

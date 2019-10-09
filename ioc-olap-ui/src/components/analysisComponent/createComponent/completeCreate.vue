@@ -180,22 +180,25 @@ export default {
 
 <style lang="stylus" scoped>
 .completeCreate{
-  padding 30px 100px
+  padding: 0 16px 16px 16px;
+  margin-top: 16px;
+  background #ffffff
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
     >>>.el-form-item__label{
-      sont-size 14px
-      font-weight 700
+      font-size 16px
     }
   }
   >>>.el-form-item{
     margin-bottom 0
+	.el-textarea__inner{
+		min-height 160px!important;
+	}
     .el-form-item__label{
-      width 100px
+      font-size: 14px;
+      color: #262626;
       text-align left
-      font-size 13px
-      font-weight 400
     }
   }
 }

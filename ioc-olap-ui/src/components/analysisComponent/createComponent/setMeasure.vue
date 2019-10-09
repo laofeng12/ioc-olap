@@ -10,7 +10,7 @@
           <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
           <el-table-column prop="name" label="度量名称" align="center"> </el-table-column>
           <el-table-column prop="function.expression" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent" width="300">
+          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent" width="500">
             <template slot-scope="scope">
               <div style="text-align: left;margin-left:62px;"><span>值：</span>{{scope.row.function.parameter.value}}</div>
               <div style="text-align: left;margin-left:62px;"><span>类型：</span>{{scope.row.function.returntype}}</div>
@@ -29,10 +29,10 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" style="float:right;margin-top:20px;" @click="addMeasure()">添加度量</el-button>
+        <el-button type="primary" style="float:right;margin-top:20px;margin-right:20px;" @click="addMeasure()">添加度量</el-button>
     </el-form>
-    <add-measure ref="dialog"></add-measure>
     <steps class="steps" :step="4" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <add-measure ref="dialog"></add-measure>
   </div>
 </template>
 
@@ -100,5 +100,21 @@ export default {
 <style lang="stylus" scoped>
 .setMeasure{
   padding-bottom 100px
+  height calc(100vh - 40px)
+  margin-top 30px
+  background #ffffff
+  >>>.el-table__body, >>>.el-table__header{
+    width auto!important
+  }
+  >>>.el-table__body tr:nth-child(even){
+      background #F5F7FA
+    }
+  >>>.el-table__header th{
+      background #444444
+      padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+    }
 }
 </style>

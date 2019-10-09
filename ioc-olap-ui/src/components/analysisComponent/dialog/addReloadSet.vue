@@ -1,5 +1,5 @@
 <template>
-  <div class="addMeasure">
+  <div class="reloadSetModal">
     <el-dialog title="过滤设置" :visible.sync="dialogFormVisible" @close="closeBtn">
       <el-form :model="formData" :rules="rules" ref="formDataModel">
         <el-form-item label="选择字段表" :label-width="formLabelWidth" prop="tableName">
@@ -150,11 +150,9 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.addMeasure{
-  height 300px
-  padding 20px
-  overflow auto
+.reloadSetModal{
   >>>.el-dialog__body{
+    padding: 30px 40px 30px 10px;
     .el-tag{
       margin-right 20px
       margin-bottom 10px
@@ -162,6 +160,9 @@ export default {
   }
   >>>.el-select{
     width 100%
+  }
+   >>>.el-input{
+    width 100%!important
   }
   >>>.is-focus{
     .el-input__suffix{

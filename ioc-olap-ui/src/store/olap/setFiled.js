@@ -287,7 +287,6 @@ const setFiled = {
         })
       })
       state.saveSelectFiled = [...saveSelectFiledData]
-      console.log(state.saveSelectFiled, '啦啦啦123')
       state.saveFiledNormalList = []
       state.saveFiledDerivativelList = []
       dispatch('changePushSelectFiled', state.saveSelectFiled)
