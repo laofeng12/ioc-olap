@@ -5,6 +5,7 @@ import java.util.List;
 import com.openjava.olap.domain.OlapShare;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.query.OlapShareDBParam;
+import org.ljdp.component.exception.APIException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,5 +33,5 @@ public interface OlapShareService {
 
 	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId);
 
-	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId, String cubeName);
+	List<ShareUserDto> getList(String sourceType, String sourceId, Long userId, String cubeName) throws APIException;
 }
