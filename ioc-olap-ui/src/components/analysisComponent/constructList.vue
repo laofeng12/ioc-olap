@@ -181,7 +181,7 @@ export default {
       this.getLoading = true
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       if (res.length > 0) {
-        this.tableData = [...this.tableData, ...res]
+        this.tableData = [...res, ...this.tableData]
       } else {
         this.moreShow = false
         // this.$message.success('已加载所有数据')

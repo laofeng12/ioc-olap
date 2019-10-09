@@ -71,17 +71,19 @@ public class OlapShareServiceImpl implements OlapShareService {
     @Transactional(readOnly = false)
     public void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName) {
         olapShareRepository.deleteByFkIdAndSourceId(sourceId, sourceType);
-        for (Long shareUserId : shareUserIds) {
-            OlapShare share = new OlapShare();
-            share.setCreateId(userId);
-            share.setCreateName(userName);
-            share.setCreateTime(new Date());
-            share.setFkId(sourceId);
-            share.setFkType(sourceType);
-            share.setIsNew(true);
-            share.setShareId(ConcurrentSequence.getInstance().getSequence());
-            share.setShareUserId(shareUserId);
-            olapShareRepository.save(share);
+        if(shareUserIds!=null){
+            for (Long shareUserId : shareUserIds) {
+                OlapShare share = new OlapShare();
+                share.setCreateId(userId);
+                share.setCreateName(userName);
+                share.setCreateTime(new Date());
+                share.setFkId(sourceId);
+                share.setFkType(sourceType);
+                share.setIsNew(true);
+                share.setShareId(ConcurrentSequence.getInstance().getSequence());
+                share.setShareUserId(shareUserId);
+                olapShareRepository.save(share);
+            }
         }
     }
 
@@ -91,17 +93,19 @@ public class OlapShareServiceImpl implements OlapShareService {
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
 
         olapShareRepository.deleteByFkIdAndSourceId(olapCube.getCubeId(), sourceType);
-        for (Long shareUserId : shareUserIds) {
-            OlapShare share = new OlapShare();
-            share.setCreateId(userId);
-            share.setCreateName(userName);
-            share.setCreateTime(new Date());
-            share.setFkId(olapCube.getCubeId());
-            share.setFkType(sourceType);
-            share.setIsNew(true);
-            share.setShareId(ConcurrentSequence.getInstance().getSequence());
-            share.setShareUserId(shareUserId);
-            olapShareRepository.save(share);
+        if(shareUserIds!=null){
+            for (Long shareUserId : shareUserIds) {
+                OlapShare share = new OlapShare();
+                share.setCreateId(userId);
+                share.setCreateName(userName);
+                share.setCreateTime(new Date());
+                share.setFkId(olapCube.getCubeId());
+                share.setFkType(sourceType);
+                share.setIsNew(true);
+                share.setShareId(ConcurrentSequence.getInstance().getSequence());
+                share.setShareUserId(shareUserId);
+                olapShareRepository.save(share);
+            }
         }
     }
 

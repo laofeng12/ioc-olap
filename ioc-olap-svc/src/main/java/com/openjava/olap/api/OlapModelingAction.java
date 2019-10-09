@@ -7,6 +7,7 @@ import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.service.*;
+import com.openjava.olap.vo.CubeListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -77,20 +78,26 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
-    public List<CubeMapper> cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
+    public CubeListVo cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
         List<CubeMapper> cubeList = new ArrayList<>();
-        //根据当前用户ID去筛选出属于他的数据
+        boolean isNext = false;
+        Integer total = limit + offset;
 
         //0共享模型、1自建
         if (dateType == 0) {
             //查询出分享数据的前十五条
             List<OlapCube> shareList = olapCubeService.getOlapShareByShareUserId(userVO.getUserId());
             if (shareList.size() == 0 || offset > shareList.size()) {
-                return cubeList;
+                return new CubeListVo(cubeList, false);
             } else {
-                shareList = shareList.subList(offset, shareList.size() > 15 ? 15 : shareList.size());
+                if (shareList.size() > total) {
+                    isNext = true;
+                    shareList = shareList.subList(offset, total);
+                } else {
+                    shareList = shareList.subList(offset, shareList.size());
+                }
             }
 
             //循环在麒麟找到分享的数据并加入数据里
@@ -102,22 +109,14 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         } else {
-            cubeList = cubeHttpClient.list(cubeName, projectName, limit, offset);
+            cubeList = cubeHttpClient.list(cubeName, projectName, limit + 1, offset);
+            if (cubeList.size() > limit) {
+                isNext = true;
+                cubeList = cubeList.subList(0, limit);
+            }
         }
 
-//        //为了及时更新olap分析olap_cube表里的flags状态,所以需要根据查询出来的数据去做对比
-//        List<OlapCube> olapCubes = olapCubeService.findByUserId(Long.parseLong(userVO.getUserId()));
-//        for (CubeMapper cube : cubeList) {
-//            Optional<OlapCube> cubeEntity = olapCubes.stream().filter(p -> p.getName().equals(cube.getName())).findFirst();
-//            //如果查到了则对比状态值
-//            if (cubeEntity.isPresent() && ((cube.getStatus().equals("READY") && cubeEntity.get().getFlags() == 0) || (cube.getStatus().equals("DISABLED") && cubeEntity.get().getFlags() != 0))) {
-//                cubeEntity.get().setIsNew(false);
-//                cubeEntity.get().setFlags(0);
-//                olapCubeService.doSave(cubeEntity.get());
-//            }
-//        }
-        cubeList.sort(Comparator.comparing(CubeMapper::getLast_modified).reversed());
-        return cubeList;
+        return new CubeListVo(cubeList, isNext);
     }
 
     @ApiOperation(value = "构建列表")
@@ -165,14 +164,14 @@ public class OlapModelingAction extends BaseAction {
         CubeDescNewMapper cubeMap = new CubeDescNewMapper();
 
         //处理逻辑如下：
-        //1、反推models里选择的维度字段
-        //2、cube的measures放入models的measure
-        ArrayList<MeasureMapper> countMappers = modelsLogic(models, cube);
-
-        //处理逻辑如下：
         //1、保存前各个数据模块校验
         //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
         saveVerification(cube, models);
+
+        //处理逻辑如下：
+        //1、反推models里选择的维度字段
+        //2、cube的measures放入models的measure
+        ArrayList<MeasureMapper> countMappers = modelsLogic(models, cube);
 
         //处理逻辑如下：
         //1、将用户创建的模型里选择过的表全部拉到DataSource里
@@ -329,7 +328,21 @@ public class OlapModelingAction extends BaseAction {
             cube.getCubeDescData().getMeasures().remove(countMappers.get(i));
         }
 
-        models.modelDescData.setDimensions(dimensionsList);
+        //写死一组COUNT
+        MeasureMapper measire = new MeasureMapper();
+        measire.setName("_COUNT_");
+        measire.setShowDim(true);
+        FunctionMapper function = new FunctionMapper();
+        function.setExpression("COUNT");
+        function.setReturntype("bigint");
+        ParameterMapper parameter = new ParameterMapper();
+        parameter.setType("constant");
+        parameter.setValue("1");
+        function.setParameter(parameter);
+        measire.setFunction(function);
+        cube.cubeDescData.measures.add(measire);
+
+        models.getModelDescData().setDimensions(dimensionsList);
         models.getModelDescData().setMetrics(metricsList);
         return countMappers;
     }
@@ -381,11 +394,12 @@ public class OlapModelingAction extends BaseAction {
     //2、默认给度量加上_COUNT_ (麒麟的这个类型是必带的,所有决定后台写死)
     public void saveVerification(CubeDescMapper cube, ModelsMapper models) throws APIException {
         OlapCube olapCube = olapCubeService.findTableInfo(cube.cubeDescData.getName());
-        if (StringUtils.isNotBlank(cube.getUuid()) && olapCube != null) {
+        if (StringUtils.isBlank(cube.getUuid()) && olapCube != null) {
             throw new APIException(400, "该立方体名称已存在！");
         }
-        //保存：没有uuid 名称不重复
-
+        if (StringUtils.isNotBlank(cube.getUuid()) && !olapCube.getCubeId().equals(cube.getUuid())) {
+            throw new APIException(400, "该立方体名称已存在！");
+        }
 
         //验证度量是否有数据measures！
         if (cube.cubeDescData.measures.size() == 0) {
@@ -406,20 +420,6 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
-
-        //写死一组COUNT
-        MeasureMapper measire = new MeasureMapper();
-        measire.setName("_COUNT_");
-        measire.setShowDim(true);
-        FunctionMapper function = new FunctionMapper();
-        function.setExpression("COUNT");
-        function.setReturntype("bigint");
-        ParameterMapper parameter = new ParameterMapper();
-        parameter.setType("constant");
-        parameter.setValue("1");
-        function.setParameter(parameter);
-        measire.setFunction(function);
-        cube.cubeDescData.measures.add(measire);
     }
 
 

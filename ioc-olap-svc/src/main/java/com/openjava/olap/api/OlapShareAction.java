@@ -26,7 +26,7 @@ public class OlapShareAction {
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @Security(session = true)
-    public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) {
+    public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (StringUtils.isNotBlank(cubeName)) {
             olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName(), cubeName);

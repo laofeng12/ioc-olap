@@ -136,14 +136,11 @@ export default {
         dateType: 1,
         ...val
       }
-      const res = await getModelDataList(params)
+      const { cubeMappers: res, next } = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [...this.tableData, ...res]
-        if (res.length < 15) this.moreShow = false
-      } else {
-        this.moreShow = false
-        // this.$message.success('已加载所有数据')
+        this.tableData = [...res, ...this.tableData]
       }
+      this.moreShow = next
       this.getLoading = false
     },
     async update (val) {
