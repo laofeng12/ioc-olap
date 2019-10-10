@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ editInstant: 'editInstant' })
+    ...mapGetters(['userInfo'])
   },
   watch: {
     editInfo: function (val) {
@@ -112,7 +112,8 @@ export default {
       this.loading = true
       const data = {
         limit: this.checked ? this.lineNumber : -1,
-        sql: this.textarea
+        sql: this.textarea,
+        project: this.userInfo.userId
       }
       this.exportData = data
       try {

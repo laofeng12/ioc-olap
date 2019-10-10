@@ -36,197 +36,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/olap/apis/olapRealQuery")
 public class OlapRealQueryAction extends BaseAction {
-<<<<<<< HEAD
-    @Resource
-    private OlapRealQueryService olapRealQueryService;
-    @Resource
-    private OlapCubeService olapCubeService;
-    @Resource
-    private com.openjava.olap.service.OlapCubeTableService olapCubeTableService;
-    @Resource
-    private OlapCubeTableColumnService olapCubeTableColumnService;
-    @Resource
-    private OlapFolderService olapFolderService;
-    @Autowired
-    private CubeHttpClient cubeHttpClient;
-    @Resource
-    private OlapShareService olapShareService;
-
-
-    /**
-     * 用主键获取数据
-     *
-     * @param id
-     * @return
-     */
-    @ApiOperation(value = "根据ID获取", notes = "单个对象查询", nickname = "id")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "主标识编码", required = true, dataType = "string", paramType = "path"),
-    })
-    @ApiResponses({
-            @io.swagger.annotations.ApiResponse(code = 20020, message = "会话失效")
-    })
-    @Security(session = true)
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public OlapRealQuery get(@PathVariable("id") Long id) {
-        OlapRealQuery m = olapRealQueryService.get(id);
-        return m;
-    }
-
-    /**
-     * 保存
-     */
-    @ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
-    @Security(session = true)
-    @RequestMapping(method = RequestMethod.POST)
-    public OlapRealQuery doSave(@RequestBody OlapRealQuery body) {
-        Date date = new Date();
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        if (body.getIsNew() == null || body.getIsNew()) {
-            SequenceService ss = ConcurrentSequence.getInstance();
-            body.setRealQueryId(ss.getSequence());
-            body.setCreateTime(date);
-            body.setCreateId(Long.parseLong(userVO.getUserId()));
-            body.setCreateName(userVO.getUserAccount());
-            body.setFlags(0);
-            body.setIsNew(true);
-            OlapRealQuery dbObj = olapRealQueryService.doSave(body);
-        } else {
-            OlapRealQuery db = olapRealQueryService.get(body.getId());
-            MyBeanUtils.copyPropertiesNotBlank(db, body);
-            db.setUpdateTime(date);
-            db.setCreateId(Long.parseLong(userVO.getUserId()));
-            db.setCreateName(userVO.getUserAccount());
-            db.setIsNew(false);
-            olapRealQueryService.doSave(db);
-        }
-
-        return body;
-    }
-
-    @ApiOperation(value = "删除", nickname = "delete")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
-    })
-    @Security(session = true)
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public void doDelete(@RequestParam("id") Long id) {
-        olapRealQueryService.doDelete(id);
-    }
-
-    @ApiOperation(value = "批量删除", nickname = "remove")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
-    })
-    @Security(session = true)
-    @RequestMapping(value = "/remove", method = RequestMethod.POST)
-    public void doRemove(@RequestParam("ids") String ids) {
-        olapRealQueryService.doRemove(ids);
-    }
-
-    @ApiOperation(value = "获取自己创建的立方体树形结构列表")
-    @Security(session = true)
-    @RequestMapping(value = "/CubeTree", method = RequestMethod.GET)
-    public ArrayList<TreeVo> CubeTree() {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ArrayList<OlapCube> cubes = olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
-        ArrayList<TreeVo> trees = new ArrayList<TreeVo>();
-        for (OlapCube cube : cubes) {
-            TreeVo tree = new TreeVo();
-            tree.setId(cube.getCubeId().toString());
-            tree.setName(cube.getName());
-            tree.setChildren(new ArrayList<TreeNodeVo>());
-            ArrayList<OlapCubeTable> cubeTables = olapCubeTableService.getListByCubeId(cube.getCubeId());
-            for (OlapCubeTable table : cubeTables) {
-                TreeNodeVo nodeVo = tree.getChildren().stream().filter(p -> p.getName().equals(table.getTableName())).findFirst().orElse(null);
-                ;
-                if (nodeVo == null) {
-                    nodeVo = new TreeNodeVo();
-                    nodeVo.setId(table.getId().toString());
-                    nodeVo.setName(table.getTableName());
-                    nodeVo.setChildren(new ArrayList<TreeNodeVo>());
-                    tree.getChildren().add(nodeVo);
-                }
-                ArrayList<OlapCubeTableColumn> cubeTableColumns = olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
-                for (OlapCubeTableColumn column : cubeTableColumns) {
-                    TreeNodeVo leafNode = nodeVo.getChildren().stream().filter(p -> p.getName().equals(column.getColumnName())).findFirst().orElse(null);
-                    if (leafNode == null) {
-                        leafNode = new TreeNodeVo();
-                        leafNode.setId(column.getId().toString());
-                        if (column.getExpressionType() != null && !column.getExpressionType().equals("")) {
-                            leafNode.setName(column.getColumnName() + "->" + column.getExpressionType());
-                        } else {
-                            leafNode.setName(column.getColumnName());
-                        }
-
-                        nodeVo.getChildren().add(leafNode);
-                    }
-                }
-            }
-            trees.add(tree);
-        }
-        return trees;
-    }
-
-    @ApiOperation(value = "查询数据")
-    @RequestMapping(value = "/query", method = RequestMethod.POST)
-    @Security(session = true)
-    public QueryResultMapper query(String sql, Integer limit) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        if (limit == -1) {
-            limit = Integer.MAX_VALUE;
-        }
-        return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
-    }
-
-    @ApiOperation(value = "通过ID查询数据")
-    @RequestMapping(value = "/queryById", method = RequestMethod.POST)
-    @Security(session = true)
-    public QueryResultMapperVo queryById(Long id) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        OlapRealQuery m = olapRealQueryService.get(id);
-        QueryResultMapper mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
-        List<ShareUserDto> shareList = olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
-        QueryResultMapperVo mapperVo = new QueryResultMapperVo();
-        MyBeanUtils.copyPropertiesNotBlank(mapperVo, mapper);//复制mapper属性到VO中
-        mapperVo.setShareList(shareList);
-        return mapperVo;
-    }
-
-    @ApiOperation(value = "获取层级文件夹结构")
-    @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-    @Security(session = true)
-    public List<TreeVo> folderWithQuery() {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        List<TreeVo> trees = new ArrayList<TreeVo>();
-        List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "RealQuery");
-        for (OlapFolder folder : folders) {
-            TreeVo tree = new TreeVo(folder.getName(), folder.getFolderId().toString(), new ArrayList<TreeNodeVo>(), folder);
-            List<OlapRealQuery> olapRealQueries = olapRealQueryService.getListWithFolderId(folder.getFolderId());
-            for (OlapRealQuery realQuery : olapRealQueries) {
-                tree.getChildren().add(new TreeNodeVo(realQuery.getName(), realQuery.getRealQueryId().toString(), null, realQuery));
-            }
-            trees.add(tree);
-        }
-        return trees;
-    }
-
-    @ApiOperation(value = "获取共享的即时查询")
-    @RequestMapping(value = "/queryShare", method = RequestMethod.GET)
-    @Security(session = true)
-    public List<OlapRealQuery> queryShare() {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
-    }
-
-    @ApiOperation(value = "导出即时查询", nickname = "export", notes = "报文格式：content-type=application/download")
-    @RequestMapping(value = "/export", method = RequestMethod.POST)
-    @Security(session = true)
-    public void export(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
-        QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
-        Export.dualDate(mapper, response);
-    }
-=======
 	@Resource
 	private OlapRealQueryService olapRealQueryService;
 	@Resource
@@ -245,19 +54,20 @@ public class OlapRealQueryAction extends BaseAction {
 
 	/**
 	 * 用主键获取数据
+	 *
 	 * @param id
 	 * @return
 	 */
-	@ApiOperation(value = "根据ID获取", notes = "单个对象查询", nickname="id")
+	@ApiOperation(value = "根据ID获取", notes = "单个对象查询", nickname = "id")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "id", value = "主标识编码", required = true, dataType = "string", paramType = "path"),
+			@ApiImplicitParam(name = "id", value = "主标识编码", required = true, dataType = "string", paramType = "path"),
 	})
 	@ApiResponses({
-		@io.swagger.annotations.ApiResponse(code=20020, message="会话失效")
+			@io.swagger.annotations.ApiResponse(code = 20020, message = "会话失效")
 	})
-	@Security(session=true)
-	@RequestMapping(value="/{id}",method=RequestMethod.GET)
-	public OlapRealQuery get(@PathVariable("id")Long id) {
+	@Security(session = true)
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public OlapRealQuery get(@PathVariable("id") Long id) {
 		OlapRealQuery m = olapRealQueryService.get(id);
 		return m;
 	}
@@ -265,13 +75,13 @@ public class OlapRealQueryAction extends BaseAction {
 	/**
 	 * 保存
 	 */
-	@ApiOperation(value = "保存", nickname="save", notes = "报文格式：content-type=application/json")
-	@Security(session=true)
-	@RequestMapping(method=RequestMethod.POST)
+	@ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
+	@Security(session = true)
+	@RequestMapping(method = RequestMethod.POST)
 	public OlapRealQuery doSave(@RequestBody OlapRealQuery body) {
 		Date date = new Date();
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		if(body.getIsNew() == null || body.getIsNew()) {
+		if (body.getIsNew() == null || body.getIsNew()) {
 			SequenceService ss = ConcurrentSequence.getInstance();
 			body.setRealQueryId(ss.getSequence());
 			body.setCreateTime(date);
@@ -293,59 +103,58 @@ public class OlapRealQueryAction extends BaseAction {
 		return body;
 	}
 
-	@ApiOperation(value = "删除", nickname="delete")
+	@ApiOperation(value = "删除", nickname = "delete")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
+			@ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
 	})
-	@Security(session=true)
-	@RequestMapping(value="/delete",method=RequestMethod.POST)
-	public void doDelete(@RequestParam("id")Long id) {
+	@Security(session = true)
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	public void doDelete(@RequestParam("id") Long id) {
 		olapRealQueryService.doDelete(id);
 	}
 
-	@ApiOperation(value = "批量删除", nickname="remove")
+	@ApiOperation(value = "批量删除", nickname = "remove")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
+			@ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
 	})
-	@Security(session=true)
-	@RequestMapping(value="/remove",method=RequestMethod.POST)
-	public void doRemove(@RequestParam("ids")String ids) {
+	@Security(session = true)
+	@RequestMapping(value = "/remove", method = RequestMethod.POST)
+	public void doRemove(@RequestParam("ids") String ids) {
 		olapRealQueryService.doRemove(ids);
 	}
 
 	@ApiOperation(value = "获取自己创建的立方体树形结构列表")
-	@Security(session=true)
-	@RequestMapping(value="/CubeTree",method=RequestMethod.GET)
-	public ArrayList<TreeVo> CubeTree(){
+	@Security(session = true)
+	@RequestMapping(value = "/CubeTree", method = RequestMethod.GET)
+	public ArrayList<TreeVo> CubeTree() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		ArrayList<OlapCube> cubes=olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
-		ArrayList<TreeVo> trees=new ArrayList<TreeVo>();
-		for (OlapCube cube : cubes){
-			TreeVo tree=new TreeVo();
+		ArrayList<OlapCube> cubes = olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
+		ArrayList<TreeVo> trees = new ArrayList<TreeVo>();
+		for (OlapCube cube : cubes) {
+			TreeVo tree = new TreeVo();
 			tree.setId(cube.getCubeId().toString());
 			tree.setName(cube.getName());
 			tree.setChildren(new ArrayList<TreeNodeVo>());
-			ArrayList<OlapCubeTable> cubeTables=olapCubeTableService.getListByCubeId(cube.getCubeId());
-			for (OlapCubeTable table : cubeTables){
-				TreeNodeVo nodeVo=tree.getChildren().stream().filter(p->p.getName().equals(table.getTableName())).findFirst().orElse(null);;
-				if(nodeVo==null){
-					nodeVo=new TreeNodeVo();
+			ArrayList<OlapCubeTable> cubeTables = olapCubeTableService.getListByCubeId(cube.getCubeId());
+			for (OlapCubeTable table : cubeTables) {
+				TreeNodeVo nodeVo = tree.getChildren().stream().filter(p -> p.getName().equals(table.getTableName())).findFirst().orElse(null);
+				;
+				if (nodeVo == null) {
+					nodeVo = new TreeNodeVo();
 					nodeVo.setId(table.getId().toString());
 					nodeVo.setName(table.getTableName());
 					nodeVo.setChildren(new ArrayList<TreeNodeVo>());
 					tree.getChildren().add(nodeVo);
 				}
-				ArrayList<OlapCubeTableColumn> cubeTableColumns=olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
-				for (OlapCubeTableColumn column : cubeTableColumns){
-					TreeNodeVo leafNode=nodeVo.getChildren().stream().filter(p->p.getName().equals(column.getColumnName())).findFirst().orElse(null);
-					if(leafNode==null){
-						leafNode=new TreeNodeVo();
+				ArrayList<OlapCubeTableColumn> cubeTableColumns = olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
+				for (OlapCubeTableColumn column : cubeTableColumns) {
+					TreeNodeVo leafNode = nodeVo.getChildren().stream().filter(p -> p.getName().equals(column.getColumnName())).findFirst().orElse(null);
+					if (leafNode == null) {
+						leafNode = new TreeNodeVo();
 						leafNode.setId(column.getId().toString());
-						if(column.getExpressionType()!=null && !column.getExpressionType().equals(""))
-						{
-							leafNode.setName(column.getColumnName()+"->"+column.getExpressionType());
-						}
-						else{
+						if (column.getExpressionType() != null && !column.getExpressionType().equals("")) {
+							leafNode.setName(column.getColumnName() + "->" + column.getExpressionType());
+						} else {
 							leafNode.setName(column.getColumnName());
 						}
 
@@ -360,24 +169,24 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "查询数据")
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
-	@Security(session=true)
+	@Security(session = true)
 	public QueryResultMapper query(String sql, Integer limit) throws APIException {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		if(limit==-1){
-			limit=Integer.MAX_VALUE;
+		if (limit == -1) {
+			limit = Integer.MAX_VALUE;
 		}
-		return cubeHttpClient.query(sql,0,limit,userVO.getUserId());
+		return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
 	}
 
 	@ApiOperation(value = "通过ID查询数据")
 	@RequestMapping(value = "/queryById", method = RequestMethod.POST)
-	@Security(session=true)
+	@Security(session = true)
 	public QueryResultMapperVo queryById(Long id) throws APIException {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		OlapRealQuery m = olapRealQueryService.get(id);
-		QueryResultMapper mapper= cubeHttpClient.query(m.getSql(),0,m.getLimit(),userVO.getUserId());//获取数据
-		List<ShareUserDto> shareList=olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
-		QueryResultMapperVo mapperVo=new QueryResultMapperVo();
+		QueryResultMapper mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
+		List<ShareUserDto> shareList = olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
+		QueryResultMapperVo mapperVo = new QueryResultMapperVo();
 		MyBeanUtils.copyPropertiesNotBlank(mapperVo, mapper);//复制mapper属性到VO中
 		mapperVo.setShareList(shareList);
 		return mapperVo;
@@ -385,16 +194,16 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "获取层级文件夹结构")
 	@RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-	@Security(session=true)
+	@Security(session = true)
 	public List<TreeVo> folderWithQuery() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		List<TreeVo> trees=new ArrayList<TreeVo>();
-		List<OlapFolder> folders=olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()),"RealQuery");
-		for (OlapFolder folder : folders){
-			TreeVo tree=new TreeVo(folder.getName(),folder.getFolderId().toString(),new ArrayList<TreeNodeVo>(),folder);
-			List<OlapRealQuery> olapRealQueries=olapRealQueryService.getListWithFolderId(folder.getFolderId());
-			for(OlapRealQuery realQuery : olapRealQueries){
-				tree.getChildren().add(new TreeNodeVo(realQuery.getName(),realQuery.getRealQueryId().toString(),null,realQuery));
+		List<TreeVo> trees = new ArrayList<TreeVo>();
+		List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "RealQuery");
+		for (OlapFolder folder : folders) {
+			TreeVo tree = new TreeVo(folder.getName(), folder.getFolderId().toString(), new ArrayList<TreeNodeVo>(), folder);
+			List<OlapRealQuery> olapRealQueries = olapRealQueryService.getListWithFolderId(folder.getFolderId());
+			for (OlapRealQuery realQuery : olapRealQueries) {
+				tree.getChildren().add(new TreeNodeVo(realQuery.getName(), realQuery.getRealQueryId().toString(), null, realQuery));
 			}
 			trees.add(tree);
 		}
@@ -403,21 +212,17 @@ public class OlapRealQueryAction extends BaseAction {
 
 	@ApiOperation(value = "获取共享的即时查询")
 	@RequestMapping(value = "/queryShare", method = RequestMethod.GET)
-	@Security(session=true)
+	@Security(session = true)
 	public List<OlapRealQuery> queryShare() {
 		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
 		return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
 	}
 
-	@ApiOperation(value = "导出即时查询", nickname="export", notes = "报文格式：content-type=application/download")
-	@RequestMapping(value="/export",method= RequestMethod.POST)
-	@Security(session=true)
-	public void export(String sql,Integer limit, HttpServletResponse response) throws Exception {
-		OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-		QueryResultMapper mapper= cubeHttpClient.query(sql,0,limit,userVO.getUserId());
-		Export.dualDate(mapper,response);
+	@ApiOperation(value = "导出即时查询", nickname = "export", notes = "报文格式：content-type=application/download")
+	@RequestMapping(value = "/export", method = RequestMethod.POST)
+	@Security(session = true)
+	public void export(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
+		QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
+		Export.dualDate(mapper, response);
 	}
-
-
->>>>>>> 40-完善olap建表逻辑
 }

@@ -138,7 +138,7 @@ export default {
       }
       const { cubeMappers: res, next } = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = [...res, ...this.tableData]
+        this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
       }
       this.moreShow = next
       this.getLoading = false
@@ -153,7 +153,7 @@ export default {
       }
       const res = await getModelDataList(params)
       if (res.length > 0) {
-        this.tableData = res
+        this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
       } else {
         this.moreShow = false
         // this.$message.success('已加载所有数据')

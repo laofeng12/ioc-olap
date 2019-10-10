@@ -92,6 +92,7 @@ export default {
       for (let i = 0; i < datalist.length; i++) {
         let t = datalist[i]
         if (t.filed) {
+          this.$parent.init()
           this.factTable = t
           this.$parent.clickTable(t)
           break
