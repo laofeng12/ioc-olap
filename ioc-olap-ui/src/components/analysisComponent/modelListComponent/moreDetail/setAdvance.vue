@@ -101,8 +101,8 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        let { mandatory_dimension_set_list, rowkey } = this.jsonData.CubeList[0]
-        this.list = this.jsonData.CubeList[0]
+        let { mandatory_dimension_set_list, rowkey } = this.jsonData.CubeList
+        this.list = this.jsonData.CubeList
         if (mandatory_dimension_set_list.length < 1) this.list.mandatory_dimension_set_list = [[]]
         this.descriptionData = rowkey.rowkey_columns.map((item, index) => {
           return {

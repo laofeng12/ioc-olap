@@ -223,7 +223,6 @@ export default {
       }
     },
     nextModel (val) {
-      console.log(this.saveNewSortListstructure)
       if (this.saveSelectFiled.length === 0) {
         this.$message.warning('请选择维度字段')
       } else {
@@ -271,7 +270,6 @@ export default {
      * 取消全选的时候需要把rows以及tableName带过去过滤
      */
     selectAllCheck (rows) {
-      console.log(this.tableData)
       let list = {
         list: rows,
         id: this.tableData[0].tableName

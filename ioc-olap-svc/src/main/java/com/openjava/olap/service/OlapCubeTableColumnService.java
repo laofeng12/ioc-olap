@@ -27,6 +27,11 @@ public interface OlapCubeTableColumnService {
 
     OlapCubeTableColumn doSave(OlapCubeTableColumn m);
 
+<<<<<<< HEAD
+=======
+    void saveCubeTableColumn(CubeDescMapper cube, Long cubeId, List<OlapCubeTable> dmEntity, ArrayList<MeasureMapper> countMappers);
+
+>>>>>>> 40-完善olap建表逻辑
     void doDelete(Long id);
 
     void doRemove(String ids);
