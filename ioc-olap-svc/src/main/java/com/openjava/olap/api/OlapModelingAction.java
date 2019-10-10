@@ -689,7 +689,7 @@ public class OlapModelingAction extends BaseAction {
         List<OlapDatalaketable> datalaketables = olapDatalaketableService.getListByCubeName(cubeName);
 
         //放到事物里进行保存
-        saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, userVO, cubeNameClone);
+        olapCubeService.saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, userVO, cubeNameClone);
     }
 
 
@@ -786,6 +786,7 @@ public class OlapModelingAction extends BaseAction {
     }
 
 
+>>>>>>> release
     @ApiOperation(value = "立方体:删除")
     @RequestMapping(value = "/deleteCube", method = RequestMethod.DELETE)
     @Security(session = true)

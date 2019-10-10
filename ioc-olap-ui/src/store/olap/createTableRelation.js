@@ -64,12 +64,8 @@ const creatTableRelation = {
       state.foreignKeyData = []
     },
     resetCreateTabletions ({ state, commit }) {
-      state.jointResultData = {
-        name: 'joint',
-        description: '',
-        fact_table: '',
-        lookups: []
-      }
+      state.jointResultData.lookups = []
+      state.jointResultData.fact_table = ''
       state.foreignKeyData = []
       console.log(state.jointResultData, '执行之后的')
     }

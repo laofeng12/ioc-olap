@@ -71,6 +71,10 @@ public class OlapShareServiceImpl implements OlapShareService {
     @Transactional(readOnly = false)
     public void save(Long[] shareUserIds, String sourceType, Long sourceId, Long userId, String userName) {
         olapShareRepository.deleteByFkIdAndSourceId(sourceId, sourceType);
+<<<<<<< HEAD
+
+=======
+>>>>>>> release
         if (shareUserIds != null) {
             for (Long shareUserId : shareUserIds) {
                 OlapShare share = new OlapShare();
