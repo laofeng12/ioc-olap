@@ -48,6 +48,9 @@ const creatTableRelation = {
         }
       })
       state.foreignKeyData = [...new Set(state.foreignKeyData)]
+    },
+    RESET_CREATE_TABLETIONS (state, payload) {
+      state.jointResultData = payload
     }
   },
   actions: {
@@ -59,6 +62,12 @@ const creatTableRelation = {
         lookups: []
       }
       state.foreignKeyData = []
+    },
+    resetCreateTabletions ({ state, commit }) {
+      state.jointResultData.lookups = []
+      state.jointResultData.fact_table = ''
+      state.foreignKeyData = []
+      console.log(state.jointResultData, '执行之后的')
     }
   }
 }

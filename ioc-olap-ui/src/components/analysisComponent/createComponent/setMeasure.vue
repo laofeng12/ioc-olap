@@ -103,7 +103,7 @@ export default {
 <style lang="stylus" scoped>
 .setMeasure{
   height calc(100vh - 40px)
-  margin-top 30px
+  margin-top 16px
   margin-bottom 76px
   background #ffffff
   >>>.el-table__body, >>>.el-table__header{

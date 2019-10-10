@@ -170,7 +170,7 @@ export default {
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res
       this.getLoading = false
-      this.setTimeout = setTimeout(this.update, 3000)
+      this.setTimeout = setTimeout(this.update, 6000)
     },
     async init () {
       clearTimeout(this.setTimeout)
@@ -303,8 +303,8 @@ export default {
       this.offset += 15
       this.init()
     },
-    tableHead(row, column, rowIndex, columnIndex){
-       return 'tableHead'
+    tableHead (row, column, rowIndex, columnIndex) {
+      return 'tableHead'
     }
   }
 }

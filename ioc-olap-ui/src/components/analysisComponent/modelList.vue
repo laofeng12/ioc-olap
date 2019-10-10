@@ -266,6 +266,8 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
+        console.log('===', params.segments.length)
+        if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
         return this.$router.push({
           path: '/analysisModel/createolap/selectStep',
           query: {
@@ -292,6 +294,9 @@ export default {
     closeChangeLoading () {
       this.getLoading = false
       this.init()
+    },
+    closeChangeLoadingLoser () {
+      this.getLoading = false
     },
     moreData () {
       this.offset += 15

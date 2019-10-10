@@ -99,7 +99,7 @@ export default {
 	height: 100%;
 	background: #fff;
     flex 1
-    // margin-left 10px!important
+    margin-left 10px!important
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
