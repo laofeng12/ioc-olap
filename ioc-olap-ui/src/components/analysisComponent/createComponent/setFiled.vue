@@ -142,6 +142,7 @@ export default {
             name: res.name,
             titName: res.name,
             id: `${items.name}.${res.name}`,
+            resid: items.resourceId,
             mode: items.code ? items.code : '2',
             derived: res.name,
             dataType: res.dataType,

@@ -63,11 +63,20 @@ const creatTableRelation = {
       }
       state.foreignKeyData = []
     },
-    resetCreateTabletions ({ state, commit }) {
+    resetCreateTabletions ({ state, getters }) {
       state.jointResultData.lookups = []
       state.jointResultData.fact_table = ''
       state.foreignKeyData = []
-      console.log(state.jointResultData, '执行之后的')
+      // 清除第三步已经默认勾选的维度
+      getters.saveSelectFiled.forEach((res, i) => {
+        getters.saveSelectFiled.splice(i)
+      })
+    },
+    // 删除取消连线的表
+    RemoveTableLine ({ state }, ele) {
+      state.jointResultData.lookups = state.jointResultData.lookups.filter((item, index) => {
+        return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
+      })
     }
   }
 }

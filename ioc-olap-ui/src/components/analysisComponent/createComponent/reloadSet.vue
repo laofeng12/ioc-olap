@@ -18,7 +18,7 @@
         <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.interval"></el-input>
+              <el-input type="number" v-model="formData.interval"></el-input>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -206,7 +206,6 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
-      console.log('力帆', this.formData.ispartition_type)
       if (this.formData.ispartition_type === true) {
         // 如果开启就选择表跟字段
         this.rules.data2a[0].required = true
@@ -317,6 +316,11 @@ export default {
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
+  }
+  .uplaodNum{
+    >>>.el-form-item__error{
+      left 200px
+    }
   }
   >>>.el-table__body, >>>.el-table__header{
     width auto!important
