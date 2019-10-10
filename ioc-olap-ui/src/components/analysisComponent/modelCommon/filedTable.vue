@@ -47,7 +47,6 @@ export default {
        *
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log('新的lifan', this.jointResultData)
       this.dataList.lookups.map((item, index) => {
         // 存储所有的事实表名
         this.titleData.push(item.alias)
