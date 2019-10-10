@@ -3,7 +3,7 @@
     <el-dialog title="克隆" :visible.sync="dialogFormVisible" v-loading="cloneLoading">
       <el-form :model="form">
         <el-form-item>
-          <el-input placeholder="请输入新名称" v-model="form.name" autocomplete="off" maxlength="20" show-word-limit></el-input>
+          <el-input placeholder="请输入新名称" v-model="form.name" autocomplete="off" maxlength="100" show-word-limit></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

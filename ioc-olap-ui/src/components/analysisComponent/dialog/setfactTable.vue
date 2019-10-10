@@ -54,6 +54,9 @@ export default {
       // 保存设置事实表到总表
       this.$store.dispatch('mergeFiledTable', this.tableData)
       this.$parent.init()
+      // this.$store.dispatch('resetCreateTabletions')
+      this.jointResultData.fact_table = ''
+      this.jointResultData.lookups = []
     },
     dialog () {
       this.dialogFormVisible = true
@@ -62,7 +65,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectTableTotal: 'selectTableTotal'
+      selectTableTotal: 'selectTableTotal',
+      jointResultData: 'jointResultData'
     })
   }
 }

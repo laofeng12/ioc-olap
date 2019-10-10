@@ -3,11 +3,11 @@
     <h4>刷新设置</h4>
     <p style="margin-top:15px;">
       <span>自动刷新模型？</span>
-      <span>{{ this.jsonData.timingreFresh.autoReload !== 1 ? '否' : '是' }}</span>
+      <span>{{ this.jsonData.timingreFresh && this.jsonData.timingreFresh.autoReload !== 1 ? '否' : '是' }}</span>
     </p>
-    <p v-if="this.jsonData.timingreFresh.autoReload === 1" style="margin-top:10px;">
+    <p v-if="this.jsonData.timingreFresh && this.jsonData.timingreFresh.autoReload === 1" style="margin-top:10px;">
       <span>更新频率</span>
-      <span>{{frequencytypes(this.jsonData.timingreFresh.frequencytype)}}/{{this.jsonData.timingreFresh.interval}}次</span>
+      <span>{{this.jsonData.timingreFresh && frequencytypes(this.jsonData.timingreFresh.frequencytype)}}/{{this.jsonData.timingreFresh && this.jsonData.timingreFresh.interval}}次</span>
     </p>
     <ul>
          <div>

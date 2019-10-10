@@ -173,6 +173,7 @@ export default {
       }
     },
     init () {
+      console.log(this.jointResultData, '是否重置')
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -907,6 +908,10 @@ export default {
         } else {
           if (ele.id === target.id) {
             ele.remove()
+            // 删除对应存储的数据
+            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+              return item.id !== ele.attributes.attrs.text.id
+            })
           }
         }
       }

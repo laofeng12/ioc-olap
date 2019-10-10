@@ -10,7 +10,7 @@
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
            <div>
-             <el-input type="textarea" placeholder="" v-model="totalSaveData.cube.cubeDescData.description"></el-input>
+             <el-input type="textarea" placeholder="" v-model="totalSaveData.cube.cubeDescData.description" maxlength="200" show-word-limit></el-input>
            </div>
          </template>
        </el-form-item>

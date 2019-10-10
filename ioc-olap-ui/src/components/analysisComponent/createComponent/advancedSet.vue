@@ -190,7 +190,6 @@ export default {
   },
   methods: {
     init () {
-      console.log(this.hbase_mapping.column_family)
       // 获取对应的字段
       getEncodingList().then(res => {
         // this.getAllcoding = res
@@ -360,6 +359,10 @@ export default {
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
+    font-family: PingFangSC-Medium;
+    font-size: 16px;
+    color: #262626;
+    letter-spacing: 0;
   }
   >>>.el-form-item__label{
     width 120px
@@ -385,25 +388,23 @@ export default {
           width 80px
         }
         .box_r{
-          border 1px solid #cccccc
+          border: 1px solid #D9D9D9;
           flex 1
+          min-height 32px
           cursor pointer
         }
         >>>.el-tag{
-         width: 80px;
-         height: 22px;
-         line-height: 22px;
-         border-radius: 0;
-         background: #F6F6F6;
-         border: 1px solid #D9D9D9;
-         margin: 5px 0 5px 10px;
-         text-align: center;
-         font-size: 12px;
-         color: #262626;
-          // i{
-          //   float right!important
-          //   margin-top 8px
-          // }
+          width 200px
+          margin-bottom 3px
+          float left
+          margin-left 1%
+          font-size 11px
+          margin-top:5px;
+          height 22px
+          line-height 22px
+          text-align center
+          background #FBFBFB
+          color #555555
         }
         .adds{
           border none!important
@@ -412,7 +413,11 @@ export default {
           display flex
           div{
             flex 1
-            border 1px solid #cccccc
+            margin-left 80px
+            height 32px
+            margin-bottom 20px
+            border: 1px solid #D9D9D9;
+            min-height 32px
             cursor pointer
           }
         }
@@ -456,8 +461,9 @@ export default {
         margin-bottom 10px
         div{
           margin-left 120px
+          border: 1px solid #D9D9D9;
           flex 1
-          border 1px solid #cccccc
+          min-height 32px
           cursor pointer
         }
       }
@@ -474,23 +480,17 @@ export default {
         }
       }
       >>>.el-tag{
-         width: 80px;
-         height: 22px;
-         line-height: 22px;
-         border-radius: 0;
-         background: #F6F6F6;
-         border: 1px solid #D9D9D9;
-         margin: 5px 0 5px 10px;
-         text-align: center;
-         font-size: 12px;
-         color: #262626;
-          // i{
-          //   float right!important
-          //   margin-top 8px
-          // }
-          .el-tag__close {
-              color: #5A5A5A !important;
-          }
+        width 200px
+        margin-bottom 3px
+        float left
+        margin-left 1%
+        font-size 11px
+        margin-top:5px;
+        height 22px
+        line-height 22px
+        text-align center
+        background #FBFBFB
+        color #555555
         }
     }
     .nos{
@@ -498,5 +498,15 @@ export default {
       margin-top -10px
     }
   }
+    >>>.el-table__body tr:nth-child(even){
+      background #F5F7FA
+    }
+  >>>.el-table__header th{
+      background #444444
+      padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+    }
 }
 </style>

@@ -36,7 +36,7 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        this.descriptionData = [...this.jsonData.CubeList[0].dimensions]
+        this.descriptionData = [...this.jsonData.CubeList.dimensions]
         this.descriptionData.map((res, index) => {
           res.index = index + 1
           res.mode = res.derived ? '衍生模式' : '正常模式'

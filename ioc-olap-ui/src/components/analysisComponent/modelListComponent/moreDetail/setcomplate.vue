@@ -19,10 +19,10 @@
     </div>
     <div>
       <span>构建引擎</span>
-      <span>{{jsonData.CubeList[0].engine_type === 2 ? 'MapReduce' : 'Spark' }}</span>
+      <span>{{jsonData.CubeList.engine_type === 2 ? 'MapReduce' : 'Spark' }}</span>
     </div>
     <h4>描述信息</h4>
-    <el-input style="margin-top:20px;" type="textarea" v-model="jsonData.CubeList[0].description" disabled placeholder=""></el-input>
+    <el-input style="margin-top:20px;" type="textarea" v-model="jsonData.CubeList.description" disabled placeholder=""></el-input>
   </div>
 </template>
 
