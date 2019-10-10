@@ -55,8 +55,7 @@ export default {
       this.$store.dispatch('mergeFiledTable', this.tableData)
       this.$parent.init()
       // this.$store.dispatch('resetCreateTabletions')
-      this.jointResultData.fact_table = ''
-      this.jointResultData.lookups = []
+      this.$store.commit('ClearTableRelation')
     },
     dialog () {
       this.dialogFormVisible = true
