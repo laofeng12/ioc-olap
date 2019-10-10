@@ -5,11 +5,7 @@
     <parent>
         <artifactId>platform-service</artifactId>
         <groupId>com.ioc</groupId>
-<<<<<<< HEAD
         <version>2.1.8.R04</version>
-=======
-        <version>2.1.8.R03</version>
->>>>>>> 40-完善olap建表逻辑
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,11 +16,7 @@
         <dependency>
             <groupId>com.ioc</groupId>
             <artifactId>platform-framework</artifactId>
-<<<<<<< HEAD
             <version>2.1.8.R04</version>
-=======
-            <version>2.1.8.R03</version>
->>>>>>> 40-完善olap建表逻辑
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
