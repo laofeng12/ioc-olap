@@ -108,10 +108,14 @@ export default {
   // margin-top 10px
   display flex
   .step_tab{
-    box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)
+    margin-left 10px
+    overflow hidden
+    // box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)
     width 100%
-    height 100%
-    background #fff
+    height 98%
+    >>>.el-tabs {
+      height 100%
+    }
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px
@@ -122,7 +126,8 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      height: calc(100vh - 280px)!important;
+      // height: calc(100vh - 270px)!important;
+      height: 100%!important;
     }
     >>>.el-table{
       margin-top 10px

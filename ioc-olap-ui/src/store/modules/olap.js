@@ -11,12 +11,12 @@ const common = {
           'uuid': '',
           'last_modified': '',
           'version': '',
-          'fact_table': 'KYLIN.KYLIN_SALES',
+          'fact_table': '',
           'lookups': [
             {
               'table': 'KYLIN.KYLIN_CAL_DT',
               'alias': 'KYLIN_CAL_DT',
-              'joinTable': 'KYLIN.KYLIN_SALES',
+              'joinTable': '',
               'kind': 'LOOKUP',
               'join': {
                 'type': 'inner',
@@ -247,7 +247,7 @@ const common = {
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)
       })
-      data.CubeList[0].dimensions.map((res, i) => {
+      data.CubeList.dimensions.map((res, i) => {
         getters.saveSelectFiled.push({
           titName: res.name,
           name: res.column ? res.column : res.name,
@@ -260,7 +260,7 @@ const common = {
       })
       dispatch('SaveSelectFiled', getters.saveSelectFiled)
       // 赋值第四步
-      data.CubeList[0].measures.map(item => {
+      data.CubeList.measures.map(item => {
         getters.measureTableList.push(item)
       })
       // 赋值第五步
@@ -282,7 +282,7 @@ const common = {
       data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
       getters.reloadData.partition_type = !!resultTime
       // 赋值第六步
-      data.CubeList[0].aggregation_groups.map((item, index) => {
+      data.CubeList.aggregation_groups.map((item, index) => {
         getters.aggregation_groups[index].includes = item.includes
         getters.aggregation_groups[index].select_rule = item.select_rule
         getters.selectDataidList[index].includesId = item.includes
@@ -292,24 +292,24 @@ const common = {
         item.includes.map(res => { getters.saveselectIncludesData.push(res) })
       })
       // hbase_mapping  mandatory_dimension_set_list
-      data.CubeList[0].hbase_mapping.column_family.map((item, index) => {
+      data.CubeList.hbase_mapping.column_family.map((item, index) => {
         getters.hbase_mapping.column_family[index] = item
         item.columns.map((n, i) => {
           getters.savehetComposeDataId[index] = n.measure_refs
         })
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
-      state.totalSaveData.cube.cubeDescData.name = data.CubeList[0].name
-      state.totalSaveData.cube.cubeDescData.version = data.CubeList[0].version
-      state.totalSaveData.cube.cubeDescData.last_modified = data.CubeList[0].last_modified
-      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList[0].model_name
-      state.totalSaveData.cube.cubeDescData.description = data.CubeList[0].description
-      state.totalSaveData.cube.cubeDescData.uuid = data.CubeList[0].uuid
+      state.totalSaveData.cube.cubeDescData.name = data.CubeList.name
+      state.totalSaveData.cube.cubeDescData.version = data.CubeList.version
+      state.totalSaveData.cube.cubeDescData.last_modified = data.CubeList.last_modified
+      state.totalSaveData.cube.cubeDescData.model_name = data.CubeList.model_name
+      state.totalSaveData.cube.cubeDescData.description = data.CubeList.description
+      state.totalSaveData.cube.cubeDescData.uuid = data.CubeList.uuid
       state.totalSaveData.models.modelDescData.uuid = data.ModesList.uuid
       state.totalSaveData.models.modelDescData.name = data.ModesList.name
       state.totalSaveData.models.modelDescData.version = data.ModesList.version
       state.totalSaveData.models.modelDescData.last_modified = data.ModesList.last_modified
-      state.totalSaveData.cube.engine_type = data.CubeList[0].engine_type
+      state.totalSaveData.cube.engine_type = data.CubeList.engine_type
     }
   }
 }

@@ -35,7 +35,7 @@ export default {
   methods: {
     init () {
       if (this.jsonData) {
-        this.descriptionData = this.jsonData.CubeList[0].measures.map((item, index) => {
+        this.descriptionData = this.jsonData.CubeList.measures.map((item, index) => {
           return {
             index: index + 1,
             name: item.name,
@@ -44,7 +44,7 @@ export default {
             returntype: item.function.returntype
           }
         })
-      } 
+      }
     }
   }
 }
