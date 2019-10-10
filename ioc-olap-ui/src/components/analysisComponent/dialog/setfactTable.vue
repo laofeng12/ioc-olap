@@ -53,9 +53,9 @@ export default {
       this.dialogFormVisible = false
       // 保存设置事实表到总表
       this.$store.dispatch('mergeFiledTable', this.tableData)
-      this.$parent.init()
-      // this.$store.dispatch('resetCreateTabletions')
-      this.$store.commit('ClearTableRelation')
+      this.$store.dispatch('resetCreateTabletions').then(_ => {
+        this.$parent.init()
+      })
     },
     dialog () {
       this.dialogFormVisible = true
