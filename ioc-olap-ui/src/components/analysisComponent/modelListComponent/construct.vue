@@ -70,6 +70,7 @@ export default {
             this.form.startTime = ''
             this.form.endTime = ''
             this.$parent.closeChangeLoading()
+            this.$parent.update()
           }).catch(_ => {
             this.$parent.closeChangeLoadingLoser()
             this.form.startTime = ''

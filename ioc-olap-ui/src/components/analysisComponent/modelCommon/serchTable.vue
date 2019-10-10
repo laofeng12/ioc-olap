@@ -213,13 +213,13 @@ export default {
 <style lang="stylus" scoped>
 .serchTable{
   background #ffffff
-  width 230px
+  width 240px
   float left
-  padding 15px
-  border-right 1px solid #f0f0f0
-  height 98%
+  padding 16px
+  box-shadow: -5px 0 10px 0 rgba(0,0,0,0.05);
+  height 100%
   .trees{
-    width 230px
+    width 240px
     height 85%
     overflow auto
     padding-right 30px
@@ -228,6 +228,7 @@ export default {
     height 100%
     width 100%
     overflow auto
+    padding-top 16px
   }
   >>>.el-radio{
     display block
@@ -235,9 +236,8 @@ export default {
     line-height 30px
   }
   >>>.el-input{
-    height 50px
     .el-input__inner{
-      height 30px
+      height 32px
     }
   }
   >>>.el-input__suffix{

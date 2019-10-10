@@ -34,6 +34,7 @@ export default {
       await cloneModeling({ cubeNameClone: this.form.name, cubeName: this.cubeName }).then(res => {
         this.$message.success('复制成功~')
         this.$parent.closeChangeLoading()
+        this.$parent.update()
       }).catch(_ => {
         this.$parent.closeChangeLoading()
       })

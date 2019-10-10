@@ -5,12 +5,12 @@
         <div class="aggregation">
           <div class="aggregation_head">
             <span>维度分组聚合</span>
-            <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
+            <span style="color:#0486FE;margin-left:10px;cursor:pointer;" @click="addaAggregation">添加聚合小组</span>
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
-              <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
+              <el-button style="float:right;margin-top:10px;" type="text" @click="handleRms(index)">删除</el-button>
             </div>
             <div class="item_box">
               <span>包含维度</span>
@@ -53,13 +53,15 @@
           </el-card>
         </div>
         <div class="setRowkeys">
-          <p style="margin:20px 0">Rowkeys设置</p>
+          <p style="margin-top: 16px;font-size: 14px;color: #444444;">Rowkeys设置</p>
           <el-table
             :data="rowkeyData.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
+            header-cell-class-name="tableHead"
+            stripe
             style="margin-top: 10px;">
-            <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+            <el-table-column type="index"  width="100" label="序号" align="center"></el-table-column>
             <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
@@ -353,10 +355,13 @@ export default {
 
 <style lang="stylus" scoped>
 .advancedSet{
-  padding 30px
-  margin-top 30px
-  background #ffffff
+  margin-top: 16px;
+  background #F2F2F2
   padding-bottom 100px
+  .el-form{
+    padding: 0 16px !important;
+    padding-bottom: 16px !important;
+  }
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
@@ -364,6 +369,8 @@ export default {
   >>>.el-form-item__label{
     width 120px
     text-align left
+    font-size: 16px;
+    color: #262626;
   }
   >>>.el-table__body-wrapper{
     height 350px
@@ -375,14 +382,18 @@ export default {
   >>>.el-form-item{
   }
   .aggregation{
-    margin-top 20px
+
+    margin-top 20px;
+    font-size 14px;
     .box-card{
       margin-top 20px
       .item_box{
-        display flex
-        margin-bottom 30px
+        display flex;
+        margin-bottom 16px;
+        height 32px;
+        line-height 32px;
         span{
-          width 80px
+          width 70px
         }
         .box_r{
           border 1px solid #cccccc
@@ -406,10 +417,13 @@ export default {
           // }
         }
         .adds{
-          border none!important
-          padding 0
-          width 100%
-          display flex
+          border none!important;
+          padding 0;
+          width 100%;
+          display flex;
+          height 32px;
+          line-height 32px;
+          margin-bottom 16px;
           div{
             flex 1
             border 1px solid #cccccc
@@ -422,7 +436,7 @@ export default {
         p{
           width 80px
           text-align center
-          margin-top 10px
+          margin-top 5px
           i{
             color red
             font-size 25px
@@ -440,25 +454,30 @@ export default {
   h6{
     text-overflow: ellipsis;
     float left
-    width: 90%;
+    width: 80%;
     overflow: hidden;
   }
   .listSet{
     margin-top 20px
     span{
       width 100px
+      font-size: 14px;
+      color: #444444;
     }
     .listSet__box{
-      margin-top -20px
+      width: 100%;
       .adds{
         display flex
         width 100%
-        margin-bottom 10px
+        margin-bottom 16px
         div{
           margin-left 120px
           flex 1
           border 1px solid #cccccc
           cursor pointer
+          height 32px;
+          line-height 32px;
+          margin-top: 8px;
         }
       }
       p{

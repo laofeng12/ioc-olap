@@ -87,14 +87,17 @@ export default {
 <style lang="stylus" scoped>
 .datalake {
   position absolute
-  height 95%
-  margin-top 10px
+  height 100%
+  // margin-top 10px
   width 100%
   display flex
   .trees{
 
   }
   .step_tab{
+	box-shadow: -5px 0 10px 0 rgba(0,0,0,0.05);
+	height: 100%;
+	background: #fff;
     flex 1
     // margin-left 10px!important
     >>>.el-tabs__header{
@@ -107,7 +110,7 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      height: calc(100vh - 270px)!important;
+      height: calc(100vh - 280px)!important;
     }
     >>>.el-table{
       margin-top 10px

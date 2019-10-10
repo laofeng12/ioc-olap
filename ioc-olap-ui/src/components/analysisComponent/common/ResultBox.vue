@@ -99,7 +99,7 @@ export default {
     },
     diffWidth: {
       type: Number,
-      default: 536
+      default: 312
     },
     shareList: {
       type: Array,
@@ -265,9 +265,11 @@ export default {
 <style lang="scss" scoped>
   .result {
     overflow: auto;
+    margin: 0 24px 24px 12px;
     .resultBox {
       .top {
         .right {
+          flex-direction: row-reverse;
           flex-wrap: wrap;
           margin: 20px 0;
           .button {

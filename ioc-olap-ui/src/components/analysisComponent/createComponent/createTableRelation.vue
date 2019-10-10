@@ -1044,8 +1044,8 @@ export default {
   height calc(100vh)
   position relative
   .containers{
-    height 90%
-    padding 20px 5px
+    height 91.5%
+    padding 16px 0
   }
 }
 
@@ -1136,17 +1136,17 @@ export default {
 .linkSetting{
   float right
   background #ffffff
-  width 200px
+  width 240px
   height 100%
   overflow auto
   text-align left
-  padding 0 20px
-  border-left 1px solid #cccccc
+  padding 0 16px
+  margin-left 16px
   .title{
     font-size: 14px;
     color: #303133;
-    height 35px
-    line-height 35px
+    height 42px
+    line-height 42px
     border-bottom 1px solid #E4E7ED
     letter-spacing: 0;
   }
@@ -1183,6 +1183,8 @@ export default {
     width:100%;
     text-align:center;
     margin-top:15px;
+	height 32px;
+	line-height 32px;
     a{
       font-family: PingFangSC-Regular;
       font-size: 14px;
@@ -1193,17 +1195,17 @@ export default {
   }
   >>>.el-select{
     .el-input__inner{
-      font-size 10px
+      font-size 14px
     }
     .el-icon-arrow-up{
-      margin-top 5px
+      margin-top 5px !important
     }
     .is-reverse{
-      margin-top -5px
+      margin-top -5px !important
     }
   }
   >>>.el-input__inner{
-    height 30px
+    height 32px
   }
 }
 </style>

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
 @Component
 public class CubeHttpClient extends KylinHttpClient {
     public List<CubeMapper> list(String cubeName, String projectName, Integer limit, Integer offset) throws APIException {
@@ -30,16 +31,6 @@ public class CubeHttpClient extends KylinHttpClient {
     }
 
     public CubeDescNewMapper create(CubeDescMapper cube) throws APIException {
-        //avg这个kylin前端上面不显示，但是在我们的配置页面需要加上，avg这个对应kylin是sum
-        for (MeasureMapper measure : cube.cubeDescData.measures) {
-            if (measure.function.getExpression().equals("AVG")) {
-                measure.function.setExpression("SUM");
-                measure.function.setRequestExpression("AVG");
-            }
-            else{
-                measure.function.setRequestExpression(measure.function.getExpression());
-            }
-        }
         String url = config.address + "/kylin/api/cubes";
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
@@ -49,15 +40,6 @@ public class CubeHttpClient extends KylinHttpClient {
     }
 
     public CubeDescNewMapper update(CubeDescMapper cube) throws APIException {
-        for (MeasureMapper measure : cube.cubeDescData.measures) {
-            if (measure.function.getExpression().equals("AVG")) {
-                measure.function.setExpression("SUM");
-                measure.function.setRequestExpression("AVG");
-            }
-            else{
-                measure.function.setRequestExpression(measure.function.getExpression());
-            }
-        }
         String url = config.address + "/kylin/api/cubes";
         HashMap hash = new HashMap();
         hash.put("cubeDescData", JSON.toJSONString(cube.cubeDescData));
@@ -67,15 +49,14 @@ public class CubeHttpClient extends KylinHttpClient {
         return result;
     }
 
-    public List<CubeDescDataMapper> desc(String cubeName) throws APIException {
+    public CubeDescDataMapper desc(String cubeName) throws APIException {
         String url = config.address + "/kylin/api/cube_desc/" + cubeName;
         Class<CubeDescDataMapper[]> claszz = CubeDescDataMapper[].class;
         CubeDescDataMapper[] result = HttpClient.get2(url, config.authorization, claszz);
-        if (result == null) {
-            List<CubeDescDataMapper> resultList = new ArrayList<CubeDescDataMapper>();
-            return resultList;
+        if (result == null || result.length == 0) {
+            return null;
         } else {
-            return Arrays.asList(result);
+            return result[0];
         }
     }
 

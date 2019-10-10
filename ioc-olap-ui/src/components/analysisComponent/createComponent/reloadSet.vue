@@ -1,7 +1,7 @@
 <template>
   <div class="reloadSet">
      <el-form :model="formData" :rules="rules" ref="formData">
-      <h3>刷新设置</h3>
+      <h3 style="margin: 0 0 0 -8px;;padding: 0 0 5px 0;">刷新设置</h3>
       <h4>自动刷新</h4>
         <el-form-item label="自动刷新模型?">
           <template>
@@ -72,38 +72,44 @@
           </el-select>
         </el-form-item>
         </div>
-        <h4>过滤设置</h4>
-        <el-table
-          :data="relaodFilterList"
-          ref="multipleTable"
-          tooltip-effect="dark"
-          style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
-          <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
-          <el-table-column prop="field" label="字段" align="center"> </el-table-column>
-          <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
-          <el-table-column prop="parameter" label="过滤值" align="center">
-            <template slot-scope="scope">
-              <div>
-                <span>{{scope.row.parameter}}</span>
-                <span v-if="scope.row.pattern === 'BETWEED'">，{{scope.row.parameterbe}}</span>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="100"
-            align="center">
-            <template slot-scope="scope">
-              <div class="play">
-                <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
-                <el-button type="text" size="mini" icon="el-icon-delete" @click="handleChange(scope)"></el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-button style="float:right;margin-top:20px;" type="primary" @click="addReloadSet()">添加过滤条件</el-button>
+
      </el-form>
+
+     <h3>过滤设置</h3>
+     <el-table
+       :data="relaodFilterList"
+       ref="multipleTable"
+       tooltip-effect="dark"
+       header-cell-class-name="tableHead"
+       stripe
+       style="margin-top: 10px;">
+       <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
+       <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
+       <el-table-column prop="field" label="字段" align="center"> </el-table-column>
+       <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
+       <el-table-column prop="parameter" label="过滤值" align="center">
+         <template slot-scope="scope">
+           <div>
+             <span>{{scope.row.parameter}}</span>
+             <span v-if="scope.row.pattern === 'BETWEED'">，{{scope.row.parameterbe}}</span>
+           </div>
+         </template>
+       </el-table-column>
+       <el-table-column
+         label="操作"
+         width="100"
+         align="center">
+         <template slot-scope="scope">
+           <div class="play">
+             <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
+             <el-button type="text" size="mini" icon="el-icon-delete" @click="handleChange(scope)"></el-button>
+           </div>
+         </template>
+       </el-table-column>
+     </el-table>
+     <div style="overflow: hidden;background: #fff;padding: 0 16px 16px 0;">
+      <el-button style="float:right;margin-top:20px;" type="primary" @click="addReloadSet()">添加过滤条件</el-button>
+     </div>
      <add-reload-set ref="dialog"></add-reload-set>
      <steps class="steps" :step="5" @nextModel="nextModel" @prevModel="prevModel"></steps>
   </div>
@@ -291,17 +297,18 @@ export default {
 
 <style lang="stylus" scoped>
 .reloadSet{
-  background #ffffff
-  margin-top 30px
-  padding 20px 30px
-  padding-bottom 150px
+  background #f2f2f2;
+  margin-top: 16px;
+  height: 100%;
+  margin-bottom: 130px;
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;
     color: #262626;
     letter-spacing: 0;
-    margin-left -10px
-    margin-bottom 20px
+    background: #fff;
+    margin-top: 16px;
+    padding: 16px 16px 0 16px;
   }
   h4{
     font-family: PingFangSC-Regular;
@@ -313,11 +320,13 @@ export default {
     border-bottom 1px solid #D9D9D9
     height 30px
     line-height 30px
+    font-weight: 100;
   }
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
   }
+  .el-form{padding: 16px 24px !important;}
   >>>.el-table__body, >>>.el-table__header{
     width auto!important
   }
@@ -333,7 +342,7 @@ export default {
   }
   >>>.el-input{
     height 40px
-    width 500px
+    width 100%
     margin-left 15px
     margin-right 30px
     .el-input__inner{

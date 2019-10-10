@@ -8,15 +8,16 @@
         v-model="searchKey">
       </el-input>
     </el-row>
-    <el-tree class="filter-tree" icon-class="el-icon-folder" :data="menuList" :props="menuDefault"
+    <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList" :props="menuDefault"
              default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">
-            <el-button type="primary" size="mini">
-              操作<i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
+            <!--<el-button type="primary" size="mini">-->
+              <!--操作<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
+            <!--</el-button>-->
+            <div style="color: #0486FE">操作</div>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
               <el-dropdown-item command="0">编辑</el-dropdown-item>
@@ -25,10 +26,10 @@
             </el-dropdown-menu>
           </el-dropdown>
         </span>
-       </span>
+      </span>
     </el-tree>
-    <div style="text-align: center;" v-if="needNewFolder">
-      <el-button type="primary" size="small" @click="newFolder">新建文件夹</el-button>
+    <div  v-if="needNewFolder">
+      <el-button style="width: 100%;padding: 0 16px;color: #0486FE; background: #fff!important;border: 1px solid #0486FE;" type="primary" size="small" @click="newFolder">新建文件夹</el-button>
     </div>
     <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
@@ -49,7 +50,7 @@
         <div class="box">
           <div class="title">未选择用户</div>
           <div class="dis-flex">
-            <el-input placeholder="请输入内容" size="mini" v-model="searchUser"></el-input>
+            <el-input placeholder="请输入用户账号" size="mini" v-model="searchUser"></el-input>
             <el-button size="mini" type="primary" icon="el-icon-search" @click="searchUserFunc('search')"></el-button>
           </div>
           <el-checkbox-group v-model="userCheckList" class="list">
@@ -96,6 +97,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { newOlapFolderApi, deleteOlapFolderApi, getShareUserApi, saveShareApi } from '../../../api/instantInquiry'
 import { getUserListApi } from '../../../api/login'
 
@@ -124,6 +126,10 @@ export default {
     vueType: {
       type: String,
       required: true
+    },
+    iconType: {
+      type: String,
+      required: false
     }
   },
   data () {
@@ -165,6 +171,9 @@ export default {
       userPage: 0,
       totalPage: 0
     }
+  },
+  computed: {
+    ...mapGetters(['userInfo'])
   },
   watch: {
     searchKey (val) {
@@ -280,7 +289,7 @@ export default {
         const userList = rows.map(item => {
           let disabled = false
           res.forEach(v => {
-            if (v.shareUserId === item.userid) {
+            if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
               disabled = true
             }
           })
@@ -338,7 +347,7 @@ export default {
       const userList = this.userRows.map(item => {
         let disabled = false
         this.shareList.forEach(v => {
-          if (v.key === item.userid) {
+          if (v.key === item.userid || item.userid == this.userInfo.userId) {
             disabled = true
           }
         })
@@ -371,7 +380,7 @@ export default {
         const userList = rows.map(item => {
           let disabled = false
           this.shareList.forEach(v => {
-            if (v.shareUserId === item.userid) {
+            if (v.key === item.userid || item.userid == this.userInfo.userId) {
               disabled = true
             }
           })
@@ -400,18 +409,16 @@ export default {
 
 <style lang="scss">
   .folderAside {
-    width: 200px;
+    width: 240px;
     flex-shrink: 0;
-    background-color: white;
+    background: #FFFFFF;
+    box-shadow: 5px 0 10px 0 rgba(0,0,0,0.05);
     margin-right: 20px;
     position: relative;
-    .left-search {
-      padding: 0 5px 5px 5px;
-    }
     .cus-node-content {
       //display: none;
       opacity: 0;
-      filter:Alpha(opacity=0);
+      filter: Alpha(opacity=0);
       transition: opacity .5s;
       position: absolute;
       right: 5px;
@@ -425,7 +432,7 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
       .cus-node-title {
-        color: #5558da;
+        color: #262626;
         font-size: 14px;
       }
     }
@@ -436,21 +443,32 @@ export default {
       .cus-node-content {
         display: inline-block;
         opacity: 1;
-        filter:Alpha(opacity=100);
+        filter: Alpha(opacity=100);
         transition: opacity .5s;
       }
     }
     .el-tree {
       height: calc(100vh - 299px);
       overflow: auto;
+      .icon-cube {
+        background-image: url("../../../icons/png/cube.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
       .el-tree-node__expand-icon.expanded {
         transform: none;
       }
-      .el-tree-node__expand-icon.expanded:before {
+      .el-icon-folder:before {
         content: "\e784";
+      }
+      .icon-cube:before {
+        background-image: url("../../../icons/png/cube.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
       }
       .el-tree-node__expand-icon {
         color: #c0c4cc;
+        margin: 0 5px;
       }
     }
     .share .el-transfer-panel .el-transfer-panel__body .el-checkbox {

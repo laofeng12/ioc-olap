@@ -2,9 +2,12 @@
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
-    <div class="content" v-loading="loading">
+    <div class="content dis-flex" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :tableData="tableData" @exportFunc="exportFile"
                  :shareList="shareList"></ResultBox>
+      <div v-else class="replace-table">
+        <img src="../../assets/img/replace_table.png" />
+      </div>
     </div>
   </div>
 </template>

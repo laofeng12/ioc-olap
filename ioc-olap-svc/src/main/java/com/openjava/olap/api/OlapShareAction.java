@@ -1,11 +1,13 @@
 package com.openjava.olap.api;
 
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.service.OlapShareService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 @Api(tags = "共享接口")
@@ -25,8 +28,15 @@ public class OlapShareAction {
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @Security(session = true)
-    public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) {
+    public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        if (userIds != null) {
+            for (Long userId : userIds) {
+                if (userId.equals(Long.parseLong(userVO.getUserId()))) {
+                    throw new APIException(400, "不能分享给自己！");
+                }
+            }
+        }
         if (StringUtils.isNotBlank(cubeName)) {
             olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName(), cubeName);
         } else {
@@ -37,7 +47,7 @@ public class OlapShareAction {
     @ApiOperation(value = "读取共享")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @Security(session = true)
-    public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) {
+    public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (StringUtils.isNotBlank(cubeName)) {
             return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()), cubeName);

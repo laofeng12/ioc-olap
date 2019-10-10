@@ -13,10 +13,10 @@ import java.util.Optional;
 
 /**
  * 文件夹表数据库访问层
- * @author xiepc
  *
+ * @author xiepc
  */
-public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>, OlapCubeRepositoryCustom{
+public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>, OlapCubeRepositoryCustom {
     @Transactional
     @Modifying
     @Query(value = "delete from OLAP_CUBE t where t.NAME=:cubeName", nativeQuery = true)
@@ -30,12 +30,13 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
     @Query(value = "select t.* from OLAP_CUBE t where t.NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)
     Optional<OlapCube> findTableInfo(@Param("cubeName") String cubeName, @Param("createId") Long createId);
 
-    ArrayList<OlapCube> findByCreateIdAndFlags(Long userId, int flags);
+    @Query(value = "select * from OLAP_CUBE where FLAGS=:flags and create_id=:userId union select c.* from OLAP_CUBE c inner join olap_share s  on c.ID=s.FK_ID and c.FLAGS=:flags where s.SHARE_USER_ID=:userId", nativeQuery = true)
+    ArrayList<OlapCube> findByCreateIdAndFlags(@Param("userId") Long userId, @Param("flags") int flags);
 
     @Query(value = "select t.* from OLAP_CUBE t where t.NAME=:cubeName", nativeQuery = true)
     Optional<OlapCube> findTableInfo(@Param("cubeName") String cubeName);
 
 
-    @Query(value = "select c.* from OLAP_CUBE c left join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId and c.ID is not null", nativeQuery = true)
+    @Query(value = "select c.* from OLAP_CUBE c inner join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId", nativeQuery = true)
     List<OlapCube> getOlapShareByShareUserId(@Param("shareUserId") String shareUserId);
 }

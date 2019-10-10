@@ -6,6 +6,7 @@ import java.util.List;
 import com.openjava.olap.domain.OlapCubeTable;
 import com.openjava.olap.domain.OlapCubeTableColumn;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
+import com.openjava.olap.mapper.kylin.MeasureMapper;
 import com.openjava.olap.mapper.kylin.ModelsDescDataMapper;
 import com.openjava.olap.query.OlapCubeTableColumnDBParam;
 import org.springframework.data.domain.Page;
@@ -25,8 +26,6 @@ public interface OlapCubeTableColumnService {
     OlapCubeTableColumn get(Long id);
 
     OlapCubeTableColumn doSave(OlapCubeTableColumn m);
-
-    void saveCubeTableColumn(CubeDescMapper cube, ModelsDescDataMapper modelDescData, Long cubeId, List<OlapCubeTable> dmEntity);
 
     void doDelete(Long id);
 

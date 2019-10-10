@@ -85,7 +85,7 @@ export default {
 <style lang="stylus" scoped>
 .selectStep{
   padding-bottom 67px
-  margin-top 20px
+  margin-top 16px
   // background #ffffff
   position relattive
   .containers{

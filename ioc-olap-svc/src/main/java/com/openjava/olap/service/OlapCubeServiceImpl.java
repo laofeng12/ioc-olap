@@ -1,14 +1,15 @@
 package com.openjava.olap.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import javax.annotation.Resource;
 
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.domain.OlapCube;
-import com.openjava.olap.mapper.kylin.CubeDescDataMapper;
-import com.openjava.olap.mapper.kylin.CubeDescMapper;
+import com.openjava.olap.domain.*;
+import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
-import com.openjava.olap.repository.OlapCubeRepository;
+import com.openjava.olap.repository.*;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
@@ -28,6 +29,27 @@ public class OlapCubeServiceImpl implements OlapCubeService {
 
     @Resource
     private OlapCubeRepository olapCubeRepository;
+
+    @Resource
+    private OlapCubeTableRelationRepository olapCubeTableRelationRepository;
+
+    @Resource
+    private OlapFilterCondidionRepository olapFilterCondidionRepository;
+
+    @Resource
+    private OlapCubeTableRepository olapCubeTableRepository;
+
+    @Resource
+    private OlapCubeTableColumnRepository olapCubeTableColumnRepository;
+
+    @Resource
+    private OlapFilterRepository olapFilterRepository;
+
+    @Resource
+    private OlapDatalaketableRepository olapDatalaketableRepository;
+
+    @Resource
+    private OlapTimingrefreshRepository olapTimingrefreshRepository;
 
     public Page<OlapCube> query(OlapCubeDBParam params, Pageable pageable) {
         Page<OlapCube> pageresult = olapCubeRepository.query(params, pageable);
@@ -135,5 +157,232 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCube.setIsNew(true);
         }
         return olapCube;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
+                             List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
+                             OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions,
+                             ArrayList<MeasureMapper> countMappers) throws Exception {
+        OlapFilter olapFilter = null;
+        if (olapCube.getIsNew() == false) {
+            olapCubeTableRepository.deleteCubeId(olapCube.getCubeId());
+            olapCubeTableColumnRepository.deleteCubeId(olapCube.getCubeId());
+            olapCubeTableRelationRepository.deleteCubeId(olapCube.getCubeId());
+            olapFilterCondidionRepository.deleteByCubeName(olapCube.getName());
+            olapFilter = olapFilterRepository.findTableInfo(olapCube.getName(), Long.parseLong(userVO.getUserId())).orElse(null);
+            if (olapFilter != null) {
+                olapFilter.setFilterSql(modelDescData.getFilter_condition());
+                olapFilter.setUpdateId(Long.parseLong(userVO.getUserId()));
+                olapFilter.setUpdateName(userVO.getUserAccount());
+                olapFilter.setUpdateTime(date);
+                olapFilter.setIsNew(false);
+                olapFilterRepository.save(olapFilter);
+            } else {
+                olapFilter = new OlapFilter();
+                olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
+                olapFilter.setFilterSql(modelDescData.getFilter_condition());
+                olapFilter.setCubeName(olapCube.getName());
+                olapFilter.setCreateTime(date);//创建时间
+                olapFilter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+                olapFilter.setCreateName(userVO.getUserAccount());//创建人名称
+                olapFilter.setIsNew(true);
+                olapFilterRepository.save(olapFilter);
+            }
+        } else {
+            olapFilter = new OlapFilter();
+            olapFilter.setId(ConcurrentSequence.getInstance().getSequence());
+            olapFilter.setFilterSql(modelDescData.getFilter_condition());
+            olapFilter.setCubeName(olapCube.getName());
+            olapFilter.setCreateTime(date);//创建时间
+            olapFilter.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+            olapFilter.setCreateName(userVO.getUserAccount());//创建人名称
+            olapFilter.setIsNew(true);
+            olapFilterRepository.save(olapFilter);
+        }
+
+        for (OlapFilterCondidion fc : condidions) {
+            OlapFilterCondidion filterCondion = new OlapFilterCondidion();
+            filterCondion.setId(ConcurrentSequence.getInstance().getSequence());
+            filterCondion.setFilterId(olapFilter.getId());            //过滤表ID
+            filterCondion.setTableName(fc.getTableName());  //表名称
+            filterCondion.setField(fc.getField());          //表字段
+            filterCondion.setPattern(fc.getPattern());      //过滤方式
+            filterCondion.setParameter(fc.getParameter());  //过滤值
+            filterCondion.setIds(fc.getIds());                //前端需要的ID
+            filterCondion.setIsNew(true);
+            filterCondion.setCubeName(olapCube.getName());
+            olapFilterCondidionRepository.save(filterCondion);
+        }
+
+        olapCubeRepository.save(olapCube);
+
+        for (OlapCubeTable tableItem : cubeTablesList) {
+            olapCubeTableRepository.save(tableItem);
+        }
+
+        for (OlapCubeTableRelation relationItem : olapcubeList) {
+            olapCubeTableRelationRepository.save(relationItem);
+        }
+
+        if (cubeDatalaketableNew != null) {
+            //保存构建时选择的第一步表
+            for (CubeDatalaketableNewMapper cdn : cubeDatalaketableNew) {
+                for (OlapDatalaketable od : cdn.tableList) {
+                    od.setId(ConcurrentSequence.getInstance().getSequence());
+                    od.setOrgName(od.getDatabase());
+                    od.setIsNew(true);
+                    od.setCubeName(olapCube.getName());
+                    olapDatalaketableRepository.save(od);
+                }
+            }
+        }
+        //保存OLAP_CUBE_TABLE_COLUMN表
+        saveCubeTableColumn(cube, olapCube.getCubeId(), cubeTablesList, countMappers);
+        //保存CUBE刷新频率
+        timingTasks(timingreFresh, cube, date, userVO);
+        return true;
+    }
+
+    //保存OLAP_CUBE_TABLE_COLUMN表
+    public void saveCubeTableColumn(CubeDescMapper cube, Long cubeId, List<OlapCubeTable> dmEntity, ArrayList<MeasureMapper> countMappers) {
+        CubeDescDataMapper cubeDescData = cube.getCubeDescData();
+        ArrayList<MeasureMapper> measuresList = cubeDescData.getMeasures();
+        //Cube里dimensions的处理
+        for (DimensionMapper mm : cubeDescData.getDimensions()) {
+            //dimensions需要用别名去验证改列属于哪个表
+            Optional<OlapCubeTable> dmCube = dmEntity.stream()
+                    .filter(p -> p.getTableAlias().equals(mm.getTable())).findFirst();
+            if (dmCube.isPresent()) {
+                OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
+                CubeTableColumn.setCubeTableColumnId(ConcurrentSequence.getInstance().getSequence());
+                CubeTableColumn.setName(mm.getName());//列中文名称
+                CubeTableColumn.setCubeId(cubeId);//立方体ID
+                CubeTableColumn.setTableId(dmCube.get().getId());//表ID
+                if (StringUtils.isNotBlank(mm.getColumn())) {
+                    CubeTableColumn.setColumnName(mm.getColumn());//列名称
+                } else {
+                    String str = StringUtils.join(mm.getDerived(), ",");
+                    CubeTableColumn.setColumnName(str);//列名称
+                }
+                CubeTableColumn.setColumnType(mm.getColumn_type());//列类型 HIVE基本数据类型
+                CubeTableColumn.setLibraryTable(mm.getId());//前端需要的-库名表名
+                CubeTableColumn.setColumnAlias(mm.getName());//列别名
+                CubeTableColumn.setIsNew(true);
+                CubeTableColumn.setExpressionFull("{0}.{1} as {2}");//完整表达式
+                olapCubeTableColumnRepository.save(CubeTableColumn);
+            }
+        }
+
+
+        //Cube里measures的处理
+        for (MeasureMapper mm : measuresList) {
+            if (mm.function.getExpression().equals("COUNT")) {
+                continue;
+            }
+            save(cubeId, dmEntity, mm);
+        }
+
+        for (MeasureMapper mm : countMappers) {
+            save(cubeId, dmEntity, mm);
+        }
+    }
+
+    private void save(Long cubeId, List<OlapCubeTable> dmEntity, MeasureMapper mm) {
+        String tableColumn = mm.function.parameter.getValue().substring(0, mm.function.parameter.getValue().indexOf("."));
+        Optional<OlapCubeTable> dmCube = dmEntity.stream()
+                .filter(p -> p.getTableAlias().equals(tableColumn)).findFirst();
+        if (dmCube.isPresent()) {
+            OlapCubeTableColumn CubeTableColumn = new OlapCubeTableColumn();
+            CubeTableColumn.setCubeTableColumnId(ConcurrentSequence.getInstance().getSequence());
+            CubeTableColumn.setCubeId(cubeId);//立方体ID
+            CubeTableColumn.setTableId(dmCube.get().getId());//表ID
+
+            String columnTableName = mm.function.parameter.getValue().substring(mm.function.parameter.getValue().indexOf(".") + 1);
+            CubeTableColumn.setColumnAlias(mm.getName());//列别名
+            CubeTableColumn.setName(mm.getName());//列中文名称
+            CubeTableColumn.setColumnName(columnTableName);//真实列名称
+            CubeTableColumn.setColumnType(mm.function.getReturntype());//列类型 HIVE基本数据类型
+            CubeTableColumn.setIsNew(true);
+            CubeTableColumn.setExpressionType(mm.function.getRequestExpression());//表达式类型max、min、sum
+            if (mm.function.getRequestExpression().equalsIgnoreCase("COUNT_DISTINCT")) {
+                CubeTableColumn.setExpressionFull("COUNT(DISTINCT {0}.{1}) as {2}");//完整表达式
+            } else {
+                CubeTableColumn.setExpressionFull(mm.function.getRequestExpression() + "({0}.{1}) as {2}");//完整表达式
+            }
+            olapCubeTableColumnRepository.save(CubeTableColumn);
+        }
+    }
+
+    //创建定时任务
+    public void timingTasks(OlapTimingrefresh task, CubeDescMapper cube, Date date, OaUserVO userVO) {
+        //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据并修改olap_timingrefresh表数据
+        if (StringUtils.isNotBlank(cube.getCubeDescData().getUuid())) {
+            OlapTimingrefresh olapTimingrefresh = olapTimingrefreshRepository.findTableInfo(cube.getCubeDescData().getName(), Long.parseLong(userVO.getUserId())).orElse(null);
+            if (olapTimingrefresh != null) {
+                olapTimingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
+                olapTimingrefresh.setUpdateName(userVO.getUserAccount());
+                olapTimingrefresh.setUpdateTime(date);
+                olapTimingrefresh.setIsNew(false);
+                olapTimingrefresh.setInterval(task.getInterval());
+                olapTimingrefresh.setFrequencytype(task.getFrequencytype());
+                olapTimingrefresh.setAutoReload(task.getAutoReload());
+                calcExcuteTime(olapTimingrefresh);
+                olapTimingrefreshRepository.save(olapTimingrefresh);
+            } else {
+                task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+                task.setCreateName(userVO.getUserAccount());//创建人名称
+                task.setCreateTime(date);//创建时间
+                task.setIsNew(true);
+                task.setId(ConcurrentSequence.getInstance().getSequence());
+                task.setCubeName(cube.getCubeDescData().getName());//立方体名称
+                calcExcuteTime(task);
+                olapTimingrefreshRepository.save(task);
+            }
+        } else {
+            task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
+            task.setCreateName(userVO.getUserAccount());//创建人名称
+            task.setCreateTime(date);//创建时间
+            task.setIsNew(true);
+            task.setId(ConcurrentSequence.getInstance().getSequence());
+            task.setCubeName(cube.getCubeDescData().getName());//立方体名称
+            calcExcuteTime(task);
+            olapTimingrefreshRepository.save(task);
+        }
+    }
+
+    private void calcExcuteTime(OlapTimingrefresh task) {
+        //1 是开启,0 是未开启
+        if (task.getAutoReload() == 1) {
+            int interval = task.getInterval().intValue();
+            Date now = new Date();
+            //只获取年月日 时分秒自动填充为00 00 00
+            LocalDate localDate = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            Date executionTime = java.sql.Date.valueOf(localDate);
+            Calendar calendar = Calendar.getInstance();
+            //拿到当前小时并加入到年月日组成当前时间
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            calendar.setTime(executionTime);
+            calendar.add(Calendar.HOUR, hour);
+
+            Date finaDate = calendar.getTime();
+            task.setFinalExecutionTime(finaDate);//最后执行时间
+
+            //当前时间加上间隔时间算出 下一次执行时间
+            switch (task.getFrequencytype().toString()) {
+                case "1"://小时
+                    calendar.add(Calendar.HOUR, interval);
+                    break;
+                case "2"://天数
+                    calendar.add(Calendar.DAY_OF_MONTH, +interval);
+                    break;
+                default://月
+                    calendar.add(Calendar.MONTH, +interval);
+                    break;
+            }
+            Date nextDate = calendar.getTime();
+            task.setNextExecutionTime(nextDate);//下一次执行执行时间
+        }
     }
 }

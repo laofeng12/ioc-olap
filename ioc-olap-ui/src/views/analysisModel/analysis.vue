@@ -3,11 +3,11 @@
     <OlapAside :changeRowAndCol="changeRowAndCol" :auto="auto" :editData="editData"
                @searchFunc="searchFunc" ref="olapAside"></OlapAside>
     <div class="olapTable">
-      <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="736" :saveFolderListByProp="saveFolderList"
+      <ResultBox :tableData="showSum ? realTableData: tableData" :diffWidth="580" :formData="formData"
                  showType="isAnalysis" @searchFunc="searchFunc" :resetShow="true" @saveFunc="saveOlap"
-                 @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc" :formData="formData"
+                 @reset="reset" @showSum="showSumFunc" @changeRowAndColFunc="changeRowAndColFunc"
                  @autoFunc="autoFunc" @tdClick="tdClick" @exportFunc="exportFile" :pageData="pageData" :page="page"
-                 @handlePage="handlePage"></ResultBox>
+                 @handlePage="handlePage" :saveFolderListByProp="saveFolderList"></ResultBox>
     </div>
     <el-dialog title="下钻设置" :visible.sync="treeVisible" width="30%">
       <div class="treeContent" v-if="treeVisible">
@@ -40,7 +40,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import OlapAside from '../../components/analysisComponent/olapAside'
-import ResultBox from '../../components/analysisComponent/common/ResultBox'
+import ResultBox from '../../components/analysisComponent/common/ResultBoxMini'
 import DynamicTable from '../../components/analysisComponent/common/DynamicTable'
 import {
   getOlapAnalyzeApi, getFolderWithQueryApi, saveOlapAnalyzeApi, getOlapAnalyzeDetailsApi, olapAnalyzeExportApi
@@ -407,6 +407,9 @@ export default {
 </script>
 <style lang="scss" scoped>
   .olapTable {
+    width: calc(100% - 480px);
+    background-color: white;
+    margin-left: 16px;
     .top {
       .form-item {
         width: 300px;
