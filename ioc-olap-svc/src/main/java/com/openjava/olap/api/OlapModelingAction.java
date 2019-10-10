@@ -785,8 +785,6 @@ public class OlapModelingAction extends BaseAction {
         }
     }
 
-
->>>>>>> release
     @ApiOperation(value = "立方体:删除")
     @RequestMapping(value = "/deleteCube", method = RequestMethod.DELETE)
     @Security(session = true)
