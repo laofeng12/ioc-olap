@@ -2,9 +2,7 @@ package com.openjava.olap.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.common.JsonUtil;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
@@ -837,7 +835,7 @@ public class OlapModelingAction extends BaseAction {
         List<OlapDatalaketable> datalaketables = olapDatalaketableService.getListByCubeName(cubeName);
 
         //放到事物里进行保存
-        saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, cubeNameClone);
+        saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, userVO, cubeNameClone);
     }
 
 
@@ -845,17 +843,23 @@ public class OlapModelingAction extends BaseAction {
     @Transactional(readOnly = false)
     public void saveTableClone(OlapCube olapCube, ArrayList<OlapCubeTable> cubeTablesList, ArrayList<OlapCubeTableColumn> findByColumn,
                                OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh,
-                               List<OlapDatalaketable> datalaketables, String cubeNameClone) {
+                               List<OlapDatalaketable> datalaketables, OaUserVO loginUser, String cloneCubeName) {
         SequenceService ss = ConcurrentSequence.getInstance();
 
-        OlapCube olapCubec = new OlapCube();
-        if (olapCube != null) {
-            MyBeanUtils.copyPropertiesNotBlank(olapCubec, olapCube);
-            olapCubec.setCubeId(ss.getSequence());
-            olapCubec.setName(cubeNameClone);
-            olapCubec.setIsNew(true);
-            olapCubeService.doSave(olapCubec);
-        }
+        OlapCube cloneCube = new OlapCube();
+        cloneCube.setFlags(0);
+        cloneCube.setIsNew(true);
+        cloneCube.setName(cloneCubeName);
+        cloneCube.setCubeId(ss.getSequence());
+        cloneCube.setDimensionFiledLength(olapCube.getDimensionFiledLength());
+        cloneCube.setDimensionLength(olapCube.getDimensionLength());
+        cloneCube.setMeasureFiledLength(olapCube.getMeasureFiledLength());
+        cloneCube.setRemark(olapCube.getRemark());
+        cloneCube.setCreateId(Long.parseLong(loginUser.getUserId()));
+        cloneCube.setCreateName(loginUser.getUserAccount());
+        cloneCube.setCreateTime(new Date());
+        olapCubeService.doSave(cloneCube);
+
 
         for (OlapCubeTable cubeTable : cubeTablesList) {
             OlapCubeTable olapCubecTable = new OlapCubeTable();
@@ -868,12 +872,12 @@ public class OlapModelingAction extends BaseAction {
                 MyBeanUtils.copyPropertiesNotBlank(olapCubecTableColumn, f);
                 olapCubecTableColumn.setTableId(tableId);
                 olapCubecTableColumn.setCubeTableColumnId(ss.getSequence());
-                olapCubecTableColumn.setCubeId(olapCubec.getCubeId());
+                olapCubecTableColumn.setCubeId(cloneCube.getCubeId());
                 olapCubecTableColumn.setIsNew(true);
                 olapCubeTableColumnService.doSave(olapCubecTableColumn);
             }
             olapCubecTable.setCubeTableId(tableId);
-            olapCubecTable.setCubeId(olapCubec.getCubeId());
+            olapCubecTable.setCubeId(cloneCube.getCubeId());
             olapCubecTable.setIsNew(true);
             olapCubeTableService.doSave(olapCubecTable);
         }
@@ -883,7 +887,7 @@ public class OlapModelingAction extends BaseAction {
             OlapFilter olapFilter = new OlapFilter();
             MyBeanUtils.copyPropertiesNotBlank(olapFilter, findTableInfo);
             olapFilter.setId(ss.getSequence());
-            olapFilter.setCubeName(olapCubec.getName());
+            olapFilter.setCubeName(cloneCube.getName());
             olapFilter.setIsNew(true);
             olapFilterService.doSave(olapFilter);
 
@@ -903,7 +907,7 @@ public class OlapModelingAction extends BaseAction {
             OlapCubeTableRelation olapCubeTableRelation = new OlapCubeTableRelation();
             MyBeanUtils.copyPropertiesNotBlank(olapCubeTableRelation, relationEntity);
             olapCubeTableRelation.setId(ss.getSequence());
-            olapCubeTableRelation.setCubeId(olapCubec.getCubeId());
+            olapCubeTableRelation.setCubeId(cloneCube.getCubeId());
             olapCubeTableRelation.setIsNew(true);
             olapCubeTableRelationService.doSave(olapCubeTableRelation);
         }
@@ -912,7 +916,7 @@ public class OlapModelingAction extends BaseAction {
             OlapTimingrefresh olapTiming = new OlapTimingrefresh();
             MyBeanUtils.copyPropertiesNotBlank(olapTiming, olapTimingrefresh);
             olapTiming.setId(ss.getSequence());
-            olapTiming.setCubeName(olapCubec.getName());
+            olapTiming.setCubeName(cloneCube.getName());
             olapTiming.setIsNew(true);
             olapTimingrefreshService.doSave(olapTiming);
         }
@@ -921,7 +925,7 @@ public class OlapModelingAction extends BaseAction {
             OlapDatalaketable datalaketable = new OlapDatalaketable();
             MyBeanUtils.copyPropertiesNotBlank(datalaketable, olapDatalaketable);
             datalaketable.setId(ss.getSequence());
-            datalaketable.setCubeName(cubeNameClone);
+            datalaketable.setCubeName(cloneCubeName);
             datalaketable.setIsNew(true);
             olapDatalaketableService.doSave(datalaketable);
         }
