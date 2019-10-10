@@ -293,7 +293,7 @@ export default {
       var minutes = Math.floor(((second % 86400) % 3600) / 60)
       var seconds = Math.floor(((second % 86400) % 3600) % 60)
       // var duration = days + '天' + hours + '小时' + minutes + '分' + seconds + '秒'
-      var duration = minutes + '分' + seconds + '秒'
+      var duration = hours + '小时' + minutes + '分' + seconds + '秒'
       return duration
     },
     Translate (time) {
