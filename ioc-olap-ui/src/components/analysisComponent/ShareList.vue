@@ -6,7 +6,6 @@
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
-      <el-button type="primary" size="small"  @click="createolap">新建模型</el-button>
     </header>
     <el-table
         :data="tableData"
@@ -148,9 +147,6 @@ export default {
     searchFetch (val) {
       this.init(val)
       console.log(val)
-    },
-    createolap () {
-      this.$router.push('/analysisModel/createolap/selectStep')
     },
     // 展开详情
     clickTable (val) {
