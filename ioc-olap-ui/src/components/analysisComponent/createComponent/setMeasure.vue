@@ -6,21 +6,21 @@
           ref="multipleTable"
           tooltip-effect="dark"
           @selection-change="handleSelectionChange"
+          :header-cell-class-name="tableHead"
+          stripe
           style="margin-top: 10px;">
-          <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
-          <el-table-column prop="name" label="度量名称" align="center"> </el-table-column>
-          <el-table-column prop="function.expression" label="计算方式" align="center"> </el-table-column>
-          <el-table-column prop="function.parameter.value" label="计算值" align="center" class="moreContent" width="500">
+          <el-table-column type="index" label="序号" width="140px"> </el-table-column>
+          <el-table-column prop="name" label="度量名称"> </el-table-column>
+          <el-table-column prop="function.expression" label="计算方式"> </el-table-column>
+          <el-table-column prop="function.parameter.value" label="计算值" class="moreContent" width="690px">
             <template slot-scope="scope">
-              <div style="text-align: left;margin-left:62px;"><span>值：</span>{{scope.row.function.parameter.value}}</div>
-              <div style="text-align: left;margin-left:62px;"><span>类型：</span>{{scope.row.function.returntype}}</div>
+              <div style="text-align: left;"><span>值：</span>{{scope.row.function.parameter.value}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>类型：</span>{{scope.row.function.returntype}}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="function.parameter.type" label="计算类型" align="center"> </el-table-column>
+          <el-table-column prop="function.parameter.type" label="计算类型"> </el-table-column>
           <el-table-column
             label="操作"
-            width="100"
-            align="center">
+            width="100">
             <template slot-scope="scope">
               <div class="play">
                 <el-button type="text" size="mini" @click="addMeasure(scope.row)" icon="el-icon-edit"></el-button>
@@ -87,6 +87,9 @@ export default {
     },
     addMeasure (data) {
       data ? this.$refs.dialog.dialog(data) : this.$refs.dialog.dialog()
+    },
+    tableHead (row, column, rowIndex, columnIndex) {
+      return 'tableHead'
     }
   },
   computed: {
@@ -99,9 +102,9 @@ export default {
 
 <style lang="stylus" scoped>
 .setMeasure{
-  padding-bottom 100px
   height calc(100vh - 40px)
   margin-top 30px
+  margin-bottom 76px
   background #ffffff
   >>>.el-table__body, >>>.el-table__header{
     width auto!important
@@ -109,9 +112,13 @@ export default {
   >>>.el-table__body tr:nth-child(even){
       background #F5F7FA
     }
+  >>>.el-table__body td{
+    font-size: 14px;
+    padding: 10px 0 !important;
+  }
   >>>.el-table__header th{
       background #444444
-      padding 8px 0
+      padding 10px 0
       color #ffffff
       font-family: PingFangSC-Regular;
       font-size: 14px;

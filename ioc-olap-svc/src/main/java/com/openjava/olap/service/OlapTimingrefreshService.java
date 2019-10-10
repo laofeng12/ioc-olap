@@ -35,6 +35,4 @@ public interface OlapTimingrefreshService {
     void doDelete(Long id);
 
     void doRemove(String ids);
-
-    void timingTasks(OlapTimingrefresh olapTimingrefresh, CubeDescMapper cube, Date date, OaUserVO userVO);
 }

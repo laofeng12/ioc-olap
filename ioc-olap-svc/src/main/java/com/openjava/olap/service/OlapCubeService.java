@@ -5,8 +5,11 @@ import java.util.Date;
 import java.util.List;
 
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.domain.OlapCube;
+import com.openjava.olap.domain.*;
+import com.openjava.olap.mapper.kylin.CubeDatalaketableNewMapper;
 import com.openjava.olap.mapper.kylin.CubeDescMapper;
+import com.openjava.olap.mapper.kylin.MeasureMapper;
+import com.openjava.olap.mapper.kylin.ModelsDescDataMapper;
 import com.openjava.olap.query.OlapCubeDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,4 +48,8 @@ public interface OlapCubeService {
 
 	//保存OLAP_CUBE表
 	OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength);
+
+	boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
+					  List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
+					  OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions, ArrayList<MeasureMapper> countMappers) throws Exception;
 }
