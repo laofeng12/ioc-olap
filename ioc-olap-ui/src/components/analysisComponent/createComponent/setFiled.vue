@@ -326,10 +326,10 @@ export default {
 .setFiled{
   .containers{
     // height calc(100vh - 150px)
-    padding 20px 5px 76px 5px
+    padding 16px 0px 76px 0px
     .dimension{
       background #ffffff
-      margin-left:251px;
+      margin-left:256px;
       padding-top:10px;
       p{
         margin-left:16px;
