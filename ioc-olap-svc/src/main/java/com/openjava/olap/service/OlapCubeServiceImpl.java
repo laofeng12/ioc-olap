@@ -3,6 +3,7 @@ package com.openjava.olap.service;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.openjava.admin.user.vo.OaUserVO;
@@ -11,6 +12,7 @@ import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
 import com.openjava.olap.repository.*;
 import org.apache.commons.lang3.StringUtils;
+import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.springframework.data.domain.Page;
@@ -243,6 +245,96 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         //保存CUBE刷新频率
         timingTasks(timingreFresh, cube, date, userVO);
         return true;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveTableClone(OlapCube olapCube, ArrayList<OlapCubeTable> cubeTablesList, ArrayList<OlapCubeTableColumn> findByColumn, OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh, List<OlapDatalaketable> datalaketables, OaUserVO loginUser, String cloneCubeName) {
+        SequenceService ss = ConcurrentSequence.getInstance();
+
+        OlapCube cloneCube = new OlapCube();
+        cloneCube.setFlags(0);
+        cloneCube.setIsNew(true);
+        cloneCube.setName(cloneCubeName);
+        cloneCube.setCubeId(ss.getSequence());
+        cloneCube.setDimensionFiledLength(olapCube.getDimensionFiledLength());
+        cloneCube.setDimensionLength(olapCube.getDimensionLength());
+        cloneCube.setMeasureFiledLength(olapCube.getMeasureFiledLength());
+        cloneCube.setRemark(olapCube.getRemark());
+        cloneCube.setCreateId(Long.parseLong(loginUser.getUserId()));
+        cloneCube.setCreateName(loginUser.getUserAccount());
+        cloneCube.setCreateTime(new Date());
+        olapCubeRepository.save(cloneCube);
+
+
+        for (OlapCubeTable cubeTable : cubeTablesList) {
+            OlapCubeTable olapCubecTable = new OlapCubeTable();
+            MyBeanUtils.copyPropertiesNotBlank(olapCubecTable, cubeTable);
+            Long tableId = ss.getSequence();
+            //找到table下的列并复制添加数据
+            List<OlapCubeTableColumn> findByColumnList = findByColumn.stream().filter(p -> p.getTableId().equals(olapCubecTable.getId())).collect(Collectors.toList());
+            for (OlapCubeTableColumn f : findByColumnList) {
+                OlapCubeTableColumn olapCubecTableColumn = new OlapCubeTableColumn();
+                MyBeanUtils.copyPropertiesNotBlank(olapCubecTableColumn, f);
+                olapCubecTableColumn.setTableId(tableId);
+                olapCubecTableColumn.setCubeTableColumnId(ss.getSequence());
+                olapCubecTableColumn.setCubeId(cloneCube.getCubeId());
+                olapCubecTableColumn.setIsNew(true);
+                olapCubeTableColumnRepository.save(olapCubecTableColumn);
+            }
+            olapCubecTable.setCubeTableId(tableId);
+            olapCubecTable.setCubeId(cloneCube.getCubeId());
+            olapCubecTable.setIsNew(true);
+            olapCubeTableRepository.save(olapCubecTable);
+        }
+
+        //保存过滤信息
+        if (findTableInfo != null) {
+            OlapFilter olapFilter = new OlapFilter();
+            MyBeanUtils.copyPropertiesNotBlank(olapFilter, findTableInfo);
+            olapFilter.setId(ss.getSequence());
+            olapFilter.setCubeName(cloneCube.getName());
+            olapFilter.setIsNew(true);
+            olapFilterRepository.save(olapFilter);
+
+            List<OlapFilterCondidion> filterCondidions = olapFilterCondidionRepository.findByFilterId(findTableInfo.getId());
+            for (OlapFilterCondidion filter : filterCondidions) {
+                OlapFilterCondidion o = new OlapFilterCondidion();
+                MyBeanUtils.copyPropertiesNotBlank(o, filter);
+                o.setId(ss.getSequence());
+                o.setFilterId(olapFilter.getId());
+                o.setIsNew(true);
+                olapFilterCondidionRepository.save(o);
+            }
+        }
+
+
+        for (OlapCubeTableRelation relationEntity : olapcubeList) {
+            OlapCubeTableRelation olapCubeTableRelation = new OlapCubeTableRelation();
+            MyBeanUtils.copyPropertiesNotBlank(olapCubeTableRelation, relationEntity);
+            olapCubeTableRelation.setId(ss.getSequence());
+            olapCubeTableRelation.setCubeId(cloneCube.getCubeId());
+            olapCubeTableRelation.setIsNew(true);
+            olapCubeTableRelationRepository.save(olapCubeTableRelation);
+        }
+
+        if (olapTimingrefresh != null) {
+            OlapTimingrefresh olapTiming = new OlapTimingrefresh();
+            MyBeanUtils.copyPropertiesNotBlank(olapTiming, olapTimingrefresh);
+            olapTiming.setId(ss.getSequence());
+            olapTiming.setCubeName(cloneCube.getName());
+            olapTiming.setIsNew(true);
+            olapTimingrefreshRepository.save(olapTiming);
+        }
+
+        for (OlapDatalaketable olapDatalaketable : datalaketables) {
+            OlapDatalaketable datalaketable = new OlapDatalaketable();
+            MyBeanUtils.copyPropertiesNotBlank(datalaketable, olapDatalaketable);
+            datalaketable.setId(ss.getSequence());
+            datalaketable.setCubeName(cloneCubeName);
+            datalaketable.setIsNew(true);
+            olapDatalaketableRepository.save(datalaketable);
+        }
     }
 
     //保存OLAP_CUBE_TABLE_COLUMN表
