@@ -1,6 +1,6 @@
 <template>
   <div class="mechanism folderAside">
-    <el-input type="text" placeholder="输入机构名称筛选" v-model="serachvalue" clearable></el-input>
+    <el-input suffix-icon="el-icon-search" type="text" placeholder="输入机构名称筛选" v-model="serachvalue"  clearable></el-input>
     <div class="trees">
       <el-tree
       :data="treeList"
@@ -266,7 +266,7 @@ export default {
       overflow auto
     }
     >>>.el-input__suffix{
-      margin-top -10px
+      margin-top -3px
     }
     >>>.el-tree{
     .el-tree-node__content{

@@ -367,7 +367,7 @@ export default {
       width 210px
       margin-bottom 0
       .el-input__inner{
-        height 36px !important
+        height 32px !important
         border: 1px solid #D9D9D9;
         background: #FFFFFF !important;
       }

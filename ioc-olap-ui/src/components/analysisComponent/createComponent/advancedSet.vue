@@ -417,6 +417,7 @@ export default {
           text-align center
           background #FBFBFB
           color #555555
+          border-radius 0 !important
         }
         .adds{
           border none!important;
@@ -514,6 +515,7 @@ export default {
         text-align center
         background #FBFBFB
         color #555555
+        border-radius 0 !important
         }
     }
     .nos{
