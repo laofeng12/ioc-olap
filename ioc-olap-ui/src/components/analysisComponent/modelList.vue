@@ -266,8 +266,7 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
-        console.log('===', params.segments.length)
-        if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
+        // if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
         return this.$router.push({
           path: '/analysisModel/createolap/selectStep',
           query: {

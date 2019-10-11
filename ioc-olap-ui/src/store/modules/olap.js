@@ -1,6 +1,7 @@
 import { setLocalStorage } from '@/utils/index'
 const common = {
   state: {
+    HeadNum: 1,
     ModelAllList: [], // 所有的数据集合
     /* 建立表关系 */
     totalSaveData: { // 总数据
