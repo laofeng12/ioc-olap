@@ -216,6 +216,7 @@ export default {
   width 240px
   float left
   padding 16px
+  font-size 14px
   box-shadow: -5px 0 10px 0 rgba(0,0,0,0.05);
   height 100%
   .trees{
