@@ -16,10 +16,7 @@ import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -253,5 +250,12 @@ public class OlapAnalyzeAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Integer offeset = (pageIndex - 1) * pageSize;
         return olapAnalyzeService.queryDimension(tableId, columnId, Long.parseLong(userVO.getUserId()), key, offeset, pageSize);
+    }
+
+    @ApiOperation(value = "删除", nickname = "delete")
+    @Security(session = true)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public void doDelete(@RequestParam("id") Long id) {
+        olapAnalyzeService.doDelete(id);
     }
 }

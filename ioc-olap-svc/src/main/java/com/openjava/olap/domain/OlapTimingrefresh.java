@@ -44,11 +44,11 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 
 	@ApiModelProperty("频率类型")
 	@Column(name = "FREQUENCYTYPE")
-	private Long frequencytype;
+	private Integer frequencytype;
 
 	@ApiModelProperty("间隔")
 	@Column(name = "INTERVAL")
-	private Long interval;
+	private Integer interval;
 
 	@ApiModelProperty("创建时间")
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")

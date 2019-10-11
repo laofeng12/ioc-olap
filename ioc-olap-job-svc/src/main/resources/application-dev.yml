@@ -1,7 +1,7 @@
 #开发环境配置
-debug: true
+debug: false
 server:
-  port: 8078 #tomcat运行端口
+  port: 8080 #tomcat运行端口
   servlet:
     context-path: /
 #  tomcat:
@@ -12,12 +12,12 @@ server:
 
 spring:
   datasource:
-#    driver-class-name: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://rm-wz9a1c8d803l35e2hio.mysql.rds.aliyuncs.com:3306/cloud?useUnicode=true&characterEncoding=utf-8&useSSL=false
-#    username: alitest
-#    password: Ch#123456
+    #    driver-class-name: com.mysql.jdbc.Driver
+    #    url: jdbc:mysql://rm-wz9a1c8d803l35e2hio.mysql.rds.aliyuncs.com:3306/cloud?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #    username: alitest
+    #    password: Ch#123456
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@183.6.55.26:8521:orcl
+    url: jdbc:oracle:thin:@192.168.6.251:1521:orcl
     username: c##dgioc
     password: bigdata@0769
     druid:
@@ -36,33 +36,34 @@ spring:
       filters: stat
 
   redis:
-      # redis数据库索引（默认为0），我们使用索引为3的数据库，避免和其他数据库冲突
-      database: 3
-      # redis服务器地址（默认为localhost）
-      host: 183.6.55.26
-      #host: 127.0.0.1
-      # redis端口（默认为6379）
-      port: 6379
-      # redis访问密码（默认为空）
-      password: Chjy@0769
-      # redis连接超时时间（单位为毫秒）
-      timeout: 10000
-      # redis连接池配置
-      jedis:
-        pool:
-          # 最大可用连接数（默认为8，负数表示无限）
-          max-active: 8
-          # 最大空闲连接数（默认为8，负数表示无限）
-          max-idle: 8
-          # 最小空闲连接数（默认为0，该值只有为正数才有作用）
-          min-idle: 0
-          # 从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
-          max-wait: 5000
+    # redis数据库索引（默认为0），我们使用索引为3的数据库，避免和其他数据库冲突
+    database: 3
+    # redis服务器地址（默认为localhost）
+    host: 192.168.6.251
+    #host: 127.0.0.1
+    # redis端口（默认为6379）
+    port: 6379
+    # redis访问密码（默认为空）
+    password: Chjy@0769
+    # redis连接超时时间（单位为毫秒）
+    timeout: 10000
+    # redis连接池配置
+    jedis:
+      pool:
+        # 最大可用连接数（默认为8，负数表示无限）
+        max-active: 30
+        # 最大空闲连接数（默认为8，负数表示无限）
+        max-idle: 8
+        # 最小空闲连接数（默认为0，该值只有为正数才有作用）
+        min-idle: 0
+        # 从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
+        max-wait: 5000
 
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+
 
 
 kylin:
@@ -71,7 +72,10 @@ kylin:
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
 
-
+ljdp:
+  security:
+    api:
+      skey: ddddas
 
 #计划任务配置 cron表达式
 schedule:
@@ -81,16 +85,15 @@ schedule:
     example: 0/5 * * * * ?
 
   hour:
-    hour: 0 0 */1 * * ?
+    hour: 0 59 * * * ?
   day:
-    day: 0 0 0 * * ?
+    day: 0 59 23 ? * *
   month:
     month: 0 0 0 1 * ?
   minute:
     minute: 0 */1 * * * ?
   five_minute:
     five_minute: 0 */5 * * * ?
-
 
 
 
