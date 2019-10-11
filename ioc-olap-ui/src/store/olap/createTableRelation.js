@@ -71,6 +71,9 @@ const creatTableRelation = {
       getters.saveSelectFiled.forEach((res, i) => {
         getters.saveSelectFiled.splice(i)
       })
+      getters.saveNewSortListstructure.forEach((res, i) => {
+        getters.saveNewSortListstructure.splice(i)
+      })
     },
     // 删除取消连线的表
     RemoveTableLine ({ state }, ele) {
