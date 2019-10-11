@@ -91,7 +91,7 @@
           </el-table>
         </div>
         <div class="listSet">
-          <span>维度黑白名单设置</span>
+          <div class="listSet-title"><span>维度黑白名单设置</span></div>
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
@@ -114,7 +114,7 @@
           </template>
         </el-form-item>
         <div class="listSet hetCompose">
-          <span>高级列组合</span>
+          <div class="listSet-title"><span>高级列组合</span></div>
           <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
             <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
@@ -370,10 +370,11 @@ export default {
     letter-spacing: 0;
   }
   >>>.el-form-item__label{
-    width 120px
+    width 150px
     text-align left
     font-size: 16px;
     color: #262626;
+	padding 0;
   }
   >>>.el-table__body-wrapper{
     height 350px
@@ -427,7 +428,6 @@ export default {
           margin-bottom 16px;
           div{
             flex 1
-            margin-left 80px
             height 32px
             margin-bottom 20px
             border: 1px solid #D9D9D9;
@@ -463,11 +463,16 @@ export default {
     overflow: hidden;
   }
   .listSet{
+	display: flex
     margin-top 20px
+	.listSet-title{
+		width 148px
+		padding-top 5px
+	}
     span{
       width 100px
-      font-size: 14px;
-      color: #444444;
+      font-size 14px;
+      color #444444;
     }
     .listSet__box{
       width: 100%;
@@ -476,20 +481,19 @@ export default {
         width 100%
         margin-bottom 16px
         div{
-          margin-left 120px
+          margin-left 16px
           border: 1px solid #D9D9D9;
           flex 1
           min-height 32px
           cursor pointer
           height 32px;
           line-height 32px;
-          margin-top: 8px;
         }
       }
       p{
         width 80px
         text-align center
-        margin-top 10px
+        margin-top 5px
         i{
           color red
           font-size 25px
