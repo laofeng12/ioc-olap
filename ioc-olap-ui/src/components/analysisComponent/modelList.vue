@@ -1,7 +1,7 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input v-model="searchData.cubeName" size="small" placeholder="请输入服务名称" clearable>
+      <el-input suffix-icon="el-icon-search" v-model="searchData.cubeName" size="small" placeholder="请输入服务名称" clearable>
 
       </el-input>
       <div class="nhc-elbtnwarp">
@@ -318,6 +318,10 @@ export default {
      width 240px
      float left
      padding 16px 0 0 16px
+    }
+    >>>.el-input__suffix{
+      height 32px
+      margin-top 16px
     }
     >>>.el-button{
       float right

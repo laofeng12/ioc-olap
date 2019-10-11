@@ -49,5 +49,13 @@ export default {
 .steps{
   position: fixed;
   right:50px;
+  .el-button{
+    width 74px
+    height 32px
+  }
+  .el-button--primary{
+    width 74px
+    height 32px
+  }
 }
 </style>
