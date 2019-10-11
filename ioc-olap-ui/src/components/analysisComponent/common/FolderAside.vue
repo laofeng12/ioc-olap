@@ -254,8 +254,9 @@ export default {
     },
     delete (data, isLeaf) {
       if (isLeaf) {
-        if (data.attrs.realQueryId) {
-          this.$emit('deleteFunc', data.attrs.realQueryId)
+        if (data.attrs.realQueryId || data.attrs.analyzeId) {
+          data.attrs.realQueryId ? this.$emit('deleteFunc', data.attrs.realQueryId)
+            : this.$emit('deleteFunc', data.attrs.analyzeId)
         } else {
           this.deleteFolder(data.id)
         }

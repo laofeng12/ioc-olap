@@ -86,3 +86,12 @@ export function olapAnalyzeExportExistApi (data) {
     data
   })
 }
+
+export function olapAnalyzeDeleteApi (data) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/delete',
+    method: 'post',
+    contentType: 'application/x-www-form-urlencoded',
+    data
+  })
+}
