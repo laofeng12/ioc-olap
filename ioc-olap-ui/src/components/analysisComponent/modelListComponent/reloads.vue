@@ -39,6 +39,10 @@ export default {
     }
   },
   methods: {
+    reset () {
+      this.intervalOption = []
+      this.form.interval = []
+    },
     handlebtn () {
       if (!this.isReload) return this.dialogFormVisible = false
       this.$confirm('确定刷新此模型？', {
@@ -62,17 +66,20 @@ export default {
           await reloadModel(parmas).then(res => {
             this.$message.success('刷新成功~')
             this.$parent.closeChangeLoading()
+            this.reset()
           }).catch(_ => {
             this.$parent.closeChangeLoading()
+            this.reset()
           }).finally(_ => {
             this.$parent.closeChangeLoading()
+            this.reset()
           })
         })
       })
     },
     dialog (val) {
       this.dialogFormVisible = true
-      console.log(val)
+      this.reset()
       this.isReload = val.segments.length > 0
       this.form.partitionDateColumn = val.partitionDateColumn
       val.segments.map(item => {
@@ -91,5 +98,9 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.rename{}
+.rename{
+  >>>.el-select{
+    width 100%
+  }
+}
 </style>

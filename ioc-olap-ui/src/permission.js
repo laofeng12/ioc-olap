@@ -24,6 +24,10 @@ router.beforeEach((to, from, next) => {
     // 判断当前停留在模型哪个页面
     let pathindex = ['', 'selectStep', 'createTableRelation', 'setFiled', 'setMeasure', 'reloadSet', 'advancedSet', 'completeCreate']
     store.state.olap.HeadNum = pathindex.indexOf(to.name)
+    // 判断当前是新建还是编辑（根据ModelAllList是否为对象来判断是否为编辑）
+    if (pathindex.includes(to.name)) {
+      to.matched[1].meta.title = to.query.cubeName ? '编辑OLAP模型' : '新建OLAP模型'
+    }
     if (to.path === '/login') {
       next({ path: '/home' })
       NProgress.done() // if current page is dashboard will not trigger afterEach hook, so manually handle it
