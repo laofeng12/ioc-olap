@@ -1,12 +1,9 @@
 <template>
   <div class="creates">
     <header>
-      <!-- <el-form :rules="rules" :model="totalSaveData"> -->
       <el-form>
         <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
-        <!-- <el-form-item prop="cube.cubeDescData.name"> -->
-          <el-input v-model="totalSaveData.cube.cubeDescData.name" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
-        <!-- </el-form-item> -->
+        <el-input v-model="totalSaveData.cube.cubeDescData.name" :disabled="!Array.isArray(ModelAllList)" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
       </el-form>
     </header>
     <head-box :selectId="selectStep"></head-box>
@@ -29,6 +26,7 @@ export default {
     return {
       selectStep: 1,
       isLoading: false,
+      isEdit: false,
       value: '',
       rules: {
         'cube.cubeDescData.name': [
@@ -40,6 +38,7 @@ export default {
   },
   mounted () {
     this.init()
+    // this.isEdit = !Array.isArray(this.ModelAllList)
   },
   methods: {
     init () {
@@ -76,7 +75,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      totalSaveData: 'totalSaveData'
+      totalSaveData: 'totalSaveData',
+      ModelAllList: 'ModelAllList'
     })
   }
 }

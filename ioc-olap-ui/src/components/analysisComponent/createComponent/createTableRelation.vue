@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      console.log(this.jointResultData, '是否重置')
+      console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -908,10 +908,19 @@ export default {
         } else {
           if (ele.id === target.id) {
             ele.remove()
+            console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
             // 删除对应存储的数据
             this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
               return item.id !== ele.attributes.attrs.text.id
             })
+            // 删除对应选择的维度
+            this.saveSelectFiled.map((res, index) => {
+              if (res.resid === ele.attributes.attrs.text.id) {
+                this.saveSelectFiled.splice(index, 1)
+              }
+            })
+            this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+            console.log('去掉后的===', this.saveSelectFiled)
           }
         }
       }
@@ -1029,6 +1038,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
+      saveSelectFiled: 'saveSelectFiled',
       ModelAllList: 'ModelAllList',
       selectStepList: 'selectStepList',
       jointResultData: 'jointResultData'
