@@ -1,7 +1,8 @@
 <template>
   <div class="tabHead">
     <div class="tabHead_item">
-      <div v-for="(item, index) in dataHead" :class="String(selectId) === item.id?'actives':''" :key="index">{{item.value}}</div>
+      <!-- <div v-for="(item, index) in dataHead" :class="String(selectId) === item.id?'actives':''" :key="index">{{item.value}}</div> -->
+      <div v-for="(item, index) in dataHead" :class="String($store.state.olap.HeadNum) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
   </div>
 </template>

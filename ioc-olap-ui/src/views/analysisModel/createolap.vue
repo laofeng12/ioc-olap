@@ -9,7 +9,9 @@
     <head-box :selectId="selectStep"></head-box>
     <div v-loading="isLoading">
       <transition name="fade-transform" mode="out-in">
-        <router-view></router-view>
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
       </transition>
     </div>
   </div>
@@ -38,7 +40,6 @@ export default {
   },
   mounted () {
     this.init()
-    // this.isEdit = !Array.isArray(this.ModelAllList)
   },
   methods: {
     init () {

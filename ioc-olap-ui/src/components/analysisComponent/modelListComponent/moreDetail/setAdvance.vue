@@ -113,7 +113,6 @@ export default {
             isShardBy: item.isShardBy
           }
         })
-        console.log(this.descriptionData)
       }
     }
   }

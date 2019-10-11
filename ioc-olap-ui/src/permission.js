@@ -21,6 +21,9 @@ router.beforeEach((to, from, next) => {
     // 判断是否在创建模型
     let PATH = to.path.split('/')
     if (!PATH.includes('createolap')) store.dispatch('resetList')
+    // 判断当前停留在模型哪个页面
+    let pathindex = ['', 'selectStep', 'createTableRelation', 'setFiled', 'setMeasure', 'reloadSet', 'advancedSet', 'completeCreate']
+    store.state.olap.HeadNum = pathindex.indexOf(to.name)
     if (to.path === '/login') {
       next({ path: '/home' })
       NProgress.done() // if current page is dashboard will not trigger afterEach hook, so manually handle it
