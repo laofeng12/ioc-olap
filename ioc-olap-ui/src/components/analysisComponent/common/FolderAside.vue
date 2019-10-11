@@ -33,10 +33,10 @@
     </div>
     <el-dialog :title="`${folderForm.isNew ? '新建' : '编辑'}文件夹`" :visible.sync="newVisible" width="30%">
       <el-form :model="folderForm" ref="folderForm" :rules="folderRules">
-        <el-form-item label="文件夹名称" label-width="100px" prop="name">
+        <el-form-item label="文件夹名称" label-width="105px" prop="name">
           <el-input v-model="folderForm.name" maxlength="20" show-word-limit></el-input>
         </el-form-item>
-        <el-form-item label="文件夹序号" label-width="100px" prop="sortNum">
+        <el-form-item label="文件夹序号" label-width="105px" prop="sortNum">
           <el-input type="number" v-model="folderForm.sortNum" maxlength="20" show-word-limit></el-input>
         </el-form-item>
       </el-form>
@@ -254,8 +254,9 @@ export default {
     },
     delete (data, isLeaf) {
       if (isLeaf) {
-        if (data.attrs.realQueryId) {
-          this.$emit('deleteFunc', data.attrs.realQueryId)
+        if (data.attrs.realQueryId || data.attrs.analyzeId) {
+          data.attrs.realQueryId ? this.$emit('deleteFunc', data.attrs.realQueryId)
+            : this.$emit('deleteFunc', data.attrs.analyzeId)
         } else {
           this.deleteFolder(data.id)
         }

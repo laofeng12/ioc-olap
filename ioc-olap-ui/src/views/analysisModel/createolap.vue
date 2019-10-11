@@ -1,12 +1,9 @@
 <template>
   <div class="creates">
     <header>
-      <!-- <el-form :rules="rules" :model="totalSaveData"> -->
       <el-form>
         <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
-        <!-- <el-form-item prop="cube.cubeDescData.name"> -->
-          <el-input v-model="totalSaveData.cube.cubeDescData.name" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
-        <!-- </el-form-item> -->
+        <el-input v-model="totalSaveData.cube.cubeDescData.name" :disabled="!Array.isArray(ModelAllList)" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
       </el-form>
     </header>
     <head-box :selectId="selectStep"></head-box>
@@ -29,6 +26,7 @@ export default {
     return {
       selectStep: 1,
       isLoading: false,
+      isEdit: false,
       value: '',
       rules: {
         'cube.cubeDescData.name': [
@@ -40,6 +38,7 @@ export default {
   },
   mounted () {
     this.init()
+    // this.isEdit = !Array.isArray(this.ModelAllList)
   },
   methods: {
     init () {
@@ -76,7 +75,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      totalSaveData: 'totalSaveData'
+      totalSaveData: 'totalSaveData',
+      ModelAllList: 'ModelAllList'
     })
   }
 }
@@ -84,34 +84,31 @@ export default {
 <style lang="stylus" scoped>
 .creates{
   position relative
-  // margin-top -25px
   width 100%
   >>>.el-form{
     padding:0px!important;
   }
   header{
-    height 40px!important
     width 100%
-    background: #333333;
-    margin-bottom 15px
+    margin-bottom 16px
+	.el-form {
+		overflow: hidden;
+		background: #f2f2f2;
+		padding: 0 !important;
+	}
     >>>.el-button{
-      background #333333
-      float left
-      border none
-      font-size 20px
-      height 40px!important
-      color #ffffff
-      border-right 1px solid #ccc
+		background: #f2f2f2;
+		border: none;
+		padding: 0 !important;
+		.el-icon-arrow-left{font-size:18px}
     }
     >>>.el-input{
-      float left
       width 200px
-      margin-left 20px
-      height 30px
-      margin-top 5px
+      margin-left 48px
+      height 32px
       .el-input__inner{
         border-radius 0
-        height 30px
+        height 32px
       }
     }
   }

@@ -168,7 +168,7 @@ export default {
         ...val
       }
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
-      this.tableData = res
+      this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
       this.getLoading = false
       this.setTimeout = setTimeout(this.update, 6000)
     },
@@ -181,7 +181,7 @@ export default {
       this.getLoading = true
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       if (res.length > 0) {
-        this.tableData = [...res, ...this.tableData]
+        this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
       } else {
         this.moreShow = false
         // this.$message.success('已加载所有数据')
@@ -293,7 +293,7 @@ export default {
       var minutes = Math.floor(((second % 86400) % 3600) / 60)
       var seconds = Math.floor(((second % 86400) % 3600) % 60)
       // var duration = days + '天' + hours + '小时' + minutes + '分' + seconds + '秒'
-      var duration = minutes + '分' + seconds + '秒'
+      var duration = hours + '小时' + minutes + '分' + seconds + '秒'
       return duration
     },
     Translate (time) {
