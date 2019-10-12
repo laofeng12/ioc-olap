@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Api(tags = "OLAP分析接口")
@@ -142,7 +143,7 @@ public class OlapAnalyzeAction {
     @ApiOperation(value = "获取指定的OLAP分析接口")
     @RequestMapping(value = "/get", method = RequestMethod.POST)
     @Security(session = true)
-    public AnalyzeVo get(Long id) {
+    public AnalyzeVo get(Long id) throws APIException {
         return olapAnalyzeService.getVo(id);
     }
 
@@ -257,5 +258,12 @@ public class OlapAnalyzeAction {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public void doDelete(@RequestParam("id") Long id) {
         olapAnalyzeService.doDelete(id);
+    }
+
+    @ApiOperation(value = "查询立方体对象")
+    @Security(session = true)
+    @RequestMapping(value = "/cube", method = RequestMethod.GET)
+    public OlapCube cube(@RequestParam("id") Long id) {
+        return olapCubeService.get(id);
     }
 }

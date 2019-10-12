@@ -1,7 +1,5 @@
 package com.ioc.olap.job;
 
-
-import com.ioc.olap.job.service.CubeService;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapTimingrefresh;
@@ -25,9 +23,6 @@ import java.util.*;
  */
 @Component
 public class OlapJob {
-
-    @Resource
-    private CubeService cubeService;//注入bean（例子，按需注入）
 
     @Resource
     private OlapCubeService olapCubeService;
@@ -75,29 +70,26 @@ public class OlapJob {
             for (OlapTimingrefresh fc : timingreFresh) {
                 try {
                     List<CubeHbaseMapper> hbases = cubeHttpClient.hbase(fc.getCubeName());
+                    Calendar calendar = Calendar.getInstance();
                     if (hbases.size() > 0) {
                         hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
-                        Long lastBuildTime = hbases.get(0).getDateRangeEnd();
-                        Date lastBuildDate = new Date(lastBuildTime);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(lastBuildDate);
-                        //当前时间加上间隔时间算出 下一次执行时间
-                        switch (fc.getFrequencytype()) {
-                            case 1://小时
-                                calendar.add(Calendar.HOUR, fc.getInterval());
-                                break;
-                            case 2://天数
-                                calendar.add(Calendar.DAY_OF_MONTH, fc.getInterval());
-                                break;
-                            default://月
-                                calendar.add(Calendar.MONTH, fc.getInterval());
-                                break;
-                        }
-                        Long nowTime = new Date().getTime();
-                        if (calendar.getTimeInMillis() < nowTime) {
-                            cubeHttpClient.build(fc.getCubeName(), lastBuildTime, calendar.getTimeInMillis());
-                            fc.setFinalExecutionTime(calendar.getTime());
-                            olapTimingrefreshService.doSave(fc);
+                        //全量构建
+                        if (hbases.get(0).getDateRangeStart() == 0) {
+                            calendar.setTime(fc.getFinalExecutionTime());
+                            if(isNeedExcute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                                cubeHttpClient.build(fc.getCubeName(), 0L, 0L);
+                                fc.setFinalExecutionTime(calendar.getTime());
+                                olapTimingrefreshService.doSave(fc);
+                            }
+                        } else {
+                            Long lastBuildTime = hbases.get(0).getDateRangeEnd();
+                            Date lastBuildDate = new Date(lastBuildTime);
+                            calendar.setTime(lastBuildDate);
+                            if(isNeedExcute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                                cubeHttpClient.build(fc.getCubeName(), lastBuildTime, calendar.getTimeInMillis());
+                                fc.setFinalExecutionTime(calendar.getTime());
+                                olapTimingrefreshService.doSave(fc);
+                            }
                         }
                     }
 
@@ -106,6 +98,25 @@ public class OlapJob {
                 }
             }
         }
+    }
+
+    private boolean isNeedExcute(Calendar calendar, Integer frequencyType, Integer interval) {
+        Long nowTime = new Date().getTime();
+        switch (frequencyType) {
+            case 1://小时
+                calendar.add(Calendar.HOUR, interval);
+                break;
+            case 2://天数
+                calendar.add(Calendar.DAY_OF_MONTH, interval);
+                break;
+            default://月
+                calendar.add(Calendar.MONTH, interval);
+                break;
+        }
+        if (calendar.getTimeInMillis() < nowTime) {
+            return true;
+        }
+        return false;
     }
 
     private void cubeListTasks() throws Exception {
@@ -145,7 +156,6 @@ public class OlapJob {
                     }
                 }
             }
-
         }
     }
 }
