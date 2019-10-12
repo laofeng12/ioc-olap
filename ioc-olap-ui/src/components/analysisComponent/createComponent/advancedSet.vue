@@ -414,7 +414,8 @@ export default {
           float left
           margin-left 1%
           font-size 11px
-          margin-top:5px;
+          margin-top 5px
+          padding 0 10px
           height 22px
           line-height 22px
           text-align center

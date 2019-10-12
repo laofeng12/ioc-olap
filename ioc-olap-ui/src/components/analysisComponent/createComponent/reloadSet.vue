@@ -83,11 +83,11 @@
        header-cell-class-name="tableHead"
        stripe
        style="margin-top: 10px;">
-       <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
-       <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
-       <el-table-column prop="field" label="字段" align="center"> </el-table-column>
-       <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
-       <el-table-column prop="parameter" label="过滤值" align="center">
+       <el-table-column type="index" width="100" label="序号"></el-table-column>
+       <el-table-column prop="tableName" label="表名称"> </el-table-column>
+       <el-table-column prop="field" label="字段"> </el-table-column>
+       <el-table-column prop="pattern" label="过滤方式"> </el-table-column>
+       <el-table-column prop="parameter" label="过滤值">
          <template slot-scope="scope">
            <div>
              <span>{{scope.row.parameter}}</span>
@@ -97,8 +97,7 @@
        </el-table-column>
        <el-table-column
          label="操作"
-         width="100"
-         align="center">
+         width="100">
          <template slot-scope="scope">
            <div class="play">
              <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
