@@ -14,11 +14,11 @@
               <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
-          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
+          <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
         </el-tab-pane>
         <el-tab-pane label="字段说明" name="2">
           <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
-          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
+          <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
           <!-- <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
           <div v-else style="text-align:center;margin-top:100px">暂无数据</div> -->
         </el-tab-pane>
@@ -108,11 +108,11 @@ export default {
   // margin-top 10px
   display flex
   .step_tab{
-    margin-left 10px
     overflow hidden
-    // box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)
+    box-shadow -5px 0 10px 0 rgba(0, 0, 0, 0.05)
     width 100%
-    height 98%
+    height 100%
+	font-size: 14px;
     >>>.el-tabs {
       height 100%
     }
@@ -126,11 +126,17 @@ export default {
       overflow-y auto
       background #ffffff!important
       padding-bottom 100px!important
-      // height: calc(100vh - 270px)!important;
-      height: 100%!important;
     }
     >>>.el-table{
       margin-top 10px
+      .el-table__header tr th{
+        padding 10px 0  10px 30px!important;
+        text-align left
+      }
+      .el-table__body td{
+        padding 10px 0  10px 30px!important;
+        text-align left
+      }
     }
     .tableBox_item{
       width 100%

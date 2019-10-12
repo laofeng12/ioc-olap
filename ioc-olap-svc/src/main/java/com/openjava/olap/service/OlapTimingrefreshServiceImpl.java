@@ -46,8 +46,8 @@ public class OlapTimingrefreshServiceImpl implements OlapTimingrefreshService {
         return olapTimingrefreshRepository.queryDataOnly(params, pageable);
     }
 
-    public OlapTimingrefresh findTableInfo(String cubeName, Long createId) {
-        Optional<OlapTimingrefresh> o = olapTimingrefreshRepository.findTableInfo(cubeName, createId);
+    public OlapTimingrefresh findTableInfo(String cubeName) {
+        Optional<OlapTimingrefresh> o = olapTimingrefreshRepository.findTableInfo(cubeName);
         if (o.isPresent()) {
             OlapTimingrefresh m = o.get();
             return m;

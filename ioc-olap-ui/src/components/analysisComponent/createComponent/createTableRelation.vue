@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      console.log(this.jointResultData, '是否重置')
+      console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -342,9 +342,10 @@ export default {
         case 'remove': // 删除
           this.clearElementLink(model)
           break
-        case 'clone': // 重命名
+        case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
+          console.log('设置别名====', label)
           this.setAlias(label).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
@@ -474,6 +475,7 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
+          console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -574,6 +576,7 @@ export default {
         }
         // 设置主表
         if (item.filed === 1 && !this.jointResult.fact_table) {
+          console.log(item, '主表')
           this.jointResult.fact_table = `${item.label}`
         }
 
@@ -908,10 +911,19 @@ export default {
         } else {
           if (ele.id === target.id) {
             ele.remove()
+            console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
             // 删除对应存储的数据
             this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
               return item.id !== ele.attributes.attrs.text.id
             })
+            // 删除对应选择的维度
+            this.saveSelectFiled.map((res, index) => {
+              if (res.resid === ele.attributes.attrs.text.id) {
+                this.saveSelectFiled.splice(index, 1)
+              }
+            })
+            this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+            console.log('去掉后的===', this.saveSelectFiled)
           }
         }
       }
@@ -1029,6 +1041,7 @@ export default {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
       saveSelectAllList: 'saveSelectAllList',
+      saveSelectFiled: 'saveSelectFiled',
       ModelAllList: 'ModelAllList',
       selectStepList: 'selectStepList',
       jointResultData: 'jointResultData'

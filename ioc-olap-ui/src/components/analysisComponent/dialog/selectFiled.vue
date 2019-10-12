@@ -41,7 +41,7 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      console.log(this.saveNewTitle)
+      console.log(this.saveNewSortListstructure)
       // 如果修改了表的别名 需要把之前存在的表去掉
       this.dialogFormVisible = true
       this.options = this.saveNewSortListstructure

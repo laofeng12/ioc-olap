@@ -5,6 +5,7 @@ const getters = {
   userInfo: state => state.user.userInfo,
   menuList: state => state.app.menuList,
   savemousedownData: state => state.olap.savemousedownData,
+  HeadNum: state => state.olap.HeadNum,
   ModelAllList: state => state.olap.ModelAllList,
   modelSelectData: state => state.olap.modelSelectData,
   mockjsonData: state => state.olap.mockjsonData,

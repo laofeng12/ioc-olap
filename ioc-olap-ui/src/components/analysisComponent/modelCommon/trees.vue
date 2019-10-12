@@ -1,6 +1,6 @@
 <template>
-  <div class="mechanism">
-    <el-input type="text" placeholder="输入机构名称筛选" v-model="serachvalue" clearable></el-input>
+  <div class="mechanism folderAside">
+    <el-input suffix-icon="el-icon-search" type="text" placeholder="输入机构名称筛选" v-model="serachvalue"  clearable></el-input>
     <div class="trees">
       <el-tree
       :data="treeList"
@@ -254,12 +254,9 @@ export default {
 <style lang="stylus" scoped>
   .mechanism{
     background #ffffff
-    padding-top 15px
-    margin-right:10px;
-    height 98%
-    width 200px
+    height 100%
     .trees{
-      width 198px
+      width 208px
       height 85%
       // overflow auto
     }
@@ -268,18 +265,10 @@ export default {
       width 100%
       overflow auto
     }
-    >>>.el-input{
-      width 80%
-      margin-left 10%
-    }
     >>>.el-input__suffix{
-      margin-top -10px
+      margin-top -3px
     }
     >>>.el-tree{
-    .el-tree-node{
-      min-width: 100%;
-      // display: table-footer-group;
-    }
     .el-tree-node__content{
       font-size: 14px;
       height 25px
@@ -297,15 +286,13 @@ export default {
     width 100%
     top 30%
     .circular{
-      width 30px
-      height 30px
+      width 32px
+      height 32px
     }
   }
     >>>.el-input{
-      // width 300px
-      height 50px
       .el-input__inner{
-        height 30px
+        height 32px
       }
     }
     >>>.is-leaf{

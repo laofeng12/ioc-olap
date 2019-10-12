@@ -52,6 +52,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Resource
     private OlapCubeTableColumnRepository olapCubeTableColumnRepository;
 
+    @Resource
+    private OlapCubeRepository olapCubeRepository;
+
     @Autowired
     private CubeHttpClient cubeHttpClient;
 
@@ -107,7 +110,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         OlapCubeTableRelation relation = relations.stream().filter((p) -> p.getJoinTableId().equals(tableId)).findFirst().orElse(null);
 
         if (relation == null) {
-            throw new APIException(10002,"结构错误！");
+            throw new APIException(10002, "结构错误！");
         }
         if (!relation.getTableId().equals(dict.getCubeTableId())) {
             writeJoinTable(dict, relations, joinTables, cubeTables, relation.getTableId());
@@ -244,7 +247,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     }
 
     @Override
-    public AnalyzeVo getVo(Long id) {
+    public AnalyzeVo getVo(Long id) throws APIException {
         AnalyzeVo analyzeVo = new AnalyzeVo();
         //获取analyze
         OlapAnalyze olapAnalyze = get(id);

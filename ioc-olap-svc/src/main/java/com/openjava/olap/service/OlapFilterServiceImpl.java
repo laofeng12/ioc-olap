@@ -42,8 +42,8 @@ public class OlapFilterServiceImpl implements OlapFilterService {
 		return olapFilterRepository.queryDataOnly(params, pageable);
 	}
 
-	public OlapFilter findTableInfo(String cubeName, Long createId) {
-		Optional<OlapFilter> o = olapFilterRepository.findTableInfo(cubeName, createId);
+	public OlapFilter findTableInfo(String cubeName) {
+		Optional<OlapFilter> o = olapFilterRepository.findTableInfo(cubeName);
 		if (o.isPresent()) {
 			OlapFilter m = o.get();
 			return m;

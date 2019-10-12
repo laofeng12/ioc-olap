@@ -35,7 +35,7 @@ public interface OlapAnalyzeService {
 
 	AnalyzeVo save(AnalyzeVo analyzeVo) throws APIException;
 
-	AnalyzeVo getVo(Long id);
+	AnalyzeVo getVo(Long id) throws APIException;
 
     AnyDimensionVo query(Long cubeId,List<AnalyzeAxisVo> axises,String userId) throws APIException;
 

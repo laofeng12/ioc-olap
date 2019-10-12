@@ -173,9 +173,9 @@ export default {
     }
     .is-checked{
       .el-checkbox-button__inner{
-        background #009688!important
+        background #0486FE!important
         color #ffffff
-        border 1px solid #009688!important
+        border 1px solid #0486FE!important
       }
     }
     .el-checkbox-button:last-child{
@@ -188,7 +188,7 @@ export default {
       // border-left none
     }
     .el-checkbox-button.is-checked .el-checkbox-button__inner{
-      border 1px solid #009688!important
+      border 1px solid #0486FE!important
     }
   }
   .container{

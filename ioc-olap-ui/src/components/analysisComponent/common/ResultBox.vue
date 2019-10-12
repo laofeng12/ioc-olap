@@ -7,7 +7,7 @@
           <el-button class="button" type="primary" size="mini" v-if="showType === 'needNew'" @click="goNewOlap">
             新建OLAP分析
           </el-button>
-          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="newFormVisible = true">
+          <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="noFolderPop ? submitNewForm() : newFormVisible = true">
             保存结果
           </el-button>
           <el-button class="button" type="primary" size="mini" v-if="resetShow" @click="reset">重置</el-button>
@@ -59,7 +59,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitNewForm()">确 定</el-button>
+        <el-button type="primary" @click="checkSubmit()">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
@@ -116,6 +116,10 @@ export default {
     page: {
       type: Number,
       default: 1
+    },
+    noFolderPop: {
+      type: Boolean,
+      default: false
     }
   },
   components: { DynamicTable },
@@ -123,7 +127,6 @@ export default {
     return {
       search: '',
       newFormVisible: false,
-      isNew: true,
       autoSearch: false,
       isFullscreen: false,
       newForm: {
@@ -159,8 +162,11 @@ export default {
     ])
   },
   watch: {
-    formData (val) {
-      this.newForm = val
+    formData: {
+      handler: function (val) {
+        this.newForm = val
+      },
+      deep: true
     },
     saveFolderListByProp (val) {
       if (this.$route.query.folderId) {
@@ -168,6 +174,9 @@ export default {
       }
       this.newForm = this.formData
     }
+  },
+  mounted () {
+    this.newForm = this.formData
   },
   methods: {
     analysisSearch () {
@@ -180,26 +189,29 @@ export default {
       const list = [...newValueList, ...newFilterList, ...newRowList, ...newColList]
       this.$emit('searchFunc', list, this.cubeData.cubeId, { rItems: this.newRowList, cItems: this.newColList })
     },
-    submitNewForm () {
-      this.$refs.newForm.validate(async (valid) => {
+    async submitNewForm () {
+      const data = {
+        isNew: !this.noFolderPop,
+        folderId: this.newForm.folder,
+        name: this.newForm.resultName
+      }
+      try {
+        await this.$confirm(`确认保存数据吗？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        this.$emit('saveFunc', data)
+        this.newFormVisible = false
+      } catch (e) {
+        this.newFormVisible = false
+        this.$message('已取消')
+      }
+    },
+    checkSubmit () {
+      this.$refs.newForm.validate((valid) => {
         if (valid) {
-          const data = {
-            isNew: this.isNew,
-            folderId: this.newForm.folder,
-            name: this.newForm.resultName
-          }
-          try {
-            await this.$confirm(`确认保存数据吗？`, '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            })
-            this.$emit('saveFunc', data)
-            this.newFormVisible = false
-          } catch (e) {
-            this.newFormVisible = false
-            this.$message('已取消')
-          }
+          this.submitNewForm()
         }
       })
     },

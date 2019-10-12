@@ -18,7 +18,7 @@
         <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
-              <el-input type="text" v-model="formData.interval"></el-input>
+              <el-input type="number" v-model="formData.interval"></el-input>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -83,11 +83,11 @@
        header-cell-class-name="tableHead"
        stripe
        style="margin-top: 10px;">
-       <el-table-column type="index" width="100" label="序号" align="center"></el-table-column>
-       <el-table-column prop="tableName" label="表名称" align="center"> </el-table-column>
-       <el-table-column prop="field" label="字段" align="center"> </el-table-column>
-       <el-table-column prop="pattern" label="过滤方式" align="center"> </el-table-column>
-       <el-table-column prop="parameter" label="过滤值" align="center">
+       <el-table-column type="index" width="100" label="序号"></el-table-column>
+       <el-table-column prop="tableName" label="表名称"> </el-table-column>
+       <el-table-column prop="field" label="字段"> </el-table-column>
+       <el-table-column prop="pattern" label="过滤方式"> </el-table-column>
+       <el-table-column prop="parameter" label="过滤值">
          <template slot-scope="scope">
            <div>
              <span>{{scope.row.parameter}}</span>
@@ -97,8 +97,7 @@
        </el-table-column>
        <el-table-column
          label="操作"
-         width="100"
-         align="center">
+         width="100">
          <template slot-scope="scope">
            <div class="play">
              <el-button type="text" size="mini" @click="addReloadSet(scope.row)" icon="el-icon-edit"></el-button>
@@ -212,7 +211,6 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
-      console.log('力帆', this.formData.ispartition_type)
       if (this.formData.ispartition_type === true) {
         // 如果开启就选择表跟字段
         this.rules.data2a[0].required = true
@@ -298,9 +296,9 @@ export default {
 <style lang="stylus" scoped>
 .reloadSet{
   background #f2f2f2;
-  margin-top: 16px;
   height: 100%;
-  margin-bottom: 130px;
+  margin-top: 16px;
+  margin-bottom: 76px;
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;
@@ -327,6 +325,11 @@ export default {
     border-bottom 1px solid #cccccc
   }
   .el-form{padding: 16px 24px !important;}
+  .uplaodNum{
+    >>>.el-form-item__error{
+      left 200px
+    }
+  }
   >>>.el-table__body, >>>.el-table__header{
     width auto!important
   }

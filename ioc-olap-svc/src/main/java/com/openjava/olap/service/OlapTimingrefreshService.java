@@ -24,7 +24,7 @@ public interface OlapTimingrefreshService {
 
     List<OlapTimingrefresh> findTiming(int frequencyType);
 
-    OlapTimingrefresh findTableInfo(String cubeName, Long createId);
+    OlapTimingrefresh findTableInfo(String cubeName);
 
     OlapTimingrefresh get(Long id);
 

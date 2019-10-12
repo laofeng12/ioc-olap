@@ -13,11 +13,11 @@
               <span v-for="(n, i) in managementData[index]" :key="i">{{n}}</span>
             </div>
           </div>
-          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
+          <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
         </el-tab-pane>
         <el-tab-pane label="字段说明" name="2">
           <element-table  v-loading="loadingPlanBody" v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
-          <div v-else style="text-align:center;margin-top:100px">暂无数据</div>
+          <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
         </el-tab-pane>
       </el-tabs>
   </div>
@@ -92,14 +92,13 @@ export default {
   width 100%
   display flex
   .trees{
-
   }
   .step_tab{
 	box-shadow: -5px 0 10px 0 rgba(0,0,0,0.05);
 	height: 100%;
 	background: #fff;
     flex 1
-    margin-left 10px!important
+	font-size: 14px;
     >>>.el-tabs__header{
       margin-top 0px
       padding-left 10px

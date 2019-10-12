@@ -425,6 +425,10 @@ public class OlapModelingAction extends BaseAction {
             if (cubeDescDataMapper == null || !cube.getCubeDescData().getUuid().equals(cubeDescDataMapper.getUuid())) {
                 throw new APIException(400, "不能修改立方体名称！");
             }
+            List<CubeHbaseMapper> cubeHbaseMappers = cubeHttpClient.hbase(cube.getCubeDescData().getName());
+            if (cubeHbaseMappers.size() > 0) {
+                throw new APIException(400, "请先删除已经构建的块！");
+            }
             cube.getCubeDescData().setVersion(cubeDescDataMapper.getVersion());
             cube.getCubeDescData().setVersion(cubeDescDataMapper.getLast_modified());
         }
@@ -459,7 +463,6 @@ public class OlapModelingAction extends BaseAction {
     public Map<String, Object> desc(String cubeName, String models) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         ModelsDescDataMapper model = modelHttpClient.entity(models);
-
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
@@ -578,9 +581,9 @@ public class OlapModelingAction extends BaseAction {
         }
 
         //处理刷新
-        OlapTimingrefresh timingrefresh = olapTimingrefreshService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+        OlapTimingrefresh timingrefresh = olapTimingrefreshService.findTableInfo(cubeName);
         //处理过滤
-        OlapFilter olapFilter = olapFilterService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+        OlapFilter olapFilter = olapFilterService.findTableInfo(cubeName);
         List<OlapFilterCondidion> olapFilterCondidions = new ArrayList<>();
         if (olapFilter != null) {
             olapFilterCondidions = olapFilterCondidionService.findByFilterId(olapFilter.getId());
@@ -603,15 +606,8 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:构建")
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
     @Security(session = true)
-    public void build(String cubeName, Long start, Long end) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        //判断是否有存在该立方体名称
-        List<JobsMapper> jobList = Arrays.asList(jobsHttpClient.list(100000L, 0L, userVO.getUserId(), cubeName));
-        for (JobsMapper jobs : jobList) {
-            if (jobs.getJob_status().equals("RUNNING") || jobs.getJob_status().equals("PENDING")) {
-                throw new APIException(400, "该立方体已在构建中！");
-            }
-        }
+    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws APIException {
+        olapTimingrefreshService.doSave(timingrefresh);
         cubeHttpClient.build(cubeName, start, end);
     }
 
@@ -680,109 +676,16 @@ public class OlapModelingAction extends BaseAction {
         //拿到列数据
         ArrayList<OlapCubeTableColumn> findByColumn = olapCubeTableColumnService.findByColumn(cubeName);
         //拿到过滤条件
-        OlapFilter findTableInfo = olapFilterService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+        OlapFilter findTableInfo = olapFilterService.findTableInfo(cubeName);
         //拿到OLAP_CUBE_TABLE_RELATION表数据
         ArrayList<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.findByCubeName(cubeName);
         //拿到定时任务
-        OlapTimingrefresh olapTimingrefresh = olapTimingrefreshService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+        OlapTimingrefresh olapTimingrefresh = olapTimingrefreshService.findTableInfo(cubeName);
         //拿到第一步用户选择表
         List<OlapDatalaketable> datalaketables = olapDatalaketableService.getListByCubeName(cubeName);
 
         //放到事物里进行保存
         olapCubeService.saveTableClone(olapCubeEntity, cubeTablesList, findByColumn, findTableInfo, olapcubeList, olapTimingrefresh, datalaketables, userVO, cubeNameClone);
-    }
-
-
-    //保存克隆所有数据
-    @Transactional(readOnly = false)
-    public void saveTableClone(OlapCube olapCube, ArrayList<OlapCubeTable> cubeTablesList, ArrayList<OlapCubeTableColumn> findByColumn,
-                               OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh,
-                               List<OlapDatalaketable> datalaketables, OaUserVO loginUser, String cloneCubeName) {
-        SequenceService ss = ConcurrentSequence.getInstance();
-
-        OlapCube cloneCube = new OlapCube();
-        cloneCube.setFlags(0);
-        cloneCube.setIsNew(true);
-        cloneCube.setName(cloneCubeName);
-        cloneCube.setCubeId(ss.getSequence());
-        cloneCube.setDimensionFiledLength(olapCube.getDimensionFiledLength());
-        cloneCube.setDimensionLength(olapCube.getDimensionLength());
-        cloneCube.setMeasureFiledLength(olapCube.getMeasureFiledLength());
-        cloneCube.setRemark(olapCube.getRemark());
-        cloneCube.setCreateId(Long.parseLong(loginUser.getUserId()));
-        cloneCube.setCreateName(loginUser.getUserAccount());
-        cloneCube.setCreateTime(new Date());
-        olapCubeService.doSave(cloneCube);
-
-
-        for (OlapCubeTable cubeTable : cubeTablesList) {
-            OlapCubeTable olapCubecTable = new OlapCubeTable();
-            MyBeanUtils.copyPropertiesNotBlank(olapCubecTable, cubeTable);
-            Long tableId = ss.getSequence();
-            //找到table下的列并复制添加数据
-            List<OlapCubeTableColumn> findByColumnList = findByColumn.stream().filter(p -> p.getTableId().equals(olapCubecTable.getId())).collect(Collectors.toList());
-            for (OlapCubeTableColumn f : findByColumnList) {
-                OlapCubeTableColumn olapCubecTableColumn = new OlapCubeTableColumn();
-                MyBeanUtils.copyPropertiesNotBlank(olapCubecTableColumn, f);
-                olapCubecTableColumn.setTableId(tableId);
-                olapCubecTableColumn.setCubeTableColumnId(ss.getSequence());
-                olapCubecTableColumn.setCubeId(cloneCube.getCubeId());
-                olapCubecTableColumn.setIsNew(true);
-                olapCubeTableColumnService.doSave(olapCubecTableColumn);
-            }
-            olapCubecTable.setCubeTableId(tableId);
-            olapCubecTable.setCubeId(cloneCube.getCubeId());
-            olapCubecTable.setIsNew(true);
-            olapCubeTableService.doSave(olapCubecTable);
-        }
-
-        //保存过滤信息
-        if (findTableInfo != null) {
-            OlapFilter olapFilter = new OlapFilter();
-            MyBeanUtils.copyPropertiesNotBlank(olapFilter, findTableInfo);
-            olapFilter.setId(ss.getSequence());
-            olapFilter.setCubeName(cloneCube.getName());
-            olapFilter.setIsNew(true);
-            olapFilterService.doSave(olapFilter);
-
-            List<OlapFilterCondidion> filterCondidions = olapFilterCondidionService.findByFilterId(findTableInfo.getId());
-            for (OlapFilterCondidion filter : filterCondidions) {
-                OlapFilterCondidion o = new OlapFilterCondidion();
-                MyBeanUtils.copyPropertiesNotBlank(o, filter);
-                o.setId(ss.getSequence());
-                o.setFilterId(olapFilter.getId());
-                o.setIsNew(true);
-                olapFilterCondidionService.doSave(o);
-            }
-        }
-
-
-        for (OlapCubeTableRelation relationEntity : olapcubeList) {
-            OlapCubeTableRelation olapCubeTableRelation = new OlapCubeTableRelation();
-            MyBeanUtils.copyPropertiesNotBlank(olapCubeTableRelation, relationEntity);
-            olapCubeTableRelation.setId(ss.getSequence());
-            olapCubeTableRelation.setCubeId(cloneCube.getCubeId());
-            olapCubeTableRelation.setIsNew(true);
-            olapCubeTableRelationService.doSave(olapCubeTableRelation);
-        }
-
-        if (olapTimingrefresh != null) {
-            OlapTimingrefresh olapTiming = new OlapTimingrefresh();
-            MyBeanUtils.copyPropertiesNotBlank(olapTiming, olapTimingrefresh);
-            olapTiming.setId(ss.getSequence());
-            olapTiming.setCubeName(cloneCube.getName());
-            olapTiming.setIsNew(true);
-            olapTimingrefreshService.doSave(olapTiming);
-        }
-
-        for (OlapDatalaketable olapDatalaketable : datalaketables) {
-            OlapDatalaketable datalaketable = new OlapDatalaketable();
-            MyBeanUtils.copyPropertiesNotBlank(datalaketable, olapDatalaketable);
-            datalaketable.setId(ss.getSequence());
-            datalaketable.setCubeName(cloneCubeName);
-            datalaketable.setIsNew(true);
-            olapDatalaketableService.doSave(datalaketable);
-        }
     }
 
     @ApiOperation(value = "立方体:删除")
@@ -807,7 +710,7 @@ public class OlapModelingAction extends BaseAction {
             olapCubeTableColumnService.deleteCubeId(olapCube.getId());
             olapCubeTableRelationService.deleteCubeId(olapCube.getId());
             //删除过滤表
-            OlapFilter olapFilter = olapFilterService.findTableInfo(cubeName, Long.parseLong(userVO.getUserId()));
+            OlapFilter olapFilter = olapFilterService.findTableInfo(cubeName);
             if (olapFilter != null) {
                 olapFilterCondidionService.deleteFilterId(olapFilter.getId());
                 olapFilterService.deleteCubeName(cubeName);
@@ -980,5 +883,12 @@ public class OlapModelingAction extends BaseAction {
         }
         String[] result = {};
         return list.toArray(result);
+    }
+
+    @ApiOperation(value = "查看立方体定时构建配置")
+    @RequestMapping(value = "/getTimingrefresh", method = RequestMethod.GET)
+    @Security(session = true)
+    public OlapTimingrefresh getTimingrefresh(String cubeName) throws APIException {
+        return olapTimingrefreshService.findTableInfo(cubeName);
     }
 }
