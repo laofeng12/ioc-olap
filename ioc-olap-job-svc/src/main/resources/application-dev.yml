@@ -85,9 +85,9 @@ schedule:
     example: 0/5 * * * * ?
 
   hour:
-    hour: 0 59 * * * ?
+    hour: 0 0 * * * ?
   day:
-    day: 0 59 23 ? * *
+    day: 0 0 0 * * *
   month:
     month: 0 0 0 1 * ?
   minute:

@@ -75,24 +75,29 @@ public class OlapJob {
                         hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
                         //全量构建
                         if (hbases.get(0).getDateRangeStart() == 0) {
-                            calendar.setTime(fc.getFinalExecutionTime());
-                            if(isNeedExcute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            if (fc.getFinalExecutionTime() != null) {
+                                calendar.setTime(fc.getFinalExecutionTime());
+                                if (isNeedExcute(calendar, fc.getFrequencytype(), fc.getInterval())) {
+                                    cubeHttpClient.build(fc.getCubeName(), 0L, 0L);
+                                    fc.setFinalExecutionTime(calendar.getTime());
+                                    olapTimingrefreshService.doSave(fc);
+                                }
+                            } else {
                                 cubeHttpClient.build(fc.getCubeName(), 0L, 0L);
-                                fc.setFinalExecutionTime(calendar.getTime());
+                                fc.setFinalExecutionTime(new Date());
                                 olapTimingrefreshService.doSave(fc);
                             }
                         } else {
                             Long lastBuildTime = hbases.get(0).getDateRangeEnd();
                             Date lastBuildDate = new Date(lastBuildTime);
                             calendar.setTime(lastBuildDate);
-                            if(isNeedExcute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            if (isNeedExcute(calendar, fc.getFrequencytype(), fc.getInterval())) {
                                 cubeHttpClient.build(fc.getCubeName(), lastBuildTime, calendar.getTimeInMillis());
                                 fc.setFinalExecutionTime(calendar.getTime());
                                 olapTimingrefreshService.doSave(fc);
                             }
                         }
                     }
-
                 } catch (Exception e) {
                     logger.info("定时构建" + fc.getCubeName() + "出现异常！", e);
                 }
