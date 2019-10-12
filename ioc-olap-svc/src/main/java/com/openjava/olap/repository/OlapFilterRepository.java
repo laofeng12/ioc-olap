@@ -21,6 +21,6 @@ public interface OlapFilterRepository extends DynamicJpaRepository<OlapFilter, L
     @Query(value = "delete from OLAP_FILTER t where t.CUBE_NAME=:cubeName", nativeQuery = true)
     void deleteCubeName(@Param("cubeName") String cubeName);
 
-    @Query(value = "select t.* from OLAP_FILTER t where t.CUBE_NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)
-    Optional<OlapFilter> findTableInfo(@Param("cubeName") String cubeName, @Param("createId") Long createId);
+    @Query(value = "select t.* from OLAP_FILTER t where t.CUBE_NAME=:cubeName", nativeQuery = true)
+    Optional<OlapFilter> findTableInfo(@Param("cubeName") String cubeName);
 }

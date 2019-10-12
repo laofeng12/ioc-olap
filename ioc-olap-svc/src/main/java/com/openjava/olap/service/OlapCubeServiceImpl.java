@@ -173,7 +173,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCubeTableColumnRepository.deleteCubeId(olapCube.getCubeId());
             olapCubeTableRelationRepository.deleteCubeId(olapCube.getCubeId());
             olapFilterCondidionRepository.deleteByCubeName(olapCube.getName());
-            olapFilter = olapFilterRepository.findTableInfo(olapCube.getName(), Long.parseLong(userVO.getUserId())).orElse(null);
+            olapFilter = olapFilterRepository.findTableInfo(olapCube.getName()).orElse(null);
             if (olapFilter != null) {
                 olapFilter.setFilterSql(modelDescData.getFilter_condition());
                 olapFilter.setUpdateId(Long.parseLong(userVO.getUserId()));
@@ -411,7 +411,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
     public void timingTasks(OlapTimingrefresh task, CubeDescMapper cube, Date date, OaUserVO userVO) {
         //根据是否存在立方体ID去判断是否为修改, 如果是为修改则根据用户ID和立方体名称去查询出数据并修改olap_timingrefresh表数据
         if (StringUtils.isNotBlank(cube.getCubeDescData().getUuid())) {
-            OlapTimingrefresh olapTimingrefresh = olapTimingrefreshRepository.findTableInfo(cube.getCubeDescData().getName(), Long.parseLong(userVO.getUserId())).orElse(null);
+            OlapTimingrefresh olapTimingrefresh = olapTimingrefreshRepository.findTableInfo(cube.getCubeDescData().getName()).orElse(null);
             if (olapTimingrefresh != null) {
                 olapTimingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
                 olapTimingrefresh.setUpdateName(userVO.getUserAccount());

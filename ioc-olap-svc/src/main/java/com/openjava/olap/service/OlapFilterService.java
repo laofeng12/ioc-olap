@@ -22,7 +22,7 @@ public interface OlapFilterService {
 
     List<OlapFilter> queryDataOnly(OlapFilterDBParam params, Pageable pageable);
 
-    OlapFilter findTableInfo(String cubeName, Long createId);
+    OlapFilter findTableInfo(String cubeName);
 
     OlapFilter get(Long id);
 

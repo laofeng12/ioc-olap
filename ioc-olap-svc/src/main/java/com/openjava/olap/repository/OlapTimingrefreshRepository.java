@@ -25,6 +25,6 @@ public interface OlapTimingrefreshRepository extends DynamicJpaRepository<OlapTi
     @Query(value = "select * from OLAP_TIMINGREFRESH where FREQUENCYTYPE=:frequencyType AND AUTORELOAD=1", nativeQuery = true)
     List<OlapTimingrefresh> findTiming(@Param("frequencyType") int frequencyType);
 
-    @Query(value = "select t.* from OLAP_TIMINGREFRESH t where t.CUBE_NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)
-    Optional<OlapTimingrefresh> findTableInfo(@Param("cubeName") String cubeName, @Param("createId") Long createId);
+    @Query(value = "select t.* from OLAP_TIMINGREFRESH t where t.CUBE_NAME=:cubeName", nativeQuery = true)
+    Optional<OlapTimingrefresh> findTableInfo(@Param("cubeName") String cubeName);
 }
