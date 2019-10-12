@@ -214,7 +214,7 @@ export default {
     handleAutoSearch () {
       this.autoSearch = !this.autoSearch
       this.$message.success(`已${this.autoSearch ? '开启' : '关闭'}自动查询`)
-      this.$emit('autoFunc')
+      this.$emit('autoFunc', this.autoSearch)
     },
     fullscreenToggle () {
       this.$fullscreen.toggle(this.$el.querySelector('.allScreen'), {
@@ -226,6 +226,8 @@ export default {
       this.isFullscreen = fullscreen
     },
     async reset () {
+      this.autoSearch = false
+      await await this.$emit('autoFunc', this.autoSearch)
       try {
         await this.$confirm(`确认重置吗？`, '提示', {
           confirmButtonText: '确定',
@@ -244,7 +246,9 @@ export default {
     showSum () {
       this.$emit('showSum')
     },
-    changeRowAndColFunc () {
+    async changeRowAndColFunc () {
+      this.autoSearch = false
+      await this.$emit('autoFunc', this.autoSearch)
       this.$emit('changeRowAndColFunc')
     },
     toggleDrillDown () {
@@ -252,7 +256,9 @@ export default {
       this.drillDown = !this.drillDown
       this.$message.success(`已${this.drillDown ? '开启' : '关闭'}下钻`)
     },
-    toggleTransverseDrillDown () {
+    async toggleTransverseDrillDown () {
+      this.autoSearch = false
+      await this.$emit('autoFunc', this.autoSearch)
       this.drillDown = false
       this.transversedrillDown = !this.transversedrillDown
       this.$message.success(`已${this.transversedrillDown ? '开启' : '关闭'}横向下钻`)
