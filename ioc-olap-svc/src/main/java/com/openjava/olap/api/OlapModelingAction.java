@@ -607,6 +607,10 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
     @Security(session = true)
     public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        timingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
+        timingrefresh.setUpdateName(userVO.getUserAccount());
+        timingrefresh.setUpdateTime(new Date());
         olapTimingrefreshService.doSave(timingrefresh);
         cubeHttpClient.build(cubeName, start, end);
     }
