@@ -388,7 +388,7 @@ export default {
     }
     >>>.el-table__body td{
       border none!important
-      padding 3px 0!important
+      padding 10px 0!important
       font-size 14px
     }
     >>>.el-table__body tr:nth-child(even){

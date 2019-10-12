@@ -65,9 +65,9 @@
             header-cell-class-name="tableHead"
             stripe
             style="margin-top: 10px;">
-            <el-table-column type="index"  width="100" label="序号" align="center"></el-table-column>
-            <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
-            <el-table-column label="编码类型" align="center">
+            <el-table-column type="index"  width="100" label="序号"></el-table-column>
+            <el-table-column prop="column" label="字段名称"> </el-table-column>
+            <el-table-column label="编码类型" width="280px">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model.number="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
@@ -76,14 +76,14 @@
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column label="长度" width="100" align="center">
+            <el-table-column label="长度" width="150">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column label="碎片区" align="center">
+            <el-table-column label="碎片区" width="360px">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model="scope.row.isShardBy" placeholder="请选择">
@@ -360,7 +360,7 @@ export default {
 .advancedSet{
   margin-top: 16px;
   background #F2F2F2
-  padding-bottom 100px
+  padding-bottom 76px
   .el-form{
     padding: 0 16px !important;
     padding-bottom: 16px !important;
