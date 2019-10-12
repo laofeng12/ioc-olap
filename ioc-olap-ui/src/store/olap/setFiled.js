@@ -30,7 +30,7 @@ const setFiled = {
       let datas = reduceObj(state.saveSelectFiled.concat(data), 'id')
       dispatch('changeFiled', datas)
     },
-    // 设置别名后的维度
+    // 设置别名后的维度(处理设置过别名的维度)
     changeFiled ({ state, dispatch }, data) {
       data.map(res => {
         let isId = res.tableName + '.' + res.titName
@@ -262,6 +262,10 @@ const setFiled = {
       console.log('设置别名后', data)
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
+    },
+    // 修改别名后需要重新整理数据
+    SetAliasList ({ state }, data) {
+      state.saveNewSortListstructure = data
     },
     SaveList ({ state }, data) {
       state.saveList = data

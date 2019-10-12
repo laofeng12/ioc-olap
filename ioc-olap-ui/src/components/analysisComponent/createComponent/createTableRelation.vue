@@ -345,7 +345,6 @@ export default {
         case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
-          console.log('设置别名====', label)
           this.setAlias(label).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
@@ -357,7 +356,8 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              console.log('设置别名后', result)
+              console.log('设置别名后lalalalallalala', this.jointResultData)
+              this.init()
               this.linkModal = null
               this.linkModalModel = null
             }

@@ -1,7 +1,7 @@
 <template>
   <div class="setFiled">
     <div class="containers">
-      <filed-table></filed-table>
+      <filed-table ref="filedTable"></filed-table>
       <div class="dimension">
         <p>
           <span>维度选择</span>
@@ -70,7 +70,13 @@ export default {
       flags: 0
     }
   },
-  mounted () {
+  watch: {
+    '$route' () {
+      this.$refs.filedTable.init()
+      this.init()
+    }
+  },
+  created () {
     this.init()
   },
   methods: {
@@ -150,6 +156,12 @@ export default {
           })
         })
       })
+      console.log('来了', this.jointResultData)
+      // 初始化已处理过的选择维度
+      this.saveNewSortListstructure.forEach((res, i) => {
+        this.saveNewSortListstructure.splice(i)
+      })
+      let result = []
       // 获取第二步建表的数据
       const data = JSON.parse(JSON.stringify(this.jointResultData))
       // 创建一个存储对应的主表字段的盒子
@@ -183,7 +195,7 @@ export default {
         })
       })
       // 组合第二步设置完的表名
-      let result = [ ...foreign_keys, ...primary_keys ]
+      result = [ ...foreign_keys, ...primary_keys ]
 
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
       values.map(res => {
@@ -208,7 +220,7 @@ export default {
         })
         // // 存放到store
         this.$store.dispatch('SaveSelectFiled', selectRows)
-        // this.$store.dispatch('SaveNewSortList', selectRows) // 更新已选的框（如果返回上一步修改了别名）
+        // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
       }, 500)
     },
