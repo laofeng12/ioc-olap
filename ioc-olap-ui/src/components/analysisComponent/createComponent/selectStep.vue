@@ -105,7 +105,7 @@ export default {
     }
     >>>.selctNum{
       i{
-        color green
+        color #0486FE
       }
     }
     >>>.el-tabs__content{

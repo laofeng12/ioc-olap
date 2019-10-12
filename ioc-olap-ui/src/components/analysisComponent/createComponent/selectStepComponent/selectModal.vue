@@ -64,9 +64,10 @@ export default {
       margin-left 3%
       margin-bottom 20px
       font-size 12px
-      background #009688
+      background #0486FE
       color #ffffff
       text-align center
+      border-radius 0
       i{
         float right
         margin-top 8px
