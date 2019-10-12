@@ -342,9 +342,10 @@ export default {
         case 'remove': // 删除
           this.clearElementLink(model)
           break
-        case 'clone': // 重命名
+        case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
+          console.log('设置别名====', label)
           this.setAlias(label).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
@@ -474,6 +475,7 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
+          console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -574,6 +576,7 @@ export default {
         }
         // 设置主表
         if (item.filed === 1 && !this.jointResult.fact_table) {
+          console.log(item, '主表')
           this.jointResult.fact_table = `${item.label}`
         }
 

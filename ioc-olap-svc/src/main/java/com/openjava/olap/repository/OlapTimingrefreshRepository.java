@@ -22,7 +22,7 @@ public interface OlapTimingrefreshRepository extends DynamicJpaRepository<OlapTi
     @Query(value = "delete from OLAP_TIMINGREFRESH t where t.CUBE_NAME=:cubeName", nativeQuery = true)
     void deleteCubeName(@Param("cubeName") String cubeName);
 
-    @Query(value = "select * from OLAP_TIMINGREFRESH where FREQUENCYTYPE=:frequencyType AND AUTORELOAD=1 AND NEXT_EXECUTION_TIME < trunc(sysdate, 'DD')", nativeQuery = true)
+    @Query(value = "select * from OLAP_TIMINGREFRESH where FREQUENCYTYPE=:frequencyType AND AUTORELOAD=1", nativeQuery = true)
     List<OlapTimingrefresh> findTiming(@Param("frequencyType") int frequencyType);
 
     @Query(value = "select t.* from OLAP_TIMINGREFRESH t where t.CUBE_NAME=:cubeName and t.CREATE_ID=:createId", nativeQuery = true)

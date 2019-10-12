@@ -75,11 +75,13 @@ export default {
 .setfactTable{
   >>>.el-dialog__body{
   }
-  >>>.el-icon-arrow-up{
-    margin-top 9px
-  }
-  >>>.el-icon-arrow-up.is-reverse{
-    margin-top -3px
+  >>>.el-input__suffix{
+    .el-input__suffix-inner{
+      .el-input__icon{
+        text-align center
+        line-height 32px !important
+      }
+    }
   }
   p{
     font-size 12px

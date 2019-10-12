@@ -2,12 +2,18 @@ package com.ioc.olap.job;
 
 
 import com.ioc.olap.job.service.CubeService;
+import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapTimingrefresh;
+import com.openjava.olap.mapper.kylin.CubeDescDataMapper;
+import com.openjava.olap.mapper.kylin.CubeHbaseMapper;
+import com.openjava.olap.mapper.kylin.CubeMapper;
 import com.openjava.olap.service.OlapCubeService;
 import com.openjava.olap.service.OlapTimingrefreshService;
+import org.apache.ibatis.annotations.Case;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +35,10 @@ public class OlapJob {
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
 
-    private Logger logger=LoggerFactory.getLogger(OlapJob.class);
+    @Autowired
+    CubeHttpClient cubeHttpClient;
+
+    private Logger logger = LoggerFactory.getLogger(OlapJob.class);
 
     @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
@@ -56,7 +65,6 @@ public class OlapJob {
     public void minute() throws Exception {
         logger.info("开始执行定时任务五分钟");
         cubeListTasks();
-        //Thread.sleep(90*1000);
         logger.info("结束执行定时任务五分钟");
     }
 
@@ -64,87 +72,80 @@ public class OlapJob {
     private void configureTasks(int frequencyType) throws Exception {
         List<OlapTimingrefresh> timingreFresh = olapTimingrefreshService.findTiming(frequencyType);
         if (timingreFresh != null) {
-
-            //执行bui
             for (OlapTimingrefresh fc : timingreFresh) {
                 try {
-                    cubeService.build(fc.getCubeName(), fc.getFinalExecutionTime(), fc.getNextExecutionTime());
-                }catch (Exception e){
-                    e.printStackTrace();
-                    continue;
-                }
-                Date nextDate = fc.getNextExecutionTime();
-                int interval = fc.getInterval().intValue();
+                    List<CubeHbaseMapper> hbases = cubeHttpClient.hbase(fc.getCubeName());
+                    if (hbases.size() > 0) {
+                        hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
+                        Long lastBuildTime = hbases.get(0).getDateRangeEnd();
+                        Date lastBuildDate = new Date(lastBuildTime);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(lastBuildDate);
+                        //当前时间加上间隔时间算出 下一次执行时间
+                        switch (fc.getFrequencytype()) {
+                            case 1://小时
+                                calendar.add(Calendar.HOUR, fc.getInterval());
+                                break;
+                            case 2://天数
+                                calendar.add(Calendar.DAY_OF_MONTH, fc.getInterval());
+                                break;
+                            default://月
+                                calendar.add(Calendar.MONTH, fc.getInterval());
+                                break;
+                        }
+                        Long nowTime = new Date().getTime();
+                        if (calendar.getTimeInMillis() < nowTime) {
+                            cubeHttpClient.build(fc.getCubeName(), lastBuildTime, calendar.getTimeInMillis());
+                            fc.setFinalExecutionTime(calendar.getTime());
+                            olapTimingrefreshService.doSave(fc);
+                        }
+                    }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(nextDate);
-                switch (frequencyType) {
-                    case 1://小时
-                        calendar.add(Calendar.HOUR, interval);
-                        break;
-                    case 2://天数
-                        calendar.add(Calendar.DAY_OF_MONTH, +interval);
-                        break;
-                    default://月
-                        calendar.add(Calendar.MONTH, +interval);
-                        break;
+                } catch (Exception e) {
+                    logger.info("定时构建" + fc.getCubeName() + "出现异常！", e);
                 }
-                Date dateCalendar = calendar.getTime();
-                Date now = new Date();
-                fc.setUpdateTime(now);
-                fc.setFinalExecutionTime(nextDate);  //最后执行时间
-                fc.setNextExecutionTime(dateCalendar); //下一次执行执行时间
-                fc.setIsNew(false);
-                olapTimingrefreshService.doSave(fc);
             }
         }
     }
 
     private void cubeListTasks() throws Exception {
-        Integer limit=1000;
-        Integer offset=0;
-        ArrayList<HashMap> result=new ArrayList<HashMap>();
-        while(true){
-            ArrayList<HashMap> dateList = cubeService.list(limit,offset);
-            if(dateList.size()==0)
-            {
+        Integer limit = 1000;
+        Integer offset = 0;
+        List<CubeMapper> result = new ArrayList<CubeMapper>();
+        while (true) {
+            List<CubeMapper> dateList = cubeHttpClient.list(limit, offset);
+            if (dateList.size() == 0) {
                 break;
             }
             result.addAll(dateList);
-            offset=offset+limit;
-
+            offset = offset + limit;
         }
-        if (result.size()!=0) {
+        if (result.size() != 0) {
             //遍历列表
-            for (int i=0;i< result.size();i++) {
-                String cubeName=result.get(i).get("name").toString();
-                String status=result.get(i).get("status").toString();
-
-                List<OlapCube> m=olapCubeService.findAll();
-                if(m!=null) {
-                    for (OlapCube fc : m){
-                    //for (int j=0;i< m.size();j++) {
-                        if(fc.getName().equals(cubeName)) {
-                            if (status.equals("READY")) {
-                                if (fc.getFlags() != 1) {
-                                    Date now = new Date();
-                                    fc.setFlags(1);
-                                    fc.setUpdateTime(now);
-                                    olapCubeService.doSave(fc);
-                                }
+            List<OlapCube> m = olapCubeService.findAll();
+            if (m != null && m.size() > 0) {
+                for (CubeMapper mapper : result) {
+                    OlapCube cube = m.stream().filter(p -> p.getName().equalsIgnoreCase(mapper.getName())).findFirst().orElse(null);
+                    if (cube != null) {
+                        if (mapper.getStatus().equals("READY")) {
+                            if (cube.getFlags() != 1) {
+                                Date now = new Date();
+                                cube.setFlags(1);
+                                cube.setUpdateTime(now);
+                                olapCubeService.doSave(cube);
                             }
-                            else {
-                                if (fc.getFlags() != 0) {
-                                    Date now = new Date();
-                                    fc.setFlags(0);
-                                    fc.setUpdateTime(now);
-                                    olapCubeService.doSave(fc);
-                                }
+                        } else {
+                            if (cube.getFlags() != 0) {
+                                Date now = new Date();
+                                cube.setFlags(0);
+                                cube.setUpdateTime(now);
+                                olapCubeService.doSave(cube);
                             }
                         }
                     }
                 }
             }
+
         }
     }
 }

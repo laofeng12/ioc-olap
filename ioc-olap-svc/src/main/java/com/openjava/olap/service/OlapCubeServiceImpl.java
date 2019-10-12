@@ -420,7 +420,6 @@ public class OlapCubeServiceImpl implements OlapCubeService {
                 olapTimingrefresh.setInterval(task.getInterval());
                 olapTimingrefresh.setFrequencytype(task.getFrequencytype());
                 olapTimingrefresh.setAutoReload(task.getAutoReload());
-                calcExcuteTime(olapTimingrefresh);
                 olapTimingrefreshRepository.save(olapTimingrefresh);
             } else {
                 task.setCreateId(Long.parseLong(userVO.getUserId()));//创建人id
@@ -429,7 +428,6 @@ public class OlapCubeServiceImpl implements OlapCubeService {
                 task.setIsNew(true);
                 task.setId(ConcurrentSequence.getInstance().getSequence());
                 task.setCubeName(cube.getCubeDescData().getName());//立方体名称
-                calcExcuteTime(task);
                 olapTimingrefreshRepository.save(task);
             }
         } else {
@@ -439,42 +437,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             task.setIsNew(true);
             task.setId(ConcurrentSequence.getInstance().getSequence());
             task.setCubeName(cube.getCubeDescData().getName());//立方体名称
-            calcExcuteTime(task);
             olapTimingrefreshRepository.save(task);
-        }
-    }
-
-    private void calcExcuteTime(OlapTimingrefresh task) {
-        //1 是开启,0 是未开启
-        if (task.getAutoReload() == 1) {
-            int interval = task.getInterval().intValue();
-            Date now = new Date();
-            //只获取年月日 时分秒自动填充为00 00 00
-            LocalDate localDate = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            Date executionTime = java.sql.Date.valueOf(localDate);
-            Calendar calendar = Calendar.getInstance();
-            //拿到当前小时并加入到年月日组成当前时间
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            calendar.setTime(executionTime);
-            calendar.add(Calendar.HOUR, hour);
-
-            Date finaDate = calendar.getTime();
-            task.setFinalExecutionTime(finaDate);//最后执行时间
-
-            //当前时间加上间隔时间算出 下一次执行时间
-            switch (task.getFrequencytype().toString()) {
-                case "1"://小时
-                    calendar.add(Calendar.HOUR, interval);
-                    break;
-                case "2"://天数
-                    calendar.add(Calendar.DAY_OF_MONTH, +interval);
-                    break;
-                default://月
-                    calendar.add(Calendar.MONTH, +interval);
-                    break;
-            }
-            Date nextDate = calendar.getTime();
-            task.setNextExecutionTime(nextDate);//下一次执行执行时间
         }
     }
 }

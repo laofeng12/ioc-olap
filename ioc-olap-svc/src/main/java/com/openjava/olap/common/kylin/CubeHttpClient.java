@@ -30,6 +30,13 @@ public class CubeHttpClient extends KylinHttpClient {
         return Arrays.asList(result);
     }
 
+    public List<CubeMapper> list(Integer limit, Integer offset) throws APIException {
+        String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
+        Class<CubeMapper[]> claszz = CubeMapper[].class;
+        CubeMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        return Arrays.asList(result);
+    }
+
     public CubeDescNewMapper create(CubeDescMapper cube) throws APIException {
         String url = config.address + "/kylin/api/cubes";
         HashMap hash = new HashMap();
@@ -127,5 +134,11 @@ public class CubeHttpClient extends KylinHttpClient {
     public void delete(String cubeName) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
         HttpClient.delete2(url, "", config.authorization, String.class);
+    }
+
+    public List<CubeHbaseMapper> hbase(String cubeName) throws APIException {
+        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}/hbase", config.address, cubeName);
+        Class<CubeHbaseMapper[]> clazz = CubeHbaseMapper[].class;
+        return Arrays.asList(HttpClient.get2(url, config.authorization, clazz));
     }
 }

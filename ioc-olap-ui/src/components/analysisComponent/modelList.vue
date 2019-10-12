@@ -1,13 +1,10 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable>
-
-      </el-input>
+      <el-input v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
-
       <el-button type="primary" size="small" @click="createolap">新建模型</el-button>
     </header>
     <el-table
@@ -266,8 +263,7 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
-        console.log('===', params.segments.length)
-        if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
+        // if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
         return this.$router.push({
           path: '/analysisModel/createolap/selectStep',
           query: {
@@ -318,6 +314,10 @@ export default {
      width 240px
      float left
      padding 16px 0 0 16px
+    }
+    >>>.el-input__suffix{
+      height 32px
+      margin-top 16px
     }
     >>>.el-button{
       float right

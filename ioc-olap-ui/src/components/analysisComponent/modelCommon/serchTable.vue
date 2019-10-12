@@ -1,6 +1,6 @@
 <template>
   <div class="serchTable">
-     <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
+     <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model="value" clearable></el-input>
      <div class="trees" ref="treesBox">
       <el-tree
         ref="trees"
@@ -242,7 +242,7 @@ export default {
     }
   }
   >>>.el-input__suffix{
-    margin-top -8px
+    margin-top -3px
   }
   >>>.el-radio-group{
     height 90%

@@ -26,28 +26,32 @@
                 <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable><h6>{{n}}</h6></el-tag>
               </div>
             </div>
-            <div class="item_box noflex">
-              <span>层级维度</span>
-              <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
-                <div @click="getTotalModal(index, 3, i)">
-                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
+            <div class="item_box uiflex">
+              <span style="width: 73px;">层级维度</span>
+              <div style="width: 100%;">
+                <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
+                  <div @click="getTotalModal(index, 3, i)">
+                    <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
+                  </div>
+                  <p>
+                    <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
+                    <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
+                  </p>
                 </div>
-                <p>
-                  <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
-                  <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
-                </p>
               </div>
             </div>
-            <div class="item_box noflex">
-              <span>联合维度</span>
-              <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
-                <div @click="getTotalModal(index, 4, t)">
-                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
+            <div class="item_box uiflex">
+              <span style="width: 73px;">联合维度</span>
+              <div style="width: 100%;">
+                <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
+                  <div @click="getTotalModal(index, 4, t)">
+                    <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
+                  </div>
+                  <p>
+                    <i class="el-icon-remove" @click="removejointData(index, t)"></i>
+                    <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
+                  </p>
                 </div>
-                <p>
-                  <i class="el-icon-remove" @click="removejointData(index, t)"></i>
-                  <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
-                </p>
               </div>
             </div>
           </el-card>
@@ -394,10 +398,9 @@ export default {
       .item_box{
         display flex;
         margin-bottom 16px;
-        height 32px;
-        line-height 32px;
         span{
           width 70px
+          padding-top: 5px
         }
         .box_r{
           border: 1px solid #D9D9D9;
@@ -417,6 +420,7 @@ export default {
           text-align center
           background #FBFBFB
           color #555555
+          border-radius 0 !important
         }
         .adds{
           border none!important;
@@ -429,14 +433,14 @@ export default {
           div{
             flex 1
             height 32px
-            margin-bottom 20px
+            // margin-bottom 20px
             border: 1px solid #D9D9D9;
             min-height 32px
             cursor pointer
           }
         }
         .adds:first-child{
-          margin-top -20px
+          // margin-top -20px
         }
         p{
           width 80px
@@ -451,8 +455,8 @@ export default {
           }
         }
       }
-      .noflex{
-        display initial!important
+      .uiflex{
+        display flex
       }
     }
   }
@@ -514,6 +518,7 @@ export default {
         text-align center
         background #FBFBFB
         color #555555
+        border-radius 0 !important
         }
     }
     .nos{
