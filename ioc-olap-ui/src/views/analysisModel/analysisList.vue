@@ -5,12 +5,12 @@
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
             <FolderAside :menuList="myMenuList" :menuDefault="menuDefault" vueType="myOlap" @editFunc="edit"
-                         @deleteFunc="deleteAnalysis" :menuListLoading="myLoading" @clickItem="getTableById"
+                         @deleteFunc="deleteAnalysis" :menuListLoading="myLoading" @clickItem="searchCube"
                          @getAnalysisList="getFolderWithQuery"></FolderAside>
           </el-tab-pane>
           <el-tab-pane label="分享" name="share">
             <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap" :showDo="false"
-                         :menuListLoading="shareLoading" @clickItem="getTableById" :needNewFolder="false"></FolderAside>
+                         :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
           </el-tab-pane>
         </el-tabs>
       </el-row>
@@ -30,7 +30,8 @@
 import FolderAside from '../../components/analysisComponent/common/FolderAside'
 import ResultBox from '../../components/analysisComponent/common/ResultBox'
 import {
-  getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi
+  getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi,
+  searchCubeApi
 } from '../../api/olapAnalysisList'
 
 export default {
@@ -83,6 +84,15 @@ export default {
       this.shareMenuList = res
       this.shareLoading = false
     },
+    async searchCube (fileData, type) {
+      const params = { id: fileData.attrs.cubeId }
+      const res = await searchCubeApi(params)
+      if (res.flags) {
+        this.getTableById(fileData, type)
+      } else {
+        this.$message.error('该立方体已禁用')
+      }
+    },
     async getTableById (fileData, type) {
       this.fileData = fileData
       this.loading = true
@@ -122,8 +132,14 @@ export default {
       }
       this.loading = false
     },
-    edit (data) {
-      this.$router.push(`/newOlapAnalysis?dataId=${data.attrs.analyzeId}`)
+    async edit (data) {
+      const params = { id: data.attrs.cubeId }
+      const res = await searchCubeApi(params)
+      if (res.flags) {
+        this.$router.push(`/newOlapAnalysis?dataId=${data.attrs.analyzeId}`)
+      } else {
+        this.$message.error('该立方体已禁用')
+      }
     },
     async exportFile () {
       const data = {
