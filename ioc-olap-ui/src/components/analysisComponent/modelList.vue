@@ -1,13 +1,10 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input suffix-icon="el-icon-search" v-model="searchData.cubeName" size="small" placeholder="请输入服务名称" clearable>
-
-      </el-input>
+      <el-input v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
-
       <el-button type="primary" size="small" @click="createolap">新建模型</el-button>
     </header>
     <el-table
