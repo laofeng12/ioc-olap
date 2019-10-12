@@ -28,7 +28,7 @@
       </div>
       <div v-loading="loading">
         <ResultBox v-if="tableData.length > 0 && isSearch" :tableData="tableData" :titleShow="true" @saveFunc="saveOlap"
-                   @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData">
+                   @reset="reset" @exportFunc="exportFile" :resetShow="true" :formData="formData" :noFolderPop="noFolderPop">
         </ResultBox>
       </div>
     </div>
@@ -74,7 +74,8 @@ export default {
       loading: false,
       exportData: {},
       formData: {},
-      isSearch: false
+      isSearch: false,
+      noFolderPop: false
     }
   },
   computed: {
@@ -89,6 +90,7 @@ export default {
           folder: val.folderId.toString(),
           resultName: val.name
         }
+        this.noFolderPop = true
         this.searchOlap()
       }
     },
