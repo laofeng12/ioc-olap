@@ -4,7 +4,11 @@
       <div v-for="(item, index) in dataHead" @click="selectTab(item.id, item.view)" :class="String(cureent) === item.id?'actives':''" :key="index">{{item.value}}</div>
     </div>
     <div class="content_box" v-loading="isLoading">
-      <component :is="currentView" :jsonData="dataArr"></component>
+      <transition>
+        <keep-alive>
+          <component :is="currentView" :jsonData="dataArr"></component>
+        </keep-alive>
+      </transition>
     </div>
     <el-button type="primary" @click="closeDetail">关闭</el-button>
   </div>

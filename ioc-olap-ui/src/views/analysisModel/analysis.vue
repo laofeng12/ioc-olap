@@ -282,8 +282,8 @@ export default {
     changeRowAndColFunc () {
       this.changeRowAndCol = !this.changeRowAndCol
     },
-    autoFunc () {
-      this.auto = !this.auto
+    autoFunc (boo) {
+      this.auto = boo
     },
     tdClick (data, type) {
       this.selectDimensuresList = []

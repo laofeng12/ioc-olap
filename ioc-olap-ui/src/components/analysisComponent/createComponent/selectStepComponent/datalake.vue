@@ -129,6 +129,14 @@ export default {
     }
     >>>.el-table{
       margin-top 10px
+      .el-table__header tr th{
+        padding 10px 0  10px 30px!important;
+        text-align left
+      }
+      .el-table__body td{
+        padding 10px 0  10px 30px!important;
+        text-align left
+      }
     }
     .tableBox_item{
       width 100%

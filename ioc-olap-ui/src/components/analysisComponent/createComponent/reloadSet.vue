@@ -297,9 +297,9 @@ export default {
 <style lang="stylus" scoped>
 .reloadSet{
   background #f2f2f2;
-  margin-top: 16px;
   height: 100%;
-  margin-bottom: 130px;
+  margin-top: 16px;
+  margin-bottom: 76px;
   h3{
     font-family: PingFangSC-Medium;
     font-size: 16px;

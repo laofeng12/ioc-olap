@@ -367,7 +367,7 @@ export default {
       width 210px
       margin-bottom 0
       .el-input__inner{
-        height 36px !important
+        height 32px !important
         border: 1px solid #D9D9D9;
         background: #FFFFFF !important;
       }
@@ -388,7 +388,7 @@ export default {
     }
     >>>.el-table__body td{
       border none!important
-      padding 3px 0!important
+      padding 10px 0!important
       font-size 14px
     }
     >>>.el-table__body tr:nth-child(even){
