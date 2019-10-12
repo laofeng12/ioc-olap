@@ -126,7 +126,6 @@ export default {
     return {
       search: '',
       newFormVisible: false,
-      isNew: true,
       autoSearch: false,
       isFullscreen: false,
       newForm: {
@@ -192,7 +191,7 @@ export default {
       this.$refs.newForm.validate(async (valid) => {
         if (valid) {
           const data = {
-            isNew: this.isNew,
+            isNew: !this.$route.query.dataId,
             folderId: this.newForm.folder,
             name: this.newForm.resultName
           }
