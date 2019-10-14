@@ -95,3 +95,11 @@ export function olapAnalyzeDeleteApi (data) {
     data
   })
 }
+
+export function searchCubeApi (params) {
+  return fetch({
+    url: '/olap/apis/olapAnalyze/cube',
+    method: 'get',
+    params
+  })
+}

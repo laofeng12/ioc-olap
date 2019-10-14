@@ -1,7 +1,5 @@
 package com.openjava.olap.service;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -321,7 +319,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         if (olapTimingrefresh != null) {
             OlapTimingrefresh olapTiming = new OlapTimingrefresh();
             MyBeanUtils.copyPropertiesNotBlank(olapTiming, olapTimingrefresh);
-            olapTiming.setId(ss.getSequence());
+            olapTiming.setTimingrefreshId(ss.getSequence());
             olapTiming.setCubeName(cloneCube.getName());
             olapTiming.setIsNew(true);
             olapTimingrefreshRepository.save(olapTiming);
@@ -426,7 +424,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
                 task.setCreateName(userVO.getUserAccount());//创建人名称
                 task.setCreateTime(date);//创建时间
                 task.setIsNew(true);
-                task.setId(ConcurrentSequence.getInstance().getSequence());
+                task.setTimingrefreshId(ConcurrentSequence.getInstance().getSequence());
                 task.setCubeName(cube.getCubeDescData().getName());//立方体名称
                 olapTimingrefreshRepository.save(task);
             }
@@ -435,7 +433,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             task.setCreateName(userVO.getUserAccount());//创建人名称
             task.setCreateTime(date);//创建时间
             task.setIsNew(true);
-            task.setId(ConcurrentSequence.getInstance().getSequence());
+            task.setTimingrefreshId(ConcurrentSequence.getInstance().getSequence());
             task.setCubeName(cube.getCubeDescData().getName());//立方体名称
             olapTimingrefreshRepository.save(task);
         }

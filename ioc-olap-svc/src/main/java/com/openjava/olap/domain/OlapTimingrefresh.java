@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,7 +34,7 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@ApiModelProperty("主键ID")
 	@Id
 	@Column(name = "ID")
-	private Long id;
+	private Long timingrefreshId;
 
 	@ApiModelProperty("立方体名称")
 	@Length(min=0, max=50)
@@ -99,7 +98,7 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 
 	@ApiModelProperty("是否自动刷新模型")
 	@Column(name = "AUTORELOAD")
-	private Long autoReload;
+	private Integer autoReload;
 
 	@ApiModelProperty("是否新增")
 	@Transient
@@ -107,9 +106,8 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 
 	@Transient
     @JsonIgnore
-    @Override
-    public Long getId() {
-        return this.id;
+	public Long getId() {
+        return this.timingrefreshId;
 	}
 
     @JsonIgnore
@@ -119,7 +117,7 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
     	if(isNew != null) {
     		return isNew;
     	}
-    	if(this.id != null) {
+    	if(this.timingrefreshId != null) {
     		return false;
     	}
     	return true;
