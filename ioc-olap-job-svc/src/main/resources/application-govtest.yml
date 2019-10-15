@@ -72,6 +72,11 @@ kylin:
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
 
+ljdp:
+  security:
+    api:
+      skey:
+
 #计划任务配置 cron表达式
 schedule:
   execution:
