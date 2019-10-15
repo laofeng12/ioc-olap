@@ -340,12 +340,17 @@ export default {
       let position = model.get('position')
       switch (e.target.dataset.type) {
         case 'remove': // 删除
-          this.clearElementLink(model)
+          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) {
+            this.$message.warning('事实表不能删除~')
+          } else {
+            this.clearElementLink(model)
+          }
           break
         case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
-          this.setAlias(label).then(res => {
+          let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
+          this.setAlias(label, defaultVal).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
               attrs.text.text = `${label}(${res.value})`
@@ -357,7 +362,7 @@ export default {
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
               console.log('设置别名后lalalalallalala', this.jointResultData)
-              this.init()
+              // this.init()
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -432,9 +437,11 @@ export default {
       return data
     },
     // 设置别名
-    setAlias (val) {
+    setAlias (val, defaultVal) {
       // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
+        inputValue: defaultVal
+      }, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPattern: /^.{0,20}$/,
@@ -576,7 +583,6 @@ export default {
         }
         // 设置主表
         if (item.filed === 1 && !this.jointResult.fact_table) {
-          console.log(item, '主表')
           this.jointResult.fact_table = `${item.label}`
         }
 
@@ -904,9 +910,9 @@ export default {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
             ele.remove()
             // 删除对应存储的数据
-            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-              return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
-            })
+            // this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+            //   return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
+            // })
           }
         } else {
           if (ele.id === target.id) {
