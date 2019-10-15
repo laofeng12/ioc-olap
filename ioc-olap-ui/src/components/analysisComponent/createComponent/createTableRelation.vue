@@ -998,6 +998,7 @@ export default {
     },
 
     nextModel (val) {
+      console.log(this.jointResultData.lookups)
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)

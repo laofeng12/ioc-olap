@@ -46,6 +46,7 @@ export default {
        * 2、遍历数据拿到对应的别名（左侧菜单需要展示别名）
        *
        */
+      console.log('李帆', this.jointResultData)
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
       this.titleData = []
       this.dataList.lookups.map((item, index) => {

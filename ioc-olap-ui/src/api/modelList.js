@@ -137,3 +137,12 @@ export function getLogDetailsApi (params) {
     params
   })
 }
+
+// 查看立方体定时构建配置
+export function getTimingrefresh (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/getTimingrefresh',
+    method: 'get',
+    params
+  })
+}
