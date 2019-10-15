@@ -8,7 +8,6 @@ import com.openjava.olap.mapper.kylin.CubeHbaseMapper;
 import com.openjava.olap.mapper.kylin.CubeMapper;
 import com.openjava.olap.service.OlapCubeService;
 import com.openjava.olap.service.OlapTimingrefreshService;
-import org.apache.ibatis.annotations.Case;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

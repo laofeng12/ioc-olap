@@ -6,7 +6,6 @@ import com.openjava.framework.validate.RedisSessionVaidator;
 import org.ljdp.common.spring.SpringContext;
 import org.ljdp.core.db.jpa.JPASessionFactoryRouter;
 import org.ljdp.secure.validate.SessionValidator;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
