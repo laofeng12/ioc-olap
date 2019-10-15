@@ -480,6 +480,7 @@ export default {
     padding: 0;
     margin-top: 10px;
     background: #ffffff;
+    margin-bottom: 24px;
   }
   .shareBox {
     justify-content: space-between;

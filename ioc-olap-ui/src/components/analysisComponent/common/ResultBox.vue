@@ -63,9 +63,9 @@
       </div>
     </el-dialog>
     <el-dialog title="查看分享人" :visible.sync="showShareListVisible" width="30%">
-      <el-table :data="shareList" max-height="250" border style="width: 100%">
-        <el-table-column prop="shareUserName" label="分享人姓名" align="center"></el-table-column>
-        <el-table-column prop="createTime" label="分享时间" align="center"></el-table-column>
+      <el-table :data="shareList" header-cell-class-name="tableHead" stripe="" max-height="250" border style="width: 100%;">
+        <el-table-column prop="shareUserName" label="分享人姓名"></el-table-column>
+        <el-table-column prop="createTime" label="分享时间"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -292,6 +292,9 @@ export default {
             margin-left: 0;
           }
         }
+      }
+      .el-table td{
+        padding: 10px 0 !important;
       }
     }
   }
