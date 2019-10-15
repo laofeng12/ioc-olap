@@ -228,6 +228,7 @@ const common = {
       getters.selectTableTotal.forEach((item, index) => {
         data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
+      getters.jointResultData.fact_table = `${data[0].database}.${data[0].label}`
     },
     // 获取编辑的数据
     SaveModelAllList ({ getters, store, state, dispatch }, data) {

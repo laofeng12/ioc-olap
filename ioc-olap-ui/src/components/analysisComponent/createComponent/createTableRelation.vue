@@ -40,7 +40,7 @@
             <!-- 连线部分 -->
             <div v-else>
               <!-- 删除 -->
-              <div class="remove linkRemove" data-type="remove"></div>
+              <div class="remove linkRemove" data-type="linkRemove"></div>
             </div>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
+      // console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -206,7 +206,7 @@ export default {
 
       // 鼠标点击
       paper.on('cell:pointerclick', (e, d) => {
-        console.log('点击')
+        // console.log('点击')
         d.stopPropagation()
       })
 
@@ -346,10 +346,15 @@ export default {
             this.clearElementLink(model)
           }
           break
+        case 'linkRemove': // 删除连线
+          this.clearElementLink(model)
+          break
         case 'clone': // 设置别名
+          console.log(this.jointResultData.fact_table)
           let attrs = model.get('attrs')
           let label = attrs.text.label
           let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
+          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) return this.$message.warning('事实表暂不支持设置别名~')
           this.setAlias(label, defaultVal).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
@@ -361,8 +366,8 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              console.log('设置别名后lalalalallalala', this.jointResultData)
-              // this.init()
+              // console.log('设置别名后lalalalallalala', this.jointResultData)
+              this.init()
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -482,7 +487,7 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
-          console.log('设置别名====', item)
+          // console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -726,7 +731,7 @@ export default {
     },
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
-      console.log(e)
+      // console.log(e)
 
       let index = e.index
       let primary_key = e.primary_key
@@ -751,7 +756,7 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      console.log(e)
+      // console.log(e)
 
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
@@ -798,7 +803,7 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      console.log(JSON.stringify(result))
+      // console.log(JSON.stringify(result))
       this.$store.commit('SaveJointResult', result)
     },
 
@@ -910,14 +915,14 @@ export default {
           if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
             ele.remove()
             // 删除对应存储的数据
-            // this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-            //   return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
-            // })
+            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+              return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
+            })
           }
         } else {
           if (ele.id === target.id) {
             ele.remove()
-            console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
+            // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
             // 删除对应存储的数据
             this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
               return item.id !== ele.attributes.attrs.text.id
@@ -929,7 +934,7 @@ export default {
               }
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            console.log('去掉后的===', this.saveSelectFiled)
+            // console.log('去掉后的===', this.saveSelectFiled)
           }
         }
       }
@@ -1004,7 +1009,7 @@ export default {
     },
 
     nextModel (val) {
-      console.log(this.jointResultData.lookups)
+      // console.log(this.jointResultData.lookups)
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)

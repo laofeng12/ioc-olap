@@ -114,7 +114,6 @@ export default {
       })
     },
     handleNodeClick (value) {
-      console.log(value)
       if (value.label === '全选') return
       this.$refs.treesBox.style.height = this.dataList[0].children.length > 0 ? '80%' : 'auto'
       let searchType = this.$store.state.selectStep.searchType
