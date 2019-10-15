@@ -217,7 +217,7 @@ export default {
               this.$emit('getAnalysisList')
             }
           } catch (e) {
-            this.$message.error('操作成功')
+            console.error(e)
           }
         }
       })
