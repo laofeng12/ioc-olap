@@ -6,7 +6,6 @@ import com.openjava.framework.validate.RedisSessionVaidator;
 import org.ljdp.common.spring.SpringContext;
 import org.ljdp.core.db.jpa.JPASessionFactoryRouter;
 import org.ljdp.secure.validate.SessionValidator;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -38,7 +37,6 @@ import java.util.Set;
 		basePackages={"org.ljdp.support.**.repository",
 				"com.openjava.**.repository"},
 		repositoryFactoryBeanClass=org.ljdp.core.spring.data.LjdpJpaRepositoryFactoryBean.class)
-@MapperScan("com.openjava.pds.cboard.dao")
 @EnableTransactionManagement(mode=AdviceMode.ASPECTJ)
 @SpringBootApplication(
 		scanBasePackages={
