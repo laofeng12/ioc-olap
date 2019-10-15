@@ -7,6 +7,7 @@ import org.ljdp.common.spring.SpringContext;
 import org.ljdp.core.db.jpa.JPASessionFactoryRouter;
 import org.ljdp.secure.validate.SessionValidator;
 import org.mybatis.spring.annotation.MapperScan;
+import org.openjava.boot.conf.MybatisPlusConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -15,7 +16,10 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -56,6 +60,7 @@ import java.util.Set;
 				"org.openjava.boot.aop",
 				"com.ioc.**.job",
 				})
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {MybatisPlusConfig.class})})
 @ServletComponentScan(basePackages= {"org.ljdp.support.web.listener2"})
 @ImportResource("classpath:springconfig/transaction.xml")
 @EnableCaching
