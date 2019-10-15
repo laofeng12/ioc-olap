@@ -19,12 +19,12 @@ export function descDataList (params) {
 }
 
 // 构建
-export function buildModeling (params) {
+export function buildModeling (data, valdata) {
   return fetch({
-    url: '/olap/apis/OlapModeling/build',
+    url: `/olap/apis/OlapModeling/build?cubeName=${valdata.cubeName}&start=${valdata.start}&end=${valdata.end}`,
     method: 'PUT',
     contentType: 'application/json',
-    params
+    data
   })
 }
 

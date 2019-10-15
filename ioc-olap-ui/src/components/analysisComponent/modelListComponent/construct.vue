@@ -106,12 +106,11 @@ export default {
             this.$parent.changeLoading()
             let parmas = {
               cubeName: this.dataList.name,
-              start: this.form.startTime ? this.getTimezoneOffset(this.form.startTime) : '0',
-              end: this.form.endTime ? this.getTimezoneOffset(this.form.endTime) : '0',
-              timingrefresh: this.formData
+              start: this.form.startTime ? this.getTimezoneOffset(this.form.startTime) * 1000 : '0',
+              end: this.form.endTime ? this.getTimezoneOffset(this.form.endTime) * 1000 : '0'
             }
             this.$throttle(async () => {
-              await buildModeling(parmas).then(res => {
+              await buildModeling(this.formData, parmas).then(res => {
                 this.$message.success('构建成功~')
                 this.form.startTime = ''
                 this.form.endTime = ''
@@ -134,14 +133,13 @@ export default {
       getTimingrefresh({ cubeName: name }).then(res => {
         this.formData = res
         this.formData.autoReload = !!res.autoReload
-        console.log(this.formData)
       })
     },
     dialog (val) {
       this.dataList = val
       this.dialogFormVisible = true
       val.segments.forEach(item => {
-        this.form.startTime = item.date_range_end ? item.date_range_end : ''
+        this.form.startTime = item.date_range_end ? item.date_range_end + 1000 : ''
       })
       this._getTimingrefresh(val.name)
     },
