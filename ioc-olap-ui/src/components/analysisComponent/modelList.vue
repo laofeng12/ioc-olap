@@ -66,9 +66,11 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
-                  <el-dropdown-item v-if="scope.row.status === 'DISABLED'" :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status === 'DISABLED'"
+                                    :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
                   <el-dropdown-item v-else :command="{type: 'disableds', params: scope.row}">禁用</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status !== 'DISABLED'"
+                                    :command="{type: 'sharedTable', params: scope.row}">共享</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'clones', params: scope.row}">复制</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>
                 </el-dropdown-menu>
