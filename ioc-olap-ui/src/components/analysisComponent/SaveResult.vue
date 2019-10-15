@@ -101,9 +101,13 @@ export default {
       this.loading = false
     },
     async deleteFolder (id) {
-      const res = await deleteOlapApi({id})
-      this.$message.success('删除成功')
-      await this.$store.dispatch('getSaveFolderListAction')
+      try {
+        await deleteOlapApi({id})
+        this.$message.success('删除成功')
+        await this.$store.dispatch('getSaveFolderListAction')
+      } catch (e) {
+        console.error(e)
+      }
     },
     async editSave (data) {
       this.tableData = []
