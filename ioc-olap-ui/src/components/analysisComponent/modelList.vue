@@ -39,9 +39,10 @@
         <el-table-column min-width="100%" prop="input_records_count" label="资源记录" show-overflow-tooltip> </el-table-column>
         <el-table-column min-width="100%" prop="last_modified" label="上次构建的时间" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div>
-               {{scope.row.last_modified | formatDate}}
+            <div v-if="scope.row.segments.length > 0 && scope.row.segments[scope.row.segments.length - 1].last_build_time > 0">
+               {{scope.row.segments[scope.row.segments.length - 1].last_build_time | formatDate}}
             </div>
+            <div v-else></div>
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="partitionDateStart" label="创建时间" show-overflow-tooltip>
