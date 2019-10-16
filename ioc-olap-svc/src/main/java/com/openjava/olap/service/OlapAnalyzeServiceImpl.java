@@ -530,7 +530,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
         OlapCubeTable cubeTable = olapCubeTableRepository.findById(tableId).get();
         OlapCubeTableColumn cubeTableColumn = olapCubeTableColumnRepository.findById(columnId).get();
-        String sql = MessageFormat.format("select {0} from {1} where 1=1 group by {0}", cubeTableColumn.getColumnName(), cubeTable.getTableName());
+        String sql = MessageFormat.format("select {0} from {1} where 1=1", cubeTableColumn.getColumnName(), cubeTable.getTableName());
         if (key != null && !key.equals("")) {
             String columnType = cubeTableColumn.getColumnType();
             if (columnType != null && !columnType.equals("")) {
@@ -541,6 +541,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 }
             }
         }
+        sql += " group by " + cubeTableColumn.getColumnName();
         String countSql = MessageFormat.format("select count(*) from ({0})M", sql);
         QueryResultMapper countMapper = cubeHttpClient.query(countSql, 0, 100, userId.toString());
         QueryResultMapper mapper = cubeHttpClient.query(sql, offeset, limit, userId.toString());

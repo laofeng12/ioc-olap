@@ -48,6 +48,8 @@ public class OlapAnalyze implements Persistable<Long>,Serializable {
 	private String sql;
 	@ApiModelProperty("立方体id")
 	private Long cubeId;
+	@ApiModelProperty("显示合计 1显示 0不显示")
+	private Integer isSummation;
 
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -190,5 +192,13 @@ public class OlapAnalyze implements Persistable<Long>,Serializable {
 	}
 	public void setCubeId(Long cubeId) {
 		this.cubeId = cubeId;
+	}
+
+	@Column(name = "IS_SUMMATION")
+	public Integer getIsSummation() {
+		return isSummation;
+	}
+	public void setIsSummation(Integer isSummation) {
+		this.isSummation = isSummation;
 	}
 }
