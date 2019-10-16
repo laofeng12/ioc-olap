@@ -170,6 +170,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         analyze.setUpdateId(analyzeVo.getUpdateId());
         analyze.setUpdateName(analyzeVo.getUpdateName());
         analyze.setUpdateTime(analyzeVo.getUpdateTime());
+        analyze.setIsSummation(analyzeVo.getIsSummation());
         olapAnalyzeRepository.save(analyze);
         if (analyze.getIsNew() != null && !analyze.getIsNew()) {
             olapAnalyzeAxisRepository.deleteByAnalyzeId(analyze.getAnalyzeId());
