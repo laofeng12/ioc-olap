@@ -139,6 +139,7 @@ export default {
       this.dataList = val
       this.dialogFormVisible = true
       val.segments.forEach(item => {
+        // 根据后端的需求开始的时间需要多加上 1 S
         this.form.startTime = item.date_range_end ? item.date_range_end + 1000 : ''
       })
       this._getTimingrefresh(val.name)

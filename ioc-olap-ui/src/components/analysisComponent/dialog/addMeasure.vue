@@ -290,6 +290,7 @@ export default {
     closeBtn () {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
+      this.$parent.init()
     },
     selectValue (val) {
       let result = this.fieldtextOption.filter((res, index) => {

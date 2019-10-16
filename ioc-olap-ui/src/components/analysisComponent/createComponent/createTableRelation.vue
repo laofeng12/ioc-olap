@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      // console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
+      // console.log(this.jointResultData, '是否重置')
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
