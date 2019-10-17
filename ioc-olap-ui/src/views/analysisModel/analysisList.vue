@@ -94,6 +94,7 @@ export default {
       }
     },
     async getTableById (fileData, type) {
+      const isSum = fileData.attrs.isSummation
       this.fileData = fileData
       this.loading = true
       const params = {
@@ -119,10 +120,21 @@ export default {
             })
           )
         })
+        const delRowSumTable = tableData.slice(0, tableData.length - 1)
+        const limit = delRowSumTable[0][delRowSumTable[0].length - 1].rowspan
+        const delSumTable = delRowSumTable.map((v, i) => {
+          if (i !== 0 && i < limit) {
+            return v
+          } else {
+            return v.slice(0, v.length - 1)
+          }
+        })
+
+
         if (this.activeTab === 'my') {
-          this.tableDataByMy = tableData
+          this.tableDataByMy = isSum ? tableData : delSumTable
         } else {
-          this.tableDataByShare = tableData
+          this.tableDataByShare = isSum ? tableData : delSumTable
         }
         if (type !== 'share') {
           this.$message.success('查询完成')
