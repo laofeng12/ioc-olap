@@ -11,7 +11,7 @@
       <transition name="fade-transform" mode="out-in">
         <keep-alive>
           <router-view></router-view>
-        </keep-alive>
+        </keep-alive>2
       </transition>
     </div>
   </div>
