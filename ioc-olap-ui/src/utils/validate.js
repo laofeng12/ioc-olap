@@ -57,7 +57,6 @@ export function isnoContext (rule, value, callback) {
 }
 
 export function isNumber (rule, value, callback) {
-  console.log(value)
   if (!value) {
     callback()
   } else if (!String(value).match(/^[0-9]+$/)) {

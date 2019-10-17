@@ -10,12 +10,12 @@
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
           </el-select>
           <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
@@ -729,13 +729,14 @@ export default {
     getModalRelationSelected (e) {
 
     },
+
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
-      // console.log(e)
+      console.log(e)
 
       let index = e.index
-      let primary_key = e.primary_key
-      let pk_type = e.pk_type
+      let primary_key = e.name
+      let pk_type = e.dataType
       let foreign_key = this.linkModalFields[index].foreign_key
       let fk_type = this.linkModalFields[index].fk_type
 
@@ -756,13 +757,12 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      // console.log(e)
-
+      console.log(e, '====')
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
-      let foreign_key = e.foreign_key
-      let fk_type = e.fk_type
+      let foreign_key = e.name
+      let fk_type = e.dataType
 
       if (index >= 0 && foreign_key && fk_type) {
         if (fk_type && pk_type && pk_type !== fk_type) {
@@ -1045,6 +1045,7 @@ export default {
         let items = JSON.parse(item)
         if (items.resourceId === id) {
           this.couponList = items.data.columns || []
+          console.log(this.couponList)
         }
       })
     }

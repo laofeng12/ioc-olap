@@ -50,7 +50,6 @@ export default {
       let allAsaia = []
       this.jointResultData.lookups.forEach(item => { allAsaia.push(item.alias, item.joinAlias) })
       let datas = []
-      console.log('玩', allAsaia)
       datas = this.saveNewSortListstructure.filter((item, i) => {
         return allAsaia.includes(item.table)
       })

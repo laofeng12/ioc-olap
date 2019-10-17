@@ -84,7 +84,7 @@ export default {
     },
     fetchTreeList (val) {
       this.treeLoading = true
-      // this.fetchDatas(val)
+      // this.fetchDatas(val) // 数据湖
       this.fetchKelinData()
     },
     fetchDatas (val) {
@@ -118,7 +118,6 @@ export default {
     },
     // 默认点击第一项的递归计算
     defaultFrist (val) {
-      // console.log(val)
     },
     setTree (val, type) {
       let item = []
@@ -168,7 +167,7 @@ export default {
           this.fetchResourceList(data, node.parent.key)
         }
       }
-      // 为资源列表的时候
+      // 为资源列表的时候（数据湖）
       if (!data.isTable && data.resNum > 0) {
         // this.fetchResourceList(data)
       }

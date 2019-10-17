@@ -13,7 +13,7 @@
               <el-button style="float:right;margin-top:10px;" type="text" @click="handleRms(index)">删除</el-button>
             </div>
             <div class="item_box">
-              <span>包含维度</span>
+              <span class="contain__box">包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
                 <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>
                   <h6>{{n}}</h6>
@@ -118,7 +118,11 @@
           </template>
         </el-form-item>
         <div class="listSet hetCompose">
+<<<<<<< HEAD
           <div class="listSet-title"><span>高级列组合</span></div>
+=======
+          <span class="contain__box">高级列组合</span>
+>>>>>>> 40-完善olap建表逻辑
           <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
             <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
@@ -460,6 +464,11 @@ export default {
         display flex
       }
     }
+  }
+  .contain__box::before{
+    content: '*'
+    color: red
+    margin-right 2px
   }
   h6{
     text-overflow: ellipsis;
