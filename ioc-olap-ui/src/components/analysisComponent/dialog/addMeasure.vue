@@ -276,9 +276,7 @@ export default {
       })
       // 遍历筛选出第三步勾选的数据（去掉事实表的）(如果为count计算方式的时候)
       this.saveSelectFiled.map(res => {
-        // if (res.filed !== '1') {
         selectData.push({ label: res.tableName + '.' + res.titName, id: res.id, dataType: res.dataType })
-        // }
       })
       // 遍历筛选出所有事实表的数据
       this.SaveFactData.map(item => {
@@ -286,13 +284,13 @@ export default {
           { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
         )
       })
-      // this.fieldtextOption = n === true ? [...factData, ...AllData] : [...factData]
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
       console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
+      this.$parent.init()
     },
     selectValue (val) {
       let result = this.fieldtextOption.filter((res, index) => {

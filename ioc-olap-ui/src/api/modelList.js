@@ -19,12 +19,12 @@ export function descDataList (params) {
 }
 
 // 构建
-export function buildModeling (params) {
+export function buildModeling (data, valdata) {
   return fetch({
-    url: '/olap/apis/OlapModeling/build',
+    url: `/olap/apis/OlapModeling/build?cubeName=${valdata.cubeName}&start=${valdata.start}&end=${valdata.end}`,
     method: 'PUT',
     contentType: 'application/json',
-    params
+    data
   })
 }
 
@@ -133,6 +133,15 @@ export function deleteJobListModeling (params) {
 export function getLogDetailsApi (params) {
   return fetch({
     url: '/olap/apis/OlapModeling/getJobStepOut',
+    method: 'get',
+    params
+  })
+}
+
+// 查看立方体定时构建配置
+export function getTimingrefresh (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/getTimingrefresh',
     method: 'get',
     params
   })

@@ -65,7 +65,7 @@ const creatTableRelation = {
     },
     resetCreateTabletions ({ state, getters }) {
       state.jointResultData.lookups = []
-      state.jointResultData.fact_table = ''
+      // state.jointResultData.fact_table = ''
       state.foreignKeyData = []
       // 清除第三步已经默认勾选的维度
       getters.saveSelectFiled.forEach((res, i) => {
