@@ -43,7 +43,6 @@ export default {
           res.column = res.column ? res.column : res.derived.join('')
           res.column_type = res.column_type ? res.column_type : 'String'
         })
-        console.log(this.descriptionData)
       }
     }
   }

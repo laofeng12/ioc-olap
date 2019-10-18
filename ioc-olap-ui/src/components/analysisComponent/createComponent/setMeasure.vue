@@ -54,7 +54,6 @@ export default {
   },
   methods: {
     init () {
-      console.log('取消后的', this.measureTableList)
       // this.tableData = [...this.measureTableList]
       this.tableData = JSON.parse(JSON.stringify(this.measureTableList))
     },
