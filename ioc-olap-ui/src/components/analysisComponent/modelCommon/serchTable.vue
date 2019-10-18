@@ -10,6 +10,7 @@
         v-loading="loading"
         :expand-on-click-node='false'
         show-checkbox
+        highlight-current
         :default-checked-keys="defaultKey"
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">

@@ -2,6 +2,7 @@
   <div class="factTable">
      <el-input type="text" suffix-icon="el-icon-search" placeholder="请输入关键词" v-model="value" clearable style="margin-bottom: 16px;"></el-input>
      <ul v-if="dataList.lookups && dataList.lookups.length">
+<<<<<<< HEAD
        <li v-for="(item, index) in dataList.lookups"
         :class="item.isActive===1?'actives':''"
         :style="{color: current===index?colors:''}"
@@ -10,6 +11,18 @@
          <span class="tableTitle" :title="titleData[index]">{{titleData[index]}}</span>
          <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
        </li>
+=======
+       <el-tooltip v-for="(item, index) in dataList.lookups" :key="index" effect="dark" :content="titleData[index]" placement="right">
+        <li
+          :class="item.isActive===1?'actives':''"
+          :style="{color: current===index?colors:''}"
+          :key="index" @click="changeLi(item, index)">
+          <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
+          <span class="tableTitle">{{titleData[index]}}</span>
+          <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
+        </li>
+       </el-tooltip>
+>>>>>>> 40-完善olap建表逻辑
      </ul>
      <div v-else style="margin-top:50px;text-align:center;">暂无数据</div>
      <setfact-table ref="dialog"></setfact-table>

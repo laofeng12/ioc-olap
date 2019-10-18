@@ -3,7 +3,7 @@
     <el-input suffix-icon="el-icon-search" type="text" placeholder="输入机构名称筛选" v-model="serachvalue"  clearable></el-input>
     <div class="trees">
       <el-tree
-      :data="treeList"
+        :data="treeList"
         ref="tree"
         v-loading="treeLoading"
         auto-expand-parent
@@ -71,16 +71,9 @@ export default {
       //     this.$root.eventBus.$emit('getserchTableList', serchTableList, 1)
       //   }, 500)
       // }
-      if (this.$route.query.cubeName) {
-        setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
-      }
-      this.$root.eventBus.$on('openDefaultTree', res => {
-        setTimeout(() => {
-          this.$root.eventBus.$emit('getserchTableList', this.serchTableList)
-          this.$store.dispatch('changeSerachtype', 1)
-          this.$root.eventBus.$emit('saveSelectTables')
-        }, 1000)
-      })
+      // if (this.$route.query.cubeName) {
+      //   setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
+      // }
     },
     fetchTreeList (val) {
       this.treeLoading = true

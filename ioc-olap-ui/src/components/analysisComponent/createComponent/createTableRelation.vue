@@ -1024,7 +1024,6 @@ export default {
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
-      this.$root.eventBus.$emit('openDefaultTree')
     },
     lookDetailData (id) {
       this.$refs.dialog.dialog(id)
@@ -1045,7 +1044,6 @@ export default {
         let items = JSON.parse(item)
         if (items.resourceId === id) {
           this.couponList = items.data.columns || []
-          console.log(this.couponList)
         }
       })
     }
@@ -1059,9 +1057,6 @@ export default {
       selectStepList: 'selectStepList',
       jointResultData: 'jointResultData'
     })
-  },
-  beforeDestroy () {
-    // this.$root.eventBus.$off('openDefaultTree')
   }
 }
 </script>
