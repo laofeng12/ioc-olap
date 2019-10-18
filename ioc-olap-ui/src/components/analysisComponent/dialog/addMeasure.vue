@@ -315,7 +315,6 @@ export default {
     },
     // 获取已经保存的数据的name（避免重复）
     getSavemeasureTableList (val) {
-      console.log(this.measureTableList, '保存过的')
       let Result = []
       this.measureTableList.map(res => {
         Result.push(res.name)
@@ -326,7 +325,6 @@ export default {
       this.$refs.formData.validate((valid) => {
         if (valid) {
           if (this.getSavemeasureTableList(this.formData.name)) return this.$message.warning('该度量名称已存在~')
-          console.log(this.getSavemeasureTableList(this.formData.name))
           this.dialogFormVisible = false
           // 创建随机唯一标识id
           let id = Math.random().toString(36).substr(3)
@@ -415,7 +413,7 @@ export default {
     >>>.el-form-item{
       margin-bottom 20px!important
       .el-input__inner{
-        height 32px
+        height 30px
         .el-input__suffix{
           top 5px
         }
