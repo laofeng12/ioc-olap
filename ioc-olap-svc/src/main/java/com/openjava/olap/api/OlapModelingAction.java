@@ -11,14 +11,11 @@ import com.openjava.olap.vo.CubeListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
-import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -125,12 +122,13 @@ public class OlapModelingAction extends BaseAction {
     public List<JobsMapper> jobsList(Long limit, Long offset, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
-
-        JobsMapper[] jobs = jobsHttpClient.list(limit, offset, projectName, cubeName);
-        List<JobsMapper> jobsList = Arrays.asList(jobs);
-        jobsList.sort(Comparator.comparing(JobsMapper::getLast_modified).reversed());
-
-        return jobsList;
+        ProjectDescDataMapper projectDescDataMapper = projectHttpClient.get(projectName);
+        if (projectDescDataMapper != null) {
+            JobsMapper[] jobs = jobsHttpClient.list(limit, offset, projectName, cubeName);
+            List<JobsMapper> jobsList = Arrays.asList(jobs);
+            return jobsList;
+        }
+        return new ArrayList<>();
     }
 
     @ApiOperation(value = "第六步——获取Encoding")
@@ -373,11 +371,7 @@ public class OlapModelingAction extends BaseAction {
     //处理逻辑如下：
     //1、将用户创建的模型里选择过的表全部拉到DataSource里
     public void hiveCreate(OaUserVO userVO, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) throws APIException {
-        //拿到所有project
-        List<ProjectDescDataMapper> projectDescList = projectHttpClient.list();
-        Optional<ProjectDescDataMapper> projectList = projectDescList.stream().filter(p -> p.getName().equals(userVO.getUserId())).findFirst();
-
-
+        ProjectDescDataMapper project = projectHttpClient.get(userVO.getUserId());
         //1、检测当前项目是否有该表,如果没有则加入进去
         List<String> tableNameList = new ArrayList<String>();
         if (cubeDatalaketableNew != null) {
@@ -389,9 +383,8 @@ public class OlapModelingAction extends BaseAction {
             }
         }
 
-
         //1、判断是否有该用户的project,如果没有则创建
-        if (!projectList.isPresent()) {
+        if (project == null) {
             ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
             projectDesc.setName(userVO.getUserId());
             projectDesc.setDescription(userVO.getUserName());
@@ -401,7 +394,7 @@ public class OlapModelingAction extends BaseAction {
             projectHttpClient.create(projectDesc);
             hiveHttpClient.create(tableNameList, userVO.getUserId());
         } else {
-            String[] strArrayTrue = (String[]) projectList.get().getTables().toArray(new String[0]);
+            String[] strArrayTrue = project.getTables().toArray(new String[0]);
             String[] tableName = tableNameList.stream().toArray(String[]::new);
             //对比是否存在,存在的就不要加进去了tables
             String[] tableNameArray = minus(strArrayTrue, tableName);
