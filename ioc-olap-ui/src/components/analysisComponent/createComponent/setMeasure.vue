@@ -54,7 +54,8 @@ export default {
   },
   methods: {
     init () {
-      this.tableData = [...this.measureTableList]
+      // this.tableData = [...this.measureTableList]
+      this.tableData = JSON.parse(JSON.stringify(this.measureTableList))
     },
     nextModel (val) {
       if (this.measureTableList.length > 0) {

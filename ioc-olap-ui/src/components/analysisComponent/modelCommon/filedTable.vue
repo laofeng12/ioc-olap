@@ -47,6 +47,7 @@ export default {
        *
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
+      this.titleData = []
       this.dataList.lookups.map((item, index) => {
         // 存储所有的事实表名
         this.titleData.push(item.alias)

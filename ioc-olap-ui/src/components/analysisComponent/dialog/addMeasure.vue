@@ -223,6 +223,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      measureTableList: 'measureTableList',
       selectTableTotal: 'selectTableTotal',
       saveSelectFiled: 'saveSelectFiled',
       SaveFactData: 'SaveFactData',
@@ -276,9 +277,7 @@ export default {
       })
       // 遍历筛选出第三步勾选的数据（去掉事实表的）(如果为count计算方式的时候)
       this.saveSelectFiled.map(res => {
-        // if (res.filed !== '1') {
         selectData.push({ label: res.tableName + '.' + res.titName, id: res.id, dataType: res.dataType })
-        // }
       })
       // 遍历筛选出所有事实表的数据
       this.SaveFactData.map(item => {
@@ -286,13 +285,13 @@ export default {
           { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
         )
       })
-      // this.fieldtextOption = n === true ? [...factData, ...AllData] : [...factData]
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
       console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
       this.$refs.formData.clearValidate()
+      this.$parent.init()
     },
     selectValue (val) {
       let result = this.fieldtextOption.filter((res, index) => {
@@ -314,9 +313,20 @@ export default {
         this.isDisabledtext = false
       }
     },
+    // 获取已经保存的数据的name（避免重复）
+    getSavemeasureTableList (val) {
+      console.log(this.measureTableList, '保存过的')
+      let Result = []
+      this.measureTableList.map(res => {
+        Result.push(res.name)
+      })
+      return Result.includes(val)
+    },
     submitBtn (index) {
       this.$refs.formData.validate((valid) => {
         if (valid) {
+          if (this.getSavemeasureTableList(this.formData.name)) return this.$message.warning('该度量名称已存在~')
+          console.log(this.getSavemeasureTableList(this.formData.name))
           this.dialogFormVisible = false
           // 创建随机唯一标识id
           let id = Math.random().toString(36).substr(3)

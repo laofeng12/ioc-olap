@@ -68,6 +68,7 @@ export default {
       loading: false,
       saveFolderList: [],
       cubeId: '',
+      analyzeId: '',
       headLimit: {
         cItems: [],
         rItems: []
@@ -118,7 +119,7 @@ export default {
       this.saveFolderList = res
     },
     async getOlapAnalyzeDetails () {
-      const { olapAnalyzeAxes, name, cubeId, flags, folderId } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
+      const { olapAnalyzeAxes, name, cubeId, flags, folderId, isSummation, analyzeId } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
       this.editData = {
         olapAnalyzeAxes,
         cubeId,
@@ -128,6 +129,8 @@ export default {
         folder: folderId.toString(),
         resultName: name
       }
+      this.showSum = !!isSummation
+      this.analyzeId = analyzeId
     },
     async searchFunc (list, cubeId, headLimit = { cItems: [], rItems: [] }) {
       this.loading = true
@@ -249,11 +252,13 @@ export default {
       }
       const reqData = {
         cubeId: this.cubeId,
+        analyzeId: this.analyzeId,
         flags: 0,
         folderId: data.folderId,
-        isNew: true,
+        isNew: !this.$route.query.dataId,
         name: data.name,
-        olapAnalyzeAxes: this.reqDataList
+        olapAnalyzeAxes: this.reqDataList,
+        isSummation: this.showSum ? 1 : 0
       }
       const { analyzeId } = await saveOlapAnalyzeApi(reqData)
       if (analyzeId) {

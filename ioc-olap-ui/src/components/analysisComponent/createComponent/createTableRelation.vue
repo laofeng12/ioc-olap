@@ -10,12 +10,12 @@
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
           </el-select>
           <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
-          <el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-          <el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
@@ -40,7 +40,7 @@
             <!-- 连线部分 -->
             <div v-else>
               <!-- 删除 -->
-              <div class="remove linkRemove" data-type="remove"></div>
+              <div class="remove linkRemove" data-type="linkRemove"></div>
             </div>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      console.log(this.jointResultData, '是否重置', this.saveSelectFiled)
+      // console.log(this.jointResultData, '是否重置')
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -206,7 +206,7 @@ export default {
 
       // 鼠标点击
       paper.on('cell:pointerclick', (e, d) => {
-        console.log('点击')
+        // console.log('点击')
         d.stopPropagation()
       })
 
@@ -340,13 +340,22 @@ export default {
       let position = model.get('position')
       switch (e.target.dataset.type) {
         case 'remove': // 删除
+          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) {
+            this.$message.warning('事实表不能删除~')
+          } else {
+            this.clearElementLink(model)
+          }
+          break
+        case 'linkRemove': // 删除连线
           this.clearElementLink(model)
           break
         case 'clone': // 设置别名
+          console.log(this.jointResultData.fact_table)
           let attrs = model.get('attrs')
           let label = attrs.text.label
-          console.log('设置别名====', label)
-          this.setAlias(label).then(res => {
+          let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
+          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) return this.$message.warning('事实表暂不支持设置别名~')
+          this.setAlias(label, defaultVal).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value
               attrs.text.text = `${label}(${res.value})`
@@ -357,7 +366,8 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              console.log('设置别名后', result)
+              // console.log('设置别名后lalalalallalala', this.jointResultData)
+              this.init()
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -432,9 +442,11 @@ export default {
       return data
     },
     // 设置别名
-    setAlias (val) {
+    setAlias (val, defaultVal) {
       // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
+        inputValue: defaultVal
+      }, {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPattern: /^.{0,20}$/,
@@ -475,7 +487,7 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
-          console.log('设置别名====', item)
+          // console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -576,7 +588,6 @@ export default {
         }
         // 设置主表
         if (item.filed === 1 && !this.jointResult.fact_table) {
-          console.log(item, '主表')
           this.jointResult.fact_table = `${item.label}`
         }
 
@@ -718,13 +729,14 @@ export default {
     getModalRelationSelected (e) {
 
     },
+
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
       console.log(e)
 
       let index = e.index
-      let primary_key = e.primary_key
-      let pk_type = e.pk_type
+      let primary_key = e.name
+      let pk_type = e.dataType
       let foreign_key = this.linkModalFields[index].foreign_key
       let fk_type = this.linkModalFields[index].fk_type
 
@@ -745,13 +757,12 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      console.log(e)
-
+      console.log(e, '====')
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
-      let foreign_key = e.foreign_key
-      let fk_type = e.fk_type
+      let foreign_key = e.name
+      let fk_type = e.dataType
 
       if (index >= 0 && foreign_key && fk_type) {
         if (fk_type && pk_type && pk_type !== fk_type) {
@@ -792,7 +803,7 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      console.log(JSON.stringify(result))
+      // console.log(JSON.stringify(result))
       this.$store.commit('SaveJointResult', result)
     },
 
@@ -911,7 +922,7 @@ export default {
         } else {
           if (ele.id === target.id) {
             ele.remove()
-            console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
+            // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
             // 删除对应存储的数据
             this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
               return item.id !== ele.attributes.attrs.text.id
@@ -923,7 +934,7 @@ export default {
               }
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            console.log('去掉后的===', this.saveSelectFiled)
+            // console.log('去掉后的===', this.saveSelectFiled)
           }
         }
       }
@@ -998,6 +1009,7 @@ export default {
     },
 
     nextModel (val) {
+      // console.log(this.jointResultData.lookups)
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
@@ -1033,6 +1045,7 @@ export default {
         let items = JSON.parse(item)
         if (items.resourceId === id) {
           this.couponList = items.data.columns || []
+          console.log(this.couponList)
         }
       })
     }

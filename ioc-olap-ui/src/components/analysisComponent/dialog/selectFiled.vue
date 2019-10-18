@@ -41,20 +41,25 @@ export default {
       this.dialogFormVisible = false
     },
     dialog (data) {
-      console.log(this.saveNewSortListstructure)
+      this._deal()
       // 如果修改了表的别名 需要把之前存在的表去掉
       this.dialogFormVisible = true
       this.options = this.saveNewSortListstructure
-      // this.$store.dispatch('changeAlias', this.saveNewTitle).then(_ => {
-      //   this.dialogFormVisible = true
-      //   this.options = this.saveNewSortListstructure
-      // })
+    },
+    _deal () {
+      let allAsaia = []
+      this.jointResultData.lookups.forEach(item => { allAsaia.push(item.alias, item.joinAlias) })
+      let datas = []
+      datas = this.saveNewSortListstructure.filter((item, i) => {
+        return allAsaia.includes(item.table)
+      })
+      this.$store.dispatch('SetAliasList', datas)
     }
   },
   computed: {
     ...mapGetters({
       saveNewSortListstructure: 'saveNewSortListstructure',
-      saveNewTitle: 'saveNewTitle'
+      jointResultData: 'jointResultData'
     })
   }
 }
