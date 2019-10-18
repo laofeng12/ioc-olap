@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+
 @Component
 public class ProjectHttpClient extends KylinHttpClient {
 
@@ -45,5 +47,16 @@ public class ProjectHttpClient extends KylinHttpClient {
     public void delete(@RequestParam("prj_name") String prj_name) throws APIException {
         String url = config.address + "/kylin/api/projects/" + prj_name;
         HttpClient.delete2(url, prj_name, config.authorization, void.class);
+    }
+
+    public ProjectDescDataMapper get(String projectName) throws APIException {
+        List<ProjectDescDataMapper> list = list();
+        for(ProjectDescDataMapper mapper : list){
+            if(mapper.getName().equals(projectName)){
+                return mapper;
+            }
+        }
+
+        return null;
     }
 }
