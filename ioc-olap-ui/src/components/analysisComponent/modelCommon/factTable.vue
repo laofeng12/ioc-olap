@@ -3,11 +3,13 @@
      <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <el-button type="text" @click="changes">设置事实表</el-button>
      <ul v-if="dataList && dataList.length">
-       <li v-for="(item, index) in dataList" id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
-         <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
-         <span class="tableTitle" :class="item.filed === 1 || item.label === fact_tableName ? 'factClass' : ''">{{item.label}}</span>
-         <span class="factTitle" v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
-        </li>
+        <el-tooltip v-for="(item, index) in dataList" :key="index" effect="dark" :content="item.label" placement="right">
+          <li id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
+              <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
+              <span class="tableTitle" :class="item.filed === 1 || item.label === fact_tableName ? 'factClass' : ''">{{item.label}}</span>
+              <span class="factTitle" v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
+          </li>
+        </el-tooltip>
      </ul>
      <div v-else>暂无数据</div>
      <setfact-table ref="dialog"></setfact-table>
