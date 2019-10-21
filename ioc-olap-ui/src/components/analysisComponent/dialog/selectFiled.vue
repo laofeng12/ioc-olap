@@ -45,6 +45,7 @@ export default {
       // 如果修改了表的别名 需要把之前存在的表去掉
       this.dialogFormVisible = true
       this.options = this.saveNewSortListstructure
+      console.log('====', this.options)
     },
     _deal () {
       let allAsaia = []

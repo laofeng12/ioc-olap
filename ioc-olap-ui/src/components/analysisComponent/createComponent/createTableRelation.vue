@@ -71,12 +71,14 @@ export default {
   },
   data () {
     return {
+      defaultId: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
       filedPosition: {
         x: 0, y: 0
       },
+      TableCountNum: 0, // 记录拖入画布的表数量
       couponList: [],
       prevId: '', // 记录上一个id
       relationData: [{ label: 'left', value: '左连接' }, { label: 'inner', value: '内连接' }],
@@ -114,9 +116,7 @@ export default {
 
     }
   },
-  created () {
-  },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
@@ -173,7 +173,7 @@ export default {
       }
     },
     init () {
-      // console.log(this.jointResultData, '是否重置')
+      this.TableCountNum = 0
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -350,7 +350,6 @@ export default {
           this.clearElementLink(model)
           break
         case 'clone': // 设置别名
-          console.log(this.jointResultData.fact_table)
           let attrs = model.get('attrs')
           let label = attrs.text.label
           let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
@@ -366,7 +365,6 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              // console.log('设置别名后lalalalallalala', this.jointResultData)
               this.init()
               this.linkModal = null
               this.linkModalModel = null
@@ -443,7 +441,6 @@ export default {
     },
     // 设置别名
     setAlias (val, defaultVal) {
-      // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
         inputValue: defaultVal
       }, {
@@ -487,7 +484,6 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
-          // console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -566,6 +562,8 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      this.defaultId = item.id
+      this.TableCountNum += 1
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -757,7 +755,6 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      console.log(e, '====')
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
@@ -935,6 +932,7 @@ export default {
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
             // console.log('去掉后的===', this.saveSelectFiled)
+            this.TableCountNum -= 1
           }
         }
       }
@@ -1009,16 +1007,27 @@ export default {
     },
 
     nextModel (val) {
-      // console.log(this.jointResultData.lookups)
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
+      this.getIdToList()
+    },
+    // 判断拖入画布的表是否都关联上
+    isTableAssociate () {
+      return this.TableCountNum - this.jointResultData.lookups.length === 1
+    },
+    // 根据当前的id 去获取所有对应的字段
+    getIdToList () {
       let arrId = []
       // 存储当前连线的id
-      this.jointResult.lookups.forEach((item, index) => {
-        arrId.push(item.id, item.joinId)
-      })
-      // 根据当前的id 去获取所有对应的字段
+      if (this.jointResult.lookups.length > 0) {
+        this.jointResult.lookups.forEach((item, index) => {
+          arrId.push(item.id, item.joinId)
+        })
+      } else {
+        arrId.push(this.defaultId)
+      }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {

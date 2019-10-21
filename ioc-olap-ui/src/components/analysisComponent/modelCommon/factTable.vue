@@ -12,13 +12,14 @@
      </el-row>
      <el-button type="text" @click="changes" style="margin: 16px 0;width: 100%;color: #0486FE; background: #fff!important;border: 1px solid #0486FE;"  size="small">设置事实表</el-button>
      <ul v-if="dataList && dataList.length">
-        <el-tooltip v-for="(item, index) in dataList" :key="index" effect="dark" :content="item.label" placement="right">
-          <li id="dragbtn" :class= "current === index?'actives':''" @mousedown="dragLi(item)" :key="index" @dblclick="changeLi(item, index)">
+        <!-- <el-tooltip v-for="(item, index) in dataList" :key="index" effect="dark" :content="item.label" placement="right"> -->
+          <!-- <li id="dragbtn" v-for="(item, index) in dataList" :key="index" :class= "current === index?'actives':''" @mousedown="dragLi(item)" @dblclick="changeLi(item, index)"> -->
+          <li id="dragbtn" v-for="(item, index) in dataList" :key="index" :class= "current === index?'actives':''" @mousedown="dragLi(item)">
               <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
               <span class="tableTitle" :class="item.filed === 1 || item.label === fact_tableName ? 'factClass' : ''">{{item.label}}</span>
               <span class="factTitle" v-if="item.filed === 1 || item.label === fact_tableName">事实表</span>
           </li>
-        </el-tooltip>
+        <!-- </el-tooltip> -->
      </ul>
      <div v-else>暂无数据</div>
      <setfact-table ref="dialog"></setfact-table>
