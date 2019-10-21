@@ -286,7 +286,8 @@ export default {
           { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
         )
       })
-      this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      // this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      this.fieldtextOption = [{ label: '1' }, { label: '2' }]
       // console.log(this.fieldtextOption)
     },
     closeBtn () {
