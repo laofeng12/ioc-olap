@@ -77,6 +77,7 @@ export default {
       filedPosition: {
         x: 0, y: 0
       },
+      TableCountNum: 0, // 记录拖入画布的表数量
       couponList: [],
       prevId: '', // 记录上一个id
       relationData: [{ label: 'left', value: '左连接' }, { label: 'inner', value: '内连接' }],
@@ -114,9 +115,7 @@ export default {
 
     }
   },
-  created () {
-  },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
@@ -173,7 +172,7 @@ export default {
       }
     },
     init () {
-      // console.log(this.jointResultData, '是否重置')
+      this.TableCountNum = 0
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
       let list = this.jointResult.lookups || []
@@ -566,6 +565,7 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      this.TableCountNum += 1
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -920,6 +920,7 @@ export default {
             })
           }
         } else {
+          console.log(this.TableCountNum)
           if (ele.id === target.id) {
             ele.remove()
             // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
@@ -935,6 +936,7 @@ export default {
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
             // console.log('去掉后的===', this.saveSelectFiled)
+            this.TableCountNum -= 1
           }
         }
       }
@@ -1009,16 +1011,23 @@ export default {
     },
 
     nextModel (val) {
-      // console.log(this.jointResultData.lookups)
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
+      this.getIdToList()
+    },
+    // 判断拖入画布的表是否都关联上
+    isTableAssociate () {
+      return this.TableCountNum - this.jointResultData.lookups.length === 1
+    },
+    // 根据当前的id 去获取所有对应的字段
+    getIdToList () {
       let arrId = []
       // 存储当前连线的id
       this.jointResult.lookups.forEach((item, index) => {
         arrId.push(item.id, item.joinId)
       })
-      // 根据当前的id 去获取所有对应的字段
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {

@@ -152,6 +152,7 @@ export default {
         },
         answers: [],
         type: '6',
+        id: '',
         checkedAll: false
       },
       titles: '',
@@ -286,7 +287,7 @@ export default {
         )
       })
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
-      console.log(this.fieldtextOption)
+      // console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -315,25 +316,34 @@ export default {
     },
     // 获取已经保存的数据的name（避免重复）
     getSavemeasureTableList (val) {
-      console.log(this.measureTableList, '保存过的')
-      let Result = []
-      this.measureTableList.map(res => {
-        Result.push(res.name)
-      })
-      return Result.includes(val)
+      if (this.isNew === 0) {
+        let Result = []
+        this.measureTableList.map(res => {
+          Result.push(res.name)
+        })
+        return Result.includes(val)
+      }
     },
-    submitBtn (index) {
+    submitBtn () {
       this.$refs.formData.validate((valid) => {
         if (valid) {
           if (this.getSavemeasureTableList(this.formData.name)) return this.$message.warning('该度量名称已存在~')
-          console.log(this.getSavemeasureTableList(this.formData.name))
+          // console.log(this.getSavemeasureTableList(this.formData.name))
           this.dialogFormVisible = false
           // 创建随机唯一标识id
-          let id = Math.random().toString(36).substr(3)
-          this.formData['id'] = id
-          this.formData['isNew'] = this.isNew
-          this.formData['showDim'] = true
-          this.formData['checkedAll'] = this.formData.checkedAll
+          if (!this.formData.id) {
+            let id = Math.random().toString(36).substr(3)
+            this.formData['id'] = id
+          }
+          Object.assign(this.formData, {
+            isNew: this.isNew,
+            showDim: true,
+            checkedAll: this.formData.checkedAll
+          })
+          // this.formData['id'] = id
+          // this.formData['isNew'] = this.isNew
+          // this.formData['showDim'] = true
+          // this.formData['checkedAll'] = this.formData.checkedAll
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('设置成功~')

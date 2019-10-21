@@ -156,7 +156,6 @@ export default {
           })
         })
       })
-      console.log('来了', this.jointResultData)
       // 初始化已处理过的选择维度
       this.saveNewSortListstructure.forEach((res, i) => {
         this.saveNewSortListstructure.splice(i)

@@ -17,6 +17,7 @@ const setMeasure = {
     // 新增的table表
     MeasureTableList ({ state, dispatch }, data) {
       return new Promise((resolve, reject) => {
+        console.log('来啦', data)
         if (data.isNew === 0) {
           state.measureTableList.push(data)
           resolve('ok')

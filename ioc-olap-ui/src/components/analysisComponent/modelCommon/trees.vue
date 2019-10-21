@@ -71,9 +71,9 @@ export default {
       //     this.$root.eventBus.$emit('getserchTableList', serchTableList, 1)
       //   }, 500)
       // }
-      // if (this.$route.query.cubeName) {
-      //   setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
-      // }
+      if (this.$route.query.cubeName) {
+        setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
+      }
     },
     fetchTreeList (val) {
       this.treeLoading = true
