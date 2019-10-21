@@ -118,11 +118,7 @@
           </template>
         </el-form-item>
         <div class="listSet hetCompose">
-<<<<<<< HEAD
           <div class="listSet-title"><span>高级列组合</span></div>
-=======
-          <span class="contain__box">高级列组合</span>
->>>>>>> 40-完善olap建表逻辑
           <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
             <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
