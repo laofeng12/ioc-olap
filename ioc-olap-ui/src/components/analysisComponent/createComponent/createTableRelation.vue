@@ -71,6 +71,7 @@ export default {
   },
   data () {
     return {
+      defaultId: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
@@ -349,7 +350,6 @@ export default {
           this.clearElementLink(model)
           break
         case 'clone': // 设置别名
-          console.log(this.jointResultData.fact_table)
           let attrs = model.get('attrs')
           let label = attrs.text.label
           let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
@@ -365,7 +365,6 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              // console.log('设置别名后lalalalallalala', this.jointResultData)
               this.init()
               this.linkModal = null
               this.linkModalModel = null
@@ -442,7 +441,6 @@ export default {
     },
     // 设置别名
     setAlias (val, defaultVal) {
-      // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
         inputValue: defaultVal
       }, {
@@ -486,7 +484,6 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
-          // console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -565,6 +562,7 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      this.defaultId = item.id
       this.TableCountNum += 1
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
@@ -757,7 +755,6 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      console.log(e, '====')
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
@@ -920,7 +917,6 @@ export default {
             })
           }
         } else {
-          console.log(this.TableCountNum)
           if (ele.id === target.id) {
             ele.remove()
             // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
@@ -1025,9 +1021,13 @@ export default {
     getIdToList () {
       let arrId = []
       // 存储当前连线的id
-      this.jointResult.lookups.forEach((item, index) => {
-        arrId.push(item.id, item.joinId)
-      })
+      if (this.jointResult.lookups.length > 0) {
+        this.jointResult.lookups.forEach((item, index) => {
+          arrId.push(item.id, item.joinId)
+        })
+      } else {
+        arrId.push(this.defaultId)
+      }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {

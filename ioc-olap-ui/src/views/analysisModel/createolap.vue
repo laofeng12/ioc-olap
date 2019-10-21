@@ -8,11 +8,11 @@
     </header>
     <head-box :selectId="selectStep"></head-box>
     <div v-loading="isLoading">
-      <transition name="fade-transform" mode="out-in">
+      <!-- <transition name="fade-transform" mode="out-in"> -->
         <keep-alive>
           <router-view></router-view>
-        </keep-alive>2
-      </transition>
+        </keep-alive>
+      <!-- </transition> -->
     </div>
   </div>
 </template>
