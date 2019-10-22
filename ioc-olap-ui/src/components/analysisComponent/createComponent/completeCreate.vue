@@ -1,12 +1,19 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="formData" v-loading="completeLoading">
+    <el-form :model="totalSaveData" v-loading="completeLoading" :rules="rules">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
        <el-form-item label="维度字段">{{saveSelectFiled.length}}</el-form-item>
        <el-form-item label="度量字段">{{measureTableList.length}}</el-form-item>
        <el-form-item label="构建引擎">{{engine_types === '2' ? 'MapReduce' : 'Spark'}}</el-form-item>
+       <el-form-item label="模型名称" prop="cube.cubeDescData.name" class="labelName">
+         <template slot-scope="scope">
+           <div>
+             <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+           </div>
+         </template>
+       </el-form-item>
        <el-form-item label="描述信息" prop="description">
          <template slot-scope="scope">
            <div>
@@ -38,6 +45,11 @@ export default {
         measureFiledLength: '',
         engine: ''
         // description: '123123'
+      },
+      rules: {
+        'cube.cubeDescData.name': [
+          { required: true, message: '请输入模型名称', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -156,6 +168,7 @@ export default {
   computed: {
     ...mapGetters({
       totalSaveData: 'totalSaveData',
+      ModelAllList: 'ModelAllList',
       saveSelectFiled: 'saveSelectFiled', // 已选的维度
       selectTableTotal: 'selectTableTotal',
       mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
@@ -188,6 +201,15 @@ export default {
     border-bottom 1px solid #cccccc
     >>>.el-form-item__label{
       font-size 16px
+    }
+  }
+  .labelName{
+    >>>.el-input{
+      width 300px
+      height 35px!important
+    }
+    >>>.el-form-item__error{
+      margin-left 100px
     }
   }
   >>>.el-form-item{

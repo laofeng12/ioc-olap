@@ -171,7 +171,7 @@ const setFiled = {
       dispatch('SaveFiledData')
     },
     // 整合正常模式或者衍生模式的数据
-    filterFiledTable ({ state, getters }) {
+    filterFiledTable ({ state, getters, dispatch }) {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
       // 筛选对应的foreign_key名
       let datas = []
@@ -215,7 +215,20 @@ const setFiled = {
         })
       })
       state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      dispatch('setAdvanceData', state.reloadNeedData)
       // console.log('生成的rowkey数据', state.reloadNeedData)
+    },
+    // 赋值给高级设置中默认显示的包含维度
+    setAdvanceData ({ state, getters, dispatch }, data) {
+      let val = []
+      let idval = []
+      data.map(res => {
+        val.push(res.value)
+        idval.push(res.id)
+      })
+      getters.aggregation_groups[0].includes = val
+      getters.selectDataidList[0].includesId = idval
+      dispatch('SaveselectIncludesData', val)
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
