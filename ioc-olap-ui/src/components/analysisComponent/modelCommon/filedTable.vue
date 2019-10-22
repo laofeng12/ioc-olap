@@ -99,6 +99,7 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
+      console.log('来啦~~~~')
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,

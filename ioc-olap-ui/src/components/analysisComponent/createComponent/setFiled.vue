@@ -85,7 +85,7 @@ export default {
        * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
        */
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        // this.loading = true
+        console.log('来啦~~~~')
         /**
          * 获取第一步保存的选择的表对应的所有字段
          * 遍历所有字段
@@ -346,10 +346,7 @@ export default {
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'
-    }),
-    strings (val) {
-      return String(val)
-    }
+    })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')

@@ -72,6 +72,7 @@ export default {
   data () {
     return {
       defaultId: '',
+      defaultIdAsiad: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
@@ -562,7 +563,12 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
-      this.defaultId = item.id
+      if (item.filed === 1) {
+        this.defaultId = item.id
+        this.defaultIdAsiad = item.id
+      } else {
+        this.defaultId = ''
+      }
       this.TableCountNum += 1
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
@@ -796,7 +802,6 @@ export default {
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
-        // this.linkModalModel.attributes.attrs({ position: 0.5, line: { stroke: '#0486FE', 'stroke-width': 2 } })
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
@@ -931,7 +936,6 @@ export default {
               }
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            // console.log('去掉后的===', this.saveSelectFiled)
             this.TableCountNum -= 1
           }
         }
@@ -1007,10 +1011,10 @@ export default {
     },
 
     nextModel (val) {
-      if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
-      this.$router.push('/analysisModel/createolap/setFiled')
-      this.$parent.getStepCountAdd(val)
+      // this.$router.push('/analysisModel/createolap/setFiled')
+      // this.$parent.getStepCountAdd(val)
       this.getIdToList()
     },
     // 判断拖入画布的表是否都关联上
@@ -1021,12 +1025,13 @@ export default {
     getIdToList () {
       let arrId = []
       // 存储当前连线的id
+      let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
       if (this.jointResult.lookups.length > 0) {
         this.jointResult.lookups.forEach((item, index) => {
           arrId.push(item.id, item.joinId)
         })
       } else {
-        arrId.push(this.defaultId)
+        arrId.push(ids)
       }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
