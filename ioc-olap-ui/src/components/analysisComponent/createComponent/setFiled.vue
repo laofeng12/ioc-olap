@@ -85,7 +85,7 @@ export default {
        * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
        */
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        console.log('来啦~~~~')
+        // console.log('来啦~~~~', this.saveSelectAllListFiled)
         /**
          * 获取第一步保存的选择的表对应的所有字段
          * 遍历所有字段
@@ -93,32 +93,36 @@ export default {
          */
         // 判断是否为一张事实表
         if (!data.id) {
-          this.saveSelectAllListFiled.forEach((item, index) => {
-            let items = JSON.parse(item)
-            items.data.columns && items.data.columns.map((n, i) => {
-              n.mode = n.mode ? n.mode : '2'
-              n.derived = n.name
-              n.titName = n.name
-              n.tableName = data.alias ? data.alias : ''
-              n.id = `${data.alias}.${n.name}`
-              n.filed = data.alias === code ? '1' : '0'
-            })
-            // 获取对应的字段赋值到列表
-            this.tableData = items.data.columns
-            let arr = []
-            setTimeout(() => {
-              this.tableData && this.tableData.forEach((item, i) => {
-                this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                  if (val.id === item.id) {
-                    this.tableData[i].name = String(val.name)
-                    this.tableData[i].mode = String(val.mode)
-                    arr.push(item)
-                  }
-                })
+          this.loading = true
+          setTimeout(() => {
+            this.saveSelectAllListFiled.forEach((item, index) => {
+              let items = JSON.parse(item)
+              items.data.columns && items.data.columns.map((n, i) => {
+                n.mode = n.mode ? n.mode : '2'
+                n.derived = n.name
+                n.titName = n.name
+                n.tableName = data.alias ? data.alias : ''
+                n.id = `${data.alias}.${n.name}`
+                n.filed = data.alias === code ? '1' : '0'
               })
-              this.toggleSelection(arr)
-            }, 500)
-          })
+              // 获取对应的字段赋值到列表
+              this.tableData = items.data.columns
+              let arr = []
+              setTimeout(() => {
+                this.tableData && this.tableData.forEach((item, i) => {
+                  this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                    if (val.id === item.id) {
+                      this.tableData[i].name = String(val.name)
+                      this.tableData[i].mode = String(val.mode)
+                      arr.push(item)
+                    }
+                  })
+                })
+                this.toggleSelection(arr)
+              }, 500)
+            })
+            this.loading = false
+          }, 1000)
         } else {
           this.saveSelectAllListFiled.forEach((item, index) => {
             let items = JSON.parse(item)
@@ -350,6 +354,7 @@ export default {
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')
+    this.$root.eventBus.$off('filedTable')
   }
 }
 </script>

@@ -1013,8 +1013,8 @@ export default {
     nextModel (val) {
       // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
       if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
-      // this.$router.push('/analysisModel/createolap/setFiled')
-      // this.$parent.getStepCountAdd(val)
+      this.$router.push('/analysisModel/createolap/setFiled')
+      this.$parent.getStepCountAdd(val)
       this.getIdToList()
     },
     // 判断拖入画布的表是否都关联上

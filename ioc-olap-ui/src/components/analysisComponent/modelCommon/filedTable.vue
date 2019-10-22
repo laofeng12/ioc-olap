@@ -99,7 +99,7 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      console.log('来啦~~~~')
+      console.log('执行~~~num')
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,
@@ -166,8 +166,9 @@ export default {
       // })
     }
   },
-  beforeDestroy () {
-    this.$root.eventBus.$off('filedTable')
+  beforeDestroy (item, val) {
+    // this.$root.eventBus.$off('filedTable')
+    // this.$root.eventBus.$emit('filedTable', item, val)
   },
   computed: {
     ...mapGetters({
