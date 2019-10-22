@@ -134,6 +134,7 @@ export default {
         arr.push(item)
         // }
       })
+      console.log('啦啦啦啦', arr)
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
@@ -177,6 +178,7 @@ export default {
       this.TableCountNum = 0
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      console.log('李帆', this.jointResultData)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -366,7 +368,7 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              this.init()
+              // this.init()
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -570,6 +572,7 @@ export default {
         this.defaultId = ''
       }
       this.TableCountNum += 1
+      // console.log('来了', this.TableCountNum)
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -1019,7 +1022,8 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      return this.TableCountNum - this.jointResultData.lookups.length === 1
+      console.log(this.TableCountNum, '===', this.jointResultData.lookups.length)
+      return this.TableCountNum - this.jointResultData.lookups.length < 2
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {

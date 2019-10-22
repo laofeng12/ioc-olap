@@ -38,6 +38,11 @@ export default {
       dataList: {}
     }
   },
+  watch: {
+    '$route' () {
+      // this.init()
+    }
+  },
   mounted () {
     this.init()
   },
@@ -49,6 +54,7 @@ export default {
        *
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
+      console.log('get====', this.dataList)
       this.titleData = []
       this.dataList.lookups.map((item, index) => {
         // 存储所有的事实表名
@@ -99,7 +105,6 @@ export default {
       this.$refs.dialog.dialog()
     },
     changeLi (item, index) {
-      console.log('执行~~~num')
       this.current = index
       // const parmas = {
       //   dsDataSourceId: 2,
