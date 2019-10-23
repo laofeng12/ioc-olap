@@ -4,6 +4,7 @@ import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from './utils/auth'
 import store from '@/store'
 import { getSessionStorage } from '@/utils'
+import Cookies from 'js-cookie'
 
 NProgress.configure({ showSpinner: false })// NProgress configuration
 
@@ -32,7 +33,29 @@ router.beforeEach((to, from, next) => {
       next({ path: '/home' })
       NProgress.done() // if current page is dashboard will not trigger afterEach hook, so manually handle it
     } else {
-      next()
+      // 重置store 的信息
+      // let data = { token: access_token, userInfo: userInfo }
+      // store.dispatch('SetToken', data)
+      // next()
+
+      // 测试修改跳转
+      const routerBase = router.options.base
+      const toPath = to.fullPath
+      const rootPath = toPath.substring(0, toPath.replace('/', '-').indexOf('/') + 1)
+      if (rootPath === routerBase) {
+        next(toPath.replace(routerBase, '/'))
+      } else if (to.matched.length === 0) {
+        if (Cookies.get(rootPath)) {
+          Cookies.remove(rootPath)
+          next('/404')
+        } else {
+          Cookies.set(rootPath, 1)
+          window.location.replace(toPath)
+        }
+      } else {
+        Cookies.remove(routerBase)
+        next()
+      }
     }
   } else {
     if (whiteList.indexOf(to.path) !== -1) {
