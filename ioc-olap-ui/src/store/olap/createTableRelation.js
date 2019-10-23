@@ -38,16 +38,16 @@ const creatTableRelation = {
   mutations: {
     SaveJointResult (state, payload) {
       state.jointResultData = payload
-      payload.lookups.map(res => {
-        if (res.join.foreign_key.length > 1) {
-          res.join.foreign_key.forEach(item => {
-            state.foreignKeyData = state.foreignKeyData.concat(item)
-          })
-        } else {
-          state.foreignKeyData.push(res.join.foreign_key.join(','))
-        }
-      })
-      state.foreignKeyData = [...new Set(state.foreignKeyData)]
+      // payload.lookups.map(res => {
+      //   if (res.join.foreign_key.length > 1) {
+      //     res.join.foreign_key.forEach(item => {
+      //       state.foreignKeyData = state.foreignKeyData.concat(item)
+      //     })
+      //   } else {
+      //     state.foreignKeyData.push(res.join.foreign_key.join(','))
+      //   }
+      // })
+      // state.foreignKeyData = [...new Set(state.foreignKeyData)]
     },
     RESET_CREATE_TABLETIONS (state, payload) {
       state.jointResultData = payload
@@ -65,7 +65,6 @@ const creatTableRelation = {
     },
     resetCreateTabletions ({ state, getters }) {
       state.jointResultData.lookups = []
-      // state.jointResultData.fact_table = ''
       state.foreignKeyData = []
       // 清除第三步已经默认勾选的维度
       getters.saveSelectFiled.forEach((res, i) => {

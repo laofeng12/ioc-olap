@@ -349,7 +349,6 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       dimensions: 'dimensions',
       reloadNeedData: 'reloadNeedData',
-      foreignKeyData: 'foreignKeyData',
       saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
