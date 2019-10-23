@@ -106,7 +106,7 @@ export default {
       table {
         font-size: 14px;
         color: #606266;
-        border: 1px solid #e0ebf7;
+        border: 1px solid #D9D9D9;
         border-collapse: collapse;
         table-layout: fixed;
         word-break: break-all;
