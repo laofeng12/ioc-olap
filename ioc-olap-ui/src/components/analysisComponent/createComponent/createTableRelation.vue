@@ -11,11 +11,11 @@
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
           <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
           </el-select>
           <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
           <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
@@ -134,7 +134,6 @@ export default {
         arr.push(item)
         // }
       })
-      console.log('啦啦啦啦', arr)
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
@@ -178,7 +177,7 @@ export default {
       this.TableCountNum = 0
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      console.log('李帆', this.jointResultData)
+      // console.log('李帆', this.jointResultData)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -297,6 +296,7 @@ export default {
                   fill: '#0486FE', // 箭头颜色
                   d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
                 },
+                image: { 'xlink:href': this.url },
                 text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px', 'z-index': '-1' } } }])
           }
         }
@@ -387,6 +387,7 @@ export default {
                 fill: '#D8D8D8', // 箭头颜色
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
+              image: { 'xlink:href': this.url },
               line: {
                 stroke: '#D8D8D8', // SVG attribute and value
                 'stroke-width': 2// 连线粗细
@@ -613,7 +614,7 @@ export default {
           ports: { // 定义连接点
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { image: { 'xlink:href': 'images/' + this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
+          attrs: { image: { 'xlink:href': this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
         // newRect.addPort(this.port)
         this.graph.addCell(newRect)
@@ -627,7 +628,7 @@ export default {
       var cell = new joint.shapes.org.Member({
         attrs: {
           image: {
-            'xlink:href': 'images/' + this.url,
+            'xlink:href': this.url,
             opacity: 0.7
           }
         }
@@ -683,6 +684,7 @@ export default {
             fill: '#0486FE', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
           },
+          image: { 'xlink:href': 'images/' + this.url },
           line: {
             stroke: '#0486FE', // SVG attribute and value
             'stroke-width': 2// 连线粗细
@@ -803,7 +805,7 @@ export default {
       this.linkModal.join.fk_type = fk_type
       // 判断是否选中了关联对应的字段 (改变对应的文字以及样式)
       if (primary_key.length > 0 && this.linkModalModel.labels) {
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
+        this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
       }
       this.linkModalModel.attr('data', this.linkModal)
