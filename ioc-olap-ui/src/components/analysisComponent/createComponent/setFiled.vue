@@ -16,13 +16,11 @@
               class="statusDiv"
               @select="selectcheck"
               @select-all="selectAllCheck"
-              :header-cell-class-name="tableHead"
-              stripe
-              style="padding: 30px 16px 0px 16px !important;">
-              <el-table-column type="selection" label="全选" width="100px"></el-table-column>
-              <el-table-column prop="titName" label="字段名称" width="330px"> </el-table-column>
-              <el-table-column prop="dataType" label="字段类型" width="175px"> </el-table-column>
-              <el-table-column prop="name" label="显示名称" width="300px">
+              style="margin-top: 10px;">
+              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
+              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
+              <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
+              <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
                     <el-input type="text" v-model="scope.row.name" @change="iptChange(scope.row)"></el-input>
@@ -30,7 +28,8 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="维度组合名称">
+                label="维度组合名称"
+                align="center">
                 <template slot-scope="scope">
                   <div class="play">
                     <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="scope.row.filed === '1' ? true : false">
@@ -339,9 +338,6 @@ export default {
     // 单选框触发
     radioChange (val) {
       this.$store.dispatch('changePushSelectFiled', val)
-    },
-    tableHead (row, column, rowIndex, columnIndex) {
-      return 'tableHead'
     }
   },
   computed: {
@@ -364,15 +360,16 @@ export default {
 
 <style lang="stylus" scoped>
 .setFiled{
+  padding-bottom 60px
   .containers{
     // height calc(100vh - 150px)
-    padding 16px 5px 76px 5px
+    padding 20px 5px
     .dimension{
       background #ffffff
-      margin-left:256px;
+      margin-left:245px;
       padding-top:10px;
       p{
-        margin-left:16px;
+        margin-left:10px;
         span:nth-child(1){
           font-family: PingFangSC-Medium;
           font-size: 16px;
@@ -386,7 +383,7 @@ export default {
           letter-spacing: 0;
           text-align: center;
           line-height: 14px;
-          margin-left:16px;
+          margin-left:15px;
           cursor pointer
         }
       }
@@ -395,22 +392,15 @@ export default {
     content: ''!important
     height 0!important
     }
-    >>>.el-checkbox .el-checkbox__inner{
-      width 16px
-      height 16px
-    }
     >>>.el-table__body-wrapper{
       height calc(100vh - 150px)
       padding-bottom 100px
       overflow auto
     }
     >>>.el-form-item{
-      width 210px
       margin-bottom 0
       .el-input__inner{
-        height 32px !important
-        border: 1px solid #D9D9D9;
-        background: #FFFFFF !important;
+        height 35px
       }
     }
     >>>.el-radio-group{
@@ -418,19 +408,9 @@ export default {
         margin-right 18px
       }
     }
-    >>>.el-radio .el-radio__inner{
-      background  #FFFFFF
-      border: 1px solid #D9D9D9 !important
-      width 16px
-      height 16px
-    }
-    >>>.el-radio .el-radio__label{
-      color #5A5A5A !important
-    }
     >>>.el-table__body td{
       border none!important
-      padding 10px 0!important
-      font-size 14px
+      padding 5px 0!important
     }
     >>>.el-table__body tr:nth-child(even){
       background #F5F7FA
@@ -441,9 +421,6 @@ export default {
       color #ffffff
       font-family: PingFangSC-Regular;
       font-size: 14px;
-    }
-    >>>.el-table__header .el-table-column--selection .cell .el-checkbox:after {
-      content: " 全选";
     }
     >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
       content: ''
