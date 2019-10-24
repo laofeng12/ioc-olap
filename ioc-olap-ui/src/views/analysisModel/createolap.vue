@@ -3,16 +3,16 @@
     <header>
       <el-form>
         <el-button icon="el-icon-arrow-left" @click='tobackList'></el-button>
-        <el-input v-model="totalSaveData.cube.cubeDescData.name" :disabled="!Array.isArray(ModelAllList)" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input>
+        <!-- <el-input v-model="totalSaveData.cube.cubeDescData.name" :disabled="!Array.isArray(ModelAllList)" @blur="blurIpt" maxlength="20" placeholder="请输入模型名称(1~20字)"></el-input> -->
       </el-form>
     </header>
     <head-box :selectId="selectStep"></head-box>
     <div v-loading="isLoading">
-      <transition name="fade-transform" mode="out-in">
+      <!-- <transition name="fade-transform" mode="out-in"> -->
         <keep-alive>
           <router-view></router-view>
-        </keep-alive>2
-      </transition>
+        </keep-alive>
+      <!-- </transition> -->
     </div>
   </div>
 </template>

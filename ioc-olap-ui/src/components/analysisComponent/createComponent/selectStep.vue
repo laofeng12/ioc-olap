@@ -39,7 +39,13 @@ export default {
   mounted () {
     this.init()
   },
+  created () {
+    window.addEventListener('beforeunloadFn', e => this.beforeunloadFn(e))
+  },
   methods: {
+    beforeunloadFn (e) {
+      alert('刷新了')
+    },
     init () {
       let totalData = this.selectTableTotal.length ? this.selectTableTotal : JSON.parse(getLocalStorage('selectTableTotal'))
       totalData && totalData.map(res => {

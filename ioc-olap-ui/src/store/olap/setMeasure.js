@@ -39,10 +39,12 @@ const setMeasure = {
     },
     // 将新增的表添加到高级设置中的高级列组合中
     GivehbaseMapping ({ state, getters }, data) {
+      let resultData = []
       // 添加对应的id
       getters.savehetComposeDataId[0].push(data.name)
-      getters.hbase_mapping.column_family[0].columns[0].measure_refs.push(data.name)
       getters.hbase_mapping.column_family[0].columns[0].measure_refs = [...new Set(getters.hbase_mapping.column_family[0].columns[0].measure_refs)]
+      state.measureTableList.map(res => { resultData.push(res.name) })
+      getters.hbase_mapping.column_family[0].columns[0].measure_refs = resultData
     }
   }
 }

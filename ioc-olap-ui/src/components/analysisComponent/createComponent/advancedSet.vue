@@ -190,9 +190,14 @@ export default {
       }
     }
   },
+  watch: {
+    '$route' () {
+      this.init()
+    }
+  },
   mounted () {
-    this.resortAggregation()
     this.init()
+    this.resortAggregation()
   },
   methods: {
     init () {

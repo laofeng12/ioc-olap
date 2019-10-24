@@ -11,11 +11,11 @@
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
           <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
           </el-select>
           <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
           <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
           </el-select>
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
@@ -71,12 +71,15 @@ export default {
   },
   data () {
     return {
+      defaultId: '',
+      defaultIdAsiad: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
       isDragRect: false,
       filedPosition: {
         x: 0, y: 0
       },
+      TableCountNum: 0, // 记录拖入画布的表数量
       couponList: [],
       prevId: '', // 记录上一个id
       relationData: [{ label: 'left', value: '左连接' }, { label: 'inner', value: '内连接' }],
@@ -114,9 +117,7 @@ export default {
 
     }
   },
-  created () {
-  },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
@@ -173,9 +174,10 @@ export default {
       }
     },
     init () {
-      // console.log(this.jointResultData, '是否重置')
+      this.TableCountNum = 0
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      // console.log('李帆', this.jointResultData)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -294,6 +296,7 @@ export default {
                   fill: '#0486FE', // 箭头颜色
                   d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
                 },
+                image: { 'xlink:href': this.url },
                 text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px', 'z-index': '-1' } } }])
           }
         }
@@ -350,7 +353,6 @@ export default {
           this.clearElementLink(model)
           break
         case 'clone': // 设置别名
-          console.log(this.jointResultData.fact_table)
           let attrs = model.get('attrs')
           let label = attrs.text.label
           let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
@@ -366,8 +368,7 @@ export default {
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
-              // console.log('设置别名后lalalalallalala', this.jointResultData)
-              this.init()
+              // this.init()
               this.linkModal = null
               this.linkModalModel = null
             }
@@ -386,6 +387,7 @@ export default {
                 fill: '#D8D8D8', // 箭头颜色
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
+              image: { 'xlink:href': this.url },
               line: {
                 stroke: '#D8D8D8', // SVG attribute and value
                 'stroke-width': 2// 连线粗细
@@ -443,7 +445,6 @@ export default {
     },
     // 设置别名
     setAlias (val, defaultVal) {
-      // console.log(model.attributes.attrs.text.text)
       return this.$prompt(`（${val}）设置别名：`, {
         inputValue: defaultVal
       }, {
@@ -487,7 +488,6 @@ export default {
 
         if (this.checkCellsExist(item)) {
           this.isDragRect = false
-          // console.log('设置别名====', item)
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
               item.alias = res.value
@@ -566,6 +566,14 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      if (item.filed === 1) {
+        this.defaultId = item.id
+        this.defaultIdAsiad = item.id
+      } else {
+        this.defaultId = ''
+      }
+      this.TableCountNum += 1
+      // console.log('来了', this.TableCountNum)
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -606,7 +614,7 @@ export default {
           ports: { // 定义连接点
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { image: { 'xlink:href': 'images/' + this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
+          attrs: { image: { 'xlink:href': this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
         // newRect.addPort(this.port)
         this.graph.addCell(newRect)
@@ -620,7 +628,7 @@ export default {
       var cell = new joint.shapes.org.Member({
         attrs: {
           image: {
-            'xlink:href': 'images/' + this.url,
+            'xlink:href': this.url,
             opacity: 0.7
           }
         }
@@ -676,6 +684,7 @@ export default {
             fill: '#0486FE', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
           },
+          image: { 'xlink:href': 'images/' + this.url },
           line: {
             stroke: '#0486FE', // SVG attribute and value
             'stroke-width': 2// 连线粗细
@@ -757,7 +766,6 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      console.log(e, '====')
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
@@ -797,9 +805,8 @@ export default {
       this.linkModal.join.fk_type = fk_type
       // 判断是否选中了关联对应的字段 (改变对应的文字以及样式)
       if (primary_key.length > 0 && this.linkModalModel.labels) {
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
+        this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
-        // this.linkModalModel.attributes.attrs({ position: 0.5, line: { stroke: '#0486FE', 'stroke-width': 2 } })
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
@@ -934,7 +941,7 @@ export default {
               }
             })
             this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            // console.log('去掉后的===', this.saveSelectFiled)
+            this.TableCountNum -= 1
           }
         }
       }
@@ -1009,16 +1016,29 @@ export default {
     },
 
     nextModel (val) {
-      // console.log(this.jointResultData.lookups)
-      if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+      if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
+      this.getIdToList()
+    },
+    // 判断拖入画布的表是否都关联上
+    isTableAssociate () {
+      console.log(this.TableCountNum, '===', this.jointResultData.lookups.length)
+      return this.TableCountNum - this.jointResultData.lookups.length < 2
+    },
+    // 根据当前的id 去获取所有对应的字段
+    getIdToList () {
       let arrId = []
       // 存储当前连线的id
-      this.jointResult.lookups.forEach((item, index) => {
-        arrId.push(item.id, item.joinId)
-      })
-      // 根据当前的id 去获取所有对应的字段
+      let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
+      if (this.jointResult.lookups.length > 0) {
+        this.jointResult.lookups.forEach((item, index) => {
+          arrId.push(item.id, item.joinId)
+        })
+      } else {
+        arrId.push(ids)
+      }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {

@@ -86,51 +86,84 @@ export default {
        * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
        */
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        // this.loading = true
+        // console.log('来啦~~~~', this.saveSelectAllListFiled)
         /**
          * 获取第一步保存的选择的表对应的所有字段
          * 遍历所有字段
          * 根据从左侧菜单带过来的${data.id}来进行匹配${item.resourceId} 获取对应的所有字段
          */
-        // 这个需要判断是否是第一次进入。。 如果是第一次进入的话就需要调用已勾选的方法。。 不然就不需要调用此方法
-        // if (this.tableData.length < 1) this.processData(code, data.alias)
-        this.saveSelectAllListFiled.forEach((item, index) => {
-          let items = JSON.parse(item)
-          if (items.resourceId === data.id) {
-            items.data.columns && items.data.columns.map((n, i) => {
-              n.mode = n.mode ? n.mode : '2'
-              n.derived = n.name
-              n.titName = n.name
-              n.tableName = data.alias ? data.alias : ''
-              // n.id = `${data.alias}${i}`
-              n.id = `${data.alias}.${n.name}`
-              n.filed = data.alias === code ? '1' : '0'
-            })
-            // 获取对应的字段赋值到列表
-            this.tableData = items.data.columns
-            // 调用获取默认勾选的方法
-            this.processData(code, data.alias)
-            let arr = []
-            setTimeout(() => {
-              /**
-               * 遍历获取tableData列表
-               * 遍历 ${saveSelectFiled} 已经勾选的字段
-               * 匹配两者相同的id对应的数据放到${arr}
-               * 执行toggleSelection 存放匹配到的数据
-               */
-              this.tableData && this.tableData.forEach((item, i) => {
-                this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                  if (val.id === item.id) {
-                    this.tableData[i].name = String(val.name)
-                    this.tableData[i].mode = String(val.mode)
-                    arr.push(item)
-                  }
-                })
+        // 判断是否为一张事实表
+        if (!data.id) {
+          this.loading = true
+          setTimeout(() => {
+            this.saveSelectAllListFiled.forEach((item, index) => {
+              let items = JSON.parse(item)
+              items.data.columns && items.data.columns.map((n, i) => {
+                n.mode = n.mode ? n.mode : '2'
+                n.derived = n.name
+                n.titName = n.name
+                n.tableName = data.alias ? data.alias : ''
+                n.id = `${data.alias}.${n.name}`
+                n.filed = data.alias === code ? '1' : '0'
               })
-              this.toggleSelection(arr)
-            }, 500)
-          }
-        })
+              // 获取对应的字段赋值到列表
+              this.tableData = items.data.columns
+              let arr = []
+              setTimeout(() => {
+                this.tableData && this.tableData.forEach((item, i) => {
+                  this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                    if (val.id === item.id) {
+                      this.tableData[i].name = String(val.name)
+                      this.tableData[i].mode = String(val.mode)
+                      arr.push(item)
+                    }
+                  })
+                })
+                this.toggleSelection(arr)
+              }, 500)
+            })
+            this.loading = false
+          }, 1000)
+        } else {
+          this.saveSelectAllListFiled.forEach((item, index) => {
+            let items = JSON.parse(item)
+            if (items.resourceId === data.id) { // 根据id获取对应数据
+            // if (items.name === data.joinTable) { // 根据name获取对应数据
+              items.data.columns && items.data.columns.map((n, i) => {
+                n.mode = n.mode ? n.mode : '2'
+                n.derived = n.name
+                n.titName = n.name
+                n.tableName = data.alias ? data.alias : ''
+                // n.id = `${data.alias}${i}`
+                n.id = `${data.alias}.${n.name}`
+                n.filed = data.alias === code ? '1' : '0'
+              })
+              // 获取对应的字段赋值到列表
+              this.tableData = items.data.columns
+              // 调用获取默认勾选的方法
+              this.processData(code, data.alias)
+              let arr = []
+              setTimeout(() => {
+                /**
+                 * 遍历获取tableData列表
+                 * 遍历 ${saveSelectFiled} 已经勾选的字段
+                 * 匹配两者相同的id对应的数据放到${arr}
+                 * 执行toggleSelection 存放匹配到的数据
+                 */
+                this.tableData && this.tableData.forEach((item, i) => {
+                  this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                    if (val.id === item.id) {
+                      this.tableData[i].name = String(val.name)
+                      this.tableData[i].mode = String(val.mode)
+                      arr.push(item)
+                    }
+                  })
+                })
+                this.toggleSelection(arr)
+              }, 500)
+            }
+          })
+        }
       })
       // 判断有乜选择事实表
       this.saveSelectFiled && this.saveSelectFiled.forEach(item => {
@@ -157,7 +190,6 @@ export default {
           })
         })
       })
-      console.log('来了', this.jointResultData)
       // 初始化已处理过的选择维度
       this.saveNewSortListstructure.forEach((res, i) => {
         this.saveNewSortListstructure.splice(i)
@@ -317,18 +349,15 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       dimensions: 'dimensions',
       reloadNeedData: 'reloadNeedData',
-      foreignKeyData: 'foreignKeyData',
       saveNewSortListstructure: 'saveNewSortListstructure',
       jointResultData: 'jointResultData',
       saveNewSortList: 'saveNewSortList',
       saveSelectAllListFiled: 'saveSelectAllListFiled'
-    }),
-    strings (val) {
-      return String(val)
-    }
+    })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')
+    this.$root.eventBus.$off('filedTable')
   }
 }
 </script>
