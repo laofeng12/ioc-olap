@@ -25,15 +25,7 @@ export default {
   },
   data () {
     return {
-      descriptionData: [
-        // { index: '1', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '2', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '3', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '4', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '5', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '6', dataType: '本地上传', columnName: 'table_name_table_name_table_name_table_name' },
-        // { index: '7', dataType: '数据湖', columnName: 'table_name_table_name_table_name_table_name' }
-      ],
+      descriptionData: [],
       descriptionHead: [
         { prop: 'index', label: '序号 ' },
         { prop: 'type', label: '来源' },
