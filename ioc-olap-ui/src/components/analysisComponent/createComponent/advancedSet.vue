@@ -186,7 +186,7 @@ export default {
   },
   watch: {
     '$route' () {
-      this.init()
+      // this.init()
     }
   },
   mounted () {
@@ -209,7 +209,8 @@ export default {
           })
         }
       })
-      let datas = [...this.reloadNeedData]
+      let datas = JSON.parse(JSON.stringify(this.reloadNeedData))
+      console.log(datas, '李帆')
       let arr = []
       datas.map(item => {
         arr.push({
@@ -217,7 +218,7 @@ export default {
           encoding: '',
           lengths: '',
           code_types: item.type ? item.type : '',
-          columns_Type: 'dict',
+          columns_Type: item.type ? item.type : 'dict',
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })

@@ -54,7 +54,6 @@ export default {
        *
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log('get====', this.dataList)
       this.titleData = []
       this.dataList.lookups.map((item, index) => {
         // 存储所有的事实表名
