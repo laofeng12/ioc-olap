@@ -32,10 +32,11 @@ const setMeasure = {
       })
     },
     // 根据生成的id删除对应表
-    deleteMeasureTableList ({ state }, id) {
+    deleteMeasureTableList ({ state, dispatch }, val) {
       state.measureTableList.forEach((item, index) => {
-        item.id === id && state.measureTableList.splice(index, 1)
+        item.id === val.id && state.measureTableList.splice(index, 1)
       })
+      dispatch('RemovehbaseMapping', val.name)
     },
     // 将新增的表添加到高级设置中的高级列组合中
     GivehbaseMapping ({ state, getters }, data) {
@@ -45,6 +46,19 @@ const setMeasure = {
       getters.hbase_mapping.column_family[0].columns[0].measure_refs = [...new Set(getters.hbase_mapping.column_family[0].columns[0].measure_refs)]
       state.measureTableList.map(res => { resultData.push(res.name) })
       getters.hbase_mapping.column_family[0].columns[0].measure_refs = resultData
+    },
+    // 删除对应高级设置中的高级列组合
+    RemovehbaseMapping ({ getters }, name) {
+      getters.hbase_mapping.column_family[0].columns[0].measure_refs.map((res, index) => {
+        if (res === name) {
+          getters.hbase_mapping.column_family[0].columns[0].measure_refs.splice(index, 1)
+        }
+      })
+      getters.savehetComposeDataId[0].map((res, index) => {
+        if (res === name) {
+          getters.savehetComposeDataId[0].splice(index, 1)
+        }
+      })
     }
   }
 }
