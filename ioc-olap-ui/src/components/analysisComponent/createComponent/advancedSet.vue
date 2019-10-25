@@ -64,7 +64,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model.number="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -210,7 +210,6 @@ export default {
         }
       })
       let datas = JSON.parse(JSON.stringify(this.reloadNeedData))
-      console.log(datas, '李帆')
       let arr = []
       datas.map(item => {
         arr.push({
@@ -218,7 +217,8 @@ export default {
           encoding: '',
           lengths: '',
           code_types: item.type ? item.type : '',
-          columns_Type: item.type ? item.type : 'dict',
+          // columns_Type: item.type ? item.type : 'dict',
+          columns_Type: this.returncodingType(item.type),
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
@@ -262,6 +262,14 @@ export default {
       for (let item in this.getAllcoding.data) {
         if (val.split('(')[0] === item) {
           this.encodingOption = this.getAllcoding.data[item]
+        }
+      }
+    },
+    returncodingType (val) {
+      for (let item in this.getAllcoding.data) {
+        if (val.split('(')[0] === item) {
+          this.encodingOption = this.getAllcoding.data[item]
+          return this.encodingOption[0]
         }
       }
     },
