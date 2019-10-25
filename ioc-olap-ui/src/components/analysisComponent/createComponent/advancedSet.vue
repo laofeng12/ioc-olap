@@ -5,12 +5,12 @@
         <div class="aggregation">
           <div class="aggregation_head">
             <span>维度分组聚合</span>
-            <span style="color:#0486FE;margin-left:10px;cursor:pointer;" @click="addaAggregation">添加聚合小组</span>
+            <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
             <div slot="header" class="clearfix">
               <span>聚合小组</span>
-              <el-button style="float:right;margin-top:10px;" type="text" @click="handleRms(index)">删除</el-button>
+              <el-button style="float:right;padding:3px 0;" type="text" @click="handleRms(index)">删除</el-button>
             </div>
             <div class="item_box">
               <span class="contain__box">包含维度</span>
@@ -26,48 +26,42 @@
                 <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable><h6>{{n}}</h6></el-tag>
               </div>
             </div>
-            <div class="item_box uiflex">
-              <span style="width: 73px;">层级维度</span>
-              <div style="width: 100%;">
-                <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
-                  <div @click="getTotalModal(index, 3, i)">
-                    <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
-                  </div>
-                  <p>
-                    <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
-                    <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
-                  </p>
+            <div class="item_box noflex">
+              <span>层级维度</span>
+              <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
+                <div @click="getTotalModal(index, 3, i)">
+                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
                 </div>
+                <p>
+                  <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
+                  <i class="el-icon-circle-plus" @click="addlevelData(index)"></i>
+                </p>
               </div>
             </div>
-            <div class="item_box uiflex">
-              <span style="width: 73px;">联合维度</span>
-              <div style="width: 100%;">
-                <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
-                  <div @click="getTotalModal(index, 4, t)">
-                    <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
-                  </div>
-                  <p>
-                    <i class="el-icon-remove" @click="removejointData(index, t)"></i>
-                    <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
-                  </p>
+            <div class="item_box noflex">
+              <span>联合维度</span>
+              <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
+                <div @click="getTotalModal(index, 4, t)">
+                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
                 </div>
+                <p>
+                  <i class="el-icon-remove" @click="removejointData(index, t)"></i>
+                  <i class="el-icon-circle-plus" @click="addjointData(index)"></i>
+                </p>
               </div>
             </div>
           </el-card>
         </div>
         <div class="setRowkeys">
-          <p style="margin-top: 16px;font-size: 14px;color: #444444;">Rowkeys设置</p>
+          <p style="margin:20px 0">Rowkeys设置</p>
           <el-table
             :data="rowkeyData.rowkey_columns"
             ref="multipleTable"
             tooltip-effect="dark"
-            header-cell-class-name="tableHead"
-            stripe
             style="margin-top: 10px;">
-            <el-table-column type="index"  width="100" label="序号"></el-table-column>
-            <el-table-column prop="column" label="字段名称"> </el-table-column>
-            <el-table-column label="编码类型" width="280px">
+            <el-table-column type="index" width="50" label="序号" align="center"></el-table-column>
+            <el-table-column prop="column" label="字段名称" align="center"> </el-table-column>
+            <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
@@ -76,14 +70,14 @@
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column label="长度" width="150">
+            <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
-            <el-table-column label="碎片区" width="360px">
+            <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
                   <el-select v-model="scope.row.isShardBy" placeholder="请选择">
@@ -95,7 +89,7 @@
           </el-table>
         </div>
         <div class="listSet">
-          <div class="listSet-title"><span>维度黑白名单设置</span></div>
+          <span>维度黑白名单设置</span>
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
@@ -118,7 +112,7 @@
           </template>
         </el-form-item>
         <div class="listSet hetCompose">
-          <div class="listSet-title"><span>高级列组合</span></div>
+          <span class="contain__box">高级列组合</span>
           <div class="listSet__box hetCompose__box" v-if="hbase_mapping.column_family && hbase_mapping.column_family.length">
             <div class="adds" v-for="(n, i) in hbase_mapping.column_family" :key="i">
               <div @click="lastGetModal(i, 6)">
@@ -279,9 +273,6 @@ export default {
         }
       }
     },
-    codingChange (val) {
-
-    },
     // 添加聚合小组
     addaAggregation () {
       this.$store.dispatch('addAggregationList')
@@ -372,13 +363,10 @@ export default {
 
 <style lang="stylus" scoped>
 .advancedSet{
-  margin-top: 16px;
-  background #F2F2F2
-  padding-bottom 76px
-  .el-form{
-    padding: 0 16px !important;
-    padding-bottom: 16px !important;
-  }
+  padding 30px
+  margin-top 30px
+  background #ffffff
+  padding-bottom 100px
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
@@ -388,11 +376,8 @@ export default {
     letter-spacing: 0;
   }
   >>>.el-form-item__label{
-    width 150px
+    width 120px
     text-align left
-    font-size: 16px;
-    color: #262626;
-	padding 0;
   }
   >>>.el-table__body-wrapper{
     height 350px
@@ -404,17 +389,14 @@ export default {
   >>>.el-form-item{
   }
   .aggregation{
-
-    margin-top 20px;
-    font-size 14px;
+    margin-top 20px
     .box-card{
       margin-top 20px
       .item_box{
-        display flex;
-        margin-bottom 16px;
+        display flex
+        margin-bottom 30px
         span{
-          width 70px
-          padding-top: 5px
+          width 80px
         }
         .box_r{
           border: 1px solid #D9D9D9;
@@ -428,39 +410,35 @@ export default {
           float left
           margin-left 1%
           font-size 11px
-          margin-top 5px
-          padding 0 10px
+          margin-top:5px;
           height 22px
           line-height 22px
           text-align center
           background #FBFBFB
           color #555555
-          border-radius 0 !important
         }
         .adds{
-          border none!important;
-          padding 0;
-          width 100%;
-          display flex;
-          height 32px;
-          line-height 32px;
-          margin-bottom 16px;
+          border none!important
+          padding 0
+          width 100%
+          display flex
           div{
             flex 1
+            margin-left 80px
             height 32px
-            // margin-bottom 20px
+            margin-bottom 20px
             border: 1px solid #D9D9D9;
             min-height 32px
             cursor pointer
           }
         }
         .adds:first-child{
-          // margin-top -20px
+          margin-top -20px
         }
         p{
           width 80px
           text-align center
-          margin-top 5px
+          margin-top 10px
           i{
             color red
             font-size 25px
@@ -470,8 +448,8 @@ export default {
           }
         }
       }
-      .uiflex{
-        display flex
+      .noflex{
+        display initial!important
       }
     }
   }
@@ -483,41 +461,32 @@ export default {
   h6{
     text-overflow: ellipsis;
     float left
-    width: 80%;
+    width: 90%;
     overflow: hidden;
   }
   .listSet{
-	display: flex
     margin-top 20px
-	.listSet-title{
-		width 148px
-		padding-top 5px
-	}
     span{
       width 100px
-      font-size 14px;
-      color #444444;
     }
     .listSet__box{
-      width: 100%;
+      margin-top -20px
       .adds{
         display flex
         width 100%
-        margin-bottom 16px
+        margin-bottom 10px
         div{
-          margin-left 16px
+          margin-left 120px
           border: 1px solid #D9D9D9;
           flex 1
           min-height 32px
           cursor pointer
-          height 32px;
-          line-height 32px;
         }
       }
       p{
         width 80px
         text-align center
-        margin-top 5px
+        margin-top 10px
         i{
           color red
           font-size 25px
@@ -538,7 +507,6 @@ export default {
         text-align center
         background #FBFBFB
         color #555555
-        border-radius 0 !important
         }
     }
     .nos{
