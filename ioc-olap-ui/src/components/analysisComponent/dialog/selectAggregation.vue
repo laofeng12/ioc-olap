@@ -89,6 +89,7 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
+      // debugger
       this.dialogFormVisible = true
       switch (type) {
         case 1:

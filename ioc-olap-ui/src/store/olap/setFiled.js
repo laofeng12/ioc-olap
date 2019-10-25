@@ -149,9 +149,9 @@ const setFiled = {
             // }
             // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
-              dispatch('normalFn', { item: item, val: res })
+              dispatch('normalFn', { item: item, val: res, mode: 1 })
             } else if (String(res.mode) === '2') {
-              dispatch('derivativeFn', { item: item, val: res })
+              dispatch('derivativeFn', { item: item, val: res, mode: 2 })
             }
           })
         } else {
@@ -161,9 +161,9 @@ const setFiled = {
           }
           // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
           if ((String(val.mode) === '1' && String(item.mode) === '1') || item.filed === '1') {
-            dispatch('normalFn', { item: item, val: val })
+            dispatch('normalFn', { item: item, val: val, model: 1 })
           } else if (String(val.mode) === '2' && String(item.mode) === '2') {
-            dispatch('derivativeFn', { item: item, val: val })
+            dispatch('derivativeFn', { item: item, val: val, model: 2 })
           }
         }
       })
@@ -173,6 +173,7 @@ const setFiled = {
     // 整合正常模式或者衍生模式的数据
     filterFiledTable ({ state, getters, dispatch }) {
       let resultVal = reduceJson(state.saveFiledDerivativelList, 'tableName')
+      // let resultVal = state.saveFiledDerivativelList
       // 筛选对应的foreign_key名
       let datas = []
       /**
@@ -181,9 +182,15 @@ const setFiled = {
        * 3、取出对应的表对应的foreign_key
        * 4、如果对应的${foreign_key}是多个的话就绪遍历
        */
+      // console.log(resultVal, '获取已经选择的数据', state.saveSelectFiled, '========', getters.jointResultData.lookups)
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias === n.tableName) {
+            /*
+             * 判断当前找的主表是否为普通模式
+             * 1、如果是普通模式直接去除对应的字段
+             * 2、否则就要继续往上找
+            */
             if (item.join.foreign_key.length > 1) {
               item.join.foreign_key.forEach(res => {
                 datas = datas.concat({
@@ -229,6 +236,7 @@ const setFiled = {
       getters.aggregation_groups[0].includes = val
       getters.selectDataidList[0].includesId = idval
       dispatch('SaveselectIncludesData', val)
+      // debugger
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
