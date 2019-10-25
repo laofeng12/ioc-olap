@@ -144,14 +144,13 @@ export default {
     async saveOlap (callbackData) {
       const data = {
         limit: this.checked ? this.lineNumber : '',
-        sql: this.textarea,
         flags: 0 // 标志 0：正常 1：共享
       }
       let reqData = {}
       if (this.editInfo && this.editInfo.sql) {
-        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false })
+        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false }, { sql: this.textarea })
       } else {
-        reqData = Object.assign({}, data, callbackData)
+        reqData = Object.assign({}, data, callbackData, { sql: this.textarea })
       }
       const res = await saveOlapApi(reqData)
       if (res.createId) {
