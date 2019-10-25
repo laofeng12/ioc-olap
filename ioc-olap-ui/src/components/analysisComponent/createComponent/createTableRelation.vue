@@ -573,7 +573,6 @@ export default {
         this.defaultId = ''
       }
       this.TableCountNum += 1
-      // console.log('来了', this.TableCountNum)
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -1017,15 +1016,16 @@ export default {
 
     nextModel (val) {
       // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
-      if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
+      if (Object.keys(this.ModelAllList).length === 0) {
+        if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
+      }
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       this.getIdToList()
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      console.log(this.TableCountNum, '===', this.jointResultData.lookups.length)
-      return this.TableCountNum - this.jointResultData.lookups.length < 2
+      return this.TableCountNum - this.jointResultData.lookups.length === 1
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
