@@ -1,9 +1,9 @@
 <template>
   <div class="setfactTable">
     <el-dialog title="此表将设置为事实表" :visible.sync="dialogFormVisible" @close="closeBtn">
-      <el-select v-model="value" placeholder="请选择" @change="selectMe">
-        <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.label"></el-option>
-      </el-select>
+      <!--<el-select v-model="value" placeholder="请选择" @change="selectMe">-->
+        <!--<el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.label"></el-option>-->
+      <!--</el-select>-->
       <p style="margin-top:10px;">说明：</p>
       <p>1、事实表为用来存储事实的度量值和个维度的码值，即存储业务实际的发生值，如空气的检测值、水污染的检测值等；</p>
       <p>2、OLAP分析建立的模型是对事实表的各值从多维度进行分析，解析数据；</p>
@@ -65,7 +65,7 @@ export default {
       // 保存设置事实表到总表
       await this.$store.dispatch('resetCreateTabletions')
       this.$store.dispatch('mergeFiledTable', this.tableData)
-      this.$parent.init()
+      // this.$parent.init()
     },
     dialog () {
       this.dialogFormVisible = true

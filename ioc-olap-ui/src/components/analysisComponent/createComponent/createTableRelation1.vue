@@ -1,88 +1,58 @@
 <template>
   <div class="tableRelation">
-    <!--<div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">-->
-      <!--<fact-table></fact-table>-->
-      <!--<div class="linkSetting" v-if="linkModal" ref="linkSetting">-->
-        <!--<h2 class="title">设置关联关系</h2>-->
-        <!--<el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">-->
-          <!--<el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>-->
-        <!--</el-select>-->
-        <!--<div class="item" v-for="(item, index) in linkModalFields" :key="index">-->
-          <!--<h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>-->
-          <!--<h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>-->
-          <!--<el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModallinkModal.joinId)" @change="getModalForeignSelected">-->
-            <!--<el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>-->
-          <!--</el-select>-->
-          <!--<h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>-->
-          <!--<el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">-->
-            <!--<el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>-->
-          <!--</el-select>-->
-        <!--</div>-->
-        <!--<div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>-->
-      <!--</div>-->
-      <!--&lt;!&ndash; <task-wark></task-wark> &ndash;&gt;-->
-      <!--<div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=1 || dragRectPosition.y>=1) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>-->
-      <!--<div class="holder" ref="holder">-->
-        <!--&lt;!&ndash; <button style="width:100px;height:30px" @click="click_add">add</button> &ndash;&gt;-->
-        <!--<div id="myholder" ref="myHolder"></div>-->
-        <!--<div class="papers" ref="papers" @click="papersClick">-->
-          <!--<div class="halo-cell-layer" :style="cellLayerStyle">-->
-            <!--&lt;!&ndash; 方块部分 &ndash;&gt;-->
-            <!--<div v-if="cellLayerData && !cellLayerData.isLink">-->
-              <!--&lt;!&ndash; 删除 &ndash;&gt;-->
-              <!--<div class="remove" data-type="remove"></div>-->
-              <!--&lt;!&ndash; 设置关联 &ndash;&gt;-->
-              <!--<div class="link" data-type="link"></div>-->
-              <!--&lt;!&ndash; 设置别名 &ndash;&gt;-->
-              <!--<div class="clone" data-type="clone"></div>-->
-              <!--&lt;!&ndash; <div class="resize" data-type="resize"></div> &ndash;&gt;-->
-            <!--</div>-->
-            <!--&lt;!&ndash; 连线部分 &ndash;&gt;-->
-            <!--<div v-else>-->
-              <!--&lt;!&ndash; 删除 &ndash;&gt;-->
-              <!--<div class="remove linkRemove" data-type="linkRemove"></div>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>-->
-
-
-
-
-
-    <div class='editor-box'>
-      <div id='editorContainer' ref="containers"></div>
-      <!--<div class="linkSetting" v-if="linkModal" ref="linkSetting">-->
-      <!--<div class="linkSetting" ref="linkSetting">-->
-        <!--<h2 class="title">设置关联关系</h2>-->
-        <!--<el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">-->
-          <!--<el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>-->
-        <!--</el-select>-->
-        <!--<div class="item" v-for="(item, index) in linkModalFields" :key="index">-->
-          <!--<h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>-->
-          <!--<h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>-->
-          <!--<el-select name="public-choice" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">-->
-            <!--<el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, fk_type: coupon.dataType, foreign_key: coupon.name}" >{{coupon.name}}</el-option>-->
-          <!--</el-select>-->
-          <!--<h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>-->
-          <!--<el-select name="public-choice" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">-->
-            <!--<el-option v-for="coupon in couponList" :key="coupon.id" :label="coupon.name" :value="{index, pk_type: coupon.dataType, primary_key: coupon.name}" >{{coupon.name}}</el-option>-->
-          <!--</el-select>-->
-        <!--</div>-->
-        <!--<div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>-->
-      <!--</div>-->
+    <div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">
+      <fact-table></fact-table>
+      <div class="linkSetting" v-if="linkModal" ref="linkSetting">
+        <h2 class="title">设置关联关系</h2>
+        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
+          <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
+        </el-select>
+        <div class="item" v-for="(item, index) in linkModalFields" :key="index">
+          <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
+          <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+          </el-select>
+          <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{coupon.name}}</el-option>
+          </el-select>
+        </div>
+        <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
+      </div>
+      <!-- <task-wark></task-wark> -->
+      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=1 || dragRectPosition.y>=1) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
+      <div class="holder" ref="holder">
+        <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
+        <div id="myholder" ref="myHolder"></div>
+        <div class="papers" ref="papers" @click="papersClick">
+          <div class="halo-cell-layer" :style="cellLayerStyle">
+            <!-- 方块部分 -->
+            <div v-if="cellLayerData && !cellLayerData.isLink">
+              <!-- 删除 -->
+              <div class="remove" data-type="remove"></div>
+              <!-- 设置关联 -->
+              <div class="link" data-type="link"></div>
+              <!-- 设置别名 -->
+              <div class="clone" data-type="clone"></div>
+              <!-- <div class="resize" data-type="resize"></div> -->
+            </div>
+            <!-- 连线部分 -->
+            <div v-else>
+              <!-- 删除 -->
+              <div class="remove linkRemove" data-type="linkRemove"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <create-table-modal ref="dialog"></create-table-modal>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
-    <setfact-table ref="setfact"></setfact-table>
   </div>
 </template>
 
 <script>
-import IOCEditor from 'flow-edit'
 import factTable from '@/components/analysisComponent/modelCommon/factTable'
-import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
@@ -97,7 +67,7 @@ let joint = require('jointjs')
 */
 export default {
   components: {
-    factTable, steps, createTableModal, setfactTable
+    factTable, steps, createTableModal
   },
   data () {
     return {
@@ -142,175 +112,15 @@ export default {
       },
       linkModal: null,
       linkModalModel: null,
-      linkModalFields: [],
-      factTable: [
-        {
-          key: 'data',
-          label: '数据目录',
-          list: []
-        }
-      ]
+      linkModalFields: []
       // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DEFAULT.KYLIN_CAL_DT', 'lookups': [{ 'joinTable': 'KYLIN_CAL_DT', 'alias': 'KYLIN_CATEGORY_GROUPINGS', 'id': '0ff420eb-79ad-40bd-bca9-12d8cd05c60a', 'table': 'DEFAULT.KYLIN_CATEGORY_GROUPINGS', 'joinAlias': 'KYLIN_CAL_DT', 'joinId': '952d11b5-69d9-45d1-92af-227489485e3f', 'kind': 'LOOKUP', 'join': { 'type': 'left', 'primary_key': ['KYLIN_CATEGORY_GROUPINGS.LEAF_CATEG_ID'], 'foreign_key': ['KYLIN_CAL_DT.CAL_DT'], 'isCompatible': [true], 'pk_type': ['bigint'], 'fk_type': ['date'] } }] }
 
     }
   },
   mounted () {
-    const factTable = this.selectTableTotal.map((v, i) => {
-      return (
-        {
-          databaseType: `${i}`,
-          id: v.id,
-          title: v.label,
-          isLeaf: true,
-          anchors: [{
-            pos: 'bottom',
-            label: '子豪测试位置'
-          }]
-        }
-      )
-    })
-    this.factTable[0].list = factTable
     this.init()
-    this.initEditor()
   },
   methods: {
-    initEditor () {
-      this.editor = new IOCEditor({
-        el: 'editorContainer', // 容器id
-        baseInfo: '', // 基础信息，标题，描述，状态等
-        pannelList: this.factTable, // 左边数据源和功能组件
-        graphData: {}, // 初始化数据
-        contextMenuList: [], // 右键菜单
-        iconfontSrc: '',
-        nodeIcons: {}
-      })
-      // window.graph = this.editor.getGraph()
-      const listeners = [
-        { key: 'addNode', fn: this.addNode },
-        { key: 'nodeClick', fn: this.onNodeClick },
-        { key: 'addEdge', fn: this.addEdge },
-        { key: 'edgeClick', fn: this.edgeClick },
-        { key: 'tabChange', fn: this.tabChange }
-        // { key: 'flowClick', fn: this.flowClick },
-        // { key: 'contextMenuClick', fn: this.contextMenuClick },
-        // { key: 'change', fn: this.flowChange },
-        // { key: 'expandPannelList', fn: this.expandPannelList }
-      ]
-      listeners.forEach(({ key, fn }) => this.editor.addListener(key, fn))
-    },
-    onNodeClick () {
-      // this.$refs.setfact.dialog()
-    },
-    addNode () {
-      const { graphData } = this.editor.getResult()
-      if (graphData.nodes.length === 1) this.$refs.setfact.dialog()
-      // console.info('graphData111111', graphData)
-      // console.info('selectTableTotal11111111', this.selectTableTotal)
-      if (graphData.nodes.length > 1 && graphData.nodes[0].label === graphData.nodes[graphData.nodes.length-1].label) {
-        this.removeData()
-        this.$message.warning('事实表是唯一存在的，请选择其他表')
-      }
-    },
-    removeData () {
-      const { graphData } = this.editor.getResult()
-      const graph = this.editor.getGraph()
-      graph.remove(graphData.nodes[graphData.nodes.length-1].id)
-    },
-    tabChange (model) {
-      console.info('tabChange', model)
-    },
-    addEdge (a, id, obj) {
-      const graph = this.editor.getGraph()
-      console.info('addEdge1111111', a, id, obj)
-      console.info('111111111111', graph.find(obj.source), graph.find(obj.target))
-      this.aboutEdge(obj)
-    },
-    edgeClick (model) {
-      console.info('edgeClick', model)
-    },
-    aboutEdge (data) {
-      let factTable = this.jointResult.fact_table
-      debugger
-      // let data = e.model.get('attrs').data
-      let linkElements = this.getLinkElements(e.model)
-      let linkModal = null
-      this.linkModalModel = null
-      this.linkModalFields = []
-      if (data) {
-        let fields = this.getFields(data)
-
-        this.linkModal = data
-        this.linkModalModel = e.model
-        this.linkModalFields = fields
-      } else if (linkElements.source && linkElements.target) {
-        let sourceAttrs
-        let targetAttrs
-        // 判断是否连接事实表， 不管先后顺序 事实表都得是主表
-        if (linkElements.target.get('attrs').text.filed === 1) {
-          targetAttrs = linkElements.source.get('attrs')
-          sourceAttrs = linkElements.target.get('attrs')
-        } else {
-          sourceAttrs = linkElements.source.get('attrs')
-          targetAttrs = linkElements.target.get('attrs')
-        }
-        // 连线的主表
-        let source = {
-          filed: sourceAttrs.text.label === factTable ? 1 : 0,
-          label: sourceAttrs.text.label,
-          alias: sourceAttrs.text.alias || sourceAttrs.text.label,
-          id: sourceAttrs.text.id
-        }
-        // {
-        //   alias: "KYLIN_CATEGORY_GROUPINGS"
-        //   filed: 1
-        //   id: "c65b5c62-6d14-4456-bc37-2f7bff28fcca"
-        //   label: "KYLIN_CATEGORY_GROUPINGS"
-        // }
-        // 连线的次表
-        let target = {
-          filed: sourceAttrs.text.label === factTable ? 1 : 0,
-          label: `${targetAttrs.text.label}`,
-          alias: targetAttrs.text.alias || targetAttrs.text.label,
-          id: targetAttrs.text.id
-        }
-        // {
-        //   alias: "KYLIN_SALES"
-        //   filed: 1
-        //   id: "3fa28668-b02c-49cf-aa53-008e06c49cb7"
-        //   label: "KYLIN_SALES"
-        // }
-        debugger
-        // 定义需要传给后台的格式
-        linkModal = {
-          'joinTable': source.label || '', // 主表名
-          'joinAlias': source.alias || '', // 主表别名
-          'joinId': source.id || '', // 主表id
-          'alias': target.alias || '', // 子表别名
-          'id': target.id || '', // 子表id
-          'table': target.label || '', // 子表名
-          'kind': 'LOOKUP',
-          'join': {
-            'type': '', // 连接方式（left||inner）
-            'primary_key': [], // 子表与选择的字段
-            'foreign_key': [], // 主表与选择的字段
-            'isCompatible': [true],
-            'pk_type': [], // 子表字段对应的类型
-            'fk_type': [] // 主表字段对应的类型
-          }
-        }
-
-        this.addFields() // 调用添加关联字段
-
-        this.linkModal = linkModal
-        this.linkModalModel = e.model
-      }
-      this.showCellLayer(e)
-    },
-
-
-
-
-
     initJointResult (data) {
       if (!data) {
         return this.jointResult
@@ -412,7 +222,6 @@ export default {
           if (e.model.isLink()) {
             let factTable = this.jointResult.fact_table
             let data = e.model.get('attrs').data
-            debugger
             let linkElements = this.getLinkElements(e.model)
             let linkModal = null
             this.linkModalModel = null
@@ -442,12 +251,6 @@ export default {
                 alias: sourceAttrs.text.alias || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
-              // {
-              //   alias: "KYLIN_CATEGORY_GROUPINGS"
-              //   filed: 1
-              //   id: "c65b5c62-6d14-4456-bc37-2f7bff28fcca"
-              //   label: "KYLIN_CATEGORY_GROUPINGS"
-              // }
               // 连线的次表
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
@@ -455,13 +258,6 @@ export default {
                 alias: targetAttrs.text.alias || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
-              // {
-              //   alias: "KYLIN_SALES"
-              //   filed: 1
-              //   id: "3fa28668-b02c-49cf-aa53-008e06c49cb7"
-              //   label: "KYLIN_SALES"
-              // }
-              debugger
               // 定义需要传给后台的格式
               linkModal = {
                 'joinTable': source.label || '', // 主表名
