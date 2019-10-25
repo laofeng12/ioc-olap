@@ -153,7 +153,8 @@ export default {
                   this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
                     if (val.id === item.id) {
                       this.tableData[i].name = String(val.name)
-                      this.tableData[i].mode = String(val.mode)
+                      // this.tableData[i].mode = String(val.mode)
+                      this.tableData[i].mode = '1'
                       arr.push(item)
                     }
                   })
@@ -234,6 +235,7 @@ export default {
         result.map(n => {
           if (res.id === n.id || res.id === n.titid) {
             res.id = n.titid ? n.titid : n.id
+            res.mode = '1'
             resultData = [...resultData, res]
             selectRows.push(res)
           }
@@ -246,11 +248,12 @@ export default {
           this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
             if (val.id === item.id) {
               this.tableData[i].name = String(val.name)
-              this.tableData[i].mode = String(val.mode)
+              this.tableData[i].mode = '1'
             }
           })
         })
         // // 存放到store
+        // console.log('============', selectRows)
         this.$store.dispatch('SaveSelectFiled', selectRows)
         // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
@@ -273,25 +276,6 @@ export default {
         this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
       }
-    },
-    // 判断选择的衍生模式能否找到对应的fk
-    iscubeMatch () {
-      let dimensionsVal = []
-      let factVal = []
-      this.reloadNeedData.map(res => {
-        if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '1') {
-          // 获取事实表的value
-          dimensionsVal.push(res.value)
-        }
-        if (res.value.split('.')[0] === this.jointResultData.fact_table.split('.')[1] && res.modeType === '2') {
-          // 获取非事实表选择的数据
-          factVal.push(res.value)
-        }
-      })
-      let isRowkey = this.factVal && this.factVal.length ? this.factVal.some(_ => dimensionsVal.includes(_)) : false
-      // 是否选择延伸模式
-      // 如果为 true 的话，说明不能下一步，提示用户。必须选择指定字段才允许下一步。
-      return (isRowkey && factVal.length) || factVal.length
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/createTableRelation')
