@@ -439,9 +439,9 @@ public class OlapModelingAction extends BaseAction {
             }
         }
 
-        Long rowKeyCount = cube.getCubeDescData().getDimensions().stream().filter(p -> p.getDerived() != null).count();
+        Long rowKeyCount = cube.getCubeDescData().getDimensions().stream().filter(p -> p.getDerived() == null).count();
         if (rowKeyCount != cube.getCubeDescData().getRowkey().getRowkey_columns().size()) {
-            throw new APIException(400, "rowkey个数不等于" + rowKeyCount + "！");
+            throw new APIException(400, "rowkey个数不等于【" + rowKeyCount + "】！");
         }
 
         for (RowkeyColumnMapper rowKey : cube.getCubeDescData().getRowkey().getRowkey_columns()) {
