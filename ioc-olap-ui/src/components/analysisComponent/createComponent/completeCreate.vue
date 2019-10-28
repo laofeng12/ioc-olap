@@ -63,6 +63,7 @@ export default {
   },
   methods: {
     init () {
+      console.log('最后一步获取的', this.totalSaveData)
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
@@ -148,7 +149,7 @@ export default {
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
-      // console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
+      console.log(this.totalSaveData, '高级')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true
         throttle(async () => {
