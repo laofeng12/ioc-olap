@@ -53,6 +53,11 @@ export default {
       }
     }
   },
+  watch: {
+    '$route' () {
+      // this.init()
+    }
+  },
   mounted () {
     this.init()
   },
