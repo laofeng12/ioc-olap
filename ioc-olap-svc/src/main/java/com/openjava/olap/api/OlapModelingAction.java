@@ -16,7 +16,10 @@ import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -112,7 +115,7 @@ public class OlapModelingAction extends BaseAction {
                 cubeList = cubeList.subList(0, limit);
             }
         }
-
+        cubeList = this.olapDatalaketableService.querySyncState(cubeList);
         return new CubeListVo(cubeList, isNext);
     }
 
@@ -888,4 +891,5 @@ public class OlapModelingAction extends BaseAction {
     public OlapTimingrefresh getTimingrefresh(String cubeName) throws APIException {
         return olapTimingrefreshService.findTableInfo(cubeName);
     }
+
 }

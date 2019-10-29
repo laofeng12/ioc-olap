@@ -1,20 +1,15 @@
 package com.openjava.olap.domain;
 
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.data.domain.Persistable;
-import org.hibernate.validator.constraints.Length;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.domain.Persistable;
+
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * 实体
@@ -77,6 +72,15 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	@ApiModelProperty("FILED")
 	@Column(name = "FILED")
 	private Long filed;
+
+	@ApiModelProperty("虚拟表名")
+	@Column(name = "VIRTUAL_TABLE_NAME")
+	@Length(max = 200)
+	private String virtualTableName;
+
+	@ApiModelProperty(name = "数据库id")
+	@Column(name = "DATABASE_ID")
+	private Integer databaseId;
 
 	@ApiModelProperty("是否新增")
 	@Transient

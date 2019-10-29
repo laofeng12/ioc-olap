@@ -1,11 +1,13 @@
 package com.openjava.olap.service;
 
-import java.util.List;
-
 import com.openjava.olap.domain.OlapDatalaketable;
+import com.openjava.olap.mapper.kylin.CubeMapper;
+import com.openjava.olap.query.DataLakeJobQueryParam;
 import com.openjava.olap.query.OlapDatalaketableDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * 构建选择表业务层接口
@@ -26,4 +28,7 @@ public interface OlapDatalaketableService {
 	void doRemove(String ids);
 
 	List<OlapDatalaketable> getListByCubeName(String cubeName);
+
+	List<DataLakeJobQueryParam> queryListInCubeNameList(List<String>cubeNameList);
+	List<CubeMapper> querySyncState(List<CubeMapper> cubeList);
 }
