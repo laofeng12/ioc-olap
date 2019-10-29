@@ -252,7 +252,6 @@ const setFiled = {
     SaveFiledData ({ state }) {
       // 对接数据格式
       state.dimensions = []
-      // console.log('清洗过后的数据', state.saveSelectFiled)
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {
@@ -280,7 +279,8 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType,
               id: item.id,
-              derived: item.mode === '1' ? null : item.titName.split(','),
+              // derived: item.mode === '1' ? null : item.titName.split(','),
+              derived: item.mode === '1' ? null : item.titName,
               name: item.name
             })
           }

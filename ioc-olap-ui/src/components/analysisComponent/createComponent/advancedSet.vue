@@ -343,6 +343,7 @@ export default {
         type: type,
         findIndex: findIndex
       }
+      console.log(list)
       this.$store.dispatch('RmtagList', list)
     }
   },
