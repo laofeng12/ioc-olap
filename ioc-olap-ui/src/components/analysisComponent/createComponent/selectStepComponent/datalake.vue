@@ -31,6 +31,7 @@
 import serchTable from '@/components/analysisComponent/modelCommon/serchTable'
 import trees from '@/components/analysisComponent/modelCommon/trees'
 import elementTable from '@/components/ElementTable/index'
+import { mapGetters } from 'vuex'
 export default {
   components: {
     serchTable, trees, elementTable
@@ -95,7 +96,16 @@ export default {
           this.managementData = res.data.data
         }
       })
+      // ---
+      // if (this.$route.query.cubeName) {
+      //   this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1)
+      // }
     }
+  },
+  computed: {
+    ...mapGetters({
+      ModelAllList: 'ModelAllList'
+    })
   }
 }
 </script>

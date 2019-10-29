@@ -234,7 +234,7 @@ const setFiled = {
       state.reloadNeedData = [...val]
       // console.log('最终于需要的', val)
     },
-    // 赋值给高级设置中默认显示的包含维度
+    // 赋值给高级设置中默认显示的包含维度 以及rowkey
     setAdvanceData ({ state, getters, dispatch }, data) {
       let val = []
       let idval = []
@@ -246,6 +246,7 @@ const setFiled = {
       getters.selectDataidList[0].includesId = idval
       dispatch('SaveselectIncludesData', val)
       // debugger
+      state.reloadNeedData = [...data]
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
