@@ -221,9 +221,18 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      // state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
+      dispatch('filterTableAlias', reduceObj([...nomrlData, ...datas], 'value'))
       dispatch('setAdvanceData', state.reloadNeedData)
-      // console.log('生成的rowkey数据', state.reloadNeedData)
+    },
+    // 筛选出已经修改的表名
+    filterTableAlias ({ state, getters }, data) {
+      let ResultAlias = Array.from(getters.jointResultData.lookups, ({ alias }) => alias)
+      let ResultJoinAlias = Array.from(getters.jointResultData.lookups, ({ joinAlias }) => joinAlias)
+      let Result = [...new Set([...ResultAlias, ...ResultJoinAlias])]
+      let val = data.filter(res => { return Result.includes(res.value.split('.')[0]) })
+      state.reloadNeedData = [...val]
+      // console.log('最终于需要的', val)
     },
     // 赋值给高级设置中默认显示的包含维度
     setAdvanceData ({ state, getters, dispatch }, data) {

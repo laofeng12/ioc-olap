@@ -429,7 +429,31 @@ public class OlapModelingAction extends BaseAction {
             cube.getCubeDescData().setVersion(cubeDescDataMapper.getLast_modified());
         }
 
-        //验证度量是否有数据measures！
+        for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
+            for (String fk : lookupsMapper.join.getForeign_key()) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(fk) && p.getDerived() == null).count() == 0) {
+                    throw new APIException(400, "外键列【"+fk+"】必须在维度中存在且为非衍生模式！");
+                }
+            }
+            for (String pk : lookupsMapper.join.getPrimary_key()) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(pk)).count() == 0) {
+                    throw new APIException(400, "主键列【"+pk+"】必须在维度中存在！");
+                }
+            }
+        }
+
+        Long rowKeyCount = cube.getCubeDescData().getDimensions().stream().filter(p -> p.getDerived() == null).count();
+        if (rowKeyCount != cube.getCubeDescData().getRowkey().getRowkey_columns().size()) {
+            throw new APIException(400, "rowkey个数不等于【" + rowKeyCount + "】！");
+        }
+
+        for (RowkeyColumnMapper rowKey : cube.getCubeDescData().getRowkey().getRowkey_columns()) {
+            if (rowKey.getColumn() == null || rowKey.getColumn().equals("") || rowKey.getColumn().indexOf(".") < 0 || rowKey.getEncoding() == null
+                    || rowKey.getEncoding().equals("")) {
+                throw new APIException(400, "rowKey数据格式有问题！");
+            }
+        }
+
         if (cube.cubeDescData.measures.size() == 0) {
             throw new APIException(400, "度量不可为空！");
         } else if (cube.getCubeDescData().getDimensions().size() == 0) {
