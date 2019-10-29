@@ -230,7 +230,6 @@ export default {
       result = [ ...foreign_keys, ...primary_keys ]
 
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      console.log(result, '====', values)
       values.map(res => {
         result.map(n => {
           if (res.id === n.id || res.id === n.titid) {
@@ -254,7 +253,6 @@ export default {
           })
         })
         // // 存放到store
-        console.log('============', selectRows)
         this.$store.dispatch('SaveSelectFiled', selectRows)
         // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
