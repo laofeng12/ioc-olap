@@ -85,7 +85,6 @@ export default {
        * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
        */
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        // console.log('来啦~~~~', this.saveSelectAllListFiled)
         /**
          * 获取第一步保存的选择的表对应的所有字段
          * 遍历所有字段
@@ -218,7 +217,7 @@ export default {
           判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
         */
         val.primary_key.map((n, i) => {
-          if (item.alias !== item.table) {
+          if (item.alias !== item.table.split('.')[1]) {
             foreign_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
               id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
@@ -254,7 +253,6 @@ export default {
           })
         })
         // // 存放到store
-        // console.log('============', selectRows)
         this.$store.dispatch('SaveSelectFiled', selectRows)
         // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
@@ -326,15 +324,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled',
-      dimensions: 'dimensions',
-      reloadNeedData: 'reloadNeedData',
-      saveNewSortListstructure: 'saveNewSortListstructure',
-      jointResultData: 'jointResultData',
-      saveNewSortList: 'saveNewSortList',
-      saveSelectAllListFiled: 'saveSelectAllListFiled'
-    })
+    ...mapGetters([ 'saveSelectFiled', 'reloadNeedData', 'saveNewSortListstructure', 'jointResultData', 'saveNewSortList', 'saveSelectAllListFiled' ])
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')
