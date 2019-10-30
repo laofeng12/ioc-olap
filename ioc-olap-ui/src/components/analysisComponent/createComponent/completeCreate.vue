@@ -55,7 +55,7 @@ export default {
   },
   watch: {
     '$route' () {
-      // this.init()
+      this.init()
     }
   },
   mounted () {
@@ -63,7 +63,6 @@ export default {
   },
   methods: {
     init () {
-      console.log('最后一步获取的', this.totalSaveData)
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
