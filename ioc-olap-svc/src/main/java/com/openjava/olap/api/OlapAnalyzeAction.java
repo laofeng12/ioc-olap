@@ -2,7 +2,6 @@ package com.openjava.olap.api;
 
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.common.Export;
-import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.mapper.kylin.QueryResultMapper;
@@ -22,7 +21,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @Api(tags = "OLAP分析接口")
@@ -216,7 +214,8 @@ public class OlapAnalyzeAction {
                     axisVo.setColumnName(column.getColumnName());
                     axisVo.setIsDict(table.getIsDict());
                     axisVo.setTableAlias(table.getTableAlias());
-                    axisVo.setTableName(table.getTableName());
+                    axisVo.setTableName(table.getTableName());//变更为真实表名
+                    axisVo.setVirtualTableName(table.getVirtualTableName());//虚拟表名
                     axisVo.setCubeId(table.getCubeId());
                     axisVo.setName(table.getName());
                     axisVo.setColumnId(column.getCubeTableColumnId());

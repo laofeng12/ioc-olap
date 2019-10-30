@@ -23,6 +23,6 @@ public interface OlapDatalaketableRepository extends DynamicJpaRepository<OlapDa
     @Query(value = "select * from OLAP_DATALAKETABLE t where t.CUBE_NAME=:cubeName", nativeQuery = true)
     List<OlapDatalaketable> getListByCubeName(@Param("cubeName") String cubeName);
 
-    @Query(value = "select databaseId,resourceId,cubeName,type from OlapDatalaketable where cubeName in(:cubeNameList)")
+    @Query(value = "select * from OLAP_DATALAKETABLE t where t.CUBE_NAME in(:cubeNameList)",nativeQuery = true)
     List<OlapDatalaketable> queryListInCubeNameList(@Param("cubeNameList")List<String> cubeNameList);
 }

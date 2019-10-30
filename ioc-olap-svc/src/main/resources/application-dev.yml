@@ -43,7 +43,7 @@ spring:
       # redis数据库索引（默认为0），我们使用索引为3的数据库，避免和其他数据库冲突
       database: 3
       # redis服务器地址（默认为localhost）
-      host: 183.6.55.26
+      host: 219.135.182.2
       # redis端口（默认为6379）
       port: 6379
       # redis访问密码（默认为空）
@@ -66,6 +66,8 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+  jpa:
+    show-sql: true
 
 ljdp:
   ftpserver:
@@ -91,4 +93,8 @@ kylin:
     account:  ADMIN
     pwd:  KYLIN
     authorization:  Basic QURNSU46S1lMSU4=
-
+olap:
+  datalake:
+    #调用数据集模块的接口地址
+    host: http://219.135.182.2:31013
+    querySyncJobStateUrl: /pds/datasync/dataSync/batchStatus
