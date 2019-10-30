@@ -186,7 +186,7 @@ export default {
   },
   watch: {
     '$route' () {
-      // this.init()
+      this.init()
     }
   },
   mounted () {
@@ -217,7 +217,6 @@ export default {
           encoding: '',
           lengths: '',
           code_types: item.type ? item.type : '',
-          // columns_Type: item.type ? item.type : 'dict',
           columns_Type: this.returncodingType(item.type),
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
@@ -341,6 +340,7 @@ export default {
         type: type,
         findIndex: findIndex
       }
+      console.log(list)
       this.$store.dispatch('RmtagList', list)
     }
   },
