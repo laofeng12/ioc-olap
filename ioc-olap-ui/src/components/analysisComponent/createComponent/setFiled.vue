@@ -153,7 +153,7 @@ export default {
                     if (val.id === item.id) {
                       this.tableData[i].name = String(val.name)
                       this.tableData[i].mode = String(val.mode)
-                      this.tableData[i].defaultVal = ''
+                      // this.tableData[i].defaultVal = ''
                       arr.push(item)
                     }
                   })
@@ -207,56 +207,68 @@ export default {
       // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
       data.lookups.map(item => {
         let val = item.join
+        // 主表的判断
         val.foreign_key.map((n, i) => {
-          foreign_keys.push({
-            name: n,
-            id: `${n.split('.')[0]}.${n.split('.')[1]}`
-          })
+          if (item.joinAlias !== item.joinTable) {
+            foreign_keys.push({
+              name: `${item.joinTable}.${n.split('.')[1]}`,
+              id: `${item.joinTable}.${n.split('.')[1]}`,
+              titid: n
+            })
+          } else {
+            foreign_keys.push({ name: n, id: n })
+          }
         })
         /*
           判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
         */
         val.primary_key.map((n, i) => {
           if (item.alias !== item.table.split('.')[1]) {
-            foreign_keys.push({
+            primary_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
               id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              titid: `${n.split('.')[0]}.${n.split('.')[1]}`
+              titid: n
             })
+          } else {
+            primary_keys.push({ name: n, id: n })
           }
         })
       })
       // 组合第二步设置完的表名
       result = [ ...foreign_keys, ...primary_keys ]
-
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      values.map(res => {
+      values.map((res, i) => {
+        result.map(n => {
+          // 找出设置为别名的数据push到总的数据中 替换对应的id
+          if (n.titid && n.id === res.id) {
+            const newRes = Object.assign({}, res, { id: n.titid })
+            values.push(newRes)
+          }
+        })
+      })
+      this.tableData && this.tableData.map((item, i) => {
+        foreign_keys.map(val => {
+          if (val.id === item.id) {
+            Object.assign(item, { defaultVal: 'n' })
+          }
+        })
+      })
+      values.map((res, i) => {
         result.map(n => {
           if (res.id === n.id || res.id === n.titid) {
-            res.id = n.titid ? n.titid : n.id
             res.mode = '1'
             resultData = [...resultData, res]
             selectRows.push(res)
           }
         })
       })
-      setTimeout(() => {
-        // 调用默认选中的数据
-        this.toggleSelection(resultData)
-        this.tableData && this.tableData.forEach((item, i) => {
-          this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-            if (val.id === item.id) {
-              this.tableData[i].name = String(val.name)
-              this.tableData[i].mode = '1'
-              this.tableData[i].defaultVal = 'n'
-            }
-          })
-        })
-        // // 存放到store
-        this.$store.dispatch('SaveSelectFiled', selectRows)
-        // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
-        this.$store.dispatch('SaveFiledData')
-      }, 500)
+      // setTimeout(() => {
+      // 调用默认选中的数据
+      this.toggleSelection(resultData)
+      // // 存放到store
+      this.$store.dispatch('SaveSelectFiled', selectRows)
+      this.$store.dispatch('SaveFiledData')
+      // }, 300)
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {

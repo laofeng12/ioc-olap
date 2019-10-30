@@ -42,7 +42,7 @@ export default new Router({
           name: 'createolap',
           meta: { title: '新建OLAP模型' },
           component: stepContainer,
-          redirect: 'createolap/selectStep',
+          redirect: '/analysisModel/Configuration',
           children: [
             {
               path: 'selectStep',
@@ -92,7 +92,7 @@ export default new Router({
     },
     {
       path: '/',
-      name: 'queries',
+      name: 'queries1',
       component: ContainerWrapper,
       redirect: '/instantInquiry',
       children: [
@@ -112,7 +112,7 @@ export default new Router({
     },
     {
       path: '/',
-      name: 'queries',
+      name: 'queries2',
       component: ContainerWrapper,
       redirect: '/analysisList',
       children: [

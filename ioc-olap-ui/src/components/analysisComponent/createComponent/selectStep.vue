@@ -73,13 +73,6 @@ export default {
   },
   computed: {
     ...mapGetters(['saveSelectTable', 'saveLocalSelectTable', 'selectTableTotal', 'selectStepList', 'serchTableList'])
-    // ...mapGetters({
-    //   saveSelectTable: 'saveSelectTable',
-    //   saveLocalSelectTable: 'saveLocalSelectTable',
-    //   selectTableTotal: 'selectTableTotal',
-    //   selectStepList: 'selectStepList',
-    //   serchTableList: 'serchTableList'
-    // })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getUploadTable')

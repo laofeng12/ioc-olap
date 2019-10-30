@@ -341,10 +341,6 @@ export default {
             showDim: true,
             checkedAll: this.formData.checkedAll
           })
-          // this.formData['id'] = id
-          // this.formData['isNew'] = this.isNew
-          // this.formData['showDim'] = true
-          // this.formData['checkedAll'] = this.formData.checkedAll
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('设置成功~')

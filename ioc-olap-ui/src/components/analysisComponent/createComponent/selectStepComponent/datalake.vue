@@ -96,10 +96,6 @@ export default {
           this.managementData = res.data.data
         }
       })
-      // ---
-      // if (this.$route.query.cubeName) {
-      //   this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1)
-      // }
     }
   },
   computed: {

@@ -63,7 +63,6 @@ export default {
   },
   methods: {
     init () {
-      console.log('最后一步获取的', this.totalSaveData)
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
@@ -116,7 +115,6 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns, '复制后的')
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段
@@ -152,13 +150,13 @@ export default {
     nextModel (val) {
       console.log(this.totalSaveData, '高级')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
-        // this.completeLoading = true
+        this.completeLoading = true
         throttle(async () => {
           await saveolapModeldata(this.totalSaveData).then(_ => {
-            // this.$message.success('保存成功~')
-            // this.completeLoading = false
-            // this.$router.push('/analysisModel/Configuration')
-            // this.$store.dispatch('resetList')
+            this.$message.success('保存成功~')
+            this.completeLoading = false
+            this.$router.push('/analysisModel/Configuration')
+            this.$store.dispatch('resetList')
           }).catch(_ => {
             this.completeLoading = false
           })

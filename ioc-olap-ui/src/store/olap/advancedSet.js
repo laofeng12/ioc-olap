@@ -238,7 +238,6 @@ const advancedSet = {
           state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.filter((item, index) => {
             item === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
           })
-          console.log(state.hbase_mapping.column_family, '删除的~')
           state.savehetComposeDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savehetComposeDataId[list.findIndex].splice(index, 1)
           })
