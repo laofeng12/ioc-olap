@@ -20,7 +20,7 @@ spring:
 #    password: Ch#123456
     # 用Oracle
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@nhc.smart-info.cn:8521:orcl
+    url: jdbc:oracle:thin:@192.168.6.251:1521:orcl
     username: c##dgioc
     password: bigdata@0769
     druid:

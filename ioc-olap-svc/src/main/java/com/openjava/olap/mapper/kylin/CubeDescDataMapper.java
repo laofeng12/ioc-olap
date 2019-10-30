@@ -18,7 +18,7 @@ public class CubeDescDataMapper {
     public String description;
     public ArrayList<DimensionMapper> dimensions;
     public ArrayList<MeasureMapper> measures;
-    public ArrayList dictionaries;
+    public ArrayList<CubeDictionaryMapper> dictionaries;
     public RowkeyMapper rowkey;
     public ArrayList<AggregationGroupMapper> aggregation_groups;
     public ArrayList mandatory_dimension_set_list;
