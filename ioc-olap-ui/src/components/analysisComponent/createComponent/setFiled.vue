@@ -17,7 +17,7 @@
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
-              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
+              <el-table-column type="selection" :selectable="isSelectable" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
@@ -153,7 +153,6 @@ export default {
                     if (val.id === item.id) {
                       this.tableData[i].name = String(val.name)
                       this.tableData[i].mode = String(val.mode)
-                      // this.tableData[i].defaultVal = ''
                       arr.push(item)
                     }
                   })
@@ -247,9 +246,16 @@ export default {
         })
       })
       this.tableData && this.tableData.map((item, i) => {
+        // 筛选出是否为外键 如果是外键就要加上唯一标识${defaultVal} === 'n'
         foreign_keys.map(val => {
           if (val.id === item.id) {
             Object.assign(item, { defaultVal: 'n' })
+          }
+        })
+        // 筛选出是否为主键或者外键
+        result.map(x => {
+          if (item.id === x.id || item.id === x.titid) {
+            Object.assign(item, { primary: '1' })
           }
         })
       })
@@ -269,6 +275,14 @@ export default {
       this.$store.dispatch('SaveSelectFiled', selectRows)
       this.$store.dispatch('SaveFiledData')
       // }, 300)
+    },
+    // 判断是否为主键或者外键
+    isSelectable (row, index) {
+      if (row.primary) {
+        return 0
+      } else {
+        return 1
+      }
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
@@ -412,7 +426,15 @@ export default {
     >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
       content: ''
       height 0!improtant
-  }
+    }
+    >>>.is-disabled{
+      .el-checkbox__inner{
+        background #1877F1
+        border-color #1877F1
+      }
+      .el-checkbox__inner::after{
+      }
+    }
   }
 }
 </style>
