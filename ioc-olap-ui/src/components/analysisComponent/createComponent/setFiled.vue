@@ -275,7 +275,6 @@ export default {
           }
         })
       })
-      console.log('李帆', selectRows)
       setTimeout(() => {
         // 调用默认选中的数据
         this.toggleSelection(resultData)
