@@ -245,10 +245,26 @@ export default {
           }
         })
       })
+      values.map((res, i) => {
+        result.map(n => {
+          if (res.id === n.id || res.id === n.titid) {
+            resultData = [...resultData, res]
+            foreign_keys.map(val => {
+              if (val.id === res.id || val.titid === res.id) {
+                Object.assign(res, { mode: '1', fuck: '1' })
+              } else {
+                Object.assign(res, { mode: '2' })
+              }
+            })
+            selectRows.push(res)
+          }
+        })
+      })
+      selectRows.map(res => { if (res.fuck) res.mode = '1' })
       this.tableData && this.tableData.map((item, i) => {
         // 筛选出是否为外键 如果是外键就要加上唯一标识${defaultVal} === 'n'
         foreign_keys.map(val => {
-          if (val.id === item.id) {
+          if (val.id === item.id || val.titid === item.id) {
             Object.assign(item, { defaultVal: 'n' })
           }
         })
@@ -259,22 +275,14 @@ export default {
           }
         })
       })
-      values.map((res, i) => {
-        result.map(n => {
-          if (res.id === n.id || res.id === n.titid) {
-            res.mode = '1'
-            resultData = [...resultData, res]
-            selectRows.push(res)
-          }
-        })
-      })
-      // setTimeout(() => {
-      // 调用默认选中的数据
-      this.toggleSelection(resultData)
-      // // 存放到store
-      this.$store.dispatch('SaveSelectFiled', selectRows)
-      this.$store.dispatch('SaveFiledData')
-      // }, 300)
+      console.log('李帆', selectRows)
+      setTimeout(() => {
+        // 调用默认选中的数据
+        this.toggleSelection(resultData)
+        // 存放到store
+        this.$store.dispatch('SaveSelectFiled', selectRows)
+        this.$store.dispatch('SaveFiledData')
+      }, 300)
     },
     // 判断是否为主键或者外键
     isSelectable (row, index) {

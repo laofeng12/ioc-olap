@@ -55,10 +55,10 @@ export default {
   },
   watch: {
     '$route' () {
-      this.init()
+      // this.init()
     }
   },
-  mounted () {
+  created () {
     this.init()
   },
   methods: {
@@ -109,12 +109,6 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
-
-      // 过滤rowkey
-      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
-        let leh = res.lengths ? `:${res.lengths}` : ''
-        res.encoding = `${res.columns_Type}${leh}`
-      })
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段
@@ -146,8 +140,17 @@ export default {
       // this.totalSaveData.models.modelDescData.dimensions = dest
       this.totalSaveData.models.modelDescData.dimensions = []
     },
+    changesEncoding () {
+      // 过滤rowkey
+      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
+        let leh = res.lengths ? `:${res.lengths}` : ''
+        res.encoding = `${res.columns_Type}${leh}`
+      })
+      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
+    },
     // 处理 dimensions（选择维度）
     nextModel (val) {
+      this.changesEncoding()
       console.log(this.totalSaveData, '高级')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true

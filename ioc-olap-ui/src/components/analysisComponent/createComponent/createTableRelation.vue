@@ -208,7 +208,7 @@ export default {
 
       // 鼠标点击
       paper.on('cell:pointerclick', (e, d) => {
-        // console.log('点击')
+        console.log('点击', e)
         d.stopPropagation()
       })
 
@@ -338,6 +338,7 @@ export default {
       }
     },
     papersClick (e) {
+      console.log('点击了', e)
       let element = this.cellLayerData || {}
       let model = element.model
       let position = model.get('position')
