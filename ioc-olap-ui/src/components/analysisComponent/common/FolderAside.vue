@@ -11,7 +11,13 @@
     <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList" :props="menuDefault"
              default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
+        <div v-if="data.children && data.children.length">
+          <span class="cus-node-title"  :title="data.name">{{ data.name }}</span>
+        </div>
+        <div v-else>
+          <span class="cus-node-title"  :title="data.name">{{ data.name }}</span>
+          <span class="cus-node-title"  :title="data.name">-{{ data.virtualTableName }}</span>
+        </div>
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">
             <!--<el-button type="primary" size="mini">-->

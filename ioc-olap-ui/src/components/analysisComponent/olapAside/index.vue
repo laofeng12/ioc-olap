@@ -25,11 +25,13 @@
                     <i slot="prefix" class="el-input__icon el-icon-search"></i>
                   </el-input>
                   <ul class="has-dataset dimen" id="dimen">
-                    <li :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`"
-                        v-for=" (item, index) in dimensuresList" :key="index">
+                    <li
+                    v-for=" (item, index) in dimensuresList" :key="index"
+                    :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                        <span>{{item.name}}</span>
+                        <span v-if="item.children && item.children.length">{{item.virtualTableName}}</span>
+                        <span v-else>{{item.name}}</span>
                       </span>
                       <!--<ul v-if="item.children">-->
                         <!--<li v-for=" (v, i) in item.children" :key="`${index}-${i}`" >-->
@@ -60,11 +62,12 @@
                     <i slot="prefix" class="el-input__icon el-icon-search"></i>
                   </el-input>
                   <ul class="has-dataset dimen measure" id="measure">
-                    <li :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`"
-                        v-for=" (item,index) in measuresList" :key="index">
+                    <li v-for=" (item,index) in measuresList" :key="index"
+                    :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                        <span>{{item.name}}</span>
+                        <span v-if="item.children && item.children.length">{{item.virtualTableName}}</span>
+                        <span v-else>{{item.name}}</span>
                       </span>
                     </li>
                   </ul>
@@ -364,6 +367,7 @@ export default {
         })
       })
       this.dimensuresList = dimensuresList
+      console.log(this.dimensuresList)
       this.measuresList = measuresList
     },
     // 删除维度行

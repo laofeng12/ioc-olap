@@ -1,7 +1,24 @@
-import { getselectCatalog, getselectTable, getselectColumn, getTreeoneList, getTreetwoList, getTreethreeList, getResourceInfo, getResourceData, getResourcedirectory, getColumnList, getTableData, getdsUploadTable } from '@/api/olapModel'
-import { reduceObj, setLocalStorage, reduceObjisId } from '@/utils/index'
+import { getselectCatalog, 
+  getselectTable,
+  getselectColumn,
+  getTreeoneList,
+  getTreetwoList,
+  getTreethreeList,
+  getResourceInfo,
+  getResourceData,
+  getResourcedirectory,
+  getColumnList,
+  getTableData,
+  getdsUploadTable
+} from '@/api/olapModel'
+import {
+  batchCreateJob
+} from '@/api/newOlapModel'
+import { reduceObj, setLocalStorage, removeLocalStorage } from '@/utils/index'
+
 const selectStep = {
   state: {
+    batchCreateJob: [], // 批量创建同步任务
     treeList: [], // 树形数据
     serchTableList: [], // 获取的表数据
     searchType: 1, // 判断在数据湖还是本地 1 数据湖 2 本地
@@ -20,37 +37,21 @@ const selectStep = {
         orgName: '',
         tableList: []
       }
-      // {
-      //   'orgId': 2,
-      //   'orgName': 'KYLIN',
-      //   'tableList': [
-      //     {
-      //       'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998', // 表id
-      //       'table_name': 'KYLIN_SALES', // 表名称
-      //       'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-      //       'database': 'KYLIN',
-      //       'type': 1, // 表类型（数据湖/本地上传）
-      //       'filed': 0
-      //     }
-      //   ]
-      // },
-      // {
-      //   'orgId': 2,
-      //   'orgName': 'KYLIN',
-      //   'tableList': [
-      //     {
-      //       'table_id': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-      //       'table_name': 'KYLIN_SALES',
-      //       'resourceId': 'f86af73f-c96a-4eb8-9de7-3cca85aae998',
-      //       'database': 'KYLIN',
-      //       'type': 1,
-      //       'filed': 0
-      //     }
-      //   ]
-      // }
     ]
   },
   mutations: {
+    // 批量创建同步任务
+    SET_BATCH_CREATEJOB (state, data = []) {
+      state.batchCreateJob = data
+      // // 回写真实表名 selectTableTotal
+      // state.batchCreateJob.forEach(t => {
+      //   let target = state.selectTableTotal.find(item => item.resourceId === t.resourceId)
+      //   if (target) {
+      //     target.writerTableName = t.writerTableName
+      //   }
+      // })
+      // // dispatch('SelectStepList', state.saveSelectTable)
+    },
     GET_TREELIST: (state, data) => {
       state.treeList = data
     },
@@ -70,6 +71,12 @@ const selectStep = {
     },
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableTotal = val.filter(item => { return item.label })
+      setLocalStorage('selectTableTotal', state.selectTableTotal)
+    },
+    // 移除选择的数据
+    REMOVE_SETSELCT_TABLE_COUNT: (state, { id }) => {
+      const index = state.selectTableTotal.findIndex(t => t.id === id)
+      state.selectTableTotal.splice(index, 1)
       setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 存储所有选择的表对应的字段
@@ -120,6 +127,11 @@ const selectStep = {
         tableList: []
       }]
     },
+     // 批量创建同步接口
+     async batchCreateJob ({ commit }, params) {
+       const { data = [] } = await batchCreateJob(params)
+       commit('SET_BATCH_CREATEJOB', data)
+    },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
       return new Promise((resolve, reject) => {
@@ -146,7 +158,7 @@ const selectStep = {
         })
       })
     },
-    // 获取列表获取资源信息
+    // 获取表数据以及列资源信息
     GetResourceInfo ({ commit }, obj) {
       return new Promise((resolve, reject) => {
         // getResourceInfo(obj).then(res => {
@@ -247,6 +259,8 @@ const selectStep = {
         res.tableList.map(n => {
           n.table_name = n.label
           n.table_id = n.id
+          n.databaseId = n.databaseId
+          n.virtualTableName = n.label // 虚拟表名
         })
       })
       state.selectStepList = dest
@@ -260,8 +274,12 @@ const selectStep = {
             label: item.label,
             orgId: item.orgId,
             resourceId: item.resourceId,
+            resourceName: item.resourceName,
             database: item.database,
-            type: state.searchType
+            type: state.searchType,
+            databaseId: item.databaseId,
+            virtualTableName: item.label,
+            ...item
           })
         }
       })
@@ -274,7 +292,7 @@ const selectStep = {
     // 删除数据胡对应的数据
     delSelectTableList ({ state, dispatch, getters }, data) {
       state.saveSelectTable.map((item, index) => {
-        if (data.delData.id === item.id) {
+        if (data.delData && data.delData.id === item.id) {
           state.saveSelectTable.splice(index, 1)
         }
       })
@@ -300,7 +318,7 @@ const selectStep = {
     // 删除本地上传的数据
     delLocalSelectTableList ({ state, dispatch, getters }, data) {
       state.saveLocalSelectTable.map((item, index) => {
-        if (data.delData.id === item.id) {
+        if (data.delData && data.delData.id === item.id) {
           state.saveLocalSelectTable.splice(index, 1)
         }
       })

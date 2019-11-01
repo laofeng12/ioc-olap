@@ -1,37 +1,53 @@
 <template>
   <div class="serchTable">
-     <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model="value" clearable></el-input>
-     <div class="trees" ref="treesBox">
-      <el-tree
+    <div   @click="handleSelect" class="selctNum">已选择：<i>{{selectTableTotal.length || '请选择数据'}}</i></div>
+     <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model="serachvalue" clearable></el-input>
+     <div class="trees" ref="treesBox" v-loading="loading">
+       <el-scrollbar style="height:100%">
+         <el-tree
+        v-if="dataList && dataList[0].children.length > 1"
         ref="trees"
         :data="dataList"
         default-expand-all
         node-key="id"
-        v-loading="loading"
         :expand-on-click-node='false'
         show-checkbox
         highlight-current
+        :filter-node-method="filterNode"
         :default-checked-keys="defaultKey"
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
         <span class="custom-tree-node" slot-scope="{ node  }">
-          <el-tooltip class="node__item-tip" effect="dark" :enterable="false" :content="node.label ? node.label : ''" placement="right" popper-class="my-dep-toolTip">
+          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark" 
+            :enterable="false" :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
             <span>{{ node.label ? node.label : '全选' }}</span>
           </el-tooltip>
+          <span v-else  class="show-ellipsis">{{node.label}}</span>
         </span>
         </el-tree>
-        <span v-if="dataList && dataList[0].children.length < 1" style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
+        <span v-else style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
+       </el-scrollbar>
+        <!-- <p v-if="loading">加载中...</p> -->
      </div>
+     <!-- <p v-if="noMore">没有更多了</p> -->
+     <!-- 选择 -->
+     <select-modal ref="dialog"></select-modal>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
+import { getResourceList } from '@/api/newOlapModel'
+import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
+
+
 export default {
+  name: 'serchTable',
   data () {
     return {
-      value: '',
+      noMore: false,
+      serachvalue: '',
       loading: false,
       defaultKey: [],
       dataList: [{
@@ -41,64 +57,31 @@ export default {
       }]
     }
   },
-  mounted () {
+  components: {
+    selectModal
+  },
+  watch: {
+    serachvalue (val) {
+      this.$refs.trees.filter(val)
+    }
+  },
+  created () {
+    this.initEvent()
     this.init()
   },
   methods: {
+    initEvent () {
+      // 弹出框移除数据
+      this.$root.eventBus.$on('modal-remove', data => {
+        const checkedNodes = this.$refs.trees.getCheckedNodes()
+        checkedNodes.splice(checkedNodes.findIndex(t => t === data.id), 1)
+        this.defaultKey = checkedNodes
+        this.$refs.trees.setCheckedNodes(checkedNodes)
+      })
+    },
     init () {
-      // 判断是否有数据 如果没有数据的话就需改变树的高度
-      // 接收数据湖传递的信息
-      this.$root.eventBus.$on('getserchTableList', (res, type) => {
-        this.loading = true
-        this.dataList[0].children = []
-        let orgId = res.orgId
-        /* KELIN */
-        if (type && type === 1) {
-          this.$store.dispatch('GetThreeList', { orgId: orgId }).then(res => { // kelin
-            if (res) {
-              res.map(res => { this.dataList[0].children.push({ id: res.resourceId, orgId: orgId, resourceId: res.resourceId, label: res.resourceTableName, database: res.database }) }) // kelin
-              this.loading = false
-              this.$root.eventBus.$emit('saveSelectTables')
-            }
-          })
-        // if (type && type === 1) {
-        //   this.$store.dispatch('GetThreeList', { orgId: orgId, type: res.type, databaseType: res.databaseType }).then(res => {
-        //     if (res.code === 200) {
-        //       res.data.map(res => { this.dataList[0].children.push({ id: res.resourceCode, resourceId: res.resourceId, label: res.resourceTableName }) })
-        //       this.loading = false
-        //       this.$root.eventBus.$emit('saveSelectTables')
-        //     }
-        //   })
-        } else {
-          this.serchTableList.map(res => { this.dataList[0].children.push({ id: res.resourceId, resourceId: res.resourceId, label: res.resourceTableName }) })
-          setTimeout(() => { this.loading = false }, 300)
-        }
-      })
-      // 接收本地上传传递的信息
-      this.$root.eventBus.$on('getUploadTable', res => {
-        // 初始化列表树
-        this.dataList[0].children = []
-        this.loading = true
-        // 获取本地上传的数据
-        this.$store.dispatch('GetdsUploadTable').then(res => {
-          if (res.code === 200) {
-            this.loading = false
-            // 将获取的数据绑定到列表树上
-            res.rows.map(res => {
-              this.dataList[0].children.push({
-                id: res.dsUploadTableId,
-                label: res.tableCode
-              })
-            })
-            // 判断是否存在已勾选的本地上传数据
-            if (this.saveLocalSelectTable.length < 1) {
-              setTimeout(() => { this.$refs.trees.setCheckedKeys([]) })
-            }
-            // 触发复选框的方法
-            this.$root.eventBus.$emit('saveSelectTables')
-          }
-        })
-      })
+      // 获取资源信息列表
+      this.$root.eventBus.$on('getserchTableList', (data) => this.getserchTableList(data))
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
         // 初始化默认勾选框数组 以及树列表的复选框
@@ -114,53 +97,41 @@ export default {
         this.$refs.trees.setCheckedKeys([])
       })
     },
-    handleNodeClick (value) {
-      if (value.label === '全选') return
-      this.$refs.treesBox.style.height = this.dataList[0].children.length > 0 ? '80%' : 'auto'
-      let searchType = this.$store.state.selectStep.searchType
-      if (searchType === 1) {
-        /** 数据湖 */
-        // this.$store.dispatch('GetResourceInfo', { resourceId: value.resourceId, type: searchType }).then(res => {
-        //   let datas = []
-        //   let columnData = res.data.column // 子段说明
-        //   res.data.column.forEach(item => {
-        //     datas.push(item.id)
-        //   })
-        //   let obj = {
-        //     params: {
-        //       'columnIdList': datas,
-        //       'page': 0,
-        //       'size': 0
-        //     },
-        //     data: {
-        //       resourceId: value.resourceId,
-        //       type: searchType
-        //     }
-        //   }
-        //   this.$store.dispatch('getResourceData', obj).then(res => {
-        //     this.$root.eventBus.$emit('getTabdataList', res, columnData)
-        //   })
-        // })
-        // 模拟数据kelin
-        this.$store.dispatch('GetResourceInfo', value.resourceId).then(res => {
-          this.$root.eventBus.$emit('klinFetchData', JSON.parse(res).data.columns)
-        })
-      } else {
-        const parmas = {
-          dsDataSourceId: 2,
-          tableName: value.label
+    // 获取资源列表
+    async getserchTableList ({orgId, type, databaseType}) {
+      try {
+          this.loading = true
+          this.dataList[0].children = []
+          let params = {
+            orgId,
+            type,
+            databaseType
+          }
+         const { data } =  await getResourceList(params)
+         Array.isArray(data) && data.forEach(t => {
+          this.dataList[0].children.push({id: t.resourceId, label: t.resourceTableName, orgId, ...t})
+         })
+        } catch (e) {
+        } finally {
+          this.loading = false
         }
-        const valparams = {
-          dbType: 3,
-          dsDataSourceId: 2,
-          tableName: value.label
-        }
-        this.$root.eventBus.$emit('getLocalTableHeadList', parmas)
-        this.$root.eventBus.$emit('getLocalTableContentList', valparams)
-      }
+    },
+    // 查看已选择
+    handleSelect () {
+      if (this.selectTableTotal.length) this.$refs.dialog.dialog()
+    },
+    // 过滤
+    filterNode (value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    // 点击节点
+    handleNodeClick (data) {
+      if (data.label === '全选') return
+      this.$root.eventBus.$emit('getTableHeadList', data)
     },
     // 勾选框的选择
-    handleCheckChange (data, type, node) {
+    async handleCheckChange (data, type, node) {
       // 拿到当前勾选的数据
       let nodeData = this.$refs.trees.getCheckedNodes()
       // 定义一个对象传入当前勾选的状态type和选择的数据
@@ -168,62 +139,50 @@ export default {
         type: type,
         delData: data
       }
-      // ${this.$store.state.selectStep.searchType} 根据这个来判断是本地上传还是数据湖
-      if (this.$store.state.selectStep.searchType === 1) {
-        // 判断是否是勾选 勾选的话就存储这条数据
-        if (type) {
-          this.$store.dispatch('getSelectTableList', nodeData)
+       if (type) {
+          await this.$store.dispatch('getSelectTableList', nodeData)
         } else {
-        // 否则就要删除这条对应的数据
-          this.$store.dispatch('delSelectTableList', list)
+          await this.$store.dispatch('delSelectTableList', list)
         }
-      } else if (this.$store.state.selectStep.searchType === 2) {
-        if (type) {
-          this.$store.dispatch('getLocalSelectTableList', nodeData)
-        } else {
-          this.$store.dispatch('delLocalSelectTableList', list)
-        }
-      }
-      this.$store.dispatch('setSelectTableTotal')
+      await this.$store.dispatch('setSelectTableTotal')
     }
   },
   computed: {
     ...mapGetters({
-      treeList: 'treeList',
-      saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
-      serchTableList: 'serchTableList',
-      saveLocalSelectTable: 'saveLocalSelectTable'
-
+      serchTableList: 'serchTableList'
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('getTableHeadList')
-    this.$root.eventBus.$off('getTabdataList')
-    this.$root.eventBus.$off('getLocalTableHeadList')
-    this.$root.eventBus.$off('getTableContentList')
-    this.$root.eventBus.$off('getLocalTableContentList')
     this.$root.eventBus.$off('saveSelectTables')
-    this.$root.eventBus.$off('klinFetchData')
+    this.$root.eventBus.$off('modal-remove')
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+
+.selctNum{
+  margin-bottom: 5px;
+  cursor: pointer;
+      i{
+        color #0486FE;
+        font-style:normal;
+      }
+    }
 .serchTable{
   background #ffffff
-  width 240px
-  float left
+  width 330px
   padding 16px
   font-size 14px
   box-shadow: -5px 0 10px 0 rgba(0,0,0,0.05);
   height 100%
   .trees{
-    width 240px
-    height 85%
+    width: 298px !important;
+    height: calc(100% - 68px);
     overflow auto
-    padding-right 30px
   }
   >>>.el-tree{
     height 100%
@@ -254,6 +213,13 @@ export default {
       content: ''
       margin-top -100px
     }
+    .custom-tree-node {
+      display: inline-block;
+      width: 85%;
+      text-overflow: ellipsis;
+      text-overflow: ellipsis;
+      overflow: hidden;
+   }
   }
   >>>.expanded{
     margin-top:-100px!important;
@@ -264,7 +230,7 @@ export default {
       padding-left 0!important
     }
     .el-tree-node{
-      min-width: 120%;
+      min-width: 100%;
     }
   }
 }

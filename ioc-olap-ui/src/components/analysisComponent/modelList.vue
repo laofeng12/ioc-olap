@@ -65,7 +65,8 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :command="{type: 'lookDetail', params: scope.row}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
+                  <!-- 1：成功，-1：失败，0：进行中-->
+                  <el-dropdown-item :command="{type: 'construct', params: scope.row}" v-if="scope.row.syncStatus === 1">构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item v-if="scope.row.status === 'DISABLED'"
                                     :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
@@ -124,24 +125,34 @@ export default {
       return filterTime(time)
     }
   },
-  mounted () {
+  created () {
     this.init()
   },
+  mounted () {
+  },
   methods: {
-    async init (val) {
-      this.getLoading = true
-      const params = {
+    init (val) {
+      this.getModelList(val)  
+    },
+    // 模型列表
+    async getModelList (val) {
+      try {
+        this.getLoading = true
+        const params = {
         limit: 15,
         offset: this.offset,
-        dateType: 1,
+        dateType: 1, // 1：模型列表 2：构建列表 
         ...val
       }
       const { cubeMappers: res, next } = await getModelDataList(params)
-      if (res.length > 0) {
+      if (res && res.length > 0) {
         this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
       }
       this.moreShow = next
-      this.getLoading = false
+      } catch(e) {
+      } finally {
+        this.getLoading = false
+      }
     },
     async update (val) {
       this.getLoading = true

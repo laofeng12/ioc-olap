@@ -225,7 +225,6 @@ export default {
             let linkModal = null
             this.linkModalModel = null
             this.linkModalFields = []
-
             if (data) {
               let fields = this.getFields(data)
 

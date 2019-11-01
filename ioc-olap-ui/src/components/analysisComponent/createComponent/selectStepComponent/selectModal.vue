@@ -1,9 +1,11 @@
 <template>
   <div class="selectModal">
-    <el-dialog title="已选择数据表" :visible.sync="dialogFormVisible" @close="closeBtn">
+    <el-dialog title="已选择数据表" 
+    :close-on-click-modal="false"
+    :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="main" v-if="tableData&&tableData.length">
         <el-tooltip v-for="(item, index) in tableData" :key="index" class="item" effect="dark" :content="item.label" placement="top">
-          <el-tag type="">{{item.label}}</el-tag>
+          <el-tag type="" closable @close="removeTag(item)">{{item.label}}</el-tag>
         </el-tooltip>
       </div>
       <div v-else style="text-align:center;margin-top:100px;">暂无数据</div>
@@ -17,7 +19,9 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getLocalStorage } from '@/utils/index'
+
 export default {
+  name: 'selectModal',
   props: {
     border: {
       type: Boolean,
@@ -26,23 +30,23 @@ export default {
   },
   data () {
     return {
-      dialogFormVisible: false,
-      tableData: []
+      dialogFormVisible: false
     }
   },
   methods: {
     closeBtn () {
-      this.tableData = []
+      // this.tableData = []
     },
     submitBtn (index) {
       this.dialogFormVisible = false
     },
     dialog (val, data) {
       this.dialogFormVisible = true
-      // this.tableData = [...this.saveSelectTable, ...this.saveLocalSelectTable]
-      this.tableData = (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
-        return res.label
-      })
+    },
+    // 移除选择
+    async removeTag (data) {
+      await this.$store.commit('REMOVE_SETSELCT_TABLE_COUNT', data)
+      await this.$root.eventBus.$emit('modal-remove', data)
     }
   },
   computed: {
@@ -50,13 +54,21 @@ export default {
       saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
       saveLocalSelectTable: 'saveLocalSelectTable'
-    })
+    }),
+    tableData () {
+      return (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
+        return res.label
+      })
+    }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .selectModal{
+  >>>.el-dialog {
+    width 60%;
+  }
   >>>.el-dialog__body{
     height 300px
     overflow-y auto

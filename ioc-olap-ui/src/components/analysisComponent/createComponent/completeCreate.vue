@@ -106,6 +106,18 @@ export default {
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
+      // 增加  databaseId
+      this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
+        tb.tableList.forEach(t => {
+          let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
+          if (target) {
+            t.virtualTableName = t.table_name // 虚拟表名
+            t.databaseId = target.databaseId
+            // t.databaseId = target.databaseId
+            // t.table_name = target.writerTableName // 真实表名
+          }
+        })
+      })
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
@@ -145,6 +157,35 @@ export default {
       })
       // this.totalSaveData.models.modelDescData.dimensions = dest
       this.totalSaveData.models.modelDescData.dimensions = []
+      // 增加对应关系
+      let relations = []
+      this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
+        tb.tableList.forEach(t => {
+          let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
+          if (target) {
+            let writerTableName = target.writerTableName
+            let table_name = t.table_name
+            relations.push({
+              jobId: target.jobId,
+              resourceId: target.resourceId,
+              tableName: writerTableName,
+              virtualTableName: table_name
+            })
+          }
+        })
+      })
+      this.totalSaveData.relations = relations
+      // lookups 增加虚拟表
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        let target = this.batchCreateJob.find(item => item.resourceId === t.id)
+          if (target) {
+            t.virtualTableName = t.table ? t.table.replace('async.','').replace('DEFAULT.','') : t.table // 虚拟表名
+            t.table = t.table ?  t.table.replace('DEFAULT','async') : t.table
+            // t.table_name = target.writerTableName // 真实表名
+          }
+      })
+      // 处理fact_table
+      this.totalSaveData.models.modelDescData.fact_table = this.totalSaveData.models.modelDescData.fact_table.replace('DEFAULT','async')
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
@@ -172,6 +213,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      batchCreateJob: 'batchCreateJob',
       totalSaveData: 'totalSaveData',
       ModelAllList: 'ModelAllList',
       saveSelectFiled: 'saveSelectFiled', // 已选的维度
