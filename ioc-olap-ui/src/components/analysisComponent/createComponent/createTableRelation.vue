@@ -72,6 +72,7 @@ export default {
   data () {
     return {
       defaultId: '',
+      arrId: [],
       defaultIdAsiad: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
@@ -175,9 +176,10 @@ export default {
     },
     init () {
       this.TableCountNum = 0
+      // 初始化选择的别名组合
+      this.arrId = []
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      // console.log('李帆', this.jointResultData)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -208,8 +210,14 @@ export default {
 
       // 鼠标点击
       paper.on('cell:pointerclick', (e, d) => {
-        // console.log('点击')
-        d.stopPropagation()
+        if (e.model.attributes.attrs.text) {
+          // console.log('点击', e.model.attributes.attrs.text.id, this.arrId)
+          if (this.arrId.length > 0 && !this.arrId.includes(e.model.attributes.attrs.text.alias)) {
+            this.hideCellLayer()
+            return this.$message.warning('当前表不能为主表~')
+          }
+        }
+        // d.stopPropagation()
       })
 
       // 鼠标拖拽
@@ -289,6 +297,7 @@ export default {
         } else {
           let element = this.getDragElement(e.targetPoint)
           if (element) {
+            this.arrId.push(element.attributes.attrs.text.alias)
             e.model.target(element)
             e.model.labels([{ position: 0.5,
               attrs: { '.marker-target': { fill: 'red', stroke: '#ffffff' },
@@ -566,9 +575,11 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      // console.log(this.arrId, '来的', item)
       if (item.filed === 1) {
         this.defaultId = item.id
         this.defaultIdAsiad = item.id
+        this.arrId.push(item.label)
       } else {
         this.defaultId = ''
       }
@@ -810,6 +821,7 @@ export default {
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
       // console.log(JSON.stringify(result))
+      // this.getIdToList()
       this.$store.commit('SaveJointResult', result)
     },
 
@@ -1035,9 +1047,11 @@ export default {
       if (this.jointResult.lookups.length > 0) {
         this.jointResult.lookups.forEach((item, index) => {
           arrId.push(item.id, item.joinId)
+          this.arrId.push(item.id, item.joinId)
         })
       } else {
         arrId.push(ids)
+        this.arrId.push(ids)
       }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },

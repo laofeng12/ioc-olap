@@ -222,8 +222,9 @@ const setFiled = {
         })
       })
       // state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      dispatch('filterTableAlias', reduceObj([...nomrlData, ...datas], 'value'))
-      dispatch('setAdvanceData', state.reloadNeedData)
+      let result = reduceObj([...nomrlData, ...datas], 'value')
+      dispatch('filterTableAlias', result)
+      dispatch('setAdvanceData', result)
     },
     // 筛选出已经修改的表名
     filterTableAlias ({ state, getters }, data) {
@@ -279,8 +280,8 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType,
               id: item.id,
-              // derived: item.mode === '1' ? null : item.titName.split(','),
-              derived: item.mode === '1' ? null : item.titName,
+              derived: item.mode === '1' ? null : item.titName.split(','),
+              // derived: item.mode === '1' ? null : item.titName,
               name: item.name
             })
           }
