@@ -374,6 +374,7 @@ export default {
               model.attr(attrs)
               model.resize(attrs.text.text.length * 9, 30)
 
+              this.arrId.push(res.value)
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
@@ -1037,6 +1038,7 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
+      console.log(this.TableCountNum, this.jointResultData.lookups.length)
       return this.TableCountNum - this.jointResultData.lookups.length === 1
     },
     // 根据当前的id 去获取所有对应的字段
