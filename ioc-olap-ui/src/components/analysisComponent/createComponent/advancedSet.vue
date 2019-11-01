@@ -217,7 +217,8 @@ export default {
           encoding: '',
           lengths: '',
           code_types: item.type ? item.type : '',
-          columns_Type: this.returncodingType(item.type),
+          // columns_Type: this.returncodingType(item.type),
+          columns_Type: item.columns_Type ? item.columns_Type : 'dict',
           encoding_version: '1',
           isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
