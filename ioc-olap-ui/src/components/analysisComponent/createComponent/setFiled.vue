@@ -211,7 +211,8 @@ export default {
           if (item.joinAlias !== item.joinTable) {
             foreign_keys.push({
               name: `${item.joinTable}.${n.split('.')[1]}`,
-              id: `${item.joinTable}.${n.split('.')[1]}`,
+              // id: `${item.joinTable}.${n.split('.')[1]}`,
+              id: n,
               titid: n
             })
           } else {
@@ -225,7 +226,8 @@ export default {
           if (item.alias !== item.table.split('.')[1]) {
             primary_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              // id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              id: n,
               titid: n
             })
           } else {
@@ -239,7 +241,7 @@ export default {
       values.map((res, i) => {
         result.map(n => {
           // 找出设置为别名的数据push到总的数据中 替换对应的id
-          if (n.titid && n.id === res.id) {
+          if (n.titid && n.name === res.id) {
             const newRes = Object.assign({}, res, { id: n.titid })
             values.push(newRes)
           }
@@ -247,10 +249,10 @@ export default {
       })
       values.map((res, i) => {
         result.map(n => {
-          if (res.id === n.id || res.id === n.titid) {
+          if (res.id === n.id) {
             resultData = [...resultData, res]
             foreign_keys.map(val => {
-              if (val.id === res.id || val.titid === res.id) {
+              if (val.id === res.id) {
                 Object.assign(res, { mode: '1', fuck: '1' })
               } else {
                 Object.assign(res, { mode: '2' })
