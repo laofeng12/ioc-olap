@@ -71,6 +71,8 @@ public class OlapModelingAction extends BaseAction {
     @Autowired
     TableHttpClient tableHttpClient;
 
+    private static Object lock = new Object();
+
 
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
@@ -176,40 +178,44 @@ public class OlapModelingAction extends BaseAction {
         //设置完整的过滤SQL
         models.getModelDescData().setFilter_condition(makeFilterSql(body.getFilterCondidion()));
 
-        //处理逻辑如下：
-        //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
-        if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
-            modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
-            models.modelDescData.setName(modelName);
-            models.modelDescData.setVersion(null);
-            models.setProject(userVO.getUserId());
-            modelMap = modelHttpClient.create(models);
-            try {
-                cube.cubeDescData.setModel_name(modelName);
-                cube.cubeDescData.setVersion(null);
-                cube.cubeDescData.setStorage_type("2");
-                cube.setCubeName(cubeName);
-                cube.setProject(userVO.getUserId());
-                cubeMap = cubeHttpClient.create(cube);
-            } catch (Exception ex) {
-                modelHttpClient.delete(modelName);
-                throw ex;
-            }
-        } else {
-            modelName = models.getModelDescData().getName();
-            oldModel = modelHttpClient.entity(models.getModelDescData().getName());
-            models.getModelDescData().setVersion(oldModel.getVersion());
-            models.getModelDescData().setLast_modified(oldModel.getLast_modified());
-            modelMap = modelHttpClient.update(models);
-            try {
-                cube.project = userVO.getUserId();
-                cube.cubeName = cube.cubeDescData.getName();
-                cube.cubeDescData.setModel_name(models.modelDescData.getName());
-                cube.cubeDescData.setStorage_type("2");
-                cubeMap = cubeHttpClient.update(cube);
-            } catch (Exception ex) {
-                restoreModel(modelMap, oldModel);
-                throw ex;
+        synchronized (lock) {
+            //处理逻辑如下：
+            //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
+            if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
+                modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
+                models.modelDescData.setName(modelName);
+                models.modelDescData.setVersion(null);
+                models.setProject(userVO.getUserId());
+                modelMap = modelHttpClient.create(models);
+                try {
+                    cube.cubeDescData.setModel_name(modelName);
+                    cube.cubeDescData.setVersion(null);
+                    cube.cubeDescData.setStorage_type("2");
+                    cube.setCubeName(cubeName);
+                    cube.setProject(userVO.getUserId());
+                    Thread.sleep(500);
+                    cubeMap = cubeHttpClient.create(cube);
+                } catch (Exception ex) {
+                    modelHttpClient.delete(modelName);
+                    throw ex;
+                }
+            } else {
+                modelName = models.getModelDescData().getName();
+                oldModel = modelHttpClient.entity(models.getModelDescData().getName());
+                models.getModelDescData().setVersion(oldModel.getVersion());
+                models.getModelDescData().setLast_modified(oldModel.getLast_modified());
+                modelMap = modelHttpClient.update(models);
+                try {
+                    cube.project = userVO.getUserId();
+                    cube.cubeName = cube.cubeDescData.getName();
+                    cube.cubeDescData.setModel_name(models.modelDescData.getName());
+                    cube.cubeDescData.setStorage_type("2");
+                    Thread.sleep(500);
+                    cubeMap = cubeHttpClient.update(cube);
+                } catch (Exception ex) {
+                    restoreModel(modelMap, oldModel);
+                    throw ex;
+                }
             }
         }
 
@@ -338,6 +344,15 @@ public class OlapModelingAction extends BaseAction {
                     }
                 }
                 countMappers.add(p);
+            } else if (p.function.getExpression().equals("COUNT_DISTINCT")) {
+                String disCountColumn = p.function.getParameter().getValue();
+                if (cube.getCubeDescData().getDictionaries() == null) {
+                    cube.getCubeDescData().setDictionaries(new ArrayList<CubeDictionaryMapper>());
+                }
+                if (cube.getCubeDescData().getDictionaries().stream().filter(q -> q.getColumn().equals(disCountColumn)).count() == 0) {
+                    cube.getCubeDescData().getDictionaries().add(new CubeDictionaryMapper(disCountColumn, CubeDictionaryMapper.GlobalDictionaryBuilder));
+                }
+                p.function.setRequestExpression(p.function.getExpression());
             } else {
                 p.function.setRequestExpression(p.function.getExpression());
             }
@@ -426,7 +441,31 @@ public class OlapModelingAction extends BaseAction {
             cube.getCubeDescData().setVersion(cubeDescDataMapper.getLast_modified());
         }
 
-        //验证度量是否有数据measures！
+        for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
+            for (String fk : lookupsMapper.join.getForeign_key()) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(fk) && p.getDerived() == null).count() == 0) {
+                    throw new APIException(400, "外键列【" + fk + "】必须在维度中存在且为非衍生模式！");
+                }
+            }
+            for (String pk : lookupsMapper.join.getPrimary_key()) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(pk)).count() == 0) {
+                    throw new APIException(400, "主键列【" + pk + "】必须在维度中存在！");
+                }
+            }
+        }
+
+        Long rowKeyCount = cube.getCubeDescData().getDimensions().stream().filter(p -> p.getDerived() == null).count();
+        if (rowKeyCount != cube.getCubeDescData().getRowkey().getRowkey_columns().size()) {
+            throw new APIException(400, "rowkey个数不等于【" + rowKeyCount + "】！");
+        }
+
+        for (RowkeyColumnMapper rowKey : cube.getCubeDescData().getRowkey().getRowkey_columns()) {
+            if (rowKey.getColumn() == null || rowKey.getColumn().equals("") || rowKey.getColumn().indexOf(".") < 0 || rowKey.getEncoding() == null
+                    || rowKey.getEncoding().equals("")) {
+                throw new APIException(400, "rowKey数据格式有问题！");
+            }
+        }
+
         if (cube.cubeDescData.measures.size() == 0) {
             throw new APIException(400, "度量不可为空！");
         } else if (cube.getCubeDescData().getDimensions().size() == 0) {
