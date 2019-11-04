@@ -118,11 +118,11 @@ public class OlapDatalaketableServiceImpl implements OlapDatalaketableService {
                 list.stream().filter(s->s.getResourceId().equals(array.getJSONObject(finalI).getString("resourceId"))).forEach(s->s.setSyncStatus(array.getJSONObject(finalI).getInteger("status")));
             }
             for (CubeMapper c : cubeList){
-                int state = 1;//默认为成功
+                int state = 0;//默认为不成功
                 for (DataLakeJobQueryParam p : list){
-                    // 只要有一个job返回的状态不是4-成功，则该cube不能创建
-                    if (c.getName().equals(p.getCubeName()) && p.getSyncStatus() != 4){
-                        state = 0;
+                    // 只要有一个job返回的状态是4-成功，则该cube能创建
+                    if (c.getName().equals(p.getCubeName()) && p.getSyncStatus()!=null && p.getSyncStatus() == 4){
+                        state = 1;
                         break;
                     }
                 }

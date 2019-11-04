@@ -3,6 +3,7 @@ package com.openjava.olap.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.TableNameTransposition;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
@@ -154,6 +155,17 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/createModeling", method = RequestMethod.POST)
     @Security(session = true)
     public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws Exception {
+        List<TableNameRelationMapper> relations = body.getRelations();
+        if (relations != null && !relations.isEmpty()){
+            body.setRelations(null);
+            String json = JSON.toJSONString(body);
+            for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
+                if (mapper.getTableName()!=null && mapper.getVirtualTableName()!=null){
+                    json = TableNameTransposition.replaceAll(json,mapper.getVirtualTableName(),mapper.getTableName());
+                }
+            }
+            body = JSON.parseObject(json,ModelingMapper.class);
+        }
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -485,6 +497,7 @@ public class OlapModelingAction extends BaseAction {
         ModelsDescDataMapper model = modelHttpClient.entity(models);
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
+        List<TableNameRelationMapper> relations = TableNameTransposition.extract(table);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         //事实表
         String factTable = model.getFact_table().substring(model.getFact_table().indexOf(".") + 1);
@@ -619,6 +632,15 @@ public class OlapModelingAction extends BaseAction {
         paramMap.put("measureFiledLength", olapCube.getMeasureFiledLength());
         paramMap.put("timingreFresh", timingrefresh);
         paramMap.put("filterCondidion", olapFilterCondidions);
+        if (relations != null && !relations.isEmpty()){
+            String json = JSON.toJSONString(paramMap);
+            for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
+                if (mapper.getVirtualTableName()!= null && mapper.getTableName()!=null) {
+                    json = TableNameTransposition.replaceAll(json, mapper.getTableName(), mapper.getVirtualTableName());
+                }
+            }
+            paramMap = JSON.parseObject(json);
+        }
         return paramMap;
     }
 
