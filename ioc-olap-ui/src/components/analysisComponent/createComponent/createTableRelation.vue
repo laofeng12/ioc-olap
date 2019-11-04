@@ -182,7 +182,6 @@ export default {
       this.isEditLooks()
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      console.log(this.jointResult)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -1056,7 +1055,7 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      console.log(this.TableCountNum, this.jointResultData.lookups.length)
+      // console.log(this.TableCountNum, this.jointResultData.lookups.length)
       return this.TableCountNum - this.jointResultData.lookups.length === 1
     },
     // 根据当前的id 去获取所有对应的字段
