@@ -80,23 +80,36 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
     //保存OLAP_CUBE_TABLE表
     public List<OlapCubeTable> saveCubeTable(ModelsMapper models, CubeDescMapper cube, Long cubeId, List<CubeDatalaketableNewMapper> cubeDatalaketableNew) {
         ModelsDescDataMapper modelDescData = models.modelDescData;
-        CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         SequenceService ss = ConcurrentSequence.getInstance();
         List<OlapCubeTable> cubeTablesList = new ArrayList<>();
-        String factTable = models.modelDescData.getFact_table();
+        String factFull = models.modelDescData.getFact_table();
+        String factDatabase = factFull.substring(factFull.indexOf(".") + 1);
+        String factTable = factFull.substring(factFull.indexOf(".") + 1);
+        OlapCubeTable cubeTable = new OlapCubeTable();
+        cubeTable.setCubeTableId(ss.getSequence());
+        cubeTable.setName(factTable);//表中文名称
+        cubeTable.setCubeId(cubeId);//立方体ID
+        cubeTable.setTableName(factTable);//表名称
+        cubeTable.setTableAlias(factTable);//表别名
+        cubeTable.setIsDict(1);//是否是事实表
+        cubeTable.setDatabaseName(factDatabase);//数据库名称
+        LookupsMapper dictMapper = modelDescData.getLookups().stream().filter(p -> p.getJoinAlias().equals(factTable)).findFirst().orElse(null);
+        cubeTable.setSAxis(dictMapper.getSAxis());//S轴
+        cubeTable.setYAxis(dictMapper.getYAxis());//Y轴
+        cubeTable.setTableId(dictMapper.getJoinId());
+        cubeTable.setIsNew(true);
+        cubeTablesList.add(cubeTable);
 
         for (LookupsMapper lm : modelDescData.getLookups()) {
             String libraryName = lm.getTable().substring(0, lm.getTable().indexOf("."));
             String tableName = lm.getTable().substring(lm.getTable().indexOf(".") + 1);
-
-            String factTableName = factTable.substring(factTable.indexOf(".") + 1);
-            OlapCubeTable cubeTable = new OlapCubeTable();
+            cubeTable = new OlapCubeTable();
             cubeTable.setCubeTableId(ss.getSequence());
             cubeTable.setName(lm.getAlias());//表中文名称
             cubeTable.setCubeId(cubeId);//立方体ID
             cubeTable.setTableName(tableName);//表名称
             cubeTable.setTableAlias(lm.getAlias());//表别名
-            cubeTable.setIsDict(cubeTable.getTableName().equals(factTableName) ? 1 : 0);//是否是事实表
+            cubeTable.setIsDict(0);//是否是事实表
             cubeTable.setDatabaseName(libraryName);//数据库名称
             cubeTable.setSAxis(lm.getSAxis());//S轴
             cubeTable.setYAxis(lm.getYAxis());//Y轴
@@ -108,40 +121,8 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
             cubeTable.setTableId(lm.getId());
             cubeTable.setIsNew(true);
             cubeTablesList.add(cubeTable);
-
-            //通过cubeDatalaketableNew去查找子表的库名等信息
-            OlapDatalaketable datalaketable = new OlapDatalaketable();
-            for (CubeDatalaketableNewMapper tableList : cubeDatalaketableNew) {
-                for (OlapDatalaketable t : tableList.getTableList()) {
-                    if (t.getTable_id().equals(lm.getJoinId())) {
-                        datalaketable = t;
-                        break;
-                    }
-                }
-            }
-            OlapCubeTable cubeJoinTable = new OlapCubeTable();
-            cubeJoinTable.setCubeTableId(ss.getSequence());
-            cubeJoinTable.setName(lm.getJoinTable());//表中文名称
-            cubeJoinTable.setCubeId(cubeId);//立方体ID
-            cubeJoinTable.setTableName(datalaketable.getTable_name());//表名称
-            cubeJoinTable.setTableAlias(lm.getJoinAlias());//表别名
-            cubeJoinTable.setIsDict(datalaketable.getTable_name().equals(factTableName) ? 1 : 0);//是否是事实表
-            cubeJoinTable.setDatabaseName(datalaketable.getDatabase());//数据库名称
-            cubeJoinTable.setSAxis(lm.getSAxis());//S轴
-            cubeJoinTable.setYAxis(lm.getYAxis());//Y轴
-            cubeJoinTable.setJoinSAxis(lm.getJoinSAxis());//S轴
-            cubeJoinTable.setJoinYAxis(lm.getJoinYAxis());//Y轴
-            cubeJoinTable.setJoinTable(lm.getJoinTable());
-            cubeJoinTable.setJoinId(lm.getJoinId());
-            cubeJoinTable.setJoinAlias(lm.getJoinAlias());
-            cubeJoinTable.setTableId(lm.getId());
-            cubeJoinTable.setIsNew(true);
-            cubeTablesList.add(cubeJoinTable);
         }
-        List<OlapCubeTable> cubeTables = cubeTablesList.stream().collect(
-                Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OlapCubeTable::getTableAlias))), ArrayList::new)
-        );
-        return cubeTables;
+        return cubeTablesList;
     }
 
 }

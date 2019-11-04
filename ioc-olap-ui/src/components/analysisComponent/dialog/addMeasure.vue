@@ -296,14 +296,17 @@ export default {
       this.$parent.init()
     },
     selectValue (val) {
+      let expressionList = ['SUM', 'AVG']
       let result = this.fieldtextOption.filter((res, index) => {
         return res.label === val
       })
       this.formData.function.returntype = this.formData.function.expression === 'COUNT_DISTINCT' ? 'bitmap' : result[0].dataType
-      // if (this.jsonType.indexOf(result[0].dataType) === -1) {
-      //   this.$message.warning('不支持当前字段类型~')
-      //   this.formData.function.parameter.value = ''
-      // }
+      if (expressionList.includes(this.formData.function.expression)) {
+        if (!this.jsonType.includes(result[0].dataType)) {
+          this.$message.warning('不支持当前字段类型~')
+          this.formData.function.parameter.value = ''
+        }
+      }
     },
     selectType (val) {
       if (val === 'constant') {
