@@ -178,6 +178,11 @@ public class OlapModelingAction extends BaseAction {
         //设置完整的过滤SQL
         models.getModelDescData().setFilter_condition(makeFilterSql(body.getFilterCondidion()));
 
+        //构建需要保存的数据
+        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength());
+        List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
+        List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
+
         synchronized (lock) {
             //处理逻辑如下：
             //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
@@ -218,18 +223,6 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
-
-        //处理逻辑如下：
-        //1、保存OLAP_CUBE表
-        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength());
-
-        //处理逻辑如下：
-        //1、保存OLAP_CUBE_TABLE表
-        List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
-
-        //处理逻辑如下：
-        //1、保存OLAP_CUBE_TABLE_RELATION表
-        List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
 
         try {
             //保存所有数据
