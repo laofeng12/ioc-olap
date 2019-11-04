@@ -19,7 +19,7 @@
               style="margin-top: 10px;">
               <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
-              <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
+              <el-table-column prop="type" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
@@ -96,8 +96,8 @@ export default {
           this.loading = true
           setTimeout(() => {
             this.saveSelectAllListFiled.forEach((item, index) => {
-              let items = JSON.parse(item)
-              items.data.columns && items.data.columns.map((n, i) => {
+              // let items = JSON.parse(item)
+              item.column && item.column.map((n, i) => {
                 n.mode = n.mode ? n.mode : '2'
                 n.derived = n.name
                 n.titName = n.name
@@ -106,7 +106,8 @@ export default {
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
-              this.tableData = items.data.columns
+              // this.tableData = items.data.columns
+              this.tableData = item.column
               let arr = []
               setTimeout(() => {
                 this.tableData && this.tableData.forEach((item, i) => {
@@ -125,10 +126,10 @@ export default {
           }, 1000)
         } else {
           this.saveSelectAllListFiled.forEach((item, index) => {
-            let items = JSON.parse(item)
-            if (items.resourceId === data.id) { // 根据id获取对应数据
+            // let items = JSON.parse(item)
+            if (item.resourceId === data.id) { // 根据id获取对应数据
             // if (items.name === data.joinTable) { // 根据name获取对应数据
-              items.data.columns && items.data.columns.map((n, i) => {
+              item.column && item.column.map((n, i) => {
                 n.mode = n.mode ? n.mode : '2'
                 n.derived = n.name
                 n.titName = n.name
@@ -138,7 +139,7 @@ export default {
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
-              this.tableData = items.data.columns
+              this.tableData = item.column
               // 调用获取默认勾选的方法
               this.processData(code, data.alias)
               let arr = []
@@ -173,19 +174,34 @@ export default {
     processData (code, alias) {
       // 处理所有表对应的字段
       let values = []
-      this.saveSelectAllListFiled.map((item, index) => {
-        let items = JSON.parse(item)
-        items.data.columns.map((res, i) => {
+      // this.saveSelectAllListFiled.map((item, index) => {
+      //   let items = JSON.parse(item)
+      //   items.data.columns.map((res, i) => {
+      //     values.push({
+      //       tableName: items.name,
+      //       name: res.name,
+      //       titName: res.name,
+      //       id: `${items.name}.${res.name}`,
+      //       resid: items.resourceId,
+      //       mode: items.code ? items.code : '2',
+      //       derived: res.name,
+      //       dataType: res.dataType,
+      //       filed: items.name === code ? '1' : '0'
+      //     })
+      //   })
+      // })
+      this.saveSelectAllListFiled.forEach((item, index) => {
+        item.column.map((res, i) => {
           values.push({
-            tableName: items.name,
+            tableName: item.resourceTableName,
             name: res.name,
             titName: res.name,
-            id: `${items.name}.${res.name}`,
-            resid: items.resourceId,
-            mode: items.code ? items.code : '2',
+            id: `${item.resourceTableName}.${res.name}`,
+            resid: item.resourceId,
+            mode: item.code ? item.code : '2',
             derived: res.name,
-            dataType: res.dataType,
-            filed: items.name === code ? '1' : '0'
+            dataType: res.type,
+            filed: item.name === code ? '1' : '0'
           })
         })
       })

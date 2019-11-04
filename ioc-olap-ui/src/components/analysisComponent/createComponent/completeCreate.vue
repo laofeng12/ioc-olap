@@ -133,22 +133,22 @@ export default {
       */
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
-        let data = JSON.parse(item)
+        // let data = JSON.parse(item)
         // 遍历第二步存储的表 根据id来找出事实表的那条数据
         this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
-          if (data.resourceId === n.id) {
+          if (item.resourceId === n.id) {
             dest.push({
               table: n.alias,
-              columns: data.data.columns.map(res => {
+              columns: item.column.map(res => {
                 return res.name
               })
             })
           }
         })
-        if (this.jointResultData.fact_table.split('.')[1] === data.name) {
+        if (this.jointResultData.fact_table.split('.')[1] === item.resourceTableName) {
           dest.push({
-            table: data.name,
-            columns: data.data.columns.map(res => {
+            table: item.resourceTableName,
+            columns: item.column.map(res => {
               return res.name
             })
           })
@@ -189,6 +189,7 @@ export default {
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
+      this.init()
       // console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true

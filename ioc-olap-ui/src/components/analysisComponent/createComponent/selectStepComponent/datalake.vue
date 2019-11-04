@@ -63,15 +63,6 @@ export default {
     init () {
       // 获取资源信息
       this.$root.eventBus.$on('getTableHeadList', (params) => this.getTableHeadList(params))
-      // kelin模拟数据
-      this.$root.eventBus.$on('klinFetchData', res => {
-        this.descriptionHead = [
-          { prop: 'name', label: '字段名称' },
-          { prop: 'dataType', label: '字段类型' },
-          { prop: 'dataType', label: '字段描述' }
-        ]
-        this.descriptionData = res
-      })
     },
     // 获取资源信息-表头 isOnlyPermitted:0：显示全部，1：只显示有权限部分
     async getTableHeadList ({resourceId, type, databaseId, isOnlyPermitted = 1 }) {

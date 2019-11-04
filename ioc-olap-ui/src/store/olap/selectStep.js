@@ -12,7 +12,8 @@ import { getselectCatalog,
   getdsUploadTable
 } from '@/api/olapModel'
 import {
-  batchCreateJob
+  batchCreateJob,
+  getResourceInfo as getNewResourceInfo
 } from '@/api/newOlapModel'
 import { reduceObj, setLocalStorage, removeLocalStorage } from '@/utils/index'
 
@@ -52,6 +53,10 @@ const selectStep = {
       // })
       // // dispatch('SelectStepList', state.saveSelectTable)
     },
+    // 初始化所有的列
+    SET_ALLLIISTONE(state) {
+      state.saveSelectAllList = []
+    },
     GET_TREELIST: (state, data) => {
       state.treeList = data
     },
@@ -80,22 +85,30 @@ const selectStep = {
       setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 存储所有选择的表对应的字段
-    SaveSelectAllListone (state, val) {
-      let columId = val.map(item => { return item.resourceId })
-      getselectColumn(columId).then(res => {
-        state.saveSelectAllList = res
-      })
+    SaveSelectAllListone (state, val = {}) {
+      // let columId = val.map(item => { return item.resourceId })
+      // getselectColumn(columId).then(res => {
+      //   state.saveSelectAllList = res
+      // })
+      state.saveSelectAllList.push(val)
     },
     // 存储已经建表对应的所有字段
     SaveSelectAllListtwo (state, val) {
       // let columId = val.map(item => { return item.resourceId })
-      getselectColumn(val).then(res => {
-        state.saveSelectAllListFiled = res
+      // getselectColumn(val).then(res => {
+      //   state.saveSelectAllListFiled = res
+      // })
+      state.saveSelectAllListFiled = []
+      val.forEach(t => {
+        const target = state.saveSelectAllList.find(item => item.resourceId * 1 === t * 1 )
+        if (target) {
+          state.saveSelectAllListFiled.push(target)
+        }
       })
     },
     // 存储事实表对应的字段
     SaveFactData (state, list) {
-      state.SaveFactData = list.data.map(item => {
+      state.SaveFactData = list.data && list.data.map(item => {
         item.filed = '1'
         item.tableName = list.list.joinTable
         return item
@@ -126,6 +139,14 @@ const selectStep = {
         orgName: '',
         tableList: []
       }]
+    },
+    // 获取所有选中的表列
+    async getAllColumnInfo ({ state, commit }) {
+      commit('SET_ALLLIISTONE')
+      state.saveSelectTable.forEach(async ({resourceId, type, databaseId, isOnlyPermitted  = 1}) => {
+        const { data } = await getNewResourceInfo({resourceId, type, databaseId, isOnlyPermitted})
+        commit('SaveSelectAllListone', data)
+      })
     },
      // 批量创建同步接口
      async batchCreateJob ({ commit }, params) {

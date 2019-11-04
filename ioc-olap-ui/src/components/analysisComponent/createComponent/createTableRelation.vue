@@ -5,18 +5,41 @@
       <div class="linkSetting" v-if="linkModal" ref="linkSetting">
         <h2 class="title">设置关联关系</h2>
         <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
-          <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
+          <el-option v-for="item in relationData" :key="item.label" 
+          :value="item.label" 
+          :label="item.value">
+          {{item.value}}
+          </el-option>
         </el-select>
+
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
           <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
           <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
+          <el-select name="public-choice" 
+          value-key="name" 
+          v-model="linkModalFields[index].foreign_key" 
+          placeholder="请选择关联字段" 
+          @visible-change="getModalDataList(linkModal.joinId)" 
+          @change="getModalForeignSelected">
+            <el-option v-for="coupon in couponList" :key="coupon.name" 
+            :label="coupon.name" :value="Object.assign(coupon, { index })" >
+              {{`${coupon.name}（${coupon.type}）`}}
+            </el-option>
           </el-select>
+
           <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
+          <el-select name="public-choice" value-key="name" 
+          v-model="linkModalFields[index].primary_key" 
+          placeholder="请选择关联字段" 
+          @visible-change="getModalDataList(linkModal.id)" 
+          @change="getModalPrimarySelected">
+            <el-option v-for="coupon in couponList" 
+            :key="coupon.name" :label="coupon.name" 
+            :value="Object.assign(coupon, { index })" >
+              {{`${coupon.name}（${coupon.type}）`}}
+            </el-option>
           </el-select>
+
         </div>
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
       </div>
@@ -56,6 +79,7 @@ import factTable from '@/components/analysisComponent/modelCommon/factTable'
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
+
 
 let joint = require('jointjs')
 /**
@@ -136,13 +160,15 @@ export default {
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
-        let primary_key_result = []; let foreign_key_result = []
+        let primary_key_result = []
+        let foreign_key_result = []
         let table = t.table.split('.')[1];
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
+
         lookups.push({
           alias: t.alias,
           id: t.id,
@@ -741,10 +767,9 @@ export default {
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
       console.log(e)
-
       let index = e.index
       let primary_key = e.name
-      let pk_type = e.dataType
+      let pk_type = e.type
       let foreign_key = this.linkModalFields[index].foreign_key
       let fk_type = this.linkModalFields[index].fk_type
 
@@ -769,7 +794,7 @@ export default {
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
       let foreign_key = e.name
-      let fk_type = e.dataType
+      let fk_type = e.type
 
       if (index >= 0 && foreign_key && fk_type) {
         if (fk_type && pk_type && pk_type !== fk_type) {
@@ -1030,6 +1055,7 @@ export default {
     getIdToList () {
       let arrId = []
       // 存储当前连线的id
+      
       let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
       if (this.jointResult.lookups.length > 0) {
         this.jointResult.lookups.forEach((item, index) => {
@@ -1057,12 +1083,10 @@ export default {
       // })
       // 模拟数据
       // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-      // debugger
       // 根据name去获取本地对应的数据
       (this.saveSelectAllList || []).forEach((item, index) => {
-        let items = JSON.parse(item)
-        if (items.resourceId === id) {
-          this.couponList = items.data.columns || []
+        if (item.resourceId === id) {
+          this.couponList = item.column || []
         }
       })
     }

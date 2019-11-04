@@ -23,6 +23,7 @@
 import dataLake from '@/components/analysisComponent/createComponent/selectStepComponent/datalake'
 import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/analysisComponent/modelCommon/steps'
+
 import { mapGetters } from 'vuex'
 
 export default {
@@ -57,7 +58,10 @@ export default {
     },
     // 下一步
     async nextModel (val) {
-      if (!this.selectTableTotal.length >= 1) return this.$message.warning('请选择创建模型的数据源，且不少于两张表')
+      if (this.selectTableTotal.length < 1) {
+        this.$message.warning('请选择创建模型的数据源，且不少于两张表')
+        return
+      }
       this.$parent.getStepCountAdd(val)
       let params = []
       this.selectTableTotal.forEach(({ databaseId,resourceTableName, resourceId, resourceName, type } )=> {
@@ -74,10 +78,10 @@ export default {
         })
       })
       await this.$store.dispatch('batchCreateJob', params)
-      await this.$store.commit('SaveSelectAllListone', this.saveSelectTable)
       // 清掉第二步创建的表
-      await this.$store.commit('ClearTableRelation')
-      await this.$router.push('/analysisModel/createolap/createTableRelation')
+      this.$store.commit('ClearTableRelation')
+      this.$store.dispatch('getAllColumnInfo')
+      this.$router.push('/analysisModel/createolap/createTableRelation')
     }
   },
   computed: {
