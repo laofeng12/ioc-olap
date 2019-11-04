@@ -273,13 +273,13 @@ const common = {
       }
       let resultDate = data.ModesList.partition_desc.partition_date_column
       let resultTime = data.ModesList.partition_desc.partition_time_column
-      getters.reloadData.data1a = resultDate.split('.')[0]
-      getters.reloadData.data1b = resultDate.split('.')[1]
+      getters.reloadData.data1a = resultDate ? resultDate.split('.')[0] : ''
+      getters.reloadData.data1b = resultDate ? resultDate.split('.')[1] : ''
       getters.reloadData.partition_date_format = data.ModesList.partition_desc.partition_date_format
       if (resultTime) {
         getters.reloadData.partition_time_format = data.ModesList.partition_desc.partition_time_format
-        getters.reloadData.data2a = resultTime.split('.')[0]
-        getters.reloadData.data2b = resultTime.split('.')[1]
+        getters.reloadData.data2a = resultTime ? resultTime.split('.')[0] : ''
+        getters.reloadData.data2b = resultTime ? resultTime.split('.')[1] : ''
       }
       data.filterCondidion.map(item => { getters.relaodFilterList.push(item) })
       getters.reloadData.partition_type = !!resultTime
