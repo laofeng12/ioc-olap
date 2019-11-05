@@ -42,15 +42,12 @@ const creatTableRelation = {
         if (res.join.foreign_key.length > 1) {
           res.join.foreign_key.forEach(item => {
             state.foreignKeyData = state.foreignKeyData.concat(item)
-            debugger
           })
         } else {
           state.foreignKeyData.push(res.join.foreign_key.join(','))
-          debugger
         }
       })
       state.foreignKeyData = [...new Set(state.foreignKeyData)]
-      debugger
     },
     RESET_CREATE_TABLETIONS (state, payload) {
       state.jointResultData = payload

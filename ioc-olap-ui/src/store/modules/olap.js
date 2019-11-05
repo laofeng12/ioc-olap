@@ -225,10 +225,11 @@ const common = {
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
+      console.info(data)
       getters.selectTableTotal.forEach((item, index) => {
-        data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
+        data.label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      getters.jointResultData.fact_table = `${data[0].database}.${data[0].label}`
+      getters.jointResultData.fact_table = `${data.item.database}.${data.label}`
     },
     // 获取编辑的数据
     SaveModelAllList ({ getters, store, state, dispatch }, data) {

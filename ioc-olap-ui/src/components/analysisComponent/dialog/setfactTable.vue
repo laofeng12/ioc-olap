@@ -28,33 +28,33 @@ export default {
   },
   data () {
     return {
-      value: '',
+      // value: '',
       dialogFormVisible: false,
-      tableData: [],
-      options: []
+      tableData: []
+      // options: []
     }
   },
-  computed: {
-    ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
-      jointResultData: 'jointResultData'
-    })
-  },
-  mounted () {
-    console.info('this.selectTableTotal', this.selectTableTotal)
-  },
+  // computed: {
+  //   ...mapGetters({
+      // selectTableTotal: 'selectTableTotal',
+  //     jointResultData: 'jointResultData'
+  //   })
+  // },
+  // mounted () {
+  //   console.info('this.selectTableTotal', this.selectTableTotal)
+  // },
   methods: {
-    init () {
-      this.options = this.selectTableTotal
-    },
-    selectMe (val) {
-      let data = this.options.filter(item => {
-        if (item.label === val) {
-          return item
-        }
-      })
-      this.tableData = data
-    },
+    // init () {
+    //   this.options = this.selectTableTotal
+    // },
+    // selectMe (val) {
+    //   let data = this.options.filter(item => {
+    //     if (item.label === val) {
+    //       return item
+    //     }
+    //   })
+    //   this.tableData = data
+    // },
     closeBtn (type) {
       if (type !== 'click') return false
       this.dialogFormVisible = false
@@ -65,11 +65,12 @@ export default {
       // 保存设置事实表到总表
       await this.$store.dispatch('resetCreateTabletions')
       this.$store.dispatch('mergeFiledTable', this.tableData)
-      // this.$parent.init()
+      this.$parent.init()
     },
-    dialog () {
+    dialog (data) {
       this.dialogFormVisible = true
-      this.init()
+      this.tableData = data
+      // this.init()
     }
   }
 }
