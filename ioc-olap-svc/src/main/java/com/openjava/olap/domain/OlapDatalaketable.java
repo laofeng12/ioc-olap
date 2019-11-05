@@ -80,7 +80,8 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 
 	@ApiModelProperty(name = "数据库id")
 	@Column(name = "DATABASE_ID")
-	private Integer databaseId;
+	@Length(max = 64)
+	private String databaseId;
 
 	@ApiModelProperty("是否新增")
 	@Transient
