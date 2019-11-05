@@ -146,7 +146,6 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
