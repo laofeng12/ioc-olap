@@ -67,7 +67,7 @@ export default {
       this.selectTableTotal.forEach(({ databaseId,resourceTableName, resourceId, resourceName, type } )=> {
         params.push({
           cron:'0 0 2 * * ? *', // 定时任务的正则表达式，看你们的定时任务是多久同步一次
-          hiveDbName: 'async',
+          hiveDbName: 'default', // async
           writerTableComment: 'olap',
           writerTableSource: `id_${resourceId}`,
           databaseId,
