@@ -170,9 +170,9 @@ export default {
       // })
     }
   },
-  beforeDestroy (item, val) {
-    // this.$root.eventBus.$off('filedTable')
-    // this.$root.eventBus.$emit('filedTable', item, val)
+  beforeDestroy () {
+    this.$root.eventBus.$off('filedTable')
+    this.$root.eventBus.$off('tableNameActive')
   },
   computed: {
     ...mapGetters({

@@ -65,6 +65,11 @@ export default {
       //   setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
       // }
     },
+    // fetchTreeList (val) {
+    //   this.treeLoading = true
+    //   // this.fetchDatas(val) // 数据湖
+    //   this.fetchKelinData()
+    // },
     // 左边树形列表 目录树（数据湖+自定义源+本地空间+数据集）
     async getTreeList () {
       try {

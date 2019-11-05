@@ -34,6 +34,7 @@ import serchTable from '@/components/analysisComponent/modelCommon/serchTable'
 import trees from '@/components/analysisComponent/modelCommon/trees'
 import elementTable from '@/components/ElementTable/index'
 import { getResourceData, getResourceInfo } from '@/api/newOlapModel'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'datalake',
@@ -117,6 +118,11 @@ export default {
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getTableHeadList')
+  },
+  computed: {
+    ...mapGetters({
+      ModelAllList: 'ModelAllList'
+    })
   }
 }
 </script>

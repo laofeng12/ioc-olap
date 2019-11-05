@@ -88,7 +88,8 @@ export default {
     ...mapGetters({
       saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
-      serchTableList: 'serchTableList'
+      serchTableList: 'serchTableList',
+      saveLocalSelectTable: 'saveLocalSelectTable'
     })
   },
   beforeDestroy () {
