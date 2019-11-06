@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 @Component
 public class TableHttpClient extends KylinHttpClient {
@@ -22,10 +23,9 @@ public class TableHttpClient extends KylinHttpClient {
         return result;
     }
 
-    public Map<String, Integer> encodingDataTypeCount() throws APIException {
+    public HashMap encodingDataTypeCount() throws APIException {
         String url = config.address + "/kylin/api/cubes/validEncodings";
-        Class<ArrayList<Map<String, Integer>>> clazz = (Class<ArrayList<Map<String, Integer>>>) new ArrayList<Map<String, Integer>>().getClass();
-        Map<String, Integer> result = (Map<String, Integer>) HttpClient.get2(url, config.authorization, clazz);
+        HashMap result = HttpClient.get2(url, config.authorization, HashMap.class);
         return result;
     }
 

@@ -144,7 +144,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "第六步——获取Encoding2")
     @RequestMapping(value = "/encoding2List", method = RequestMethod.GET)
     @Security(session = true)
-    public Map<String, Integer> encoding2List() throws APIException {
+    public HashMap encoding2List() throws APIException {
         return tableHttpClient.encodingDataTypeCount();
     }
 
@@ -485,10 +485,10 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:查看")
     @RequestMapping(value = "/desc", method = RequestMethod.GET)
     @Security(session = true)
-    public Map<String, Object> desc(String cubeName, String models) throws APIException {
+    public Map<String, Object> desc(String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        ModelsDescDataMapper model = modelHttpClient.entity(models);
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
+        ModelsDescDataMapper model = modelHttpClient.entity(cube.getModel_name());
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         //事实表
