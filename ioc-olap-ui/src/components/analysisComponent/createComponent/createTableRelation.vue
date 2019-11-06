@@ -129,12 +129,10 @@ export default {
       }
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
-      let containers = this.$refs.containers.getBoundingClientRect()
+      // let containers = this.$refs.containers.getBoundingClientRect()
       let arr = []
       data.lookups.forEach(item => {
-        // if (item.id) {
         arr.push(item)
-        // }
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
@@ -219,8 +217,6 @@ export default {
       paper.on('cell:pointerclick', (e, d) => {
         if (e.model.attributes.attrs.text) {
           if (this.arrId.length > 0 && !this.arrId.includes(e.model.attributes.attrs.text.alias)) {
-            // this.hideCellLayer()
-            // return this.$message.warning('当前表不能为主表~')
             this.isShowLink = false
           } else {
             this.isShowLink = true

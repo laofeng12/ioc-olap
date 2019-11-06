@@ -10,7 +10,9 @@
        <el-form-item label="模型名称" prop="cube.cubeDescData.name" class="labelName">
          <template slot-scope="scope">
            <div>
-             <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <!-- <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input> -->
+             <el-input type="text" placeholder="" v-if="!!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <span v-else>{{totalSaveData.cube.cubeDescData.name}}</span>
            </div>
          </template>
        </el-form-item>
@@ -31,6 +33,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
 import { throttle } from '@/utils/index'
+import { ischeckWechatAccount } from '@/utils/rules'
 export default {
   components: {
     steps
@@ -48,7 +51,8 @@ export default {
       },
       rules: {
         'cube.cubeDescData.name': [
-          { required: true, message: '请输入模型名称', trigger: 'blur' }
+          { required: true, message: '请输入模型名称', trigger: 'blur' },
+          { validator: ischeckWechatAccount, trigger: 'blur' }
         ]
       }
     }
