@@ -129,12 +129,10 @@ export default {
       }
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
-      let containers = this.$refs.containers.getBoundingClientRect()
+      // let containers = this.$refs.containers.getBoundingClientRect()
       let arr = []
       data.lookups.forEach(item => {
-        // if (item.id) {
         arr.push(item)
-        // }
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join

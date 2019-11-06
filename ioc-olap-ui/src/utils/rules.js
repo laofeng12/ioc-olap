@@ -1,3 +1,5 @@
+import { call } from 'when/node'
+
 // 电话
 export function checkPhone (rule, value, callback) {
   const reg = /^1[3-9]\d{9}$/
@@ -29,6 +31,15 @@ export function isPasswd (rule, value, callback) {
     callback()
   }
   callback()
+}
+
+export function ischeckWechatAccount (rule, value, callback) {
+  const reg = /^([a-zA-Z0-9_]){1,16}$/ // 英文数字下划线
+  if (!reg.test(value)) {
+    return callback(new Error('仅支持字母数字以及下划线'))
+  } else {
+    callback()
+  }
 }
 
 export function checkPort (rule, value, callback) {
