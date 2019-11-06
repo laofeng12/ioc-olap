@@ -10,7 +10,9 @@
        <el-form-item label="模型名称" prop="cube.cubeDescData.name" class="labelName">
          <template slot-scope="scope">
            <div>
-             <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <!-- <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input> -->
+             <el-input type="text" placeholder="" v-if="!!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <span v-else>{{totalSaveData.cube.cubeDescData.name}}</span>
            </div>
          </template>
        </el-form-item>

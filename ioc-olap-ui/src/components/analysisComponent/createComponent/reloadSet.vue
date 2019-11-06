@@ -1,6 +1,6 @@
 <template>
   <div class="reloadSet">
-     <el-form :model="formData" :rules="rules" ref="formData">
+     <el-form :model="formData" :rules="rules" class="formData" ref="formData">
       <h3>刷新设置</h3>
       <h4>自动刷新</h4>
         <el-form-item label="自动刷新模型?">
@@ -381,8 +381,10 @@ export default {
       overflow initial!important
     }
   }
-  >>>.el-form-item__error{
-    left 200px!important
+  .formData{
+    >>>.el-form-item__error{
+      left 200px!important
+    }
   }
 }
 </style>
