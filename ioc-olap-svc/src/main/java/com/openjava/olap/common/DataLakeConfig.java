@@ -17,4 +17,10 @@ public class DataLakeConfig {
     private String host;
     /**批量获取同步任务状态接口地址**/
     private String querySyncJobStateUrl;
+
+    /**批量创建同步任务接口地址**/
+    private String batchCreateSyncJobUrl;
+
+    /**批量手动触发同步数据任务接口地址**/
+    private String batchActiveSyncJobUrl;
 }
