@@ -142,10 +142,8 @@ export default {
       // this.$refs.setfact.dialog()
     },
     addNode (node) {
-      console.info('node', node)
       const { graphData } = this.editor.getResult()
       if (graphData.nodes.length === 1) {
-        console.info('graphData111111', graphData.nodes[0])
         this.$refs.setfact.dialog(graphData.nodes[0])
       }
       if (graphData.nodes.length > 1) {
@@ -170,93 +168,65 @@ export default {
       graph.remove(graphData.nodes[graphData.nodes.length-1].id)
       this.nodeList = graphData.nodes
     },
+    removeEdge (id) {
+      const { graphData } = this.editor.getResult()
+      const graph = this.editor.getGraph()
+      graph.remove(id)
+      this.edgeList = graphData.edges
+    },
     addEdge (a, id, obj) {
-      // const graph = this.editor.getGraph()
-      console.info('addEdge1111111', a, id, obj)
-      // console.info('111111111111', graph.find(obj.source), graph.find(obj.target))
-      let edge = Object.assign({}, obj, {
-        join: {
-          type: '',
-          isComplete: false,
-          linkList: [{
-            isCompatible: true,
-            primary_key: '',
-            foreign_key: '',
-            pk_type: '',
-            fk_type: ''
-          }]
-        }
-      })
+      const graph = this.editor.getGraph()
+      const factTable = this.jointResult.fact_table
       this.linkModalFields = []
-      this.edgeList.push(edge)
-      this.aboutEdge(obj, id)
+      const sourceAttrs = graph.find(obj.source).model.item
+      const targetAttrs = graph.find(obj.target).model.item
+      if (sourceAttrs.label === factTable || sourceAttrs.filed === 1) {
+        this.edgeList.push(obj)
+        const source = {
+          filed: 1,
+          label: sourceAttrs.label,
+          alias: sourceAttrs.alias || sourceAttrs.label,
+          id: sourceAttrs.id
+        }
+        const target = {
+          filed: 1,
+          label: `${targetAttrs.label}`,
+          alias: targetAttrs.alias || targetAttrs.label,
+          id: targetAttrs.id
+        }
+        const linkModal = {
+          'joinTable': source.label || '', // 主表名
+          'joinAlias': source.alias || '', // 主表别名
+          'joinId': source.id || '', // 主表id
+          'alias': target.alias || '', // 子表别名
+          'id': target.id || '', // 子表id
+          'edgeId': id || '', // 线id
+          'table': target.label || '', // 子表名
+          'kind': 'LOOKUP',
+          'join': {
+            'type': '', // 连接方式（left||inner）
+            'primary_key': [], // 子表与选择的字段
+            'foreign_key': [], // 主表与选择的字段
+            'isCompatible': [true],
+            'pk_type': [], // 子表字段对应的类型
+            'fk_type': [] // 主表字段对应的类型
+          }
+        }
+        this.addFields() // 调用添加关联字段
+        this.linkModal = linkModal
+
+        this.linkModalModel = graph.find(obj.source).model
+      } else {
+        this.removeEdge(id)
+        this.$message.warning('只能事实表为源头')
+      }
     },
     edgeClick (model) {
       const graph = this.editor.getGraph()
-      console.info('model', model)
-      // console.info('this.linkModal', this.linkModal)
-      // console.info('this.linkModalModel', this.linkModalModel)
-      // console.info('this.linkModalFields', this.linkModalFields)
-      // console.info('this.edgeList', this.edgeList)
-      console.log('this.jointResultData', this.jointResultData)
-      console.info(model.item.model.source)
       let source = graph.find(model.item.model.source)
       let target = graph.find(model.item.model.target)
       const data = this.jointResultData.lookups.filter(v => v.id === target.model.item.id && v.joinId === source.model.item.id)
       this.linkModalFields = this.getFields(data[0])
-      console.info('this.linkModalFields', this.linkModalFields)
-      // this.linkModalFields =
-      // this.aboutEdge(model)
-    },
-    aboutEdge (data, edgeId) {
-      const graph = this.editor.getGraph()
-      let factTable = this.jointResult.fact_table
-      let graphData = graph.find(data.source)
-      console.info('graphData', graphData)
-      // if (data) {
-      //   let fields = this.getFields(data)
-      //
-      //   this.linkModal = data
-      //   this.linkModalModel = e.model
-      //   this.linkModalFields = fields
-      // }
-      let sourceAttrs = graph.find(data.source).model.item
-      let targetAttrs = graph.find(data.target).model.item
-      let source = {
-        filed: sourceAttrs.label === factTable ? 1 : 0,
-        label: sourceAttrs.label,
-        alias: sourceAttrs.alias || sourceAttrs.label,
-        id: sourceAttrs.id
-      }
-      let target = {
-        filed: sourceAttrs.label === factTable ? 1 : 0,
-        label: `${targetAttrs.label}`,
-        alias: targetAttrs.alias || targetAttrs.label,
-        id: targetAttrs.id
-      }
-      let linkModal = {
-        'joinTable': source.label || '', // 主表名
-        'joinAlias': source.alias || '', // 主表别名
-        'joinId': source.id || '', // 主表id
-        'alias': target.alias || '', // 子表别名
-        'id': target.id || '', // 子表id
-        'edgeId': edgeId || '', // 线id
-        'table': target.label || '', // 子表名
-        'kind': 'LOOKUP',
-        'join': {
-          'type': '', // 连接方式（left||inner）
-          'primary_key': [], // 子表与选择的字段
-          'foreign_key': [], // 主表与选择的字段
-          'isCompatible': [true],
-          'pk_type': [], // 子表字段对应的类型
-          'fk_type': [] // 主表字段对应的类型
-        }
-      }
-      this.addFields() // 调用添加关联字段
-      this.linkModal = linkModal
-
-      this.linkModalModel = graph.find(data.source).model
-      // this.showCellLayer(e)
     },
 
 
@@ -353,16 +323,6 @@ export default {
       let model = element.model
       let position = model.get('position')
       switch (e.target.dataset.type) {
-        case 'remove': // 删除
-          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) {
-            this.$message.warning('事实表不能删除~')
-          } else {
-            this.clearElementLink(model)
-          }
-          break
-        case 'linkRemove': // 删除连线
-          this.clearElementLink(model)
-          break
         case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
@@ -455,7 +415,6 @@ export default {
     },
     // 设置别名
     setAlias (val, defaultVal) {
-      console.info('111111111111', val, defaultVal)
       return this.$prompt(`（${val}）设置别名：`, {
         inputValue: defaultVal
       }, {
@@ -815,10 +774,8 @@ export default {
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
       }
       Object.assign(this.linkModalModel, { data: this.linkModal })
-      console.info('this.linkModalModel', this.linkModalModel)
       // this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      // console.log(JSON.stringify(result))
       this.$store.commit('SaveJointResult', result)
     },
 
@@ -846,12 +803,12 @@ export default {
     formatJointList: function (data) {
       // 获取对应的坐标
       let posList = this.getElementPosition() || {}
-      let factText = data.fact_table + data.fact_table
+      const graph = this.editor.getGraph()
       let result = {
         name: data.name || '',
         description: data.description || '',
-        SAxis: (posList[factText] && posList[factText].x) || 0,
-        YAxis: (posList[factText] && posList[factText].y) || 0,
+        SAxis: this.nodeList[0].x || 0,
+        YAxis: this.nodeList[0].y || 0,
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
@@ -860,6 +817,12 @@ export default {
         let primary_key_result = []; let foreign_key_result = []
         let pos = posList[t.table + t.alias] || {}
         let joinPos = posList[t.joinTable + t.joinAlias] || {};
+        const item = this.edgeList.find(v => {
+          return (v.id === t.edgeId)
+        })
+
+        const source = graph.find(item.source);
+        const target = graph.find(item.target);
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(`${t.alias}.${primary_key[i]}`)
@@ -874,10 +837,10 @@ export default {
           joinTable: t.joinTable,
           kind: t.kind,
           table: `${data.name}.${t.table}`,
-          SAxis: pos.x || 0,
-          YAxis: pos.y || 0,
-          joinSAxis: joinPos.x || 0,
-          joinYAxis: joinPos.y || 0,
+          SAxis: target.model.x || 0,
+          YAxis: target.model.y || 0,
+          joinSAxis: source.model.x || 0,
+          joinYAxis: source.model.y || 0,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -888,7 +851,6 @@ export default {
           }
         })
       })
-
       return result
     },
 
@@ -914,44 +876,6 @@ export default {
       return result
     },
 
-    clearElementLink: function (target) {
-      let eles = target.collection.models || []
-      let elements = []
-
-      this.linkModal = null
-      this.linkModalModel = null
-
-      for (let i = 0; i < eles.length; i++) {
-        let ele = eles[i]
-        // 判断删除的是表还是线
-        if (ele.attributes.type === 'standard.Link') {
-          if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
-            ele.remove()
-            // 删除对应存储的数据
-            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-              return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
-            })
-          }
-        } else {
-          if (ele.id === target.id) {
-            ele.remove()
-            // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
-            // 删除对应存储的数据
-            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-              return item.id !== ele.attributes.attrs.text.id
-            })
-            // 删除对应选择的维度
-            this.saveSelectFiled.map((res, index) => {
-              if (res.resid === ele.attributes.attrs.text.id) {
-                this.saveSelectFiled.splice(index, 1)
-              }
-            })
-            this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            this.TableCountNum -= 1
-          }
-        }
-      }
-    },
     // 获取当前线对应的两个表的数据
     getLinkElements: function (ele) {
       let source = ele.getSourceElement() || null
@@ -1012,7 +936,6 @@ export default {
     },
 
     showCellLayer (element) {
-      console.info('element', element)
       let parentOffset = this.getAbsoluteOffset(this.$refs.holder)
       let rect = element.$el[0].getBoundingClientRect()
       let offset = element.$el.offset()

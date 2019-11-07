@@ -225,7 +225,6 @@ const common = {
     },
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
-      console.info(data)
       getters.selectTableTotal.forEach((item, index) => {
         data.label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })

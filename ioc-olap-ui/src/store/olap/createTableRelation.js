@@ -51,7 +51,6 @@ const creatTableRelation = {
     },
     RESET_CREATE_TABLETIONS (state, payload) {
       state.jointResultData = payload
-      debugger
     }
   },
   actions: {
