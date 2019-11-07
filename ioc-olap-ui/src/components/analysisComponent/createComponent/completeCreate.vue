@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="totalSaveData" v-loading="completeLoading" :rules="rules">
+    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -113,6 +113,14 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+      // 优化
+      // Object.assign({}, this.totalSaveData, {
+      //   cube: {
+      //     cubeDescData: {
+      //       measures: this.measureTableList
+      //     }
+      //   }
+      // })
 
       // models放入所有选择的表字段
       /**
@@ -155,22 +163,22 @@ export default {
     // 处理 dimensions（选择维度）
     nextModel (val) {
       this.changesEncoding()
-      console.log(this.totalSaveData, '高级')
-      if (this.totalSaveData.cube.cubeDescData.name.length) {
-        this.completeLoading = true
-        throttle(async () => {
-          await saveolapModeldata(this.totalSaveData).then(_ => {
-            this.$message.success('保存成功~')
-            this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
-          }).catch(_ => {
-            this.completeLoading = false
-          })
-        }, 1000)
-      } else {
-        this.$message.warning('请填写模型名称~')
-      }
+      // console.log(this.totalSaveData, '高级')
+      this.$refs.formData.validate(valid => {
+        if (valid) {
+          this.completeLoading = true
+          throttle(async () => {
+            await saveolapModeldata(this.totalSaveData).then(_ => {
+              this.$message.success('保存成功~')
+              this.completeLoading = false
+              this.$router.push('/analysisModel/Configuration')
+              this.$store.dispatch('resetList')
+            }).catch(_ => {
+              this.completeLoading = false
+            })
+          }, 1000)
+        }
+      })
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
