@@ -4,7 +4,7 @@
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
-            <span>维度分组聚合</span>
+            <span>聚合分组</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
@@ -89,7 +89,7 @@
           </el-table>
         </div>
         <div class="listSet">
-          <span>维度黑白名单设置</span>
+          <span>维度白名单设置</span>
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">

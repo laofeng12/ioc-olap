@@ -113,6 +113,7 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段
@@ -150,7 +151,6 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
