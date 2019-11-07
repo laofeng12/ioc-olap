@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Persistable;
 import org.springframework.lang.Nullable;
 
@@ -50,6 +51,10 @@ public class OlapTableSync implements Persistable<Long>,Serializable{
 
     @Column(name = "BUSINESS_ID")
     private String businessId;
+
+    @Column(name = "CREATE_BY")
+    @Length(max = 200)
+    private String createBy;
 
     @Nullable
     @Override

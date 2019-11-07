@@ -33,5 +33,4 @@ public class CubeMapper {
     public Integer input_records_size;
     public String modelSource;
     public Long cubeId;
-    public Integer syncStatus;//同步数据状态，1、可用，待启动；2、队列中待执行；3、运行中；4、任务执行成功；5、任务执行失败；6、暂停中
 }

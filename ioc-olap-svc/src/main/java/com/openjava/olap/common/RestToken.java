@@ -5,6 +5,8 @@ import com.openjava.admin.component.IocAuthorizationToken;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.Response;
+import org.ljdp.plugin.sys.vo.UserVO;
+import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -43,6 +45,15 @@ public class RestToken{
         return post(headers,url,JSON.toJSONString(json),"application/x-www-form-urlencoded;charset=utf-8");
     }
 
+    public String postJson(String url,Object params,String token)throws Exception{
+        Headers headers = Headers.of(new HashMap<String, String>(){
+            {
+                put("Authorization",token);
+                put("User-Agent", ((UserVO)SsoContext.getUser()).getUserAgent());
+            }
+        });
+        return post(headers,url,JSON.toJSONString(params),"application/json;charset=utf-8");
+    }
     public String postJson(String url,Object params)throws Exception{
         Headers headers = getHeaders();
        return post(headers,url,JSON.toJSONString(params),"application/json;charset=utf-8");

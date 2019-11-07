@@ -4,6 +4,7 @@ import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.service.OlapTableSyncService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class OlapTableSyncAction{
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "保存模型关联的表同步到hive的记录")
+    @Security(session = true)
     public Object save(@RequestBody List<OlapTableSyncParam> params)throws Exception{
         ResponseEntity<HashMap<String,Object>> response;
         if (params == null){
@@ -37,7 +39,7 @@ public class OlapTableSyncAction{
             return response;
         }
         response = ResponseEntity.ok(new HashMap<>());
-        response.getBody().put("rows",this.olapTableSyncService.available(params));
+        response.getBody().put("data",this.olapTableSyncService.available(params));
         response.getBody().put("msg","同步成功");
         return response;
     }

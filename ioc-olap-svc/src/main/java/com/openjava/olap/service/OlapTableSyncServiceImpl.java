@@ -9,7 +9,11 @@ import com.openjava.olap.domain.OlapTableSync;
 import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.repository.OlapTableSyncRepository;
 import com.openjava.olap.vo.OlapTableSyncVo;
+import lombok.extern.slf4j.Slf4j;
 import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.plugin.sys.vo.UserVO;
+import org.ljdp.secure.sso.SsoContext;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +28,8 @@ import java.util.List;
  * @create 2019-11-05 17:38
  **/
 @Service
-public class OlapTableSyncServiceImpl implements OlapTableSyncService {
+@Slf4j
+public class OlapTableSyncServiceImpl implements OlapTableSyncService,InitializingBean {
 
     @Value("${olap.sync.realTableNamePrefix:OLAP_}")
     private String REAL_TABLE_NAME_PREFIX;
@@ -44,9 +49,6 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService {
     @Transactional
     @Override
     public OlapTableSync save(OlapTableSync sync) {
-        if (sync.getSyncId() == null) {
-            sync.setSyncId(ConcurrentSequence.getInstance().getSequence());
-        }
         return this.repository.save(sync);
     }
 
@@ -71,6 +73,8 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService {
                     vo.setDatabaseId(param.getDatabaseId());
                     vo.setResourceId(param.getResourceId());
                     vo.setWriterTableName(sync.getTableName());
+                    vo.setSyncId(sync.getSyncId());
+                    vo.setIsNew(false);
                     results.add(vo);
                 }else {
                     OlapTableSyncVo vo = new OlapTableSyncVo();
@@ -87,18 +91,24 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService {
                 vo.setDatabaseId(param.getDatabaseId());
                 vo.setResourceId(param.getResourceId());
                 vo.setWriterTableName(param.getWriterTableSource());
+                vo.setIsNew(true);
                 results.add(vo);
             }
         }
+        log.debug("请求参数:{}",JSON.toJSONString(params));
+        UserVO user = (UserVO) SsoContext.getUser();
+        String token = SsoContext.getToken();
         String result = restToken.postJson(
             this.dataLakeConfig.getHost()+this.dataLakeConfig.getBatchCreateSyncJobUrl(),
-            params);
+            params,token);
+        log.debug("结果返回:{}",result);
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray array;
-        if (jsonObject!= null && jsonObject.containsKey("rows") && (array=jsonObject.getJSONArray("rows"))!= null ){
+        if (jsonObject!= null && jsonObject.containsKey("data") && (array=jsonObject.getJSONArray("data"))!= null ){
             array.forEach(s->{
                 JSONObject item = (JSONObject) s;
                 OlapTableSync oo = new OlapTableSync();
+                //循环那些拿去请求的参数
                 results.stream().filter(a->a.getDatabaseId().equals(item.getString("databaseId"))
                 && a.getResourceId().equals(item.getString("resourceId")))
                 .forEach(b->{
@@ -106,12 +116,19 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService {
                     oo.setDatabaseId(b.getDatabaseId());
                     oo.setResourceId(b.getResourceId());
                     b.setSuccess(item.getBoolean("success"));
+                    oo.setIsNew(b.getIsNew());
+                    oo.setSuccess(item.getBoolean("success")?1:0);
+                    oo.setCreateBy(user.getUserId());
+                    //不为空的时候，就是更新，为空则新增
+                    oo.setSyncId(b.getSyncId() == null?ConcurrentSequence.getInstance().getSequence():b.getSyncId());
+                    this.save(oo);//保存记录
                 });
-                oo.setSuccess(item.getBoolean("success")?1:0);
-                oo.setIsNew(true);
-                this.save(oo);//保存记录
             });
         }
         return results;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
     }
 }
