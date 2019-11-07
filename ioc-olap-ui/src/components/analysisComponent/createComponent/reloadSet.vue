@@ -1,12 +1,7 @@
 <template>
   <div class="reloadSet">
-<<<<<<< HEAD
      <el-form :model="formData" :rules="rules" ref="formData">
       <h3 style="margin: 0 0 0 -8px;;padding: 0 0 5px 0;">刷新设置</h3>
-=======
-     <el-form :model="formData" :rules="rules" class="formData" ref="formData">
-      <h3>刷新设置</h3>
->>>>>>> 40-完善olap建表逻辑
       <h4>自动刷新</h4>
         <el-form-item label="自动刷新模型?">
           <template>
