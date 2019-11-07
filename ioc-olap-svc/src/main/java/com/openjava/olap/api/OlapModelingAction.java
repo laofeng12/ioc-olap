@@ -116,7 +116,6 @@ public class OlapModelingAction extends BaseAction {
                 cubeList = cubeList.subList(0, limit);
             }
         }
-        cubeList = this.olapDatalaketableService.querySyncState(cubeList);
         return new CubeListVo(cubeList, isNext);
     }
 
