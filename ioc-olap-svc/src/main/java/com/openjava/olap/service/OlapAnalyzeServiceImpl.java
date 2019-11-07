@@ -559,7 +559,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Override
     public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), pageIndex, pageSize);
+        OlapCube cube = olapCubeRepository.findById(analyzeVo.getCubeId()).orElse(null);
+        if (cube == null) {
+            throw new APIException(400, "模型已被删除！");
+        }
+        if (cube.getFlags() == 0) {
+            throw new APIException(400, "模型未被启用！");
+        }
+        try {
+            return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), pageIndex, pageSize);
+        } catch (Exception ex) {
+            throw new APIException(400, "查询失败！");
+        }
     }
 
     private boolean isStringType(String columnType) {

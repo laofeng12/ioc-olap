@@ -78,7 +78,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('deleteMeasureTableList', val.row.id)
+        this.$store.dispatch('deleteMeasureTableList', val.row)
         setTimeout(() => {
           this.$message.success('删除成功')
           this.tableData.splice(idx, 1)

@@ -1,6 +1,6 @@
 <template>
   <div class="factTable">
-     <el-input type="text" suffix-icon="el-icon-search" placeholder="请输入关键词" v-model="value" clearable style="margin-bottom: 16px;"></el-input>
+     <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
      <ul v-if="dataList.lookups && dataList.lookups.length">
        <el-tooltip v-for="(item, index) in dataList.lookups" :key="index" effect="dark" :content="titleData[index]" placement="right">
         <li
@@ -30,7 +30,7 @@ export default {
     return {
       value: '',
       current: '',
-      colors: '#0486FE',
+      colors: 'red',
       ids: '',
       primary_key: '',
       titleData: [], // 表名
@@ -54,7 +54,6 @@ export default {
        *
        */
       this.dataList = JSON.parse(JSON.stringify(this.jointResultData))
-      console.log('get====', this.dataList)
       this.titleData = []
       this.dataList.lookups.map((item, index) => {
         // 存储所有的事实表名
@@ -171,9 +170,9 @@ export default {
       // })
     }
   },
-  beforeDestroy (item, val) {
-    // this.$root.eventBus.$off('filedTable')
-    // this.$root.eventBus.$emit('filedTable', item, val)
+  beforeDestroy () {
+    this.$root.eventBus.$off('filedTable')
+    this.$root.eventBus.$off('tableNameActive')
   },
   computed: {
     ...mapGetters({
@@ -192,12 +191,11 @@ export default {
 
 <style lang="stylus" scoped>
 .factTable{
-  max-width 240px
-  padding 16px
+  max-width 230px
+  padding 10px
   background #ffffff
   float left
   height calc(100vh - 40px)
-  font-size 14px
   ul{
     cursor pointer
     overflow auto
@@ -207,9 +205,8 @@ export default {
       height 30px
       line-height 30px
       color #000000
-      /*display inline-flex*/
+      display inline-flex
       min-width 100%
-      position relative
       .tableTitle{
         width: 70%;
         text-overflow: ellipsis;
@@ -227,14 +224,13 @@ export default {
         background: #EFF7FF;
         margin-top 5px
         border: 1px solid #0486FE;
+        border-radius 3px
         margin-left: 3px;
         vertical-align: middle;
-        position: absolute;
-        right 1px
       }
     }
     .actives{
-      color #262626
+      color #009688
     }
   }
   >>>.el-input{
@@ -244,7 +240,7 @@ export default {
     }
   }
   >>>.el-input__suffix{
-    margin-top -3px
+    margin-top -5px
   }
 }
 </style>

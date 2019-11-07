@@ -40,6 +40,8 @@ export default {
   data () {
     return {
       defaultId: '',
+      arrId: [],
+      isShowLink: true,
       defaultIdAsiad: '',
       url: require('../../../assets/img/logo.png'),
       arrowheadShape: 'M 10 0 L 0 5 L 10 10 z',
@@ -239,14 +241,11 @@ export default {
       }
       let lookups = []
       let [database, factTable] = data.fact_table.split('.')
-      let containers = this.$refs.containers.getBoundingClientRect()
+      // let containers = this.$refs.containers.getBoundingClientRect()
       let arr = []
       data.lookups.forEach(item => {
-        // if (item.id) {
         arr.push(item)
-        // }
       })
-      console.log('啦啦啦啦', arr)
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
         let primary_key_result = []; let foreign_key_result = []
@@ -288,9 +287,11 @@ export default {
     },
     init () {
       this.TableCountNum = 0
+      // 初始化选择的别名组合
+      this.arrId = []
+      this.isEditLooks()
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      console.log('李帆', this.jointResultData)
       let list = this.jointResult.lookups || []
       // 新建图形
       this.graph = new joint.dia.Graph()
@@ -312,7 +313,151 @@ export default {
 
       // this.bindEvent(paper)
     },
+    // 判断是否是编辑进来的，需要将lookups里的表名筛选出来
+    isEditLooks () {
+      this.jointResult.lookups.forEach((item, index) => {
+        this.arrId.push(item.alias, item.joinAlias)
+      })
+    },
+    bindEvent (paper) {
+      // 鼠标点击空白处
+      paper.on('blank:pointerup', () => {
+        this.hideCellLayer()
+      })
 
+      // 鼠标点击
+      paper.on('cell:pointerclick', (e, d) => {
+        if (e.model.attributes.attrs.text) {
+          if (this.arrId.length > 0 && !this.arrId.includes(e.model.attributes.attrs.text.alias)) {
+            this.isShowLink = false
+          } else {
+            this.isShowLink = true
+          }
+        }
+        d.stopPropagation()
+      })
+
+      // 鼠标拖拽
+      paper.on('cell:pointerup', (e, d) => {
+        this.linkModalModel = null
+
+        if (this.isClick) {
+          // 如果连线
+          if (e.model.isLink()) {
+            let factTable = this.jointResult.fact_table
+            let data = e.model.get('attrs').data
+            let linkElements = this.getLinkElements(e.model)
+            let linkModal = null
+            this.linkModalModel = null
+            this.linkModalFields = []
+
+            if (data) {
+              let fields = this.getFields(data)
+
+              this.linkModal = data
+              this.linkModalModel = e.model
+              this.linkModalFields = fields
+            } else if (linkElements.source && linkElements.target) {
+              let sourceAttrs
+              let targetAttrs
+              // 判断是否连接事实表， 不管先后顺序 事实表都得是主表
+              if (linkElements.target.get('attrs').text.filed === 1) {
+                targetAttrs = linkElements.source.get('attrs')
+                sourceAttrs = linkElements.target.get('attrs')
+              } else {
+                sourceAttrs = linkElements.source.get('attrs')
+                targetAttrs = linkElements.target.get('attrs')
+              }
+              // 连线的主表
+              let source = {
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
+                label: sourceAttrs.text.label,
+                alias: sourceAttrs.text.alias || sourceAttrs.text.label,
+                id: sourceAttrs.text.id
+              }
+              // 连线的次表
+              let target = {
+                filed: sourceAttrs.text.label === factTable ? 1 : 0,
+                label: `${targetAttrs.text.label}`,
+                alias: targetAttrs.text.alias || targetAttrs.text.label,
+                id: targetAttrs.text.id
+              }
+              // 定义需要传给后台的格式
+              linkModal = {
+                'joinTable': source.label || '', // 主表名
+                'joinAlias': source.alias || '', // 主表别名
+                'joinId': source.id || '', // 主表id
+                'alias': target.alias || '', // 子表别名
+                'id': target.id || '', // 子表id
+                'table': target.label || '', // 子表名
+                'kind': 'LOOKUP',
+                'join': {
+                  'type': '', // 连接方式（left||inner）
+                  'primary_key': [], // 子表与选择的字段
+                  'foreign_key': [], // 主表与选择的字段
+                  'isCompatible': [true],
+                  'pk_type': [], // 子表字段对应的类型
+                  'fk_type': [] // 主表字段对应的类型
+                }
+              }
+
+              this.addFields() // 调用添加关联字段
+
+              this.linkModal = linkModal
+              this.linkModalModel = e.model
+            }
+            this.showCellLayer(e)
+          } else {
+            this.showCellLayer(e)
+          }
+          this.isClick = false
+        } else {
+          let element = this.getDragElement(e.targetPoint)
+          if (element) {
+            this.arrId.push(element.attributes.attrs.text.alias)
+            e.model.target(element)
+            e.model.labels([{ position: 0.5,
+              attrs: { '.marker-target': { fill: 'red', stroke: '#ffffff' },
+                '.marker-source': {
+                  fill: '#0486FE', // 箭头颜色
+                  d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
+                },
+                image: { 'xlink:href': this.url },
+                text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px', 'z-index': '-1' } } }])
+          }
+        }
+      })
+
+      paper.on('cell:pointerdown', (e, d) => {
+        this.isClick = true
+        this.filedPosition = e.model.get('position')
+      })
+
+      // 鼠标移到连线上
+      paper.on('cell:mouseover', (e, d) => {
+      })
+
+      // 鼠标离开连线
+      paper.on('cell:mouseout', (e, d) => {
+      })
+
+      // 鼠标点击连线
+      paper.on('link:pointerdown', (e, d) => {
+        d.stopPropagation()
+      })
+
+      paper.on('cell:pointermove', (e, d) => {
+        let attrs = e.model.get('attrs')
+
+        if (attrs.text && attrs.text.filed) {
+          e.model.position(this.filedPosition.x, this.filedPosition.y)
+        }
+
+        this.isClick = false
+        this.cellLayerData = null
+        this.cellLayerStyle = ''
+      })
+    },
     clickTable (e) {
       if (e) {
         this.addRectCell(e)
@@ -323,6 +468,16 @@ export default {
       let model = element.model
       let position = model.get('position')
       switch (e.target.dataset.type) {
+        case 'remove': // 删除
+          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) {
+            this.$message.warning('事实表不能删除~')
+          } else {
+            this.clearElementLink(model, 1)
+          }
+          break
+        case 'linkRemove': // 删除连线
+          this.clearElementLink(model, 2)
+          break
         case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
@@ -336,6 +491,7 @@ export default {
               model.attr(attrs)
               model.resize(attrs.text.text.length * 9, 30)
 
+              this.arrId.push(res.value)
               this.jointResult = this.updateModel(model.id, res.value)
               let result = this.formatJointList(this.jointResult)
               this.$store.commit('SaveJointResult', result)
@@ -358,6 +514,7 @@ export default {
                 fill: '#D8D8D8', // 箭头颜色
                 d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
               },
+              image: { 'xlink:href': this.url },
               line: {
                 stroke: '#D8D8D8', // SVG attribute and value
                 'stroke-width': 2// 连线粗细
@@ -536,14 +693,15 @@ export default {
     },
     // 拖入到画布的表
     addRectCell (item) {
+      // console.log(this.arrId, '来的', item)
       if (item.filed === 1) {
         this.defaultId = item.id
         this.defaultIdAsiad = item.id
+        this.arrId.push(item.label)
       } else {
         this.defaultId = ''
       }
       this.TableCountNum += 1
-      // console.log('来了', this.TableCountNum)
       // 判断是否存在此表
       if (!this.graph) this.graph = new joint.dia.Graph()
 
@@ -584,7 +742,7 @@ export default {
           ports: { // 定义连接点
           },
           size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { image: { 'xlink:href': 'images/' + this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
+          attrs: { image: { 'xlink:href': this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
         })
         // newRect.addPort(this.port)
         this.graph.addCell(newRect)
@@ -598,7 +756,7 @@ export default {
       var cell = new joint.shapes.org.Member({
         attrs: {
           image: {
-            'xlink:href': 'images/' + this.url,
+            'xlink:href': this.url,
             opacity: 0.7
           }
         }
@@ -654,6 +812,7 @@ export default {
             fill: '#0486FE', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
           },
+          image: { 'xlink:href': 'images/' + this.url },
           line: {
             stroke: '#0486FE', // SVG attribute and value
             'stroke-width': 2// 连线粗细
@@ -770,7 +929,7 @@ export default {
       this.linkModal.join.fk_type = fk_type
       // 判断是否选中了关联对应的字段 (改变对应的文字以及样式)
       if (primary_key.length > 0 && this.linkModalModel.labels) {
-        this.linkModalModel.labels([{ position: 0.5, attrs: { text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
+        this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
       }
       Object.assign(this.linkModalModel, { data: this.linkModal })
@@ -875,7 +1034,52 @@ export default {
       let result = this.formatJointList(this.jointResult)
       return result
     },
+    clearElementLink: function (target, types) {
+      let eles = target.collection.models || []
+      let elements = []
 
+      this.linkModal = null
+      this.linkModalModel = null
+
+      for (let i = 0; i < eles.length; i++) {
+        let ele = eles[i]
+        // 判断删除的是表还是线
+        // if (ele.attributes.type === 'standard.Link') {
+        if (types !== 1) {
+          // 判断当前有没有连线 如果没有连线就不用走下去
+          if (target.attributes.data) {
+            if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
+              // 删除对应存储的数据
+              this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+                return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
+              })
+            }
+            ele.remove()
+          } else {
+            if (target.id === ele.id) {
+              ele.remove()
+            }
+          }
+        } else {
+          if (ele.id === target.id) {
+            ele.remove()
+            // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
+            // 删除对应存储的数据
+            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
+              return item.id !== ele.attributes.attrs.text.id
+            })
+            // 删除对应选择的维度
+            this.saveSelectFiled.map((res, index) => {
+              if (res.resid === ele.attributes.attrs.text.id) {
+                this.saveSelectFiled.splice(index, 1)
+              }
+            })
+            this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
+            this.TableCountNum -= 1
+          }
+        }
+      }
+    },
     // 获取当前线对应的两个表的数据
     getLinkElements: function (ele) {
       let source = ele.getSourceElement() || null
@@ -946,16 +1150,20 @@ export default {
     },
 
     nextModel (val) {
+      console.info('this.ModelAllList', this.ModelAllList)
       // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
-      if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
+      if (Object.keys(this.ModelAllList).length === 0) {
+        if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
+      }
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       this.getIdToList()
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      console.log(this.TableCountNum, '===', this.jointResultData.lookups.length)
-      return this.TableCountNum - this.jointResultData.lookups.length < 2
+      debugger
+      // console.log(this.TableCountNum, this.jointResultData.lookups.length)
+      return this.nodeList.length - this.jointResultData.lookups.length === 1
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
@@ -965,9 +1173,11 @@ export default {
       if (this.jointResult.lookups.length > 0) {
         this.jointResult.lookups.forEach((item, index) => {
           arrId.push(item.id, item.joinId)
+          this.arrId.push(item.id, item.joinId)
         })
       } else {
         arrId.push(ids)
+        this.arrId.push(ids)
       }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
@@ -1073,15 +1283,6 @@ export default {
   z-index 1
 }
 
-.papers .remove {
-  position absolute
-  left -20px
-  top -20px
-  width 18px
-  height 18px
-  background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cg%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M15.386%2C3.365c-3.315-3.314-8.707-3.313-12.021%2C0c-3.314%2C3.315-3.314%2C8.706%2C0%2C12.02%20c3.314%2C3.314%2C8.707%2C3.314%2C12.021%2C0S18.699%2C6.68%2C15.386%2C3.365L15.386%2C3.365z%20M4.152%2C14.598C1.273%2C11.719%2C1.273%2C7.035%2C4.153%2C4.154%20c2.88-2.88%2C7.563-2.88%2C10.443%2C0c2.881%2C2.88%2C2.881%2C7.562%2C0%2C10.443C11.716%2C17.477%2C7.032%2C17.477%2C4.152%2C14.598L4.152%2C14.598z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M12.157%2C11.371L7.38%2C6.593C7.162%2C6.375%2C6.809%2C6.375%2C6.592%2C6.592c-0.218%2C0.219-0.218%2C0.572%2C0%2C0.79%20l4.776%2C4.776c0.218%2C0.219%2C0.571%2C0.219%2C0.79%2C0C12.375%2C11.941%2C12.375%2C11.588%2C12.157%2C11.371L12.157%2C11.371z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M11.369%2C6.593l-4.777%2C4.778c-0.217%2C0.217-0.217%2C0.568%2C0%2C0.787c0.219%2C0.219%2C0.571%2C0.217%2C0.788%2C0l4.777-4.777%20c0.218-0.218%2C0.218-0.571%2C0.001-0.789C11.939%2C6.375%2C11.587%2C6.375%2C11.369%2C6.593L11.369%2C6.593z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E%20')
-}
-
 .papers .linkRemove{
   left 50%
   top 54%
@@ -1100,10 +1301,19 @@ export default {
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M9.374%2C17.592c-4.176%2C0-7.57-3.401-7.57-7.575c0-4.175%2C3.395-7.574%2C7.57-7.574c0.28%2C0%2C0.56%2C0.018%2C0.837%2C0.05%20V1.268c0-0.158%2C0.099-0.3%2C0.239-0.36c0.151-0.058%2C0.315-0.026%2C0.428%2C0.086l2.683%2C2.688c0.152%2C0.154%2C0.152%2C0.399%2C0%2C0.553l-2.68%2C2.693%20c-0.115%2C0.112-0.279%2C0.147-0.431%2C0.087c-0.141-0.063-0.239-0.205-0.239-0.361V5.296C9.934%2C5.243%2C9.654%2C5.22%2C9.374%2C5.22%20c-2.646%2C0-4.796%2C2.152-4.796%2C4.797s2.154%2C4.798%2C4.796%2C4.798c2.645%2C0%2C4.798-2.153%2C4.798-4.798c0-0.214%2C0.174-0.391%2C0.391-0.391h1.991%20c0.217%2C0%2C0.394%2C0.177%2C0.394%2C0.391C16.947%2C14.19%2C13.549%2C17.592%2C9.374%2C17.592L9.374%2C17.592z%20M9.374%2C17.592%22%2F%3E%3C%2Fsvg%3E%20')
 }
 
+.papers .remove {
+  position absolute
+  right -15px
+  bottom -15px
+  width 18px
+  height 18px
+  background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cg%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M15.386%2C3.365c-3.315-3.314-8.707-3.313-12.021%2C0c-3.314%2C3.315-3.314%2C8.706%2C0%2C12.02%20c3.314%2C3.314%2C8.707%2C3.314%2C12.021%2C0S18.699%2C6.68%2C15.386%2C3.365L15.386%2C3.365z%20M4.152%2C14.598C1.273%2C11.719%2C1.273%2C7.035%2C4.153%2C4.154%20c2.88-2.88%2C7.563-2.88%2C10.443%2C0c2.881%2C2.88%2C2.881%2C7.562%2C0%2C10.443C11.716%2C17.477%2C7.032%2C17.477%2C4.152%2C14.598L4.152%2C14.598z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M12.157%2C11.371L7.38%2C6.593C7.162%2C6.375%2C6.809%2C6.375%2C6.592%2C6.592c-0.218%2C0.219-0.218%2C0.572%2C0%2C0.79%20l4.776%2C4.776c0.218%2C0.219%2C0.571%2C0.219%2C0.79%2C0C12.375%2C11.941%2C12.375%2C11.588%2C12.157%2C11.371L12.157%2C11.371z%22%2F%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M11.369%2C6.593l-4.777%2C4.778c-0.217%2C0.217-0.217%2C0.568%2C0%2C0.787c0.219%2C0.219%2C0.571%2C0.217%2C0.788%2C0l4.777-4.777%20c0.218-0.218%2C0.218-0.571%2C0.001-0.789C11.939%2C6.375%2C11.587%2C6.375%2C11.369%2C6.593L11.369%2C6.593z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E%20')
+}
+
 .papers .link {
   position absolute
-  right -20px
-  top -20px
+  right -15px
+  top -15px
   width 18px
   height 18px
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M9.884%2C9.838c0.54-0.551%2C1.005-0.955%2C1.384-1.201c0.463-0.308%2C0.749-0.352%2C0.887-0.352h1.34v1.367%20c0%2C0.104%2C0.061%2C0.2%2C0.154%2C0.242s0.204%2C0.027%2C0.284-0.038l3.168-2.669c0.06-0.051%2C0.096-0.125%2C0.096-0.203S17.16%2C6.83%2C17.101%2C6.781%20l-3.168-2.677c-0.08-0.067-0.19-0.081-0.284-0.038c-0.094%2C0.045-0.154%2C0.139-0.154%2C0.242v1.414h-1.343%20c-1.24%2C0.014-2.215%2C0.67-2.927%2C1.242c-0.797%2C0.65-1.533%2C1.447-2.245%2C2.217c-0.361%2C0.391-0.7%2C0.759-1.044%2C1.1%20c-0.541%2C0.549-1.011%2C0.951-1.395%2C1.199c-0.354%2C0.231-0.678%2C0.357-0.921%2C0.357h-1.8c-0.146%2C0-0.266%2C0.12-0.266%2C0.265v2.029%20c0%2C0.148%2C0.12%2C0.268%2C0.266%2C0.268h1.8l0%2C0c1.255-0.014%2C2.239-0.667%2C2.958-1.24c0.82-0.661%2C1.572-1.475%2C2.297-2.256%20C9.225%2C10.524%2C9.555%2C10.169%2C9.884%2C9.838z%22%2F%3E%3C%2Fsvg%3E%20')
@@ -1111,8 +1321,8 @@ export default {
 
 .papers .clone {
   position absolute
-  left -20px
-  bottom -20px
+  left -15px
+  bottom -15px
   width 18px
   height 18px
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2218.75px%22%20height%3D%2218.75px%22%20viewBox%3D%220%200%2018.75%2018.75%22%20enable-background%3D%22new%200%200%2018.75%2018.75%22%20xml%3Aspace%3D%22preserve%22%3E%3Cg%3E%3Cpath%20fill%3D%22%236A6C8A%22%20d%3D%22M12.852%2C0.875h-9.27c-0.853%2C0-1.547%2C0.694-1.547%2C1.547v10.816h1.547V2.422h9.27V0.875z%20M15.172%2C3.965h-8.5%20c-0.849%2C0-1.547%2C0.698-1.547%2C1.547v10.816c0%2C0.849%2C0.698%2C1.547%2C1.547%2C1.547h8.5c0.85%2C0%2C1.543-0.698%2C1.543-1.547V5.512%20C16.715%2C4.663%2C16.021%2C3.965%2C15.172%2C3.965L15.172%2C3.965z%20M15.172%2C16.328h-8.5V5.512h8.5V16.328z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E%20')

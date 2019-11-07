@@ -31,6 +31,7 @@
 import serchTable from '@/components/analysisComponent/modelCommon/serchTable'
 import trees from '@/components/analysisComponent/modelCommon/trees'
 import elementTable from '@/components/ElementTable/index'
+import { mapGetters } from 'vuex'
 export default {
   components: {
     serchTable, trees, elementTable
@@ -96,6 +97,11 @@ export default {
         }
       })
     }
+  },
+  computed: {
+    ...mapGetters({
+      ModelAllList: 'ModelAllList'
+    })
   }
 }
 </script>

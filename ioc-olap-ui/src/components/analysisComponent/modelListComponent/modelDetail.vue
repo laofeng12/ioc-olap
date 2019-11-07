@@ -75,6 +75,7 @@ export default {
   .tabHead_item{
     height 25px
     margin 0 auto
+    overflow hidden
     width 90%
     display:flex;
       &>div{

@@ -28,18 +28,18 @@
           </template>
         </el-form-item>
         <h4 style="margin-top:30px;">日期字段</h4>
-        <el-form-item label="日期字段表" class="datarowmore">
-          <el-select v-model="formData.data1a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)">
+        <el-form-item label="日期字段表" class="datarowmore" prop="data1a">
+          <el-select v-model="formData.data1a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)" clearable>
             <el-option v-for="(item, index) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期字段" prop="data1b">
-          <el-select v-model="formData.data1b" placeholder="请选择日期字段">
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
+          <el-select v-model="formData.data1b" placeholder="请选择日期字段" clearable>
+            <el-option v-for="(item, index) in textOptions" :key="item.id" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式" prop="partition_date_format">
-          <el-select v-model="formData.partition_date_format" placeholder="请选择日期格式">
+          <el-select v-model="formData.partition_date_format" placeholder="请选择日期格式" clearable>
             <el-option v-for="item in formatOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -57,17 +57,17 @@
         </el-form-item>
         <div v-if="formData.ispartition_type">
         <el-form-item label="日期字段表" class="datarowmore" prop="data2a">
-          <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)">
+          <el-select v-model="formData.data2a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(1)" clearable>
             <el-option v-for="(item, index) in tableOptions" :key="index" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期字段" prop="data2b">
-          <el-select v-model="formData.data2b" placeholder="请选择日期字段">
+          <el-select v-model="formData.data2b" placeholder="请选择日期字段" clearable>
             <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式" prop="partition_time_format">
-          <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式">
+          <el-select v-model="formData.partition_time_format" placeholder="请选择日期格式" clearable>
             <el-option v-for="item in formatOptionsMore" :key="item.id" :label="item.value" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -162,6 +162,9 @@ export default {
         data2a: [
           { required: false, message: '请选择表', trigger: 'change' }
         ],
+        data1a: [
+          { required: false, message: '请选择表', trigger: 'change' }
+        ],
         partition_date_format: [
           { required: false, message: '请选择日期格式', trigger: 'change' }
         ],
@@ -189,7 +192,7 @@ export default {
       this.fetchDeac(this.tableOptions[0].label)
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
-      this.formData = this.reloadData
+      this.formData = JSON.parse(JSON.stringify(this.reloadData))
     },
     nextModel (val) {
       this.processReloadData()
@@ -224,6 +227,10 @@ export default {
       // 如果选择了字段表 日期格式就得变成必填
       if (this.formData.data1b) this.rules.partition_date_format[0].required = true
       if (this.formData.data2b) this.rules.partition_time_format[0].required = true
+      // 如果单独选择了日期格式  就要把日期字段变成必填
+      if (this.formData.partition_date_format) {
+        this.rules.data1a[0].required = true
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -249,7 +256,12 @@ export default {
       })
     },
     selectTable (val) {
-      this.fetchDeac(val)
+      if (val !== '') {
+        this.fetchDeac(val)
+      } else {
+        this.textOptions = []
+        this.formData.data1b = ''
+      }
     },
     // 删除刷新过滤列表
     handleChange (val) {
@@ -280,15 +292,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
-      relaodFilterList: 'relaodFilterList',
-      jointResultData: 'jointResultData',
-      SaveFactData: 'SaveFactData',
-      reloadData: 'reloadData',
-      saveSelectAllList: 'saveSelectAllList',
-      totalSaveData: 'totalSaveData'
-    })
+    ...mapGetters(['selectTableTotal', 'relaodFilterList', 'jointResultData', 'SaveFactData', 'reloadData', 'saveSelectAllList', 'totalSaveData'])
   }
 }
 </script>
@@ -383,6 +387,11 @@ export default {
     overflow initial!important
     .el-table__body-wrapper{
       overflow initial!important
+    }
+  }
+  .formData{
+    >>>.el-form-item__error{
+      left 200px!important
     }
   }
 }
