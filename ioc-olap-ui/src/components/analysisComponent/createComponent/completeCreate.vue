@@ -113,6 +113,7 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段

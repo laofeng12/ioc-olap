@@ -16,13 +16,14 @@ const setMeasure = {
     },
     // 新增的table表
     MeasureTableList ({ state, dispatch }, data) {
+      console.log(data, state.measureTableList)
       return new Promise((resolve, reject) => {
         if (data.isNew === 0) {
           state.measureTableList.push(data)
           resolve('ok')
         } else {
           state.measureTableList.map((item, index) => {
-            if (data.id === item.id) {
+            if (data.id === item.id || data.firstName === item.name) {
               state.measureTableList[index] = data
               resolve('ok')
             }

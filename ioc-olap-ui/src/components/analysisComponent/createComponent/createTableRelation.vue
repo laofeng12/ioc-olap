@@ -144,7 +144,7 @@ export default {
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
         lookups.push({
-          alias: t.alias,
+          alias: t.alias.toUpperCase(),
           id: t.id,
           SAxis: t.SAxis,
           YAxis: t.YAxis,
@@ -260,14 +260,14 @@ export default {
               let source = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 label: sourceAttrs.text.label,
-                alias: sourceAttrs.text.alias || sourceAttrs.text.label,
+                alias: sourceAttrs.text.alias.toUpperCase() || sourceAttrs.text.label,
                 id: sourceAttrs.text.id
               }
               // 连线的次表
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 label: `${targetAttrs.text.label}`,
-                alias: targetAttrs.text.alias || targetAttrs.text.label,
+                alias: targetAttrs.text.alias.toUpperCase() || targetAttrs.text.label,
                 id: targetAttrs.text.id
               }
               // 定义需要传给后台的格式
@@ -275,7 +275,7 @@ export default {
                 'joinTable': source.label || '', // 主表名
                 'joinAlias': source.alias || '', // 主表别名
                 'joinId': source.id || '', // 主表id
-                'alias': target.alias || '', // 子表别名
+                'alias': target.alias.toUpperCase() || '', // 子表别名
                 'id': target.id || '', // 子表id
                 'table': target.label || '', // 子表名
                 'kind': 'LOOKUP',
@@ -302,7 +302,7 @@ export default {
         } else {
           let element = this.getDragElement(e.targetPoint)
           if (element) {
-            this.arrId.push(element.attributes.attrs.text.alias)
+            this.arrId.push(element.attributes.attrs.text.alias.toUpperCase())
             e.model.target(element)
             e.model.labels([{ position: 0.5,
               attrs: { '.marker-target': { fill: 'red', stroke: '#ffffff' },
@@ -369,11 +369,11 @@ export default {
         case 'clone': // 设置别名
           let attrs = model.get('attrs')
           let label = attrs.text.label
-          let defaultVal = label === attrs.text.alias ? '' : attrs.text.alias
+          let defaultVal = label === attrs.text.alias.toUpperCase() ? '' : attrs.text.alias.toUpperCase()
           if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) return this.$message.warning('事实表暂不支持设置别名~')
           this.setAlias(label, defaultVal).then(res => {
             if (res && res.value) {
-              attrs.text.alias = res.value
+              attrs.text.alias = res.value.toUpperCase()
               attrs.text.text = `${label}(${res.value})`
 
               model.attr(attrs)
@@ -437,7 +437,7 @@ export default {
               idx: linkIndex,
               field: 'alias'
             })
-            item.alias = value
+            item.alias = value.toUpperCase()
             t.attr('data', item)
           }
           if (t.get('source').id === id) {
@@ -497,7 +497,7 @@ export default {
           id: this.dragRectPosition.id,
           label: this.dragRectPosition.label,
           database: this.dragRectPosition.database,
-          alias: this.dragRectPosition.label,
+          alias: this.dragRectPosition.label.toUpperCase(),
           position: { x, y }
         }
 
@@ -505,7 +505,7 @@ export default {
           this.isDragRect = false
           this.setAlias(item.label).then(res => {
             if (res && res.value) {
-              item.alias = res.value
+              item.alias = res.value.toUpperCase()
               this.addRectCell(item)
             }
           })
@@ -669,7 +669,7 @@ export default {
         filed: item.table === factTable ? 1 : 0,
         id: item.id,
         label: item.table,
-        alias: item.alias,
+        alias: item.alias.toUpperCase(),
         position: {
           x: item.SAxis,
           y: item.YAxis
@@ -826,7 +826,7 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      // console.log(JSON.stringify(result))
+      console.log(JSON.stringify(result))
       // this.getIdToList()
       this.$store.commit('SaveJointResult', result)
     },
@@ -840,7 +840,7 @@ export default {
         let ele = eles[i]
         let attrs = ele.get('attrs')
         let pos = ele.get('position')
-        let text = attrs.text.label + attrs.text.alias
+        let text = attrs.text.label + attrs.text.alias.toUpperCase()
         if (ele.attributes.type !== 'standard.Link' && !result[text]) {
           result[text] = {
             x: pos.x,
@@ -876,7 +876,7 @@ export default {
         })
 
         result.lookups.push({
-          alias: t.alias,
+          alias: t.alias.toUpperCase(),
           id: t.id,
           joinAlias: t.joinAlias,
           joinId: t.joinId,
