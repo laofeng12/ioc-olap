@@ -2,7 +2,6 @@ package com.openjava.olap.service;
 
 import com.openjava.olap.common.DataLakeConfig;
 import com.openjava.olap.domain.OlapDatalaketable;
-import com.openjava.olap.query.DataLakeJobQueryParam;
 import com.openjava.olap.query.OlapDatalaketableDBParam;
 import com.openjava.olap.repository.OlapDatalaketableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,15 +70,6 @@ public class OlapDatalaketableServiceImpl implements OlapDatalaketableService {
     @Override
     public List<OlapDatalaketable> getListByCubeName(String cubeName) {
         return olapDatalaketableRepository.getListByCubeName(cubeName);
-    }
-
-    @Override
-    public List<DataLakeJobQueryParam> queryListInCubeNameList(List<String> cubeNameList) {
-        List<OlapDatalaketable> list = olapDatalaketableRepository.queryListInCubeNameList(cubeNameList);
-        List<DataLakeJobQueryParam> params = new ArrayList<>();
-        list.forEach(s->params.add(DataLakeJobQueryParam.builder().resourceId(s.getResourceId()).cubeName(s.getCubeName())
-            .databaseId(String.valueOf(s.getDatabaseId())).type(s.getType()).syncSource(s.getType()).build()));
-        return params;
     }
 
 }

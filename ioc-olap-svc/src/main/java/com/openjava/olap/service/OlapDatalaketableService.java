@@ -1,7 +1,6 @@
 package com.openjava.olap.service;
 
 import com.openjava.olap.domain.OlapDatalaketable;
-import com.openjava.olap.query.DataLakeJobQueryParam;
 import com.openjava.olap.query.OlapDatalaketableDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,5 +27,4 @@ public interface OlapDatalaketableService {
 
 	List<OlapDatalaketable> getListByCubeName(String cubeName);
 
-	List<DataLakeJobQueryParam> queryListInCubeNameList(List<String>cubeNameList);
 }
