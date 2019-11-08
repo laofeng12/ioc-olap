@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="totalSaveData" v-loading="completeLoading" :rules="rules">
+    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -10,7 +10,9 @@
        <el-form-item label="模型名称" prop="cube.cubeDescData.name" class="labelName">
          <template slot-scope="scope">
            <div>
-             <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <!-- <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input> -->
+             <el-input type="text" placeholder="" v-if="!!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <span v-else>{{totalSaveData.cube.cubeDescData.name}}</span>
            </div>
          </template>
        </el-form-item>
@@ -31,6 +33,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
 import { throttle } from '@/utils/index'
+import { ischeckWechatAccount } from '@/utils/rules'
 export default {
   components: {
     steps
@@ -48,7 +51,8 @@ export default {
       },
       rules: {
         'cube.cubeDescData.name': [
-          { required: true, message: '请输入模型名称', trigger: 'blur' }
+          { required: true, message: '请输入模型名称', trigger: 'blur' },
+          { validator: ischeckWechatAccount, trigger: 'blur' }
         ]
       }
     }
@@ -109,6 +113,27 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
+      // 优化
+      // Object.assign({}, this.totalSaveData, {
+      //   cube: {
+      //     cubeDescData: {
+      //       measures: this.measureTableList,
+      //       rowkey: this.rowkeyData
+      //     }
+      //   },
+      //   filterCondidion: this.relaodFilterList, // 刷新过滤
+      //   timingreFresh: {
+      //     interval: Number(this.reloadData.interval),
+      //     frequencytype: this.reloadData.frequencytype,
+      //     autoReload: this.reloadData.autoReload === true ? 1 : 0,
+      //     dataMany: this.reloadData.dataMany === true ? 1 : 0
+      //   },
+      //   cubeDatalaketableNew: this.selectStepList,
+      //   dimensionLength: this.jointResultData.lookups.length,
+      //   dimensionFiledLength: this.saveSelectFiled.length,
+      //   measureFiledLength: this.measureTableList.length
+      // })
+
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段
@@ -146,27 +171,26 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
       this.changesEncoding()
       console.log(this.totalSaveData, '高级')
-      if (this.totalSaveData.cube.cubeDescData.name.length) {
-        this.completeLoading = true
-        throttle(async () => {
-          await saveolapModeldata(this.totalSaveData).then(_ => {
-            this.$message.success('保存成功~')
-            this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
-          }).catch(_ => {
-            this.completeLoading = false
-          })
-        }, 1000)
-      } else {
-        this.$message.warning('请填写模型名称~')
-      }
+      this.$refs.formData.validate(valid => {
+        if (valid) {
+          this.completeLoading = true
+          throttle(async () => {
+            await saveolapModeldata(this.totalSaveData).then(_ => {
+              this.$message.success('保存成功~')
+              this.completeLoading = false
+              this.$router.push('/analysisModel/Configuration')
+              this.$store.dispatch('resetList')
+            }).catch(_ => {
+              this.completeLoading = false
+            })
+          }, 1000)
+        }
+      })
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

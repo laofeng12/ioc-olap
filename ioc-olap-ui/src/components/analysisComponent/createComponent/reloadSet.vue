@@ -35,7 +35,7 @@
         </el-form-item>
         <el-form-item label="日期字段" prop="data1b">
           <el-select v-model="formData.data1b" placeholder="请选择日期字段" clearable>
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="item.id" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式" prop="partition_date_format">
@@ -192,7 +192,7 @@ export default {
       this.fetchDeac(this.tableOptions[0].label)
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
-      this.formData = this.reloadData
+      this.formData = JSON.parse(JSON.stringify(this.reloadData))
     },
     nextModel (val) {
       this.processReloadData()
@@ -387,6 +387,11 @@ export default {
     overflow initial!important
     .el-table__body-wrapper{
       overflow initial!important
+    }
+  }
+  .formData{
+    >>>.el-form-item__error{
+      left 200px!important
     }
   }
 }

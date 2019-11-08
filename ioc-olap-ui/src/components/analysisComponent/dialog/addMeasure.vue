@@ -155,6 +155,7 @@ export default {
         id: '',
         checkedAll: false
       },
+      firstName: '',
       titles: '',
       isNew: 1,
       formLabelWidth: '100px',
@@ -287,8 +288,6 @@ export default {
         )
       })
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
-      // this.fieldtextOption = [{ label: '1' }, { label: '2' }]
-      // console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -332,12 +331,12 @@ export default {
       this.$refs.formData.validate((valid) => {
         if (valid) {
           if (this.getSavemeasureTableList(this.formData.name)) return this.$message.warning('该度量名称已存在~')
-          // console.log(this.getSavemeasureTableList(this.formData.name))
           this.dialogFormVisible = false
           // 创建随机唯一标识id
           if (!this.formData.id) {
             let id = Math.random().toString(36).substr(3)
             this.formData['id'] = id
+            this.formData['firstName'] = this.firstName
           }
           Object.assign(this.formData, {
             isNew: this.isNew,
@@ -357,6 +356,7 @@ export default {
       })
     },
     dialog (data) {
+      this.firstName = data ? JSON.parse(JSON.stringify(data)).name : ''
       this.dialogFormVisible = true
       let checkedAll = data ? data.checkedAll : ''
       this.initData(checkedAll)

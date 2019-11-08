@@ -1,0 +1,78 @@
+* [32m295-feature-BI分析报表-OLAP分析-新建OLAP分析第一步调整[m
+  develop[m
+  [31mremotes/origin/'olap分析新建文件夹弹窗优化'[m
+  [31mremotes/origin/'olap模型第三第四步样式修改-2'[m
+  [31mremotes/origin/'olap边距优化'[m
+  [31mremotes/origin/10-feature-虚拟表名字段相关逻辑修改[m
+  [31mremotes/origin/100-bugfix-文件夹名称未关联选中的文件夹名称[m
+  [31mremotes/origin/110-bugfix-行数为0时提示语bug[m
+  [31mremotes/origin/117-[m
+  [31mremotes/origin/117-bugfix-即席查询-点击【导出结果】报服务器错误[m
+  [31mremotes/origin/120-bugfix-OLAP分析-新建OLAP分析-生成分析结果缺少数据[m
+  [31mremotes/origin/122-bugfix-即席查询-限制查询行数输入框参数和输出结果不匹配，提示语不友好，建议优化[m
+  [31mremotes/origin/123-bugfix-BI分析报表-即席查询-sql参数为空时，点击【查询】报服务异常[m
+  [31mremotes/origin/125-bigfix-BI分析报表-OLAP分析-新建OLAP分析-没有查询直接保存结果时提示信息优化[m
+  [31mremotes/origin/130-bugfix-文件夹同名称仍可保存成功[m
+  [31mremotes/origin/134-bugfix-即席查询-已保存结果-分析报表-操作-编辑，修改查询语句查询保存成功后-报表结果未更新[m
+  [31mremotes/origin/135-bugfix-即席查询-输入正确SQL语句查询结果后-修改为不支持/错误语句-查询结果未同步清除，保存结果功能仍支持操作[m
+  [31mremotes/origin/137-bugfex-即席查询-保存结果-保存成功后建议跳转到已保存结果tab页[m
+  [31mremotes/origin/141-bugfix-点击保存结果按钮仍弹出窗口[m
+  [31mremotes/origin/143-bugfix-OLAP分析-新建OLAP分析-维度设定文本提示修改[m
+  [31mremotes/origin/152-bugfix-OLAP分析-新建文件夹-文件夹名称输入框优化[m
+  [31mremotes/origin/156-feature-【OLAP分析】【即席查询】侧边栏ui优化[m
+  [31mremotes/origin/158-feature-【OLAP分析】【即席查询】表格结果页及复杂侧边栏UI优化[m
+  [31mremotes/origin/160-feature-olap表格分析组件容器[m
+  [31mremotes/origin/161-bugfix-文案及小部分样式调整[m
+  [31mremotes/origin/162-bugfix-OLAP模型-模型列表/分享列表/构建列表查询功能bug[m
+  [31mremotes/origin/162-bugfix-模型列表/分享列表/构建列表查询功能bug[m
+  [31mremotes/origin/182-bugfix-分享列表-新建模型按钮[m
+  [31mremotes/origin/184-bugfix-构建列表-查看日志-日期bug[m
+  [31mremotes/origin/186-bugfix-模型未构建情况下，仍可进行分享[m
+  [31mremotes/origin/196-feature-olap构建模型第三四步样式优化[m
+  [31mremotes/origin/202-feature-olap构建模型列表展示逻辑优化[m
+  [31mremotes/origin/204-构建模型列表翻页逻辑优化[m
+  [31mremotes/origin/205-bugfix-同一个用户可选择多次[m
+  [31mremotes/origin/217-即席查询导出优化[m
+  [31mremotes/origin/219-bugfix-未进行构建，列表上次构建的时间应显示为空[m
+  [31mremotes/origin/226-feature-olap删除已保存分析逻辑优化[m
+  [31mremotes/origin/235-bugfix-olap分析列表查询立方体状态接口对接[m
+  [31mremotes/origin/235-feature-olap分析列表查询立方体状态接口对接[m
+  [31mremotes/origin/237-feature-olap数值合计功能开发[m
+  [31mremotes/origin/279-bugfix-更换另外一张表查询并保存-原保存结果未发生变化[m
+  [31mremotes/origin/293-feature-olap建模第二步组件改造[m
+  [31mremotes/origin/294-feature-加入nhc-portal后项目互跳优化[m
+  [31mremotes/origin/40-完善olap建表逻辑[m
+  [31mremotes/origin/42-feature-修改构建保存[m
+  [31mremotes/origin/50-olap[m
+  [31mremotes/origin/50-olap-2[m
+  [31mremotes/origin/51-featrue-新建OLAP分析页面开发[m
+  [31mremotes/origin/52-feature-OLAP分析列表页面开发[m
+  [31mremotes/origin/57-feature-前端发布配置[m
+  [31mremotes/origin/57-olap-readme[m
+  [31mremotes/origin/63-feature-将定时任务代码转到框架[m
+  [31mremotes/origin/70-feature-olap分析列表对接[m
+  [31mremotes/origin/75-feature-拖动组件重构及相关表格功能开发[m
+  [31mremotes/origin/81-feature-[m
+  [31mremotes/origin/81-feature-olap分析下钻及横向下钻[m
+  [31mremotes/origin/85-feature-olap配置查看日志[m
+  [31mremotes/origin/87-feature-olapbug修复及优化[m
+  [31mremotes/origin/89-feature-olap建模分页分享功能[m
+  [31mremotes/origin/90-feature-定时刷新构建列表配置测试环境链接[m
+  [31mremotes/origin/98-bugfix-页面仍为新增，保存结果也在页面重新添加了一条信息[m
+  [31mremotes/origin/99-feature-穿梭框样式优化及分享bug修复[m
+  [31mremotes/origin/HEAD[m -> origin/develop
+  [31mremotes/origin/config配置错误修复[m
+  [31mremotes/origin/develop[m
+  [31mremotes/origin/master[m
+  [31mremotes/origin/nhc-olap1[m
+  [31mremotes/origin/nhcolap[m
+  [31mremotes/origin/olap[m
+  [31mremotes/origin/olap-ui[m
+  [31mremotes/origin/olap模型查询框优化[m
+  [31mremotes/origin/olap模型样式优化[m
+  [31mremotes/origin/olap模型过滤设置表格调整[m
+  [31mremotes/origin/release[m
+  [31mremotes/origin/zihao[m
+  [31mremotes/origin/删除多余文件[m
+  [31mremotes/origin/即席查询查看分享人表格修改[m
+  [31mremotes/origin/查询框边距优化[m

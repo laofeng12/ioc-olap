@@ -20,7 +20,7 @@
     "jointjs": "^3.0.2",
     "js-cookie": "^2.2.0",
     "lodash": "^4.17.14",
-    "nhc-portal": "^0.1.5",
+    "nhc-portal": "^0.1.9",
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
     "qs.js": "^0.1.12",
@@ -32,8 +32,7 @@
     "vue-task-node": "^1.3.3",
     "vuedraggable": "^2.23.0",
     "vuex": "^3.0.1",
-    "xlsx": "^0.14.3",
-    "xterm": "^3.12.2"
+    "xlsx": "^0.14.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.0",
