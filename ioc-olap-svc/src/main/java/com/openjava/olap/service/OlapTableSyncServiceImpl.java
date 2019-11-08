@@ -95,13 +95,16 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                 results.add(vo);
             }
         }
-        log.debug("请求参数:{}",JSON.toJSONString(params));
+        log.info("请求参数:{}",JSON.toJSONString(params));
         UserVO user = (UserVO) SsoContext.getUser();
         String token = SsoContext.getToken();
-        String result = restToken.postJson(
-            this.dataLakeConfig.getHost()+this.dataLakeConfig.getBatchCreateSyncJobUrl(),
-            params,token);
-        log.debug("结果返回:{}",result);
+        String result = "";
+        if (!params.isEmpty()){
+            result = restToken.postJson(
+                this.dataLakeConfig.getHost()+this.dataLakeConfig.getBatchCreateSyncJobUrl(),
+                params,token);
+        }
+        log.info("结果返回:{}",result);
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray array;
         if (jsonObject!= null && jsonObject.containsKey("data") && (array=jsonObject.getJSONArray("data"))!= null ){

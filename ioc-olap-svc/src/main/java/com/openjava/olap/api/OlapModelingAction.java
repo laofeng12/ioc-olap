@@ -11,6 +11,7 @@ import com.openjava.olap.service.*;
 import com.openjava.olap.vo.CubeListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 @Api(tags = "模型")
 @RestController
 @RequestMapping("/olap/apis/OlapModeling")
+@Slf4j
 public class OlapModelingAction extends BaseAction {
 
     @Resource
@@ -163,6 +165,7 @@ public class OlapModelingAction extends BaseAction {
                     json = TableNameTransposition.replaceAll(json,mapper.getVirtualTableName(),mapper.getTableName());
                 }
             }
+            log.info("请求模型消息体替换后:{}",json);
             body = JSON.parseObject(json,ModelingMapper.class);
         }
         ModelsMapper models = body.getModels();
@@ -242,7 +245,7 @@ public class OlapModelingAction extends BaseAction {
         try {
             //保存所有数据
             olapCubeService.saveTable(olapCube, cubeTablesList, olapcubeList, body.getCubeDatalaketableNew(), cube, models.getModelDescData(), body.getTimingreFresh(),
-                    date, userVO, body.getFilterCondidion(), countMappers);
+                    date, userVO, body.getFilterCondidion(), countMappers,relations);
         } catch (Exception ex) {
             if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
                 modelHttpClient.delete(modelName);
@@ -391,7 +394,8 @@ public class OlapModelingAction extends BaseAction {
         if (cubeDatalaketableNew != null) {
             for (CubeDatalaketableNewMapper datalaketableNew : cubeDatalaketableNew) {
                 for (OlapDatalaketable table : datalaketableNew.getTableList()) {
-                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
+//                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
+                    String name = "olap" + "." + table.getTable_name();//TODO 这里前缀olap是固定的hive数据库名，需加到配置文件里
                     tableNameList.add(name);
                 }
             }

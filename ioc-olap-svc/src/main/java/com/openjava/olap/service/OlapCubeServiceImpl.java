@@ -1,9 +1,5 @@
 package com.openjava.olap.service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
@@ -17,6 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件夹表业务层
@@ -164,7 +164,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
     public boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
                              List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
                              OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions,
-                             ArrayList<MeasureMapper> countMappers) throws Exception {
+                             ArrayList<MeasureMapper> countMappers,List<TableNameRelationMapper> list) throws Exception {
         OlapFilter olapFilter = null;
         if (olapCube.getIsNew() == false) {
             olapCubeTableRepository.deleteCubeId(olapCube.getCubeId());
@@ -219,6 +219,11 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         olapCubeRepository.save(olapCube);
 
         for (OlapCubeTable tableItem : cubeTablesList) {
+            for ( TableNameRelationMapper mapper : list){
+                if (mapper.getTableName().equals(tableItem.getTableName())){
+                    tableItem.setVirtualTableName(mapper.getVirtualTableName());
+                }
+            }
             olapCubeTableRepository.save(tableItem);
         }
 
@@ -230,6 +235,12 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             //保存构建时选择的第一步表
             for (CubeDatalaketableNewMapper cdn : cubeDatalaketableNew) {
                 for (OlapDatalaketable od : cdn.tableList) {
+                    for (TableNameRelationMapper mapper : list){
+                        if (od.getResourceId().equals(mapper.getResourceId())){
+                            //由于在controller全局替换为真实表名，导致这里需要重新设置一次虚拟表名
+                            od.setVirtualTableName(mapper.getVirtualTableName());
+                        }
+                    }
                     od.setId(ConcurrentSequence.getInstance().getSequence());
                     od.setOrgName(od.getDatabase());
                     od.setIsNew(true);
@@ -333,6 +344,17 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             datalaketable.setIsNew(true);
             olapDatalaketableRepository.save(datalaketable);
         }
+    }
+
+    @Override
+    public Map<String,List<OlapDatalaketable>> queryByFlags(Integer flags) {
+        List<String> params = this.olapCubeRepository.getCubeNameByFlags(flags);
+        List<OlapDatalaketable> list = this.olapDatalaketableRepository.queryListInCubeNameList(params);
+        Map<String,List<OlapDatalaketable>> result = new HashMap<>();
+        if (list != null && !list.isEmpty()) {
+            result = list.stream().collect(Collectors.groupingBy(OlapDatalaketable::getCubeName));
+        }
+        return result;
     }
 
     //保存OLAP_CUBE_TABLE_COLUMN表

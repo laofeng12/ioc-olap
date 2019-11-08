@@ -39,7 +39,7 @@ public class OlapTableSyncAction{
             return response;
         }
         response = ResponseEntity.ok(new HashMap<>());
-        response.getBody().put("data",this.olapTableSyncService.available(params));
+        response.getBody().put("rows",this.olapTableSyncService.available(params));
         response.getBody().put("msg","同步成功");
         return response;
     }
