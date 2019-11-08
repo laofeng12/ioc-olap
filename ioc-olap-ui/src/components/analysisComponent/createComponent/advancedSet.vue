@@ -64,7 +64,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @change="rowKeyChangeType"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -73,14 +73,14 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text"  @change="rowKeyChangeLength" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="rowKeyChange">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -186,7 +186,7 @@ export default {
   },
   watch: {
     '$route' () {
-      this.init()
+      // this.init()
     }
   },
   mounted () {
@@ -341,8 +341,19 @@ export default {
         type: type,
         findIndex: findIndex
       }
-      console.log(list)
       this.$store.dispatch('RmtagList', list)
+    },
+    rowKeyChange () {
+      this.updateRowkeys()
+    },
+    rowKeyChangeType () {
+      this.updateRowkeys()
+    },
+    rowKeyChangeLength () {
+      this.updateRowkeys()
+    },
+    updateRowkeys () {
+      this.$store.dispatch('SetRowkeysData', this.rowkeyData.rowkey_columns)
     }
   },
   computed: {
