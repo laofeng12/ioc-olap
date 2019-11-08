@@ -233,4 +233,16 @@ public class OlapRealQueryAction extends BaseAction {
             throw new APIException(400, "导出错误,请确认使用模型的状态是启用的！");
         }
     }
+
+    @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value = "/publish", method = RequestMethod.POST)
+    @Security(session = true)
+    public void publish(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
+        try {
+            QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
+            Export.dualDate(mapper, response);
+        } catch (Exception ex) {
+            throw new APIException(400, "导出错误,请确认使用模型的状态是启用的！");
+        }
+    }
 }
