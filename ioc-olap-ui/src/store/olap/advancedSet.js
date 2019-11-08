@@ -270,6 +270,10 @@ const advancedSet = {
     // 设置剩余的list
     SetrecordingData ({ state }, data) {
       state.recordingData = data
+    },
+    // 设置rowkeys
+    SetRowkeysData ({ state }, data) {
+      state.rowkeyData.rowkey_columns = data
     }
   }
 }

@@ -39,7 +39,7 @@ const setFiled = {
           res.tableName = res.id.split('.')[0]
         }
       })
-      state.saveSelectFiled = data
+      state.saveSelectFiled = data.filter(_ => { return _.id })
       dispatch('changePushSelectFiled', data)
     },
     // 删除取消的selct
@@ -142,12 +142,6 @@ const setFiled = {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
             }
-            // 如果为事实表的话 mode===1
-            // if (res.filed === '1') {
-            //   state.saveSelectFiled[index].mode = 1
-            // } else {
-            //   state.saveSelectFiled[index].mode = res.mode
-            // }
             // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
               dispatch('normalFn', { item: item, val: res, mode: 1 })

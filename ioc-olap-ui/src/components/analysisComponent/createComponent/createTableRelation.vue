@@ -148,7 +148,7 @@ export default {
           id: t.id,
           SAxis: t.SAxis,
           YAxis: t.YAxis,
-          joinAlias: t.joinAlias,
+          joinAlias: t.joinAlias.toUpperCase(),
           joinId: t.joinId,
           joinTable: t.joinTable,
           joinSAxis: t.joinSAxis,
@@ -260,20 +260,20 @@ export default {
               let source = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 label: sourceAttrs.text.label,
-                alias: sourceAttrs.text.alias.toUpperCase() || sourceAttrs.text.label,
+                alias: sourceAttrs.text.alias.toUpperCase() || sourceAttrs.text.label.toUpperCase(),
                 id: sourceAttrs.text.id
               }
               // 连线的次表
               let target = {
                 filed: sourceAttrs.text.label === factTable ? 1 : 0,
                 label: `${targetAttrs.text.label}`,
-                alias: targetAttrs.text.alias.toUpperCase() || targetAttrs.text.label,
+                alias: targetAttrs.text.alias.toUpperCase() || targetAttrs.text.label.toUpperCase(),
                 id: targetAttrs.text.id
               }
               // 定义需要传给后台的格式
               linkModal = {
                 'joinTable': source.label || '', // 主表名
-                'joinAlias': source.alias || '', // 主表别名
+                'joinAlias': source.alias.toUpperCase() || '', // 主表别名
                 'joinId': source.id || '', // 主表id
                 'alias': target.alias.toUpperCase() || '', // 子表别名
                 'id': target.id || '', // 子表id
@@ -374,7 +374,7 @@ export default {
           this.setAlias(label, defaultVal).then(res => {
             if (res && res.value) {
               attrs.text.alias = res.value.toUpperCase()
-              attrs.text.text = `${label}(${res.value})`
+              attrs.text.text = `${label}(${res.value.toUpperCase()})`
 
               model.attr(attrs)
               model.resize(attrs.text.text.length * 9, 30)
@@ -445,7 +445,7 @@ export default {
               idx: linkIndex,
               field: 'joinAlias'
             })
-            item.joinAlias = value
+            item.joinAlias = value.toUpperCase()
             t.attr('data', item)
           }
         }
@@ -474,7 +474,7 @@ export default {
     dragTable (e) {
       if (e && !e.filed) {
         this.isDragRect = true
-        this.dragRectPosition.label = e.label
+        this.dragRectPosition.label = e.label.toUpperCase()
         this.dragRectPosition.id = e.id
         this.dragRectPosition.database = e.database
         this.dragRectPosition.filed = e.filed
@@ -616,7 +616,7 @@ export default {
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
-        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias})`
+        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias.toUpperCase()})`
 
         newRect = new joint.shapes.basic.Rect({
           position: {
@@ -659,7 +659,7 @@ export default {
         filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
         label: item.joinTable,
-        alias: item.joinAlias,
+        alias: item.joinAlias.toUpperCase(),
         position: {
           x: item.joinSAxis,
           y: item.joinYAxis
@@ -826,7 +826,7 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      // console.log(JSON.stringify(result))
+      console.log(JSON.stringify(result))
       // this.getIdToList()
       this.$store.commit('SaveJointResult', result)
     },
@@ -878,7 +878,7 @@ export default {
         result.lookups.push({
           alias: t.alias.toUpperCase(),
           id: t.id,
-          joinAlias: t.joinAlias,
+          joinAlias: t.joinAlias.toUpperCase(),
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
