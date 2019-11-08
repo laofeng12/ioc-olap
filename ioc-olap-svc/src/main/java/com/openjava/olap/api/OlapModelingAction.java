@@ -537,11 +537,11 @@ public class OlapModelingAction extends BaseAction {
             String[] joinFk = l.join.getPrimary_key();
             for (int i = 0; i < joinPk.length; i++) {
                 String joinPkSub = joinPk[i].substring(joinPk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnName().equals(joinPkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnName().equalsIgnoreCase(joinPkSub)).findFirst();
                 pkList.add(EntityPk.get().getColumnType());
 
                 String joinFkSub = joinFk[i].substring(joinFk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnName().equals(joinFkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnName().equalsIgnoreCase(joinFkSub)).findFirst();
                 fkList.add(EntityFk.get().getColumnType());
             }
             l.join.setPk_type(pkList);
