@@ -171,6 +171,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCubeTableColumnRepository.deleteCubeId(olapCube.getCubeId());
             olapCubeTableRelationRepository.deleteCubeId(olapCube.getCubeId());
             olapFilterCondidionRepository.deleteByCubeName(olapCube.getName());
+            olapDatalaketableRepository.deleteCubeName(olapCube.getName());
             olapFilter = olapFilterRepository.findTableInfo(olapCube.getName()).orElse(null);
             if (olapFilter != null) {
                 olapFilter.setFilterSql(modelDescData.getFilter_condition());
