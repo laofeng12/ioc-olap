@@ -826,7 +826,7 @@ export default {
       }
       this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      console.log(JSON.stringify(result))
+      // console.log(JSON.stringify(result))
       // this.getIdToList()
       this.$store.commit('SaveJointResult', result)
     },

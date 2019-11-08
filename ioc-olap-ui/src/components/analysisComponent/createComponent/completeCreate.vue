@@ -117,9 +117,21 @@ export default {
       // Object.assign({}, this.totalSaveData, {
       //   cube: {
       //     cubeDescData: {
-      //       measures: this.measureTableList
+      //       measures: this.measureTableList,
+      //       rowkey: this.rowkeyData
       //     }
-      //   }
+      //   },
+      //   filterCondidion: this.relaodFilterList, // 刷新过滤
+      //   timingreFresh: {
+      //     interval: Number(this.reloadData.interval),
+      //     frequencytype: this.reloadData.frequencytype,
+      //     autoReload: this.reloadData.autoReload === true ? 1 : 0,
+      //     dataMany: this.reloadData.dataMany === true ? 1 : 0
+      //   },
+      //   cubeDatalaketableNew: this.selectStepList,
+      //   dimensionLength: this.jointResultData.lookups.length,
+      //   dimensionFiledLength: this.saveSelectFiled.length,
+      //   measureFiledLength: this.measureTableList.length
       // })
 
       // models放入所有选择的表字段
@@ -163,7 +175,7 @@ export default {
     // 处理 dimensions（选择维度）
     nextModel (val) {
       this.changesEncoding()
-      // console.log(this.totalSaveData, '高级')
+      console.log(this.totalSaveData, '高级')
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.completeLoading = true

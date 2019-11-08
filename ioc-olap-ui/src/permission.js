@@ -26,8 +26,10 @@ router.beforeEach((to, from, next) => {
     store.state.olap.HeadNum = pathindex.indexOf(to.name)
     // 判断当前是新建还是编辑（根据ModelAllList是否为对象来判断是否为编辑）
     if (pathindex.includes(to.name)) {
-      // to.matched[1].meta.title = to.query.cubeName ? '编辑OLAP模型' : '新建OLAP模型'
-      to.matched[1].meta.title = Object.keys(to.query).length ? '编辑OLAP模型' : '新建OLAP模型'
+      if (Object.keys(to.query).length) {
+        to.matched[1].meta.title = '编辑OLAP模型'
+      }
+      // to.matched[1].meta.title = Object.keys(to.query).length ? '编辑OLAP模型' : '新建OLAP模型'
     }
     if (to.path === '/login') {
       next({ path: '/home' })

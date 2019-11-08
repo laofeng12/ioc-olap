@@ -33,6 +33,7 @@ const setFiled = {
     // 设置别名后的维度(处理设置过别名的维度)
     changeFiled ({ state, dispatch }, data) {
       data.map(res => {
+        if (!res.id) return
         let isId = res.tableName + '.' + res.titName
         if (isId !== res.id) {
           res.tableName = res.id.split('.')[0]
