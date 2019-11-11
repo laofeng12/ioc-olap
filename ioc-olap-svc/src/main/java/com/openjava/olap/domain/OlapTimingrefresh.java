@@ -98,16 +98,16 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 
 	@ApiModelProperty("开始时间，增量时，需要传参")
 	@Column(name = "BEGIN")
-	private transient Long begin;
+	private Long begin;
 
 	@ApiModelProperty("结束时间，增量时，需要传参")
 	@Column(name = "END")
-	private transient Long end;
+	private Long end;
 
 	/**0:定时构建，1:手动构建**/
 	@ApiModelProperty("是否手动构建,0:定时构建，1:手动构建")
 	@Column(name = "MANUAL")
-	private transient Integer manual;
+	private Integer manual;
 
 	@ApiModelProperty("是否新增")
 	@Transient
