@@ -64,6 +64,9 @@ public class OlapModelingAction extends BaseAction {
     @Resource
     private OlapDatalaketableService olapDatalaketableService;
 
+    @Resource
+    private OlapCubeBuildService olapCubeBuildService;
+
     @Autowired
     ModelHttpClient modelHttpClient;
     @Autowired
@@ -608,7 +611,7 @@ public class OlapModelingAction extends BaseAction {
             Optional<OlapCubeTable> cubeEntity = cubetable.stream().filter(p -> p.getTableAlias().equalsIgnoreCase(dimension.getTable())).findFirst();
             //列信息
             Optional<OlapCubeTableColumn> columnEntity = olapCubeTableColumnService.findByCubeTableId(cubeEntity.get().getCubeTableId())
-                    .stream().filter(p -> p.getColumnAlias().equals(columu)).findFirst();
+                    .stream().filter(p -> p.getColumnAlias().equalsIgnoreCase(columu)).findFirst();
             //赋值列信息
             if (columnEntity.isPresent()) {
                 dimension.setColumn_type(columnEntity.get().getColumnType());
@@ -651,13 +654,12 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:构建")
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
     @Security(session = true)
-    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws APIException {
+    public void build(String cubeName, Long start, Long end,@RequestBody OlapTimingrefresh timingrefresh) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         timingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
-        olapTimingrefreshService.doSave(timingrefresh);
-        cubeHttpClient.build(cubeName, start, end);
+        olapCubeBuildService.preBuild(cubeName,start,end,1);
     }
 
 

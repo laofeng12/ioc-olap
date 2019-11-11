@@ -3,9 +3,9 @@ package com.ioc.olap.job;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapTimingrefresh;
-import com.openjava.olap.mapper.kylin.CubeDescDataMapper;
 import com.openjava.olap.mapper.kylin.CubeHbaseMapper;
 import com.openjava.olap.mapper.kylin.CubeMapper;
+import com.openjava.olap.service.OlapCubeBuildService;
 import com.openjava.olap.service.OlapCubeService;
 import com.openjava.olap.service.OlapTimingrefreshService;
 import org.slf4j.Logger;
@@ -28,6 +28,9 @@ public class OlapJob {
 
     @Resource
     private OlapTimingrefreshService olapTimingrefreshService;
+
+    @Resource
+    private OlapCubeBuildService olapCubeBuildService;
 
     @Autowired
     CubeHttpClient cubeHttpClient;
@@ -77,23 +80,29 @@ public class OlapJob {
                             if (fc.getFinalExecutionTime() != null) {
                                 calendar.setTime(fc.getFinalExecutionTime());
                                 if (isNeedExcute(calendar, fc.getFrequencytype(), fc.getInterval())) {
-                                    cubeHttpClient.build(fc.getCubeName(), 0L, 0L);
-                                    fc.setFinalExecutionTime(calendar.getTime());
-                                    olapTimingrefreshService.doSave(fc);
+                                    OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                                    if (cube != null){
+                                        //先判断模型状态是否满足构建
+                                       this.olapCubeBuildService.preBuild(cube.getName(),0L,0L,0);
+                                    }
                                 }
                             } else {
-                                cubeHttpClient.build(fc.getCubeName(), 0L, 0L);
-                                fc.setFinalExecutionTime(new Date());
-                                olapTimingrefreshService.doSave(fc);
+                                OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                                if (cube != null){
+                                    //先判断模型状态是否满足构建
+                                    this.olapCubeBuildService.preBuild(cube.getName(),0L,0L,0);
+                                }
                             }
                         } else {
                             Long lastBuildTime = hbases.get(0).getDateRangeEnd();
                             Date lastBuildDate = new Date(lastBuildTime);
                             calendar.setTime(lastBuildDate);
                             if (isNeedExcute(calendar, fc.getFrequencytype(), fc.getInterval())) {
-                                cubeHttpClient.build(fc.getCubeName(), lastBuildTime, calendar.getTimeInMillis());
-                                fc.setFinalExecutionTime(calendar.getTime());
-                                olapTimingrefreshService.doSave(fc);
+                                OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                                if (cube != null){
+                                    //先判断模型状态是否满足构建
+                                    this.olapCubeBuildService.preBuild(cube.getName(),0L,0L,0);
+                                }
                             }
                         }
                     }

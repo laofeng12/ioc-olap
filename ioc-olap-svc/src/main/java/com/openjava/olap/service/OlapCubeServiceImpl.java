@@ -1,6 +1,7 @@
 package com.openjava.olap.service;
 
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.CubeFlags;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
@@ -215,7 +216,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             filterCondion.setCubeName(olapCube.getName());
             olapFilterCondidionRepository.save(filterCondion);
         }
-
+        olapCube.setFlags(CubeFlags.READY.getFlags());//新建完成后，状态为就绪
         olapCubeRepository.save(olapCube);
 
         for (OlapCubeTable tableItem : cubeTablesList) {

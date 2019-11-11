@@ -1,22 +1,18 @@
 package com.openjava.olap.domain;
 
-import java.util.Date;
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.data.domain.Persistable;
-import org.hibernate.validator.constraints.Length;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.domain.Persistable;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 实体
@@ -99,6 +95,19 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@ApiModelProperty("是否自动刷新模型")
 	@Column(name = "AUTORELOAD")
 	private Integer autoReload;
+
+	@ApiModelProperty("开始时间，增量时，需要传参")
+	//@Column(name = "BEGIN")
+	private transient Long begin;
+
+	@ApiModelProperty("结束时间，增量时，需要传参")
+	//@Column(name = "END")
+	private transient Long end;
+
+	/**0:定时构建，1:手动构建**/
+	@ApiModelProperty("是否手动构建,0:定时构建，1:手动构建")
+	@Column(name = "MANUAL")
+	private transient Integer manual;
 
 	@ApiModelProperty("是否新增")
 	@Transient

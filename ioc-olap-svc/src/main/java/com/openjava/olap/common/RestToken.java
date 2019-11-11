@@ -9,6 +9,7 @@ import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @create 2019-11-05 18:15
  **/
 @Slf4j
+@Configuration
 @Component
 public class RestToken{
 

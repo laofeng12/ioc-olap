@@ -94,6 +94,8 @@ schedule:
     minute: 0 */1 * * * ?
   five_minute:
     five_minute: 0 */5 * * * ?
+  cubeStatus:
+    querySyncJob: 0 1 * * * * ?
 
 
 
