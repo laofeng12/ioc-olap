@@ -64,7 +64,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @change="rowKeyChangeType"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @change="rowKeyChangeType(scope.row)"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -73,14 +73,14 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text"  @change="rowKeyChangeLength" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text"  @change="rowKeyChangeLength(scope.row)" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="rowKeyChange">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="rowKeyChange(scope.row)">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -184,11 +184,6 @@ export default {
       }
     }
   },
-  watch: {
-    '$route' () {
-      // this.init()
-    }
-  },
   mounted () {
     this.init()
     this.resortAggregation()
@@ -209,22 +204,6 @@ export default {
           })
         }
       })
-      let datas = JSON.parse(JSON.stringify(this.reloadNeedData))
-      let arr = []
-      datas.map(item => {
-        arr.push({
-          column: item.value,
-          encoding: '',
-          lengths: '',
-          code_types: item.type ? item.type : '',
-          // columns_Type: this.returncodingType(item.type),
-          columns_Type: item.columns_Type ? item.columns_Type : 'dict',
-          encoding_version: '1',
-          isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
-        })
-        return arr
-      })
-      this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     resortAggregation () {
       this.aggregation_groups.forEach(item => {
@@ -346,17 +325,17 @@ export default {
       }
       this.$store.dispatch('RmtagList', list)
     },
-    rowKeyChange () {
-      this.updateRowkeys()
+    rowKeyChange (val) {
+      this.updateRowkeys(val)
     },
-    rowKeyChangeType () {
-      this.updateRowkeys()
+    rowKeyChangeType (val) {
+      this.updateRowkeys(val)
     },
-    rowKeyChangeLength () {
-      this.updateRowkeys()
+    rowKeyChangeLength (val) {
+      this.updateRowkeys(val)
     },
-    updateRowkeys () {
-      this.$store.dispatch('SetRowkeysData', this.rowkeyData.rowkey_columns)
+    updateRowkeys (val) {
+      this.$store.dispatch('ChangeRowkeyList', this.rowkeyData.rowkey_columns)
     }
   },
   computed: {

@@ -301,27 +301,6 @@ const common = {
         })
       })
       // 赋值表名、字段数量、维度数量以及保存需要的uuid
-      // Object.assign({}, state.totalSaveData, {
-      //   cube: {
-      //     cubeDescData: {
-      //       name: data.CubeList.name,
-      //       version: data.CubeList.version,
-      //       last_modified: data.CubeList.last_modified,
-      //       model_name: data.CubeList.model_name,
-      //       description: data.CubeList.description,
-      //       uuid: data.CubeList.uuid
-      //     },
-      //     engine_type: data.CubeList.engine_type
-      //   },
-      //   models: {
-      //     modelDescData: {
-      //       uuid: data.ModesList.uuid,
-      //       name: data.ModesList.name,
-      //       version: data.ModesList.version,
-      //       last_modified: data.ModesList.last_modified
-      //     }
-      //   }
-      // })
       state.totalSaveData.cube.cubeDescData.name = data.CubeList.name
       state.totalSaveData.cube.cubeDescData.version = data.CubeList.version
       state.totalSaveData.cube.cubeDescData.last_modified = data.CubeList.last_modified

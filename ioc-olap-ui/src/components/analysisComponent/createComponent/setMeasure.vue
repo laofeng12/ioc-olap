@@ -54,7 +54,6 @@ export default {
   },
   methods: {
     init () {
-      // this.tableData = [...this.measureTableList]
       this.tableData = JSON.parse(JSON.stringify(this.measureTableList))
     },
     nextModel (val) {
@@ -92,7 +91,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      measureTableList: 'measureTableList'
+      measureTableList: 'measureTableList',
+      dimensions: 'dimensions'
     })
   }
 }
