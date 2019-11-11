@@ -41,12 +41,14 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	private String updateName;
 	@ApiModelProperty("0:不可用,1:可用,2:就绪,3:数据同步中,4:同步失败,5:构建中,6:构建失败,")
 	private Integer flags;
-
+	@ApiModelProperty("维度表数量")
 	private Long dimensionLength;
 	@ApiModelProperty("维度字段数量")
 	private Long dimensionFiledLength;
 	@ApiModelProperty("度量字段数量")
 	private Long measureFiledLength;
+	@ApiModelProperty("流程组件数据")
+	private String graphData;
 
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -195,5 +197,12 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	}
 	public void setFlags(Integer flags) {
 		this.flags = flags;
+	}
+	@Column(name = "GRAPH_DATA")
+	public String getGraphData() {
+		return graphData;
+	}
+	public void setGraphData(String graphData) {
+		this.graphData = graphData;
 	}
 }

@@ -22,7 +22,7 @@ const setMeasure = {
           resolve('ok')
         } else {
           state.measureTableList.map((item, index) => {
-            if (data.id === item.id) {
+            if (data.id === item.id || data.firstName === item.name) {
               state.measureTableList[index] = data
               resolve('ok')
             }

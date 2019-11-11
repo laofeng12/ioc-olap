@@ -11,32 +11,32 @@ module.exports = {
   devServer: {
     proxy: {
       '/olapweb/admin/': {
-        target: 'http://183.6.55.26:31075', // 公司测试环境
+        target: 'http://219.135.182.3:31075', // 公司测试环境
         // target: 'http://19.104.40.36', // 政务内网
         pathRewrite: { '^/olapweb/admin/': '/admin/' },
         changeOrigin: true
       },
       '/olapweb/gateway/': {
-        target: 'http://183.6.55.26:31012', // 公司测试环境
+        target: 'http://219.135.182.3:31012', // 公司测试环境
         pathRewrite: { '^/olapweb/gateway/': '/gateway/' }
       },
       '/olapweb/ljdp/': {
-        target: 'http://183.6.55.26:31012', // 公司测试环境
+        target: 'http://219.135.182.3:31012', // 公司测试环境
         // target: 'http://192.168.8.83:8081', // 中良本机
         pathRewrite: { '^/olapweb/ljdp/': '/ljdp/' },
         changeOrigin: true
       },
       '/olapweb/pds/': {
-        target: 'http://183.6.55.26:31013', // 公司测试环境
+        target: 'http://219.135.182.3:31013', // 公司测试环境
         pathRewrite: { '^/olapweb/pds/': '/pds/' },
         changeOrigin: true
       },
       '/olapweb/olap/apis': {
-        target: 'http://183.6.55.26:30003', // 麒麟测试环境
+        target: 'http://219.135.182.3:30003', // 麒麟测试环境
         changeOrigin: true
       },
       '/olapweb/olap/': {
-        target: 'http://183.6.55.26:30003', // 麒麟测试环境
+        target: 'http://219.135.182.3:30003', // 麒麟测试环境
         // target: 'http://192.168.4.211:8081', // 左烨本地
         pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
@@ -61,6 +61,6 @@ module.exports = {
       })
 
     config.resolve.alias
-    .set('@P', resolve('./node_modules/nhc-portal/packages'))
-    }
+      .set('@P', resolve('./node_modules/nhc-portal/packages'))
+  }
 }

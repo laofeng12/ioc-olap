@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="totalSaveData" v-loading="completeLoading" :rules="rules">
+    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -10,7 +10,9 @@
        <el-form-item label="模型名称" prop="cube.cubeDescData.name" class="labelName">
          <template slot-scope="scope">
            <div>
-             <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <!-- <el-input type="text" placeholder="" :disabled="!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input> -->
+             <el-input type="text" placeholder="" v-if="!!Array.isArray(ModelAllList)" v-model="totalSaveData.cube.cubeDescData.name" maxlength="50" show-word-limit></el-input>
+             <span v-else>{{totalSaveData.cube.cubeDescData.name}}</span>
            </div>
          </template>
        </el-form-item>
@@ -30,7 +32,8 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
-import { throttle } from '@/utils/index'
+import { throttle, reduceObj } from '@/utils/index'
+import { ischeckWechatAccount } from '@/utils/rules'
 export default {
   components: {
     steps
@@ -48,7 +51,8 @@ export default {
       },
       rules: {
         'cube.cubeDescData.name': [
-          { required: true, message: '请输入模型名称', trigger: 'blur' }
+          { required: true, message: '请输入模型名称', trigger: 'blur' },
+          { validator: ischeckWechatAccount, trigger: 'blur' }
         ]
       }
     }
@@ -58,12 +62,11 @@ export default {
       // this.init()
     }
   },
-  mounted () {
+  created () {
     this.init()
   },
   methods: {
     init () {
-      console.log('最后一步获取的', this.totalSaveData)
       // 获取信息
       this.selectTableTotal.map(item => {
         if (item.filed === 1) {
@@ -92,7 +95,6 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
-      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
       this.totalSaveData.cube.cubeDescData.hbase_mapping = JSON.parse(JSON.stringify(this.hbase_mapping))
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
@@ -110,12 +112,6 @@ export default {
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
-
-      // 过滤rowkey
-      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
-        let leh = res.lengths ? `:${res.lengths}` : ''
-        res.encoding = `${res.columns_Type}${leh}`
-      })
       // models放入所有选择的表字段
       /**
        * models中的dimensions放入所有选择的表字段
@@ -144,27 +140,41 @@ export default {
         }
         return dest
       })
-      // this.totalSaveData.models.modelDescData.dimensions = dest
       this.totalSaveData.models.modelDescData.dimensions = []
+    },
+    changesEncoding () {
+      console.log(this.aggregation_groups, '我曹', this.dimensions)
+      // 过滤rowkey
+      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
+        let leh = res.lengths ? `:${res.lengths}` : ''
+        res.encoding = `${res.columns_Type}${leh}`
+      })
+      this.totalSaveData.cubeDatalaketableNew.map(res => {
+        res.tableList = reduceObj(res.tableList, 'table_id')
+      })
+      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
+      this.changesEncoding()
       console.log(this.totalSaveData, '高级')
-      if (this.totalSaveData.cube.cubeDescData.name.length) {
-        this.completeLoading = true
-        throttle(async () => {
-          await saveolapModeldata(this.totalSaveData).then(_ => {
-            this.$message.success('保存成功~')
-            this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
-          }).catch(_ => {
-            this.completeLoading = false
-          })
-        }, 1000)
-      } else {
-        this.$message.warning('请填写模型名称~')
-      }
+      setTimeout(() => {
+        this.$refs.formData.validate(valid => {
+          if (valid) {
+            this.completeLoading = true
+            throttle(async () => {
+              await saveolapModeldata(this.totalSaveData).then(_ => {
+                this.$message.success('保存成功~')
+                this.completeLoading = false
+                this.$router.push('/analysisModel/Configuration')
+                this.$store.dispatch('resetList')
+              }).catch(_ => {
+                this.completeLoading = false
+              })
+            }, 1000)
+          }
+        })
+      }, 0)
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

@@ -128,7 +128,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
     }
 
     //保存OLAP_CUBE表
-    public OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength) {
+    public OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength,String graphData) {
         CubeDescDataMapper cubeDescData = cube.getCubeDescData();
         //根据名称查询是否已经包含数据
         OlapCube olapCube = null;
@@ -142,6 +142,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCube.setUpdateId(Long.parseLong(userVO.getUserId()));
             olapCube.setUpdateName(userVO.getUserAccount());
             olapCube.setUpdateTime(date);
+            olapCube.setGraphData(graphData);
             olapCube.setIsNew(false);
         } else {
             olapCube = new OlapCube();
@@ -155,6 +156,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCube.setCreateId(Long.parseLong(userVO.getUserId()));
             olapCube.setCreateName(userVO.getUserAccount());
             olapCube.setFlags(0);
+            olapCube.setGraphData(graphData);
             olapCube.setIsNew(true);
         }
         return olapCube;
@@ -172,6 +174,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCubeTableColumnRepository.deleteCubeId(olapCube.getCubeId());
             olapCubeTableRelationRepository.deleteCubeId(olapCube.getCubeId());
             olapFilterCondidionRepository.deleteByCubeName(olapCube.getName());
+            olapDatalaketableRepository.deleteCubeName(olapCube.getName());
             olapFilter = olapFilterRepository.findTableInfo(olapCube.getName()).orElse(null);
             if (olapFilter != null) {
                 olapFilter.setFilterSql(modelDescData.getFilter_condition());

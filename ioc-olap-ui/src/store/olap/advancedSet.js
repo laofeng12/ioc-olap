@@ -236,7 +236,7 @@ const advancedSet = {
           break
         case 6:
           state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.filter((item, index) => {
-            item.id === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
+            item === list.id && state.hbase_mapping.column_family[list.findIndex].columns[0].measure_refs.splice(index, 1)
           })
           state.savehetComposeDataId[list.findIndex].map((item, index) => {
             item === list.id && state.savehetComposeDataId[list.findIndex].splice(index, 1)
@@ -270,6 +270,10 @@ const advancedSet = {
     // 设置剩余的list
     SetrecordingData ({ state }, data) {
       state.recordingData = data
+    },
+    // 设置rowkeys
+    SetRowkeysData ({ state }, data) {
+      state.rowkeyData.rowkey_columns = data
     }
   }
 }

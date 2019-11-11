@@ -17,7 +17,7 @@
               @select="selectcheck"
               @select-all="selectAllCheck"
               style="margin-top: 10px;">
-              <el-table-column type="selection" width="30" prop="全选" align="center"></el-table-column>
+              <el-table-column type="selection" :selectable="isSelectable" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
               <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
@@ -73,7 +73,6 @@ export default {
   watch: {
     '$route' () {
       this.$refs.filedTable.init()
-      // this.init()
     }
   },
   created () {
@@ -85,7 +84,6 @@ export default {
        * 接受左侧列表通过兄弟通信传递过来的数据 ${data}
        */
       this.$root.eventBus.$on('filedTable', (data, code) => {
-        // console.log('来啦~~~~', this.saveSelectAllListFiled)
         /**
          * 获取第一步保存的选择的表对应的所有字段
          * 遍历所有字段
@@ -154,7 +152,6 @@ export default {
                     if (val.id === item.id) {
                       this.tableData[i].name = String(val.name)
                       this.tableData[i].mode = String(val.mode)
-                      this.tableData[i].defaultVal = ''
                       arr.push(item)
                     }
                   })
@@ -208,57 +205,92 @@ export default {
       // 遍历第二步生成的数据， 拿到对应的字段存放到对应的盒子中
       data.lookups.map(item => {
         let val = item.join
+        // 主表的判断
         val.foreign_key.map((n, i) => {
-          foreign_keys.push({
-            name: n,
-            id: `${n.split('.')[0]}.${n.split('.')[1]}`
-          })
+          if (item.joinAlias !== item.joinTable) {
+            foreign_keys.push({
+              name: `${item.joinTable}.${n.split('.')[1]}`,
+              // id: `${item.joinTable}.${n.split('.')[1]}`,
+              id: n,
+              titid: n
+            })
+          } else {
+            foreign_keys.push({ name: n, id: n })
+          }
         })
         /*
           判断这个表是否设置了别名，如果设置了别名需要把最初的表名筛选出来
         */
         val.primary_key.map((n, i) => {
-          if (item.alias !== item.table) {
-            foreign_keys.push({
+          if (item.alias !== item.table.split('.')[1]) {
+            primary_keys.push({
               name: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
-              titid: `${n.split('.')[0]}.${n.split('.')[1]}`
+              // id: `${item.table.split('.')[1]}.${n.split('.')[1]}`,
+              id: n,
+              titid: n
             })
+          } else {
+            primary_keys.push({ name: n, id: n })
           }
         })
       })
       // 组合第二步设置完的表名
       result = [ ...foreign_keys, ...primary_keys ]
-
       // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
-      values.map(res => {
+      values.map((res, i) => {
         result.map(n => {
-          if (res.id === n.id || res.id === n.titid) {
-            res.id = n.titid ? n.titid : n.id
-            res.mode = '1'
+          // 找出设置为别名的数据push到总的数据中 替换对应的id
+          if (n.titid && n.name === res.id) {
+            const newRes = Object.assign({}, res, { id: n.titid })
+            values.push(newRes)
+          }
+        })
+      })
+      values.map((res, i) => {
+        result.map(n => {
+          if (res.id === n.id) {
             resultData = [...resultData, res]
+            foreign_keys.map(val => {
+              if (val.id === res.id) {
+                Object.assign(res, { mode: '1', fuck: '1' })
+              } else {
+                Object.assign(res, { mode: '2' })
+              }
+            })
             selectRows.push(res)
+          }
+        })
+      })
+      selectRows.map(res => { if (res.fuck) res.mode = '1' })
+      this.tableData && this.tableData.map((item, i) => {
+        // 筛选出是否为外键 如果是外键就要加上唯一标识${defaultVal} === 'n'
+        foreign_keys.map(val => {
+          if (val.id === item.id || val.titid === item.id) {
+            Object.assign(item, { defaultVal: 'n' })
+          }
+        })
+        // 筛选出是否为主键或者外键
+        result.map(x => {
+          if (item.id === x.id || item.id === x.titid) {
+            Object.assign(item, { primary: '1' })
           }
         })
       })
       setTimeout(() => {
         // 调用默认选中的数据
         this.toggleSelection(resultData)
-        this.tableData && this.tableData.forEach((item, i) => {
-          this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-            if (val.id === item.id) {
-              this.tableData[i].name = String(val.name)
-              this.tableData[i].mode = '1'
-              this.tableData[i].defaultVal = 'n'
-            }
-          })
-        })
-        // // 存放到store
-        // console.log('============', selectRows)
+        // 存放到store
         this.$store.dispatch('SaveSelectFiled', selectRows)
-        // this.$store.dispatch('SaveNewSortList', this.saveSelectFiled) // 更新已选的框（如果返回上一步修改了别名）
         this.$store.dispatch('SaveFiledData')
-      }, 500)
+      }, 300)
+    },
+    // 判断是否为主键或者外键
+    isSelectable (row, index) {
+      if (row.primary) {
+        return 0
+      } else {
+        return 1
+      }
     },
     // 接收已选择的id 根据id展示对应的复选框
     toggleSelection (rows) {
@@ -326,15 +358,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled',
-      dimensions: 'dimensions',
-      reloadNeedData: 'reloadNeedData',
-      saveNewSortListstructure: 'saveNewSortListstructure',
-      jointResultData: 'jointResultData',
-      saveNewSortList: 'saveNewSortList',
-      saveSelectAllListFiled: 'saveSelectAllListFiled'
-    })
+    ...mapGetters([ 'saveSelectFiled', 'reloadNeedData', 'saveNewSortListstructure', 'jointResultData', 'saveNewSortList', 'saveSelectAllListFiled' ])
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')
@@ -410,7 +434,15 @@ export default {
     >>>.el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
       content: ''
       height 0!improtant
-  }
+    }
+    >>>.is-disabled{
+      .el-checkbox__inner{
+        background #1877F1
+        border-color #1877F1
+      }
+      .el-checkbox__inner::after{
+      }
+    }
   }
 }
 </style>

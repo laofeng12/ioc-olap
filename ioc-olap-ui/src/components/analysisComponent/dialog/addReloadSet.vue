@@ -83,7 +83,6 @@ export default {
     init () {
       this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
-      // this.tableOptions = [...this.selectTableTotal] || []
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -118,7 +117,7 @@ export default {
             if (res) {
               this.$message.success('保存成功~')
               this.formData = {}
-              this.$parent.init()
+              this.$parent.searchList()
               this.$refs.formDataModel.clearValidate()
             }
           })
@@ -157,6 +156,9 @@ export default {
       margin-right 20px
       margin-bottom 10px
     }
+  }
+  >>>.el-form-item__error{
+    left 20px!important
   }
   >>>.el-select{
     width 100%

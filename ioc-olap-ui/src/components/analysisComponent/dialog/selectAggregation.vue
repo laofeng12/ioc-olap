@@ -39,9 +39,7 @@ export default {
       reloadNeedDataList: [], // 定义一个数组来接收选择的数据
       dialogFormVisible: false,
       selctCheckData: [], // 选择的列id
-      options: [
-        { value: '1111', id: '1' }, { value: '2222', id: '2' }
-      ], // 接收第三步选择的数据
+      options: [], // 接收第三步选择的数据
       index: '', // 记录当前选择的是维度的哪个框
       type: '', // 记录当前选择的是哪个维度
       findIndex: '' // 记录当前点击的是维度下的哪个列
@@ -50,11 +48,6 @@ export default {
   mounted () {
     this.resortAggregation()
     this.init()
-  },
-  watch: {
-    '$route' () {
-      this.init()
-    }
   },
   methods: {
     init () {
@@ -89,6 +82,7 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
+      console.log(this.selectDataidList, 'id')
       // debugger
       this.dialogFormVisible = true
       switch (type) {

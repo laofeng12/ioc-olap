@@ -103,6 +103,16 @@ export default {
       if (this.jsonData) {
         let { mandatory_dimension_set_list, rowkey } = this.jsonData.CubeList
         this.list = this.jsonData.CubeList
+        // 重置高级组合
+        this.list.hbase_mapping.column_family.forEach((item, index) => {
+          if (item.name === 'F1') {
+            item.columns[0].measure_refs.forEach((n, i) => {
+              if (n === '_COUNT_') {
+                item.columns[0].measure_refs.splice(i, 1)
+              }
+            })
+          }
+        })
         if (mandatory_dimension_set_list.length < 1) this.list.mandatory_dimension_set_list = [[]]
         this.descriptionData = rowkey.rowkey_columns.map((item, index) => {
           return {
@@ -121,19 +131,24 @@ export default {
 
 <style lang="stylus" scoped>
 .advancedSet{
-  height 300px
-  overflow auto
-  padding 30px 100px
+  padding 30px
+  margin-top 30px
+  background #ffffff
+  padding-bottom 100px
   .item_line{
     margin-bottom 3px
     border-bottom 1px solid #cccccc
+    font-family: PingFangSC-Medium;
+    font-size: 16px;
+    color: #262626;
+    letter-spacing: 0;
   }
   >>>.el-form-item__label{
     width 120px
     text-align left
   }
   >>>.el-table__body-wrapper{
-    height 200px
+    height 350px
     overflow-y auto
   }
   .selects{
@@ -152,29 +167,23 @@ export default {
           width 80px
         }
         .box_r{
-          border 1px solid #cccccc
+          border: 1px solid #D9D9D9;
           flex 1
-          padding 25px
+          min-height 32px
+          cursor pointer
         }
         >>>.el-tag{
-          width 31%
+          width 200px
+          margin-bottom 3px
           float left
           margin-left 1%
-          margin-bottom 10px
-          font-size 8px
+          font-size 11px
+          margin-top:5px;
+          height 22px
+          line-height 22px
           text-align center
           background #FBFBFB
           color #555555
-          i{
-            float right!important
-            margin-top 8px
-          }
-          h6{
-            text-overflow: ellipsis;
-            float left
-            width: 90%;
-            overflow: hidden;
-          }
         }
         .adds{
           border none!important
@@ -183,10 +192,12 @@ export default {
           display flex
           div{
             flex 1
-            border 1px solid #cccccc
-            padding 25px
             margin-left 80px
+            height 32px
             margin-bottom 20px
+            border: 1px solid #D9D9D9;
+            min-height 32px
+            cursor pointer
           }
         }
         .adds:first-child{
@@ -210,6 +221,17 @@ export default {
       }
     }
   }
+  .contain__box::before{
+    content: '*'
+    color: red
+    margin-right 2px
+  }
+  h6{
+    text-overflow: ellipsis;
+    float left
+    width: 90%;
+    overflow: hidden;
+  }
   .listSet{
     margin-top 20px
     span{
@@ -223,9 +245,10 @@ export default {
         margin-bottom 10px
         div{
           margin-left 120px
+          border: 1px solid #D9D9D9;
           flex 1
-          padding 25px
-          border 1px solid #cccccc
+          min-height 32px
+          cursor pointer
         }
       }
       p{
@@ -241,24 +264,17 @@ export default {
         }
       }
       >>>.el-tag{
-          width 32%
-          float left
-          margin-left 1%
-          margin-bottom 10px
-          font-size 8px
-          text-align center
-          background #FBFBFB
-          color #555555
-          i{
-            float right!important
-            margin-top 8px
-          }
-          h6{
-            text-overflow: ellipsis;
-            float left
-            width: 90%;
-            overflow: hidden;
-          }
+        width 200px
+        margin-bottom 3px
+        float left
+        margin-left 1%
+        font-size 11px
+        margin-top:5px;
+        height 22px
+        line-height 22px
+        text-align center
+        background #FBFBFB
+        color #555555
         }
     }
     .nos{
@@ -266,5 +282,15 @@ export default {
       margin-top -10px
     }
   }
+    >>>.el-table__body tr:nth-child(even){
+      background #F5F7FA
+    }
+  >>>.el-table__header th{
+      background #444444
+      padding 8px 0
+      color #ffffff
+      font-family: PingFangSC-Regular;
+      font-size: 14px;
+    }
 }
 </style>

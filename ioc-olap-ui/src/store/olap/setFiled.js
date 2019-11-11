@@ -33,12 +33,13 @@ const setFiled = {
     // 设置别名后的维度(处理设置过别名的维度)
     changeFiled ({ state, dispatch }, data) {
       data.map(res => {
+        if (!res.id) return
         let isId = res.tableName + '.' + res.titName
         if (isId !== res.id) {
           res.tableName = res.id.split('.')[0]
         }
       })
-      state.saveSelectFiled = data
+      state.saveSelectFiled = data.filter(_ => { return _.id })
       dispatch('changePushSelectFiled', data)
     },
     // 删除取消的selct
@@ -141,12 +142,6 @@ const setFiled = {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
             }
-            // 如果为事实表的话 mode===1
-            // if (res.filed === '1') {
-            //   state.saveSelectFiled[index].mode = 1
-            // } else {
-            //   state.saveSelectFiled[index].mode = res.mode
-            // }
             // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
             if (String(res.mode) === '1' || res.filed === '1') {
               dispatch('normalFn', { item: item, val: res, mode: 1 })
@@ -221,20 +216,20 @@ const setFiled = {
           value: res.tableName + '.' + res.name
         })
       })
-      // state.reloadNeedData = reduceObj([...nomrlData, ...datas], 'value')
-      dispatch('filterTableAlias', reduceObj([...nomrlData, ...datas], 'value'))
-      dispatch('setAdvanceData', state.reloadNeedData)
+      let result = reduceObj([...nomrlData, ...datas], 'value')
+      dispatch('filterTableAlias', result)
+      dispatch('setAdvanceData', result)
     },
     // 筛选出已经修改的表名
-    filterTableAlias ({ state, getters }, data) {
+    filterTableAlias ({ state, getters, dispatch }, data) {
       let ResultAlias = Array.from(getters.jointResultData.lookups, ({ alias }) => alias)
       let ResultJoinAlias = Array.from(getters.jointResultData.lookups, ({ joinAlias }) => joinAlias)
       let Result = [...new Set([...ResultAlias, ...ResultJoinAlias])]
       let val = data.filter(res => { return Result.includes(res.value.split('.')[0]) })
       state.reloadNeedData = [...val]
-      // console.log('最终于需要的', val)
+      dispatch('fristRowkeys')
     },
-    // 赋值给高级设置中默认显示的包含维度
+    // 赋值给高级设置中默认显示的包含维度 以及rowkey
     setAdvanceData ({ state, getters, dispatch }, data) {
       let val = []
       let idval = []
@@ -246,12 +241,12 @@ const setFiled = {
       getters.selectDataidList[0].includesId = idval
       dispatch('SaveselectIncludesData', val)
       // debugger
+      state.reloadNeedData = [...data]
     },
     // 存储洗选的维度（传给后端的)
     SaveFiledData ({ state }) {
       // 对接数据格式
       state.dimensions = []
-      // console.log('清洗过后的数据', state.saveSelectFiled)
       state.saveSelectFiled && state.saveSelectFiled.map((item, i) => {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {
@@ -280,6 +275,7 @@ const setFiled = {
               column_type: item.dataType,
               id: item.id,
               derived: item.mode === '1' ? null : item.titName.split(','),
+              // derived: item.mode === '1' ? null : item.titName,
               name: item.name
             })
           }
@@ -288,10 +284,49 @@ const setFiled = {
       })
     },
     // 存储最新分类后的维度
-    SaveNewSortList ({ state }, data) {
-      // console.log('设置别名后', data)
+    SaveNewSortList ({ state, dispatch }, data) {
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
+    },
+    fristRowkeys ({ state, getters }) {
+      let result = JSON.parse(JSON.stringify(state.reloadNeedData))
+      let arr = []
+      if (getters.rowkeyData.rowkey_columns.length > 0 && getters.rowkeyData.rowkey_columns[0].adds) {
+        result.map((item, index) => {
+          getters.rowkeyData.rowkey_columns.map(res => {
+            if (res.column === item.id) {
+              res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
+              res['lengths'] = res.lengths ? res.lengths : ''
+              res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
+            } else {
+              res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
+              res['column'] = item.value
+              res['encoding'] = ''
+              res['lengths'] = res.lengths ? res.lengths : ''
+              res['encoding_version'] = '1'
+              res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
+            }
+          })
+        })
+      } else {
+        result.map((item, index) => {
+          arr.push({
+            column: item.value,
+            encoding: '',
+            lengths: '',
+            code_types: item.type ? item.type : '',
+            columns_Type: item.columns_Type ? item.columns_Type : 'dict',
+            encoding_version: '1',
+            isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
+          })
+        })
+        getters.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
+      }
+    },
+    // 选择维度的时候change对应的rowkey列表
+    ChangeRowkeyList ({ state, getters }, data) {
+      getters.rowkeyData.rowkey_columns = data
+      getters.rowkeyData.rowkey_columns.map(res => { res.adds = 1 })
     },
     // 修改别名后需要重新整理数据
     SetAliasList ({ state }, data) {

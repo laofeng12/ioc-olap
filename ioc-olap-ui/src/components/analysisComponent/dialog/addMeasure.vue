@@ -155,6 +155,7 @@ export default {
         id: '',
         checkedAll: false
       },
+      firstName: '',
       titles: '',
       isNew: 1,
       formLabelWidth: '100px',
@@ -287,8 +288,6 @@ export default {
         )
       })
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
-      // this.fieldtextOption = [{ label: '1' }, { label: '2' }]
-      // console.log(this.fieldtextOption)
     },
     closeBtn () {
       this.dialogFormVisible = false
@@ -296,14 +295,17 @@ export default {
       this.$parent.init()
     },
     selectValue (val) {
+      let expressionList = ['SUM', 'AVG']
       let result = this.fieldtextOption.filter((res, index) => {
         return res.label === val
       })
       this.formData.function.returntype = this.formData.function.expression === 'COUNT_DISTINCT' ? 'bitmap' : result[0].dataType
-      // if (this.jsonType.indexOf(result[0].dataType) === -1) {
-      //   this.$message.warning('不支持当前字段类型~')
-      //   this.formData.function.parameter.value = ''
-      // }
+      if (expressionList.includes(this.formData.function.expression)) {
+        if (!this.jsonType.includes(result[0].dataType)) {
+          this.$message.warning('不支持当前字段类型~')
+          this.formData.function.parameter.value = ''
+        }
+      }
     },
     selectType (val) {
       if (val === 'constant') {
@@ -329,22 +331,18 @@ export default {
       this.$refs.formData.validate((valid) => {
         if (valid) {
           if (this.getSavemeasureTableList(this.formData.name)) return this.$message.warning('该度量名称已存在~')
-          // console.log(this.getSavemeasureTableList(this.formData.name))
           this.dialogFormVisible = false
           // 创建随机唯一标识id
           if (!this.formData.id) {
             let id = Math.random().toString(36).substr(3)
             this.formData['id'] = id
+            this.formData['firstName'] = this.firstName
           }
           Object.assign(this.formData, {
             isNew: this.isNew,
             showDim: true,
             checkedAll: this.formData.checkedAll
           })
-          // this.formData['id'] = id
-          // this.formData['isNew'] = this.isNew
-          // this.formData['showDim'] = true
-          // this.formData['checkedAll'] = this.formData.checkedAll
           this.$store.dispatch('MeasureTableList', this.formData).then(res => {
             if (res) {
               this.$message.success('设置成功~')
@@ -358,6 +356,7 @@ export default {
       })
     },
     dialog (data) {
+      this.firstName = data ? JSON.parse(JSON.stringify(data)).name : ''
       this.dialogFormVisible = true
       let checkedAll = data ? data.checkedAll : ''
       this.initData(checkedAll)
