@@ -138,7 +138,7 @@ public class OlapRealQueryAction extends BaseAction {
             ArrayList<OlapCubeTable> cubeTables = olapCubeTableService.getListByCubeId(cube.getCubeId());
             for (OlapCubeTable table : cubeTables) {
                 TreeNodeVo nodeVo = tree.getChildren().stream().filter(p -> p.getName().equals(table.getTableName())).findFirst().orElse(null);
-                ;
+
                 if (nodeVo == null) {
                     nodeVo = new TreeNodeVo();
                     nodeVo.setId(table.getId().toString());

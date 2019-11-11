@@ -179,6 +179,7 @@ export default {
   },
   mounted () {
     this.init()
+    this.searchList()
   },
   methods: {
     init () {
@@ -190,9 +191,11 @@ export default {
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
       // 默认调用根据表名去获取对应的字段名
       this.fetchDeac(this.tableOptions[0].label)
+      this.formData = JSON.parse(JSON.stringify(this.reloadData))
+    },
+    searchList () {
       // 获取已经设置保存过的刷新过滤数据
       this.tableData = [...this.relaodFilterList]
-      this.formData = JSON.parse(JSON.stringify(this.reloadData))
     },
     nextModel (val) {
       this.processReloadData()

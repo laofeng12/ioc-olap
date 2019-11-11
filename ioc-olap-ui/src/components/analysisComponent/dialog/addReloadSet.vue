@@ -117,7 +117,7 @@ export default {
             if (res) {
               this.$message.success('保存成功~')
               this.formData = {}
-              this.$parent.init()
+              this.$parent.searchList()
               this.$refs.formDataModel.clearValidate()
             }
           })
