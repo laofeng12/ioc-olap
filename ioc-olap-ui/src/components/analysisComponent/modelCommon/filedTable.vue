@@ -38,11 +38,6 @@ export default {
       dataList: {}
     }
   },
-  watch: {
-    '$route' () {
-      // this.init()
-    }
-  },
   mounted () {
     this.init()
   },
