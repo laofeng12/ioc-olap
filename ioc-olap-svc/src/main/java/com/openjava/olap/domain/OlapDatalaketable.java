@@ -83,6 +83,12 @@ public class OlapDatalaketable implements Persistable<Long>,Serializable {
 	@Length(max = 64)
 	private String databaseId;
 
+	@ApiModelProperty(name = "数据库类型")
+	@Column(name = "DATABASE_TYPE")
+	@Length(max = 64)
+	private String databaseType;
+
+
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;
