@@ -16,9 +16,15 @@ public class CustomApiMapper {
     @JSONField(name = "apiPaths")
     private String apiPaths;
     @JSONField(name = "customApiId")
-    private Integer customApiId;
+    private Long customApiId;
     @JSONField(name = "enctype")
     private String enctype;
     @JSONField(name = "moduleType")
     private Integer moduleType;
+    @JSONField(name = "apiProtocols")
+    private String apiProtocols;
+    @JSONField(name = "apiUrl")
+    private String apiUrl;
+    @JSONField(name = "token")
+    private String token;
 }
