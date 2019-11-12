@@ -1,16 +1,24 @@
 package com.openjava.olap.api;
 
+import com.alibaba.fastjson.JSON;
+import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.common.Export;
+import com.openjava.olap.common.GateWayConfig;
+import com.openjava.olap.common.GateWayHttpClient;
+import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
+import com.openjava.olap.mapper.CustomApiMapper;
 import com.openjava.olap.mapper.kylin.QueryResultMapper;
 import com.openjava.olap.service.*;
 import com.openjava.olap.vo.QueryResultMapperVo;
 import com.openjava.olap.vo.TreeNodeVo;
 import com.openjava.olap.vo.TreeVo;
 import io.swagger.annotations.*;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -22,8 +30,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -50,6 +60,10 @@ public class OlapRealQueryAction extends BaseAction {
     private CubeHttpClient cubeHttpClient;
     @Resource
     private OlapShareService olapShareService;
+    @Resource
+    private IocAuthorizationToken iocAuthorizationToken;
+    @Autowired
+    private GateWayHttpClient gateWayHttpClient;
 
 
     /**
@@ -231,6 +245,63 @@ public class OlapRealQueryAction extends BaseAction {
             Export.dualDate(mapper, response);
         } catch (Exception ex) {
             throw new APIException(400, "导出错误,请确认使用模型的状态是启用的！");
+        }
+    }
+
+    @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value = "/publish", method = RequestMethod.POST)
+    @Security(session = true)
+    public void publish(@RequestBody CustomApiMapper body) throws Exception {
+        if (StringUtils.isBlank(body.getApiMethod()) || StringUtils.isBlank(body.getApiName())
+                || StringUtils.isBlank(body.getApiPaths()) || StringUtils.isBlank(body.getEnctype())) {
+            throw new APIException(400, "必填参数为空！");
+        }
+        body.setModuleType(gateWayHttpClient.REALQUERY_MODULE_TYPE);
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        gateWayHttpClient.registerApi(body, token);
+    }
+
+    @ApiOperation(value = "查看发布接口")
+    @RequestMapping(value = "/publish/{realQueryId}", method = RequestMethod.GET)
+    @Security(session = true)
+    public CustomApiMapper publish(@PathVariable Long realQueryId) throws Exception {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        CustomApiMapper mapper = gateWayHttpClient.get(realQueryId, gateWayHttpClient.REALQUERY_MODULE_TYPE, token);
+        OlapRealQuery realQuery = olapRealQueryService.get(realQueryId);
+        if (mapper == null || mapper.getCustomApiId() == null) {
+            mapper = new CustomApiMapper();
+            mapper.setModuleType(gateWayHttpClient.REALQUERY_MODULE_TYPE);
+            mapper.setApiMethod("GET");
+            mapper.setApiName(realQuery.getName());
+            mapper.setApiPaths("/olap/apis/olapRealQuery/query/" + realQueryId.toString());
+            mapper.setCustomApiId(realQueryId);
+            mapper.setEnctype("application/json");
+            mapper.setApiProtocols("Http");
+        }
+        return mapper;
+    }
+
+    @ApiOperation(value = "删除发布接口")
+    @RequestMapping(value = "/publish/{realQueryId}", method = RequestMethod.DELETE)
+    @Security(session = true)
+    public void deletePublish(@PathVariable Long realQueryId) throws Exception {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        gateWayHttpClient.delete(realQueryId, gateWayHttpClient.REALQUERY_MODULE_TYPE, token);
+    }
+
+    @ApiOperation(value = "查询数据-对外")
+    @RequestMapping(value = "/query/{realQueryId}", method = RequestMethod.GET)
+    @Security(session = true)
+    public QueryResultMapper query(@PathVariable Long realQueryId) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        OlapRealQuery realQuery = olapRealQueryService.get(realQueryId);
+        try {
+            return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), userVO.getUserId());
+        } catch (Exception ex) {
+            throw new APIException(400, "查询错误,请确认使用模型的状态是启用的！");
         }
     }
 }
