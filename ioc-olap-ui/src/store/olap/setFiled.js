@@ -298,13 +298,6 @@ const setFiled = {
               res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
               res['lengths'] = res.lengths ? res.lengths : ''
               res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
-            } else {
-              res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
-              res['column'] = item.value
-              res['encoding'] = ''
-              res['lengths'] = res.lengths ? res.lengths : ''
-              res['encoding_version'] = '1'
-              res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
             }
           })
         })
