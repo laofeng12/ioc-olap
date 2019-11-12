@@ -109,9 +109,19 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Column(name = "MANUAL")
 	private Integer manual;
 
+	/**是否是增量，1：增量，0：全量。新建模型时保存该值**/
+	@ApiModelProperty("构建模式[1：增量，0：全量]")
+	@Column(name = "BUILD_MODE")
+	private Integer buildMode;
+
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;
+
+	/**增量构建**/
+	public static transient final int BUILD_DELTA = 1;
+	/**全量构建**/
+	public static transient final int BUILD_WHOLE = 0;
 
 	@Transient
     @JsonIgnore

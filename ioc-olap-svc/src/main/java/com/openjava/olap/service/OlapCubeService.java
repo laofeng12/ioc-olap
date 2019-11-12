@@ -62,4 +62,6 @@ public interface OlapCubeService {
 	 * @return Map,key:cubeName,value:OlapDatalaketable
 	 */
 	Map<String,List<OlapDatalaketable>> queryByFlags(Integer flags);
+
+	List<OlapCube> queryListByFlags(Integer flags);
 }

@@ -10,6 +10,7 @@ import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapDatalaketable;
 import com.openjava.olap.domain.OlapTimingrefresh;
 import com.openjava.olap.query.DataLakeJobQueryParam;
+import com.openjava.olap.repository.OlapDatalaketableRepository;
 import com.openjava.olap.vo.DataLakeQueryJobStatusVo;
 import com.openjava.olap.vo.DataLakeTriggerJobVo;
 import com.openjava.olap.vo.OlapCubeBuildVo;
@@ -19,10 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +47,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     private final OlapCubeService olapCubeService;
     /**保存构建时间**/
     private final OlapTimingrefreshService olapTimingrefreshService;
+    private final OlapDatalaketableRepository olapDatalaketableRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -69,6 +68,29 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
                 .cubeName(s.getCubeName())
                 .build());
         }));
+        return list;
+    }
+
+    /**
+     * <p>自身类的preBuild方法调用</p>
+     * <p>用于手动点击构建和定时构建循环模型时调用</p>
+     * @param cubeName
+     * @return
+     */
+    private List<DataLakeJobQueryParam> queryJobQueryParamsByCubeName(String cubeName){
+        List<DataLakeJobQueryParam> list = new ArrayList<>();
+        List<OlapDatalaketable> result = this.olapDatalaketableRepository.queryListInCubeNameList(new ArrayList<String>(){
+            {
+                add(cubeName);
+            }
+        });
+        result.forEach(s-> list.add(DataLakeJobQueryParam.builder()
+            .resourceId(s.getResourceId())
+            .syncSource(syncSource)
+            .type(s.getType())
+            .databaseId(s.getDatabaseId())
+            .cubeName(s.getCubeName())
+            .build()));
         return list;
     }
 
@@ -134,6 +156,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
                 OlapCube cube = this.olapCubeService.findTableInfo(key);
                 if (cube != null && status != -1){
                     cube.setFlags(status);
+                    cube.setUpdateTime(new Date());
                     this.olapCubeService.doSave(cube);
                 }
             });
@@ -146,7 +169,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
         try {
             this.olapTimingrefreshService.doSave(olapTimingrefresh);
-            cubeAction.build(cubeName,olapTimingrefresh.getBegin(),olapTimingrefresh.getEnd());
+            cubeAction.build(cubeName,begin,end);
             vo.setMsg("构建操作请求成功");
             vo.setStatus(1);
         }catch (Exception var1){
@@ -182,6 +205,9 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
             vo.setStatus(0);
             return vo;
         }
+        List<DataLakeJobQueryParam> params = queryJobQueryParamsByCubeName(cubeName);
+        //批量调用触发同步任务接口，开始同步数据
+        this.batchTriggerJob(params);
         OlapTimingrefresh olapTimingrefresh = this.olapTimingrefreshService.findTableInfo(cubeName);
         if (olapTimingrefresh!=null){
             olapTimingrefresh.setBegin(begin);
@@ -190,6 +216,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
             this.olapTimingrefreshService.doSave(olapTimingrefresh);
         }
         cube.setFlags(CubeFlags.ON_SYNC.getFlags());
+        cube.setUpdateTime(new Date());
         this.olapCubeService.doSave(cube);
         return vo;
     }

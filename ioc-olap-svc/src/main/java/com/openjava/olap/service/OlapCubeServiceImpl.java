@@ -464,4 +464,9 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapTimingrefreshRepository.save(task);
         }
     }
+
+    @Override
+    public List<OlapCube> queryListByFlags(Integer flags) {
+        return this.olapCubeRepository.getListByFlags(flags);
+    }
 }

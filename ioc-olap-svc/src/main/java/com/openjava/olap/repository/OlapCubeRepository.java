@@ -42,4 +42,7 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
 
     @Query(value = "select c.NAME from OLAP_CUBE c where c.FLAGS=:flags",nativeQuery = true)
     List<String> getCubeNameByFlags(@Param("flags") Integer flags);
+
+    @Query(value = "select c.NAME from OLAP_CUBE c where c.FLAGS=:flags",nativeQuery = true)
+    List<OlapCube> getListByFlags(@Param("flags") Integer flags);
 }

@@ -87,6 +87,7 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
     public CubeListVo cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
+        //TODO 先查询麒麟的模型列表，后读取数据库的模型状态字段，之所以保留查询麒麟列表，是因为要返回date_range_end上一次构建时间
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
         List<CubeMapper> cubeList = new ArrayList<>();
@@ -426,7 +427,7 @@ public class OlapModelingAction extends BaseAction {
         } else {
             String[] strArrayTrue = project.getTables().toArray(new String[0]);
             String[] tableName = tableNameList.stream().toArray(String[]::new);
-            //对比是否存在,存在的就不要加进去了tables
+            //对比是否存在,存在的就不要加进去了tables,拿差集
             String[] tableNameArray = minus(strArrayTrue, tableName);
             if (tableNameArray.length != 0) {
                 List<String> list = Arrays.asList(tableNameArray);
