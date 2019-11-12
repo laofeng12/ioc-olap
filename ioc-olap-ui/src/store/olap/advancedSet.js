@@ -88,35 +88,42 @@ const advancedSet = {
       state.savehetComposeDataId = [[]]
       state.recordingData = []
       state.engine_types = '2'
+      state.rowkeyData.rowkey_columns = []
     },
     // 存储聚合小组选择的维度
     SaveAggregationWD ({ state, dispatch }, slectData) {
       // dispatch('WithidGetList', slectData.data)
       switch (slectData.type) {
+        // 赋值包含维度的值以及弹框需要的id
         case 1:
           state.aggregation_groups[slectData.index].includes = slectData.data
           state.selectDataidList[slectData.index].includesId = slectData.data
           dispatch('SaveselectIncludesData', slectData.data)
           break
+          // 赋值必要维度的值以及弹框需要的id
         case 2:
           state.aggregation_groups[slectData.index].select_rule.mandatory_dims = slectData.data
           state.selectDataidList[slectData.index].necessaryDataId = slectData.data
           state.recordingData = state.recordingData.concat(slectData.data)
           break
+          // 赋值层级维度的值以及弹框需要的id
         case 3:
           Vue.set(state.aggregation_groups[slectData.index].select_rule.hierarchy_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].levelDataId, slectData.findIndex, slectData.data)
           state.recordingData = state.recordingData.concat(slectData.data)
           break
+          // 赋值联合维度的值以及弹框需要的id
         case 4:
           Vue.set(state.aggregation_groups[slectData.index].select_rule.joint_dims, slectData.findIndex, slectData.data)
           Vue.set(state.selectDataidList[slectData.index].jointDataId, slectData.findIndex, slectData.data)
           state.recordingData = state.recordingData.concat(slectData.data)
           break
+          // 赋值维度黑白名单的值以及弹框的id
         case 5:
           Vue.set(state.mandatory_dimension_set_list, slectData.index, slectData.data)
           Vue.set(state.savedimensionDataId, slectData.index, slectData.data)
           break
+          // 赋值高级列组合的值以及弹框的id
         case 6:
           Vue.set(state.hbase_mapping.column_family[slectData.index].columns[0], 'measure_refs', slectData.data)
           Vue.set(state.savehetComposeDataId, slectData.index, slectData.data)

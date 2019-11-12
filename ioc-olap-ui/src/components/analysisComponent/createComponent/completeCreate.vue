@@ -57,11 +57,6 @@ export default {
       }
     }
   },
-  watch: {
-    '$route' () {
-      // this.init()
-    }
-  },
   created () {
     this.init()
   },
@@ -143,7 +138,6 @@ export default {
       this.totalSaveData.models.modelDescData.dimensions = []
     },
     changesEncoding () {
-      console.log(this.aggregation_groups, '我曹', this.dimensions)
       // 过滤rowkey
       this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
