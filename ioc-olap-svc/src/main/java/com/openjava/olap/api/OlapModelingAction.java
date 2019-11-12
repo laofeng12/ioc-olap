@@ -87,7 +87,7 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
     public CubeListVo cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
-        //TODO 先查询麒麟的模型列表，后读取数据库的模型状态字段，之所以保留查询麒麟列表，是因为要返回date_range_end上一次构建时间
+        // 先查询麒麟的模型列表，后读取数据库的模型状态字段，之所以保留查询麒麟列表，是因为要返回date_range_end上一次构建时间
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
         List<CubeMapper> cubeList = new ArrayList<>();

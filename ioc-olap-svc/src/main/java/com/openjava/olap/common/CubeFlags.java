@@ -24,8 +24,11 @@ public enum CubeFlags {
         this.flags = flags;
         this.value = value;
     }
-    public static String getByFlags(int flags){
-        String str = "";
+    public static String getByFlags(Integer flags){
+        String str = "未知";
+        if (flags == null){
+            return str;
+        }
         switch (flags){
             case 0:
                 str = DISABLED.value;

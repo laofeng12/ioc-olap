@@ -64,4 +64,6 @@ public interface OlapCubeService {
 	Map<String,List<OlapDatalaketable>> queryByFlags(Integer flags);
 
 	List<OlapCube> queryListByFlags(Integer flags);
+
+	List<CubeMapper> resetCubeStatus(List<CubeMapper> result);
 }
