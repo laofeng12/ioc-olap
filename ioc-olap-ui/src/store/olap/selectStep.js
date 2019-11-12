@@ -81,7 +81,6 @@ const selectStep = {
     },
     // 存储已经建表对应的所有字段
     SaveSelectAllListtwo (state, val) {
-      // let columId = val.map(item => { return item.resourceId })
       getselectColumn(val).then(res => {
         state.saveSelectAllListFiled = res
       })
