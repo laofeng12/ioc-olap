@@ -198,7 +198,8 @@ const common = {
       cubeDatalaketableNew: [],
       dimensionLength: '',
       dimensionFiledLength: '',
-      measureFiledLength: ''
+      measureFiledLength: '',
+      graphData: ''
     }
   },
   actions: {
@@ -226,16 +227,15 @@ const common = {
     // 合并设置的事实表到总表
     mergeFiledTable ({ state, getters, dispatch }, data) {
       getters.selectTableTotal.forEach((item, index) => {
-        data[0].label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
+        data.label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      getters.jointResultData.fact_table = `${data[0].database}.${data[0].label}`
+      getters.jointResultData.fact_table = `${data.item.database}.${data.label}`
     },
     // 获取编辑的数据
     async SaveModelAllList ({ getters, store, state, dispatch }, data) {
       state.ModelAllList = data
       setLocalStorage('ModelAllList', data)
       // 赋值第一步已选择的表
-      console.log(data, '编辑需要的数据')
       data.TableList.map((item, index) => {
         item.tableList.map(res => {
           getters.selectTableTotal.push({ label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId, ...res })
@@ -314,6 +314,9 @@ const common = {
       state.totalSaveData.models.modelDescData.version = data.ModesList.version
       state.totalSaveData.models.modelDescData.last_modified = data.ModesList.last_modified
       state.totalSaveData.cube.engine_type = data.CubeList.engine_type
+    },
+    getGraphData ({ state }, data) {
+      state.totalSaveData.graphData = data
     }
   }
 }

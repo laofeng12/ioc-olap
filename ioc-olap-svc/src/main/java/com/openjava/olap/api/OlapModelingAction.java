@@ -515,7 +515,7 @@ public class OlapModelingAction extends BaseAction {
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         if (olapCube == null) {
-            throw new APIException("立方体数据缺失！");
+            throw new APIException(400, "立方体数据缺失！");
         }
         //事实表
         String factTable = model.getFact_table().substring(model.getFact_table().indexOf(".") + 1);
@@ -726,7 +726,7 @@ public class OlapModelingAction extends BaseAction {
         //拿到OLAP_CUBE表数据
         OlapCube olapCubeEntity = olapCubeService.findTableInfo(cubeName);
         if (olapCubeEntity == null) {
-            throw new APIException("立方体数据缺失！");
+            throw new APIException(400, "立方体数据缺失！");
         }
         //进行克隆
         cubeHttpClient.clone(cubeName, cubeNameClone, userVO.getUserId());

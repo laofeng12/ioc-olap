@@ -92,3 +92,6 @@ kylin:
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
 
+gateway:
+  address:  http://219.135.182.2:31012
+
