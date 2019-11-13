@@ -3,15 +3,15 @@
    <el-dialog class="dialog" :title="title" :visible.sync="showDialog" :close-on-click-modal="false" @close="closeBtn">
       <el-form :model="form" :rules="rules"  ref="form" label-width="100px">
         <el-form-item label="数据服务：" prop="moduleType">
-          <el-input v-model="form.moduleType" placeholder="输入数据服务" :disabled="true"></el-input>
+          <el-input :value="form.moduleType" placeholder="输入数据服务" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="请求协议："  prop="apiProtocols">
-          <el-input v-model="form.apiProtocols" placeholder="输入请求协议" :disabled="true"></el-input>
+          <el-input :value="form.apiProtocols" placeholder="输入请求协议" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="请求方式："  prop="apiMethod">
-          <el-input v-model="form.apiMethod" placeholder="输入请求方式" :disabled="true"></el-input>
+          <el-input :value="form.apiMethod" placeholder="输入请求方式" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="接口名称："  prop="apiName">
@@ -19,10 +19,10 @@
         </el-form-item>
 
         <el-form-item label="接口地址："  prop="apiUrl">
-          <el-input v-model="form.apiUrl" placeholder="输入接口地址" :disabled="true"></el-input>
+          <el-input :value="form.apiUrl" placeholder="输入接口地址" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="提交方式："  prop="enctype">
-          <el-input v-model="form.enctype" placeholder="输入提交方式" :disabled="true"></el-input>
+          <el-input :value="form.enctype" placeholder="输入提交方式" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="接口描述：" >
