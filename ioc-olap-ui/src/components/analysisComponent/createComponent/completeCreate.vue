@@ -154,7 +154,6 @@ export default {
     // 处理 dimensions（选择维度）
     nextModel (val) {
       this.changesEncoding()
-      console.log(this.totalSaveData, '高级')
       if (this.totalSaveData.cube.cubeDescData.name.length) {
         this.completeLoading = true
         throttle(async () => {

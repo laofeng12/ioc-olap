@@ -3,7 +3,7 @@
     <el-row class='title'>设置关联关系</el-row>
     <div class="base-info-container">
       <div class="linkSetting" v-if="linkModal" ref="linkSetting">
-        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected" value="">
+        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" value="">
           <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
         </el-select>
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
