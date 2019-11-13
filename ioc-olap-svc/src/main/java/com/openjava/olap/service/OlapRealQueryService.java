@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.openjava.olap.domain.OlapRealQuery;
 import com.openjava.olap.query.OlapRealQueryDBParam;
+import org.ljdp.component.exception.APIException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,7 +18,7 @@ public interface OlapRealQueryService {
 
 	List<OlapRealQuery> queryDataOnly(OlapRealQueryDBParam params, Pageable pageable);
 
-	OlapRealQuery get(Long id);
+	OlapRealQuery get(Long id) throws APIException;
 
 	OlapRealQuery doSave(OlapRealQuery m);
 

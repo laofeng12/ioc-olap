@@ -29,6 +29,9 @@ public class CustomApiMapper {
     @ApiModelProperty("接口所属模块 1:智能API数据查询；6:olap分析；9:数据湖数据推送；10:即席查询")
     @JSONField(name = "moduleType")
     private Integer moduleType;
+    @ApiModelProperty("接口所属模块名称")
+    @JSONField(name = "moduleTypeName")
+    private String moduleTypeName;
     @ApiModelProperty("接口协议")
     @JSONField(name = "apiProtocols")
     private String apiProtocols;
