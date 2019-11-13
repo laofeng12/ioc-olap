@@ -179,7 +179,7 @@ public class OlapModelingAction extends BaseAction {
         models.getModelDescData().setFilter_condition(makeFilterSql(body.getFilterCondidion()));
 
         //构建需要保存的数据
-        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength(),body.getGraphData());
+        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength(), body.getGraphData());
         List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
         List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
 
@@ -616,16 +616,21 @@ public class OlapModelingAction extends BaseAction {
         //处理cube里dimensions的数据
         for (DimensionMapper dimension : cube.getDimensions()) {
             //拿到列,这里的衍生模式是为数组(暂时没发现他为什么要用数组.),我是只取第一个(也只有一个)
-            String columu = (dimension.getColumn() != null) == true ? dimension.getColumn() : dimension.getDerived().get(0);
+            String colmn = (dimension.getColumn() != null) == true ? dimension.getColumn() : dimension.getDerived().get(0);
+            String full = dimension.getTable() + "." + colmn;
             //查出表信息
             Optional<OlapCubeTable> cubeEntity = cubetable.stream().filter(p -> p.getTableAlias().equalsIgnoreCase(dimension.getTable())).findFirst();
             //列信息
             Optional<OlapCubeTableColumn> columnEntity = olapCubeTableColumnService.findByCubeTableId(cubeEntity.get().getCubeTableId())
-                    .stream().filter(p -> p.getColumnAlias().equals(columu)).findFirst();
+                    .stream().filter(p -> p.getColumnAlias().equals(colmn)).findFirst();
+            RowkeyColumnMapper columnMapper = cube.getRowkey().getRowkey_columns().stream().filter(p -> p.getColumn().equals(full)).findFirst().orElse(null);
             //赋值列信息
             if (columnEntity.isPresent()) {
                 dimension.setColumn_type(columnEntity.get().getColumnType());
                 dimension.setId(columnEntity.get().getLibraryTable());
+                if (columnMapper != null) {
+                    columnMapper.setCode_types(columnEntity.get().getColumnType());
+                }
             }
         }
 
