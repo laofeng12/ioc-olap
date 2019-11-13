@@ -1,59 +1,26 @@
 <template>
   <div class="tableRelation">
-    <div class="containers" ref="containers" @mousemove="mousemove" @mouseup="dragTable()">
-      <fact-table></fact-table>
-      <div class="linkSetting" v-if="linkModal" ref="linkSetting">
-        <h2 class="title">设置关联关系</h2>
-        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
-          <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
-        </el-select>
-        <div class="item" v-for="(item, index) in linkModalFields" :key="index">
-          <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)" @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
-          </el-select>
-          <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)" @change="getModalPrimarySelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" :label="coupon.name" :value="Object.assign(coupon, { index })" >{{`${coupon.name}（${coupon.dataType}）`}}</el-option>
-          </el-select>
-        </div>
-        <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
-      </div>
-      <!-- <task-wark></task-wark> -->
-      <div class="dragRect" :style="'display:' + (isDragRect && (dragRectPosition.x>=1 || dragRectPosition.y>=1) ? 'block' : 'none') + ';left:' + dragRectPosition.x + 'px;top:' + dragRectPosition.y + 'px;'">{{dragRectPosition.label}}</div>
-      <div class="holder" ref="holder">
-        <!-- <button style="width:100px;height:30px" @click="click_add">add</button> -->
-        <div id="myholder" ref="myHolder"></div>
-        <div class="papers" ref="papers" @click="papersClick">
-          <div class="halo-cell-layer" :style="cellLayerStyle">
-            <!-- 方块部分 -->
-            <div v-if="cellLayerData && !cellLayerData.isLink">
-              <!-- 设置关联 -->
-              <div class="link" data-type="link" v-if="isShowLink"></div>
-              <!-- 删除 -->
-              <div class="remove" data-type="remove"></div>
-              <!-- 设置别名 -->
-              <div class="clone" data-type="clone"></div>
-              <!-- <div class="resize" data-type="resize"></div> -->
-            </div>
-            <!-- 连线部分 -->
-            <div v-else>
-              <!-- 删除 -->
-              <div class="remove linkRemove" data-type="linkRemove"></div>
-            </div>
-          </div>
-        </div>
+    <div class='editor-box'>
+      <div id='editorContainer' ref="containers"></div>
+      <div class='option' v-if="linkModal">
+        <base-info-panel class='base-info' :linkModal='linkModal' :relationData="relationData"
+                         :linkModalFields="linkModalFields" :couponList="couponList" @lookDetailData="lookDetailData"
+                         @getModalDataList="getModalDataList" @getModalPrimarySelected="getModalPrimarySelected"
+                         @addFields="addFields" @getModalForeignSelected="getModalForeignSelected"/>
       </div>
     </div>
     <create-table-modal ref="dialog"></create-table-modal>
     <steps class="steps" :step="2" @nextModel="nextModel" @prevModel="prevModel"></steps>
+    <setfact-table ref="setfact"></setfact-table>
   </div>
 </template>
 
 <script>
+import IOCEditor from 'flow-edit'
 import factTable from '@/components/analysisComponent/modelCommon/factTable'
+import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import steps from '@/components/analysisComponent/modelCommon/steps'
+import BaseInfoPanel from '@/components/analysisComponent/modelCommon/BaseInfoPanel'
 import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
 
@@ -67,7 +34,7 @@ let joint = require('jointjs')
 */
 export default {
   components: {
-    factTable, steps, createTableModal
+    factTable, steps, createTableModal, setfactTable, BaseInfoPanel
   },
   data () {
     return {
@@ -114,15 +81,165 @@ export default {
       },
       linkModal: null,
       linkModalModel: null,
-      linkModalFields: []
-      // jointResult: { 'name': 'joint', 'description': '', 'fact_table': 'DEFAULT.KYLIN_CAL_DT', 'lookups': [{ 'joinTable': 'KYLIN_CAL_DT', 'alias': 'KYLIN_CATEGORY_GROUPINGS', 'id': '0ff420eb-79ad-40bd-bca9-12d8cd05c60a', 'table': 'DEFAULT.KYLIN_CATEGORY_GROUPINGS', 'joinAlias': 'KYLIN_CAL_DT', 'joinId': '952d11b5-69d9-45d1-92af-227489485e3f', 'kind': 'LOOKUP', 'join': { 'type': 'left', 'primary_key': ['KYLIN_CATEGORY_GROUPINGS.LEAF_CATEG_ID'], 'foreign_key': ['KYLIN_CAL_DT.CAL_DT'], 'isCompatible': [true], 'pk_type': ['bigint'], 'fk_type': ['date'] } }] }
-
+      linkModalFields: [],
+      factTable: [
+        {
+          key: 'data',
+          label: '数据目录',
+          list: []
+        }
+      ],
+      edgeList: [],
+      nodeList: []
     }
   },
+  computed: {
+    ...mapGetters({
+      selectTableTotal: 'selectTableTotal',
+      saveSelectAllList: 'saveSelectAllList',
+      saveSelectFiled: 'saveSelectFiled',
+      ModelAllList: 'ModelAllList',
+      selectStepList: 'selectStepList',
+      jointResultData: 'jointResultData'
+    })
+  },
   mounted () {
+    const factTable = this.selectTableTotal.map((v, i) => {
+      const obj = Object.assign({}, v, {
+        databaseType: `${i}`,
+        title: v.label,
+        icon: `${process.env.BASE_URL}dataBase.svg`,
+        isLeaf: true
+      })
+      return obj
+    })
+    this.factTable[0].list = factTable
     this.init()
+    this.initEditor()
   },
   methods: {
+    initEditor () {
+      const graphData = JSON.parse(this.ModelAllList.graphData)
+      this.editor = new IOCEditor({
+        el: 'editorContainer', // 容器id
+        baseInfo: '', // 基础信息，标题，描述，状态等
+        pannelList: this.factTable, // 左边数据源和功能组件
+        graphData // 初始化数据
+      })
+      const listeners = [
+        { key: 'addNode', fn: this.addNode },
+        // { key: 'nodeClick', fn: this.onNodeClick },
+        { key: 'addEdge', fn: this.addEdge },
+        { key: 'edgeClick', fn: this.edgeClick },
+        // { key: 'flowClick', fn: this.flowClick },
+        // { key: 'contextMenuClick', fn: this.contextMenuClick },
+        { key: 'change', fn: this.flowChange }
+      ]
+      listeners.forEach(({ key, fn }) => this.editor.addListener(key, fn))
+    },
+    flowChange (obj) {
+     if (obj.name === 'delete') {
+        const nodeIndex = this.nodeList.findIndex(v => v.id === obj.itemIds[0])
+        if (nodeIndex >= 0) this.nodeList.splice(nodeIndex, 1)
+        const edgeIndex = this.edgeList.findIndex(v => v.id === obj.itemIds[0])
+        if (edgeIndex >= 0) this.edgeList.splice(edgeIndex, 1)
+      }
+    },
+
+    addNode (node) {
+      const { graphData } = this.editor.getResult()
+      if (graphData.nodes.length === 1) {
+        this.$refs.setfact.dialog(graphData.nodes[0])
+      }
+      if (graphData.nodes.length > 1) {
+        if (graphData.nodes[0].label === node.addModel.label) {
+          this.removeData()
+          this.$message.warning('事实表是唯一存在的，请选择其他表')
+        } else {
+          graphData.nodes.forEach(async (v, i) => {
+            if (v.label === node.addModel.label && (i + 1) < graphData.nodes.length) {
+              const res = await this.setAlias(node.addModel.label)
+              node.addModel.label = `${node.addModel.label}(${res.value})`
+              node.addModel.item.alias = `${res.value}`
+              this.editor.updateNode(node.addModel.id, node.addModel)
+            }
+          })
+        }
+      }
+      this.nodeList = graphData.nodes
+    },
+    removeData () {
+      const { graphData } = this.editor.getResult()
+      const graph = this.editor.getGraph()
+      graph.remove(graphData.nodes[graphData.nodes.length-1].id)
+      this.nodeList = graphData.nodes
+    },
+    removeEdge (id) {
+      const { graphData } = this.editor.getResult()
+      const graph = this.editor.getGraph()
+      graph.remove(id)
+      this.edgeList = graphData.edges
+    },
+    async addEdge (a, id, obj) {
+      const graph = this.editor.getGraph()
+      const factTable = this.jointResult.fact_table
+      this.linkModalFields = []
+      const sourceAttrs = graph.find(obj.source).model.item
+      const targetAttrs = graph.find(obj.target).model.item
+      if (sourceAttrs.label === factTable || sourceAttrs.filed === 1) {
+        const updateModelItem = Object.assign({}, targetAttrs, { filed: 1 })
+        const updateModel = Object.assign({}, graph.find(obj.target).model, { item: updateModelItem })
+        await this.editor.updateNode(obj.target, updateModel)
+        this.edgeList.push(obj)
+        const source = {
+          filed: 1,
+          label: sourceAttrs.label,
+          alias: sourceAttrs.alias || sourceAttrs.label,
+          id: sourceAttrs.id
+        }
+        const target = {
+          filed: 1,
+          label: `${targetAttrs.label}`,
+          alias: targetAttrs.alias || targetAttrs.label,
+          id: targetAttrs.id
+        }
+        const linkModal = {
+          'joinTable': source.label || '', // 主表名
+          'joinAlias': source.alias || '', // 主表别名
+          'joinId': source.id || '', // 主表id
+          'alias': target.alias || '', // 子表别名
+          'id': target.id || '', // 子表id
+          'edgeId': id || '', // 线id
+          'table': target.label || '', // 子表名
+          'kind': 'LOOKUP',
+          'join': {
+            'type': '', // 连接方式（left||inner）
+            'primary_key': [], // 子表与选择的字段
+            'foreign_key': [], // 主表与选择的字段
+            'isCompatible': [true],
+            'pk_type': [], // 子表字段对应的类型
+            'fk_type': [] // 主表字段对应的类型
+          }
+        }
+        this.addFields() // 调用添加关联字段
+        this.linkModal = linkModal
+
+        this.linkModalModel = graph.find(obj.source).model
+      } else {
+        this.removeEdge(id)
+        this.$message.warning('只能事实表为源头')
+      }
+    },
+    edgeClick (model) {
+      const graph = this.editor.getGraph()
+      let sourceAttrs = graph.find(model.item.model.source).model.item
+      let targetAttrs = graph.find(model.item.model.target).model.item
+      const data = this.jointResultData.lookups.filter(v => v.id === targetAttrs.id && v.joinId === sourceAttrs.id)
+      this.linkModal = data[0]
+      this.linkModalModel = graph.find(model.item.model.source).model
+      this.linkModalFields = this.getFields(data[0])
+    },
+
     initJointResult (data) {
       if (!data) {
         return this.jointResult
@@ -192,14 +309,6 @@ export default {
         model: this.graph,
         gridSize: 1
       })
-
-      this.clearCells()
-
-      list.forEach(t => {
-        this.addLinkCell(t)
-      })
-
-      this.bindEvent(paper)
     },
     // 判断是否是编辑进来的，需要将lookups里的表名筛选出来
     isEditLooks () {
@@ -207,220 +316,11 @@ export default {
         this.arrId.push(item.alias, item.joinAlias)
       })
     },
-    bindEvent (paper) {
-      // 鼠标点击空白处
-      paper.on('blank:pointerup', () => {
-        this.hideCellLayer()
-      })
-
-      // 鼠标点击
-      paper.on('cell:pointerclick', (e, d) => {
-        if (e.model.attributes.attrs.text) {
-          if (this.arrId.length > 0 && !this.arrId.includes(e.model.attributes.attrs.text.alias)) {
-            this.isShowLink = false
-          } else {
-            this.isShowLink = true
-          }
-        }
-        d.stopPropagation()
-      })
-
-      // 鼠标拖拽
-      paper.on('cell:pointerup', (e, d) => {
-        this.linkModalModel = null
-
-        if (this.isClick) {
-          // 如果连线
-          if (e.model.isLink()) {
-            let factTable = this.jointResult.fact_table
-            let data = e.model.get('attrs').data
-            let linkElements = this.getLinkElements(e.model)
-            let linkModal = null
-            this.linkModalModel = null
-            this.linkModalFields = []
-
-            if (data) {
-              let fields = this.getFields(data)
-
-              this.linkModal = data
-              this.linkModalModel = e.model
-              this.linkModalFields = fields
-            } else if (linkElements.source && linkElements.target) {
-              let sourceAttrs
-              let targetAttrs
-              // 判断是否连接事实表， 不管先后顺序 事实表都得是主表
-              if (linkElements.target.get('attrs').text.filed === 1) {
-                targetAttrs = linkElements.source.get('attrs')
-                sourceAttrs = linkElements.target.get('attrs')
-              } else {
-                sourceAttrs = linkElements.source.get('attrs')
-                targetAttrs = linkElements.target.get('attrs')
-              }
-              // 连线的主表
-              let source = {
-                filed: sourceAttrs.text.label === factTable ? 1 : 0,
-                label: sourceAttrs.text.label,
-                alias: sourceAttrs.text.alias.toUpperCase() || sourceAttrs.text.label.toUpperCase(),
-                id: sourceAttrs.text.id
-              }
-              // 连线的次表
-              let target = {
-                filed: sourceAttrs.text.label === factTable ? 1 : 0,
-                label: `${targetAttrs.text.label}`,
-                alias: targetAttrs.text.alias.toUpperCase() || targetAttrs.text.label.toUpperCase(),
-                id: targetAttrs.text.id
-              }
-              // 定义需要传给后台的格式
-              linkModal = {
-                'joinTable': source.label || '', // 主表名
-                'joinAlias': source.alias.toUpperCase() || '', // 主表别名
-                'joinId': source.id || '', // 主表id
-                'alias': target.alias.toUpperCase() || '', // 子表别名
-                'id': target.id || '', // 子表id
-                'table': target.label || '', // 子表名
-                'kind': 'LOOKUP',
-                'join': {
-                  'type': '', // 连接方式（left||inner）
-                  'primary_key': [], // 子表与选择的字段
-                  'foreign_key': [], // 主表与选择的字段
-                  'isCompatible': [true],
-                  'pk_type': [], // 子表字段对应的类型
-                  'fk_type': [] // 主表字段对应的类型
-                }
-              }
-
-              this.addFields() // 调用添加关联字段
-
-              this.linkModal = linkModal
-              this.linkModalModel = e.model
-            }
-            this.showCellLayer(e)
-          } else {
-            this.showCellLayer(e)
-          }
-          this.isClick = false
-        } else {
-          let element = this.getDragElement(e.targetPoint)
-          if (element) {
-            this.arrId.push(element.attributes.attrs.text.alias.toUpperCase())
-            e.model.target(element)
-            e.model.labels([{ position: 0.5,
-              attrs: { '.marker-target': { fill: 'red', stroke: '#ffffff' },
-                '.marker-source': {
-                  fill: '#0486FE', // 箭头颜色
-                  d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-                },
-                image: { 'xlink:href': this.url },
-                text: { text: '未关联', 'color': '#59aff9', 'font-weight': 'bold', 'font-size': '12px', 'z-index': '-1' } } }])
-          }
-        }
-      })
-
-      paper.on('cell:pointerdown', (e, d) => {
-        this.isClick = true
-        this.filedPosition = e.model.get('position')
-      })
-
-      // 鼠标移到连线上
-      paper.on('cell:mouseover', (e, d) => {
-      })
-
-      // 鼠标离开连线
-      paper.on('cell:mouseout', (e, d) => {
-      })
-
-      // 鼠标点击连线
-      paper.on('link:pointerdown', (e, d) => {
-        d.stopPropagation()
-      })
-
-      paper.on('cell:pointermove', (e, d) => {
-        let attrs = e.model.get('attrs')
-
-        if (attrs.text && attrs.text.filed) {
-          e.model.position(this.filedPosition.x, this.filedPosition.y)
-        }
-
-        this.isClick = false
-        this.cellLayerData = null
-        this.cellLayerStyle = ''
-      })
-    },
     clickTable (e) {
       if (e) {
         this.addRectCell(e)
       }
     },
-    papersClick (e) {
-      let element = this.cellLayerData || {}
-      let model = element.model
-      let position = model.get('position')
-      switch (e.target.dataset.type) {
-        case 'remove': // 删除
-          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) {
-            this.$message.warning('事实表不能删除~')
-          } else {
-            this.clearElementLink(model, 1)
-          }
-          break
-        case 'linkRemove': // 删除连线
-          this.clearElementLink(model, 2)
-          break
-        case 'clone': // 设置别名
-          let attrs = model.get('attrs')
-          let label = attrs.text.label
-          let defaultVal = label === attrs.text.alias.toUpperCase() ? '' : attrs.text.alias.toUpperCase()
-          if (model.attributes.attrs.text.label === this.jointResultData.fact_table.split('.')[1]) return this.$message.warning('事实表暂不支持设置别名~')
-          this.setAlias(label, defaultVal).then(res => {
-            if (res && res.value) {
-              attrs.text.alias = res.value.toUpperCase()
-              attrs.text.text = `${label}(${res.value.toUpperCase()})`
-
-              model.attr(attrs)
-              model.resize(attrs.text.text.length * 9, 30)
-
-              this.arrId.push(res.value)
-              this.jointResult = this.updateModel(model.id, res.value)
-              let result = this.formatJointList(this.jointResult)
-              this.$store.commit('SaveJointResult', result)
-              // this.init()
-              this.linkModal = null
-              this.linkModalModel = null
-            }
-          })
-          break
-        case 'link': // 连线
-          let link = new joint.shapes.standard.Link({
-            source: model,
-            target: { x: position.x, y: position.y - 5 },
-            attrs: {
-              '.marker-target': {
-                fill: '#D8D8D8', // 箭头颜色
-                d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-              },
-              '.marker-source': {
-                fill: '#D8D8D8', // 箭头颜色
-                d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-              },
-              image: { 'xlink:href': this.url },
-              line: {
-                stroke: '#D8D8D8', // SVG attribute and value
-                'stroke-width': 2// 连线粗细
-              }
-            },
-            connector: { name: 'smooth' },
-            router: { name: 'normal' }// 设置连线弯曲样式 normal直角
-          })
-          this.graph.addCell(link)
-          break
-        default:
-          break
-      }
-
-      // 隐藏弹层
-      this.hideCellLayer()
-    },
-
     // 更新模块
     updateModel (id, value) {
       let data = this.jointResult
@@ -470,248 +370,6 @@ export default {
         type: 'warning'
       })
     },
-
-    dragTable (e) {
-      if (e && !e.filed) {
-        this.isDragRect = true
-        this.dragRectPosition.label = e.label.toUpperCase()
-        this.dragRectPosition.id = e.id
-        this.dragRectPosition.database = e.database
-        this.dragRectPosition.filed = e.filed
-        this.dragRectPosition.x = 0
-        this.dragRectPosition.y = 0
-      } else if (this.isDragRect && this.dragRectPosition) {
-        let containers = this.$refs.containers.getBoundingClientRect()
-        let holder = this.$refs.holder.getBoundingClientRect()
-        let x = this.dragRectPosition.x - holder.left + containers.left
-        let y = this.dragRectPosition.y - holder.top + containers.top
-
-        // 如果不在拖动范围内，不做按钮添加
-        if (x < 0 || y < 0) {
-          this.clearDragRect()
-          return false
-        }
-
-        let item = {
-          filed: this.dragRectPosition.filed,
-          id: this.dragRectPosition.id,
-          label: this.dragRectPosition.label,
-          database: this.dragRectPosition.database,
-          alias: this.dragRectPosition.label.toUpperCase(),
-          position: { x, y }
-        }
-
-        if (this.checkCellsExist(item)) {
-          this.isDragRect = false
-          this.setAlias(item.label).then(res => {
-            if (res && res.value) {
-              item.alias = res.value.toUpperCase()
-              this.addRectCell(item)
-            }
-          })
-        } else {
-          this.addRectCell(item)
-        }
-
-        this.clearDragRect()
-      }
-    },
-
-    clearDragRect () {
-      this.isDragRect = false
-      this.dragRectPosition = {
-        label: 'test',
-        id: '',
-        x: 0,
-        y: 0
-      }
-    },
-
-    mousemove (e) {
-      if (this.isDragRect && e) {
-        let parentOffset = this.$refs.containers.getBoundingClientRect()
-        this.dragRectPosition.x = e.x - parentOffset.left - 100 / 2
-        this.dragRectPosition.y = e.y - parentOffset.top
-      }
-    },
-
-    getCellRamdonPosition (item) {
-      let rectWidth = item.label.length * 10
-      let rectHeight = 30
-      let height = this.$refs.myHolder.offsetHeight
-      let width = this.$refs.myHolder.offsetWidth
-
-      let position = {
-        x: 200 + Math.ceil(100 * Math.random()),
-        y: Math.ceil(100 * Math.random()),
-        width: rectWidth,
-        height: rectHeight
-      }
-
-      if (item.filed) {
-        position.x = (width - rectWidth) / 2
-        position.y = (height - rectHeight) / 2
-      }
-
-      return position
-    },
-
-    checkCellsExist (item) {
-      if (!this.graph) this.graph = new joint.dia.Graph()
-
-      let itemCell = null
-      let cells = this.graph.getCells()
-
-      if (cells.length > 0) {
-        cells.forEach(t => {
-          let attrs = t.get('attrs')
-          if (attrs && attrs.text && attrs.text.label === item.label && item.alias === attrs.text.alias) {
-            itemCell = t
-          }
-        })
-      }
-
-      return itemCell
-    },
-    // 移出图形
-    clearCells () {
-      this.linkModal = null
-      this.linkModalModel = null
-      this.graph.clear()
-    },
-    // 拖入到画布的表
-    addRectCell (item) {
-      // console.log(this.arrId, '来的', item)
-      if (item.filed === 1) {
-        this.defaultId = item.id
-        this.defaultIdAsiad = item.id
-        this.arrId.push(item.label)
-      } else {
-        this.defaultId = ''
-      }
-      this.TableCountNum += 1
-      // 判断是否存在此表
-      if (!this.graph) this.graph = new joint.dia.Graph()
-
-      let isAdd = true
-      let newRect = null
-
-      let cell = this.checkCellsExist(item)
-      if (cell) return cell
-
-      if (isAdd) {
-        let fillColor = item.filed ? '#0486FE' : '#67C23A'
-
-        if (item.database) {
-          this.jointResult.name = item.database
-        }
-
-        // 如果是主表， 就清空所有文件
-        if (item.filed) {
-          this.clearCells()
-        }
-        // 设置主表
-        if (item.filed === 1 && !this.jointResult.fact_table) {
-          this.jointResult.fact_table = `${item.label}`
-        }
-
-        let randomPosition = this.getCellRamdonPosition(item)
-        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias.toUpperCase()})`
-
-        newRect = new joint.shapes.basic.Rect({
-          position: {
-            x: (item.position && item.position.x) || randomPosition.x,
-            y: (item.position && item.position.y) || randomPosition.y
-          },
-          // "连接点"（port）的风格
-          portMarkup: '<rect class="joint-port-body" width="10" height="3" style="fill:black" />',
-          // "连接点"（port）标签文字的显示风格
-          portLabelMarkup: '<text class="port-label joint-port-label" font-size="10" y="0" fill="#000" /> ',
-          ports: { // 定义连接点
-          },
-          size: { width: text.length * 9, height: randomPosition.height },
-          attrs: { image: { 'xlink:href': this.url, opacity: 0.7 }, rect: { fill: fillColor, stroke: '#ffffff' }, text: { text: text, label: item.label, alias: item.alias || item.label, filed: item.filed, id: item.id, database: item.database, fill: 'white', 'font-size': 12 } }
-        })
-        // newRect.addPort(this.port)
-        this.graph.addCell(newRect)
-        // this.member()
-      }
-
-      return newRect
-    },
-    // 设置icon
-    member () {
-      var cell = new joint.shapes.org.Member({
-        attrs: {
-          image: {
-            'xlink:href': this.url,
-            opacity: 0.7
-          }
-        }
-      })
-      this.graph.addCell(cell)
-      return cell
-    },
-    // test
-    addLinkCell (item) {
-      let factTable = this.jointResult.fact_table
-      let source = {
-        filed: item.joinTable === factTable ? 1 : 0,
-        id: item.joinId,
-        label: item.joinTable,
-        alias: item.joinAlias.toUpperCase(),
-        position: {
-          x: item.joinSAxis,
-          y: item.joinYAxis
-        }
-      }
-      let target = {
-        filed: item.table === factTable ? 1 : 0,
-        id: item.id,
-        label: item.table,
-        alias: item.alias.toUpperCase(),
-        position: {
-          x: item.SAxis,
-          y: item.YAxis
-        }
-      }
-
-      if (!this.graph) {
-        this.graph = new joint.dia.Graph()
-      }
-
-      let sourceItem = this.addRectCell(source)
-
-      let targetItem = this.addRectCell(target)
-
-      let newLink = new joint.shapes.standard.Link({
-        source: sourceItem || { x: 50, y: 50 },
-        target: targetItem || { x: 50, y: 50 },
-        connector: { name: 'smooth' },
-        router: { name: 'normal' }, // 设置连线弯曲样式 normal直角
-        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'fill': '#0486FE' } } }],
-        attrs: {
-          'data': item,
-          '.marker-target': {
-            fill: '#0486FE', // 箭头颜色
-            d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-          },
-          '.marker-source': {
-            fill: '#0486FE', // 箭头颜色
-            d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
-          },
-          image: { 'xlink:href': 'images/' + this.url },
-          line: {
-            stroke: '#0486FE', // SVG attribute and value
-            'stroke-width': 2// 连线粗细
-          }
-        }
-      })
-      this.graph.addCell(newLink)
-
-      return newLink
-    },
-    // 获取当前线对应的字段关系
     getFields (data) {
       let join = data.join
       let list = []
@@ -740,25 +398,11 @@ export default {
           fk_type: ''
         }]
       }
-
       this.linkModalFields = [...this.linkModalFields, ...field]
-    },
-
-    removeField (index) {
-      if (this.linkModalFields.length > 1) {
-        this.linkModalFields.splice(index, 1)
-        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
-      }
-    },
-
-    getModalRelationSelected (e) {
-
     },
 
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
-      console.log(e)
-
       let index = e.index
       let primary_key = e.name
       let pk_type = e.dataType
@@ -774,7 +418,6 @@ export default {
 
         this.linkModalFields[index].primary_key = primary_key
         this.linkModalFields[index].pk_type = pk_type
-
         if (foreign_key && fk_type) {
           this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
@@ -806,7 +449,6 @@ export default {
     // 存储已选择表对应的字段
     updateFields (alias, joinAlias, fields) {
       let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
-
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
           primary_key.push(`${t.primary_key}`)
@@ -824,10 +466,9 @@ export default {
         this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
         this.linkModalModel.attributes.attrs.line.stroke = '#0486FE'
       }
-      this.linkModalModel.attr('data', this.linkModal)
+      Object.assign(this.linkModalModel, { data: this.linkModal })
+      // this.linkModalModel.attr('data', this.linkModal)
       let result = this.addJointList(this.linkModal)
-      console.log(JSON.stringify(result))
-      // this.getIdToList()
       this.$store.commit('SaveJointResult', result)
     },
 
@@ -855,12 +496,12 @@ export default {
     formatJointList: function (data) {
       // 获取对应的坐标
       let posList = this.getElementPosition() || {}
-      let factText = data.fact_table + data.fact_table
+      const graph = this.editor.getGraph()
       let result = {
         name: data.name || '',
         description: data.description || '',
-        SAxis: (posList[factText] && posList[factText].x) || 0,
-        YAxis: (posList[factText] && posList[factText].y) || 0,
+        SAxis: this.nodeList[0].x || 0,
+        YAxis: this.nodeList[0].y || 0,
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
@@ -869,6 +510,12 @@ export default {
         let primary_key_result = []; let foreign_key_result = []
         let pos = posList[t.table + t.alias] || {}
         let joinPos = posList[t.joinTable + t.joinAlias] || {};
+        const item = this.edgeList.find(v => {
+          return (v.id === t.edgeId)
+        })
+
+        const source = graph.find(item.source);
+        const target = graph.find(item.target);
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(`${t.alias}.${primary_key[i]}`)
@@ -883,10 +530,10 @@ export default {
           joinTable: t.joinTable,
           kind: t.kind,
           table: `${data.name}.${t.table}`,
-          SAxis: pos.x || 0,
-          YAxis: pos.y || 0,
-          joinSAxis: joinPos.x || 0,
-          joinYAxis: joinPos.y || 0,
+          SAxis: target.model.x || 0,
+          YAxis: target.model.y || 0,
+          joinSAxis: source.model.x || 0,
+          joinYAxis: source.model.y || 0,
           join: {
             primary_key: primary_key_result,
             foreign_key: foreign_key_result,
@@ -897,13 +544,11 @@ export default {
           }
         })
       })
-
       return result
     },
 
     addJointList: function (item) {
       let list = this.jointResult.lookups || []
-
       if (list.length >= 1) {
         let replaceIdx = -1
         list.forEach((t, i) => {
@@ -921,138 +566,22 @@ export default {
         this.jointResult.lookups.push(item)
       }
       let result = this.formatJointList(this.jointResult)
-
       return result
     },
 
-    clearElementLink: function (target, types) {
-      let eles = target.collection.models || []
-      let elements = []
-
-      this.linkModal = null
-      this.linkModalModel = null
-
-      for (let i = 0; i < eles.length; i++) {
-        let ele = eles[i]
-        // 判断删除的是表还是线
-        // if (ele.attributes.type === 'standard.Link') {
-        if (types !== 1) {
-          // 判断当前有没有连线 如果没有连线就不用走下去
-          if (target.attributes.data) {
-            if (ele.get('source').id === target.id || ele.get('target').id === target.id || ele.id === target.id) {
-              // 删除对应存储的数据
-              this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-                return item.id !== ele.attributes.attrs.data.id && item.alias !== ele.attributes.attrs.data.alias
-              })
-            }
-            ele.remove()
-          } else {
-            if (target.id === ele.id) {
-              ele.remove()
-            }
-          }
-        } else {
-          if (ele.id === target.id) {
-            ele.remove()
-            // console.log(ele.attributes.attrs.text.id, '第三步存储的', this.jointResultData.lookups)
-            // 删除对应存储的数据
-            this.jointResultData.lookups = this.jointResultData.lookups.filter((item, index) => {
-              return item.id !== ele.attributes.attrs.text.id
-            })
-            // 删除对应选择的维度
-            this.saveSelectFiled.map((res, index) => {
-              if (res.resid === ele.attributes.attrs.text.id) {
-                this.saveSelectFiled.splice(index, 1)
-              }
-            })
-            this.$store.dispatch('SaveNewSortList', this.saveSelectFiled)
-            this.TableCountNum -= 1
-          }
-        }
-      }
-    },
-    // 获取当前线对应的两个表的数据
-    getLinkElements: function (ele) {
-      let source = ele.getSourceElement() || null
-      let target = ele.getTargetElement() || null
-
-      if (target && !target.id) {
-        target = null
-      }
-      return {
-        source,
-        target
-      }
-    },
-
-    getDragElement: function (point) {
-      let eles = this.graph.getElements() || []
-      let element = null
-
-      if (!point || !point.x || !point.y) {
-        return false
-      }
-
-      for (let i = 0; i < eles.length; i++) {
-        let ele = eles[i].attributes
-        let x1 = ele.position.x
-        let x2 = x1 + ele.size.width
-        let y1 = ele.position.y
-        let y2 = y1 + ele.size.height
-
-        if (point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2) {
-          element = eles[i]
-          break
-        }
-      }
-
-      return element
-    },
-    // 操作按钮的弹框
-    hideCellLayer () {
-      this.cellLayerStyle = ''
-      this.cellLayerData = null
-    },
-
-    getAbsoluteOffset (el) {
-      let target = el
-      let pos = {
-        left: 0,
-        top: 0
-      }
-
-      while (target) {
-        pos.left += target.offsetLeft
-        pos.top += target.offsetTop
-        target = target.offsetParent
-      }
-
-      return pos
-    },
-
-    showCellLayer (element) {
-      let parentOffset = this.getAbsoluteOffset(this.$refs.holder)
-      let rect = element.$el[0].getBoundingClientRect()
-      let offset = element.$el.offset()
-
-      this.cellLayerData = element
-      this.cellLayerData.isLink = element.model.isLink()
-      this.cellLayerStyle = `display:block;width:${rect.width}px;height:${rect.height}px;left:${offset.left - parentOffset.left}px;top:${offset.top - parentOffset.top}px`
-    },
-
-    nextModel (val) {
-      // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
+    async nextModel (val) {
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       }
+      const { graphData } = this.editor.getResult()
+      await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
       this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       this.getIdToList()
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      // console.log(this.TableCountNum, this.jointResultData.lookups.length)
-      return this.TableCountNum - this.jointResultData.lookups.length === 1
+      return this.nodeList.length - this.jointResultData.lookups.length <= 1
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
@@ -1078,17 +607,6 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-      //     // this.couponList = res.data
-      //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-      //   })
-      // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
-      //   this.couponList = res.data.columns
-      // })
-      // 模拟数据
-      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-      // debugger
-      // 根据name去获取本地对应的数据
       (this.saveSelectAllList || []).forEach((item, index) => {
         let items = JSON.parse(item)
         if (items.resourceId === id) {
@@ -1096,21 +614,30 @@ export default {
         }
       })
     }
-  },
-  computed: {
-    ...mapGetters({
-      selectTableTotal: 'selectTableTotal',
-      saveSelectAllList: 'saveSelectAllList',
-      saveSelectFiled: 'saveSelectFiled',
-      ModelAllList: 'ModelAllList',
-      selectStepList: 'selectStepList',
-      jointResultData: 'jointResultData'
-    })
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+  .editor-box {
+    display: flex;
+    width: 100%;
+    height:100%;
+    #editorContainer {
+      flex: 1;
+      display: block;
+      width: 100%;
+    }
+    .option,
+    .base-info {
+      height:100%;
+      flex: initial;
+      max-width: 260px;
+      border: 1px solid #e6e9ed;
+      z-index: 9;
+      background-color #ffffff
+    }
+  }
 .hide{
   display none
 }
@@ -1129,7 +656,7 @@ export default {
   width 100px
   height 30px
   background #67C23A
-  z-index 10000
+  z-index 10
   text-align center
   line-height 30px
   color #fff
@@ -1151,7 +678,7 @@ export default {
 .halo-cell-layer{
   display none
   position absolute
-  z-index 100
+  z-index 1
 }
 
 .papers .linkRemove{
@@ -1208,79 +735,4 @@ export default {
   background-image: url('data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20%3F%3E%3Csvg%20height%3D%2224px%22%20version%3D%221.1%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asketch%3D%22http%3A%2F%2Fwww.bohemiancoding.com%2Fsketch%2Fns%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Ctitle%2F%3E%3Cdesc%2F%3E%3Cdefs%2F%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20id%3D%22miu%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%3E%3Cg%20id%3D%22Artboard-1%22%20transform%3D%22translate(-251.000000%2C%20-443.000000')
 }
 
-.linkSetting{
-  float right
-  background #ffffff
-  width 240px
-  height 100%
-  overflow auto
-  text-align left
-  padding 0 16px
-  margin-left 16px
-  .title{
-    font-size: 14px;
-    color: #303133;
-    height 42px
-    line-height 42px
-    border-bottom 1px solid #E4E7ED
-    letter-spacing: 0;
-  }
-  .itemTitle{
-    font-size: 14px;
-    color: #B6B6B6;
-    letter-spacing: 0;
-    line-height: 12px;
-    margin-top:10px;
-    font-family: PingFangSC-Regular;
-  }
-  h2,h3,.itemTableTitle{
-    margin 5px 0
-    display flex
-    span:nth-child(1){
-      font-size: 12px;
-      color: #5A5A5A;
-      text-align: left;
-      line-height: 22px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      width:80%;
-    }
-    span:nth-child(2){
-      font-size: 14px;
-      color: #0486FE;
-      cursor pointer
-      float right
-    }
-  }
-  .itemAdd{
-    background: #FFFFFF;
-    border: 1px solid #0486FE;
-    width:100%;
-    text-align:center;
-    margin-top:15px;
-	height 32px;
-	line-height 32px;
-    a{
-      font-family: PingFangSC-Regular;
-      font-size: 14px;
-      color: #0486FE;
-      text-align: center;
-      line-height: 22px;
-    }
-  }
-  >>>.el-select{
-    .el-input__inner{
-      font-size 14px
-    }
-    .el-icon-arrow-up{
-      margin-top 5px !important
-    }
-    .is-reverse{
-      margin-top -5px !important
-    }
-  }
-  >>>.el-input__inner{
-    height 32px
-  }
-}
 </style>
