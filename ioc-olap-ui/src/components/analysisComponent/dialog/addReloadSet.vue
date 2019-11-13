@@ -125,6 +125,7 @@ export default {
       })
     },
     dialog (data) {
+      this.init()
       this.dialogFormVisible = true
       if (data) {
         this.formData = data

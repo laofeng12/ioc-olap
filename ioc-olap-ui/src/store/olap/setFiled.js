@@ -217,6 +217,7 @@ const setFiled = {
         })
       })
       let result = reduceObj([...nomrlData, ...datas], 'value')
+      dispatch('fristRowkeys')
       dispatch('filterTableAlias', result)
       dispatch('setAdvanceData', result)
     },
@@ -227,7 +228,6 @@ const setFiled = {
       let Result = [...new Set([...ResultAlias, ...ResultJoinAlias])]
       let val = data.filter(res => { return Result.includes(res.value.split('.')[0]) })
       state.reloadNeedData = [...val]
-      dispatch('fristRowkeys')
     },
     // 赋值给高级设置中默认显示的包含维度 以及rowkey
     setAdvanceData ({ state, getters, dispatch }, data) {
@@ -287,39 +287,38 @@ const setFiled = {
     SaveNewSortList ({ state, dispatch }, data) {
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
+      dispatch('fristRowkeys')
     },
     fristRowkeys ({ state, getters }) {
-      let result = JSON.parse(JSON.stringify(state.reloadNeedData))
+      let result = state.reloadNeedData
       let arr = []
-      if (getters.rowkeyData.rowkey_columns.length > 0 && getters.rowkeyData.rowkey_columns[0].adds) {
-        result.map((item, index) => {
-          getters.rowkeyData.rowkey_columns.map(res => {
-            if (res.column === item.id) {
-              res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
-              res['lengths'] = res.lengths ? res.lengths : ''
-              res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
-            }
-          })
+      result.map((item, index) => {
+        arr.push({
+          column: item.value,
+          encoding: '',
+          lengths: '',
+          code_types: item.type ? item.type : '',
+          columns_Type: item.columns_Type ? item.columns_Type : 'dict',
+          encoding_version: '1',
+          isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
         })
-      } else {
-        result.map((item, index) => {
-          arr.push({
-            column: item.value,
-            encoding: '',
-            lengths: '',
-            code_types: item.type ? item.type : '',
-            columns_Type: item.columns_Type ? item.columns_Type : 'dict',
-            encoding_version: '1',
-            isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
-          })
+      })
+      arr.map((item, i) => {
+        getters.rowkeyData.rowkey_columns.map(res => {
+          if (res.column === item.column) {
+            item['columns_Type'] = res.columns_Type
+            item['isShardBy'] = res.isShardBy
+            item['columns_Type'] = res.columns_Type
+            item['code_types'] = res.code_types
+            item['lengths'] = res.lengths
+          }
         })
-        getters.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
-      }
+      })
+      getters.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     // 选择维度的时候change对应的rowkey列表
     ChangeRowkeyList ({ state, getters }, data) {
       getters.rowkeyData.rowkey_columns = data
-      getters.rowkeyData.rowkey_columns.map(res => { res.adds = 1 })
     },
     // 修改别名后需要重新整理数据
     SetAliasList ({ state }, data) {

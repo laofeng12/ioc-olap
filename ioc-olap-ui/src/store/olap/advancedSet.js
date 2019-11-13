@@ -40,7 +40,7 @@ const advancedSet = {
     ],
     savedimensionDataId: [[]], // 黑白名单id
     savehetComposeDataId: [[]], // 高级列id
-    recordingData: [], // 记录已选择的
+    recordingData: [], // 记录已选择的维度
     engine_types: '2', // 构建引擎
     rowkeyData: {
       rowkey_columns: []

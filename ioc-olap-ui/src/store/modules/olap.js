@@ -293,6 +293,22 @@ const common = {
         getters.selectDataidList[index].jointDataId = item.select_rule.joint_dims
         item.includes.map(res => { getters.saveselectIncludesData.push(res) })
       })
+      // 赋值rowkey、需要拆分encoding 把type跟length 拆分出来
+      let rowKeyArr = []
+      data.CubeList.rowkey.rowkey_columns.map(item => {
+        let [type, length] = item.encoding.split(':')
+        rowKeyArr.push({
+          column: item.column,
+          encoding: '',
+          lengths: length || '',
+          columns_Type: type,
+          code_types: type,
+          encoding_version: '1',
+          adds: 1,
+          isShardBy: item.isShardBy
+        })
+      })
+      getters.rowkeyData['rowkey_columns'] = rowKeyArr
       // hbase_mapping  mandatory_dimension_set_list
       data.CubeList.hbase_mapping.column_family.map((item, index) => {
         getters.hbase_mapping.column_family[index] = item
