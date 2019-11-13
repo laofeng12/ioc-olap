@@ -4,7 +4,7 @@
         <el-form-item label="高级设置" class="item_line"></el-form-item>
         <div class="aggregation">
           <div class="aggregation_head">
-            <span>维度分组聚合</span>
+            <span>聚合分组</span>
             <span style="color:green;margin-left:10px;cursor:pointer;" @click="addaAggregation">+添加聚合小组</span>
           </div>
           <el-card class="box-card" v-for="(item, index) in aggregation_groups" :key="index">
@@ -64,7 +64,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @change="rowKeyChangeType(scope.row)"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -73,14 +73,14 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text"  @change="rowKeyChangeLength(scope.row)" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
             <el-table-column label="碎片区" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.isShardBy" placeholder="请选择">
+                  <el-select v-model="scope.row.isShardBy" placeholder="请选择" @change="rowKeyChange(scope.row)">
                     <el-option v-for="(item, index) in isShardByOptions" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -89,7 +89,7 @@
           </el-table>
         </div>
         <div class="listSet">
-          <span>维度黑白名单设置</span>
+          <span>维度白名单设置</span>
           <div class="listSet__box">
             <div class="adds" v-for="(n, i) in mandatory_dimension_set_list" :key="i">
               <div @click="lastGetModal(i, 5)">
@@ -209,22 +209,6 @@ export default {
           })
         }
       })
-      let datas = JSON.parse(JSON.stringify(this.reloadNeedData))
-      let arr = []
-      datas.map(item => {
-        arr.push({
-          column: item.value,
-          encoding: '',
-          lengths: '',
-          code_types: item.type ? item.type : '',
-          // columns_Type: this.returncodingType(item.type),
-          columns_Type: item.columns_Type ? item.columns_Type : 'dict',
-          encoding_version: '1',
-          isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
-        })
-        return arr
-      })
-      this.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
     },
     resortAggregation () {
       this.aggregation_groups.forEach(item => {
@@ -353,8 +337,19 @@ export default {
         type: type,
         findIndex: findIndex
       }
-      console.log(list)
       this.$store.dispatch('RmtagList', list)
+    },
+    rowKeyChange (val) {
+      this.updateRowkeys(val)
+    },
+    rowKeyChangeType (val) {
+      this.updateRowkeys(val)
+    },
+    rowKeyChangeLength (val) {
+      this.updateRowkeys(val)
+    },
+    updateRowkeys (val) {
+      this.$store.dispatch('ChangeRowkeyList', this.rowkeyData.rowkey_columns)
     }
   },
   computed: {

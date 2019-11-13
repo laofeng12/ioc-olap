@@ -17,8 +17,11 @@
           </el-tab-pane>
 
           <el-tab-pane label="分享" name="share">
-            <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap" :showDo="false"
-                         :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
+            <FolderAside :menuList="shareMenuList" 
+            :menuDefault="menuDefault" 
+            vueType="shareOlap" 
+            :showDo="false"
+            :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
           </el-tab-pane>
         </el-tabs>
       </el-row>

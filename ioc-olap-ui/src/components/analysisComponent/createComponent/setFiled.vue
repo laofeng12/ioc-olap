@@ -76,7 +76,6 @@ export default {
   watch: {
     '$route' () {
       this.$refs.filedTable.init()
-      // this.init()
     }
   },
   mounted () {

@@ -1,28 +1,31 @@
 package com.openjava.olap.api;
 
+import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.common.Export;
-import com.openjava.olap.common.kylin.CubeHttpClient;
+import com.openjava.olap.common.GateWayHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
+import com.openjava.olap.mapper.CustomApiMapper;
 import com.openjava.olap.mapper.kylin.QueryResultMapper;
 import com.openjava.olap.service.*;
 import com.openjava.olap.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @Api(tags = "OLAP分析接口")
@@ -42,6 +45,10 @@ public class OlapAnalyzeAction {
     private OlapAnalyzeService olapAnalyzeService;
     @Resource
     private OlapShareService olapShareService;
+    @Autowired
+    private GateWayHttpClient gateWayHttpClient;
+    @Resource
+    private IocAuthorizationToken iocAuthorizationToken;
 
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
@@ -265,5 +272,59 @@ public class OlapAnalyzeAction {
     @RequestMapping(value = "/cube", method = RequestMethod.GET)
     public OlapCube cube(@RequestParam("id") Long id) {
         return olapCubeService.get(id);
+    }
+
+    @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
+    @RequestMapping(value = "/publish", method = RequestMethod.POST)
+    @Security(session = true)
+    public void publish(@RequestBody CustomApiMapper body) throws Exception {
+        if (StringUtils.isBlank(body.getApiMethod()) || StringUtils.isBlank(body.getApiName())
+                || StringUtils.isBlank(body.getApiPaths()) || StringUtils.isBlank(body.getEnctype())) {
+            throw new APIException(400, "必填参数为空！");
+        }
+        body.setModuleType(gateWayHttpClient.ANALYZE_MODULE_TYPE);
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        gateWayHttpClient.registerApi(body, token);
+    }
+
+    @ApiOperation(value = "查看发布接口")
+    @RequestMapping(value = "/publish/{analyzeId}", method = RequestMethod.GET)
+    @Security(session = true)
+    public CustomApiMapper publish(@PathVariable Long analyzeId) throws Exception {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        CustomApiMapper mapper = gateWayHttpClient.get(analyzeId, gateWayHttpClient.ANALYZE_MODULE_TYPE, token);
+        OlapAnalyze analyze = olapAnalyzeService.get(analyzeId);
+        if (mapper == null || mapper.getCustomApiId() == null) {
+            mapper = new CustomApiMapper();
+            mapper.setApiMethod("GET");
+            mapper.setApiName(analyze.getName());
+            mapper.setApiPaths("/olap/apis/olapAnalyze/query/" + analyzeId.toString());
+            mapper.setCustomApiId(analyzeId);
+            mapper.setEnctype("application/json");
+            mapper.setApiProtocols("Http");
+        }
+        mapper.setModuleType(gateWayHttpClient.ANALYZE_MODULE_TYPE);
+        mapper.setModuleTypeName("OLAP分析");
+        return mapper;
+    }
+
+    @ApiOperation(value = "删除发布接口")
+    @RequestMapping(value = "/publish/{analyzeId}", method = RequestMethod.DELETE)
+    @Security(session = true)
+    public void deletePublish(@PathVariable Long analyzeId) throws Exception {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        String token = iocAuthorizationToken.generateAesToken(userVO);
+        gateWayHttpClient.delete(analyzeId, gateWayHttpClient.ANALYZE_MODULE_TYPE, token);
+    }
+
+    @ApiOperation(value = "查询数据-对外")
+    @RequestMapping(value = "/query/{analyzeId}", method = RequestMethod.GET)
+    @Security(session = true)
+    public AnyDimensionVo query(@PathVariable Long analyzeId) throws APIException {
+        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        OlapAnalyze analyze = olapAnalyzeService.get(analyzeId);
+        return olapAnalyzeService.query(analyze.getAnalyzeId(), analyze.getCubeId());
     }
 }

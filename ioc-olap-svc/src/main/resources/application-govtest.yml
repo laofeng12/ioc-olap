@@ -2,13 +2,13 @@
 debug: false
 server:
   port: 8080 #tomcat运行端口
-  servlet: 
+  servlet:
     context-path: /
 
 #mybatis:
 #  config-location: classpath:mybatis-config.xml
 #  typeAliasesPackage: com.openjava.example.mybatis.domain
-#  mapperLocations: 
+#  mapperLocations:
 #    -classpath:com.openjava.example.*.mapper/*.xml
 
 spring:
@@ -38,7 +38,7 @@ spring:
       test-on-return: false
       test-while-idle: true
       filters: stat
-      
+
   redis:
       # redis数据库索引（默认为0），我们使用索引为3的数据库，避免和其他数据库冲突
       database: 0
@@ -51,7 +51,7 @@ spring:
       # redis连接超时时间（单位为毫秒）
       timeout: 10000
       # redis连接池配置
-      jedis: 
+      jedis:
         pool:
           # 最大可用连接数（默认为8，负数表示无限）
           max-active: 500
@@ -61,8 +61,8 @@ spring:
           min-idle: 0
           # 从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
           max-wait: 5000
-        
-  servlet: 
+
+  servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
@@ -91,4 +91,7 @@ kylin:
   account:  ADMIN
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
+
+gateway:
+  address:  http://219.135.182.2:31012
 

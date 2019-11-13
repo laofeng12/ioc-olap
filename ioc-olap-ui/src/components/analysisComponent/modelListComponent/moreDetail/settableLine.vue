@@ -14,8 +14,10 @@
       <div class="item" v-for="(item, index) in jointResult.lookups" :key="index">
         <h3 class="itemTitle">关联关系{{index+1}}</h3>
         <h5>主表：{{item.joinTable}}</h5>
-        <h5>子表：{{item.table.substring(item.table.indexOf('.') + 1)}}</h5>
+        <!-- <h5>子表：{{item.table.substring(item.table.indexOf('.') + 1)}}</h5> -->
         <h5>连接类型：{{getJoinTypeStr(item.join.type)}}</h5>
+        <h5>子表：{{item.table}}{{item.alias !== (item.table) ? `（${item.alias}）` : '' }}</h5>
+        <!-- <h5>连接类型：{{item.join.type}}</h5> -->
         关联字段：
         <div v-for="(n, index) in item.join.foreign_key" :key="index">
           <span>{{sortSplit(item.join.foreign_key[index])}}</span> => <span>{{sortSplit(item.join.primary_key[index])}}</span>
@@ -48,12 +50,6 @@ export default {
       },
       cellLayerStyle: '',
       cellLayerData: null,
-      // jointResult: {
-      //   name: '',
-      //   description: '',
-      //   fact_table: '',
-      //   lookups: []
-      // },
       linkModal: null,
       linkModalModel: null,
       linkModalFields: [],
@@ -83,9 +79,6 @@ export default {
       return val
     },
     initJointResult (data) {
-      if (!data) {
-        return this.jointResult
-      }
       let lookups = []
       let factTable = this.jsonData.ModesList.fact_table
       data.forEach(t => {
@@ -130,7 +123,6 @@ export default {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jsonData.ModesList.lookups)))
       // debugger
       let list = this.jointResult.lookups || []
-      // let list = this.jsonData.ModesList.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
         el: document.querySelector('#myholder'),
@@ -141,48 +133,9 @@ export default {
         class: 'canvast',
         gridSize: 1
       })
-
       list.forEach(t => {
         this.addLinkCell(t)
       })
-    },
-
-    // 更新模块
-    updateModel (id, value) {
-      let data = this.jointResult
-      let linkIndex = -1
-      let updateList = []
-      let cells = this.graph.getCells()
-      cells.forEach((t, i) => {
-        if (t.isLink()) {
-          let item = t.get('attrs').data
-          linkIndex++
-
-          if (t.get('target').id === id) {
-            updateList.push({
-              idx: linkIndex,
-              field: 'alias'
-            })
-            item.alias = value
-            t.attr('data', item)
-          }
-          if (t.get('source').id === id) {
-            updateList.push({
-              idx: linkIndex,
-              field: 'joinAlias'
-            })
-            item.joinAlias = value
-            t.attr('data', item)
-          }
-        }
-      });
-
-      (updateList || []).forEach(t => {
-        if (data.lookups[t.idx]) {
-          data.lookups[t.idx][t.field] = value
-        }
-      })
-      return data
     },
 
     getCellRamdonPosition (item) {
@@ -192,7 +145,7 @@ export default {
       let width = this.$refs.myHolder.offsetWidth
 
       let position = {
-        x: 200 + Math.ceil(100 * Math.random()),
+        x: 50 + Math.ceil(100 * Math.random()),
         y: Math.ceil(100 * Math.random()),
         width: rectWidth,
         height: rectHeight
@@ -224,7 +177,7 @@ export default {
       return itemCell
     },
     addLinkCell (item) {
-      let factTable = this.jointResult.fact_table
+      let factTable = this.jsonData.ModesList.fact_table.split('.')[1]
       let source = {
         filed: item.joinTable === factTable ? 1 : 0,
         id: item.joinId,
@@ -259,16 +212,21 @@ export default {
         target: targetItem || { x: 50, y: 50 },
         connector: { name: 'smooth' },
         router: { name: 'normal' }, // 设置连线弯曲样式 manhattan直角
-        labels: [{ position: 0.5, attrs: { text: { text: '已关联', 'font-weight': 'bold', 'font-size': '12px', 'color': '#ffffff' } } }],
+        labels: [{ position: 0.5, attrs: { text: { 'font-weight': 'bold', 'font-size': '12px', 'fill': '#0486FE' } } }],
         attrs: {
           'data': item,
           '.marker-target': {
-            fill: '##59aff9', // 箭头颜色
+            fill: '#0486FE', // 箭头颜色
             d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
           },
+          '.marker-source': {
+            fill: '#0486FE', // 箭头颜色
+            d: 'M 10 0 L 0 5 L 10 10 z'// 箭头样式
+          },
+          image: { 'xlink:href': 'images/' + this.url },
           line: {
-            stroke: '#59aff9', // SVG attribute and value
-            'stroke-width': 0.5// 连线粗细
+            stroke: '#0486FE', // SVG attribute and value
+            'stroke-width': 2// 连线粗细
           }
         }
       })
@@ -333,18 +291,14 @@ export default {
           this.jointResult.name = item.database
         }
 
-        // 如果是主表， 就清空所有文件
-        if (item.filed) {
-          this.clearCells()
-        }
         // 设置主表
-        if (item.filed == 1 && !this.jointResult.fact_table) {
+        if (item.filed === 1 && !this.jointResult.fact_table) {
           this.jointResult.fact_table = `${item.label}`
         }
 
         let randomPosition = this.getCellRamdonPosition(item)
-        // let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias})`
-        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}`
+        let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}(${item.alias})`
+        // let text = (!item.alias || item.label === item.alias) ? item.label : `${item.label}`
 
         newRect = new joint.shapes.basic.Rect({
           position: {
@@ -545,7 +499,7 @@ export default {
 #myholder{
   >>>svg{
     width 200%
-    margin-top -80px
+    // margin-top -80px
   }
 }
 .halo-cell-layer{

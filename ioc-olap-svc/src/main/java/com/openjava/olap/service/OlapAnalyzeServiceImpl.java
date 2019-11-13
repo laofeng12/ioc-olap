@@ -67,14 +67,13 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         return olapAnalyzeRepository.queryDataOnly(params, pageable);
     }
 
-    public OlapAnalyze get(Long id) {
+    public OlapAnalyze get(Long id) throws APIException {
         Optional<OlapAnalyze> o = olapAnalyzeRepository.findById(id);
         if (o.isPresent()) {
             OlapAnalyze m = o.get();
             return m;
         }
-        System.out.println("找不到记录OlapAnalyze：" + id);
-        return null;
+        throw new APIException(400, "找不到记录OlapAnalyze：" + id);
     }
 
     public OlapAnalyze doSave(OlapAnalyze m) {
@@ -300,12 +299,25 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     }
 
     private AnyDimensionVo query(Long cubeId, List<AnalyzeAxisVo> axises, String userId, String sql, Integer pageIndex, Integer pageSize) throws APIException {
+        OlapCube cube = olapCubeRepository.findById(cubeId).orElse(null);
+        if (cube == null) {
+            throw new APIException(400, "模型已被删除！");
+        }
+        if (cube.getFlags() == 0) {
+            throw new APIException(400, "模型未被启用！");
+        }
+
         AnyDimensionVo anyDimensionVo = new AnyDimensionVo();
         List<ArrayList<AnyDimensionCellVo>> results = new ArrayList<ArrayList<AnyDimensionCellVo>>();
         if (sql == null || sql.equals("")) {
             sql = getSql(cubeId, axises);
         }
-        QueryResultMapper resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, userId);
+        QueryResultMapper resultMapper;
+        try {
+            resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, userId);
+        } catch (Exception ex) {
+            throw new APIException(400, "查询失败！");
+        }
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
@@ -559,18 +571,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Override
     public AnyDimensionVo queryPaging(Integer pageIndex, Integer pageSize, Long analyzeId, Long cubeId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        OlapCube cube = olapCubeRepository.findById(analyzeVo.getCubeId()).orElse(null);
-        if (cube == null) {
-            throw new APIException(400, "模型已被删除！");
-        }
-        if (cube.getFlags() == 0) {
-            throw new APIException(400, "模型未被启用！");
-        }
-        try {
-            return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), pageIndex, pageSize);
-        } catch (Exception ex) {
-            throw new APIException(400, "查询失败！");
-        }
+        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), pageIndex, pageSize);
     }
 
     private boolean isStringType(String columnType) {

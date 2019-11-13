@@ -10,4 +10,6 @@ public class RowkeyColumnMapper {
     public String encoding;
     public String isShardBy;
     public String encoding_version;
+    public String lengths;
+    public String code_types;
 }

@@ -77,7 +77,6 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 	public List<OlapCubeTableRelation> saveCubeTableRelation(CubeDescMapper cube, ModelsMapper models, Long
 			cubeId, List<OlapCubeTable> dmEntity) {
 		ArrayList<LookupsMapper> modelDescData = models.modelDescData.getLookups();
-		CubeDescDataMapper cubeDescData = cube.getCubeDescData();
 		SequenceService ss = ConcurrentSequence.getInstance();
 		List<OlapCubeTableRelation> olapcubeList = new ArrayList<>();
 
@@ -103,10 +102,10 @@ public class OlapCubeTableRelationServiceImpl implements OlapCubeTableRelationSe
 
 
 			Optional<OlapCubeTable> tableId = dmEntity.stream()
-					.filter(p -> p.getTableAlias().equals(lm.getAlias())).findFirst();
+					.filter(p -> p.getTableAlias().equalsIgnoreCase(lm.getAlias())).findFirst();
 
 			Optional<OlapCubeTable> joinTableId = dmEntity.stream()
-					.filter(p -> p.getTableAlias().equals(lm.getJoinAlias())).findFirst();
+					.filter(p -> p.getTableAlias().equalsIgnoreCase(lm.getJoinAlias())).findFirst();
 
 			Relation.setId(ss.getSequence());
 			Relation.setTableId(joinTableId.get().getId()); //源表id
