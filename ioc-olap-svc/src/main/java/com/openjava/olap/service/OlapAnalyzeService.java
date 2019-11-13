@@ -22,7 +22,7 @@ public interface OlapAnalyzeService {
 
 	List<OlapAnalyze> queryDataOnly(OlapAnalyzeDBParam params, Pageable pageable);
 
-	OlapAnalyze get(Long id);
+	OlapAnalyze get(Long id) throws APIException;
 
 	OlapAnalyze doSave(OlapAnalyze m);
 

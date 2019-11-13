@@ -81,7 +81,7 @@ public class OlapRealQueryAction extends BaseAction {
     })
     @Security(session = true)
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public OlapRealQuery get(@PathVariable("id") Long id) {
+    public OlapRealQuery get(@PathVariable("id") Long id) throws APIException {
         OlapRealQuery m = olapRealQueryService.get(id);
         return m;
     }
@@ -92,7 +92,7 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
     @Security(session = true)
     @RequestMapping(method = RequestMethod.POST)
-    public OlapRealQuery doSave(@RequestBody OlapRealQuery body) {
+    public OlapRealQuery doSave(@RequestBody OlapRealQuery body) throws APIException {
         Date date = new Date();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (body.getIsNew() == null || body.getIsNew()) {
@@ -272,7 +272,6 @@ public class OlapRealQueryAction extends BaseAction {
         OlapRealQuery realQuery = olapRealQueryService.get(realQueryId);
         if (mapper == null || mapper.getCustomApiId() == null) {
             mapper = new CustomApiMapper();
-            mapper.setModuleType(gateWayHttpClient.REALQUERY_MODULE_TYPE);
             mapper.setApiMethod("GET");
             mapper.setApiName(realQuery.getName());
             mapper.setApiPaths("/olap/apis/olapRealQuery/query/" + realQueryId.toString());
@@ -280,6 +279,8 @@ public class OlapRealQueryAction extends BaseAction {
             mapper.setEnctype("application/json");
             mapper.setApiProtocols("Http");
         }
+        mapper.setModuleType(gateWayHttpClient.REALQUERY_MODULE_TYPE);
+        mapper.setModuleTypeName("即席查询");
         return mapper;
     }
 

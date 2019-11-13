@@ -298,7 +298,6 @@ public class OlapAnalyzeAction {
         OlapAnalyze analyze = olapAnalyzeService.get(analyzeId);
         if (mapper == null || mapper.getCustomApiId() == null) {
             mapper = new CustomApiMapper();
-            mapper.setModuleType(gateWayHttpClient.ANALYZE_MODULE_TYPE);
             mapper.setApiMethod("GET");
             mapper.setApiName(analyze.getName());
             mapper.setApiPaths("/olap/apis/olapAnalyze/query/" + analyzeId.toString());
@@ -306,6 +305,8 @@ public class OlapAnalyzeAction {
             mapper.setEnctype("application/json");
             mapper.setApiProtocols("Http");
         }
+        mapper.setModuleType(gateWayHttpClient.ANALYZE_MODULE_TYPE);
+        mapper.setModuleTypeName("OLAP分析");
         return mapper;
     }
 

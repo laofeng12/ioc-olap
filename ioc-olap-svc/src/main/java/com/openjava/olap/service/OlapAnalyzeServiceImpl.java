@@ -67,14 +67,13 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         return olapAnalyzeRepository.queryDataOnly(params, pageable);
     }
 
-    public OlapAnalyze get(Long id) {
+    public OlapAnalyze get(Long id) throws APIException {
         Optional<OlapAnalyze> o = olapAnalyzeRepository.findById(id);
         if (o.isPresent()) {
             OlapAnalyze m = o.get();
             return m;
         }
-        System.out.println("找不到记录OlapAnalyze：" + id);
-        return null;
+        throw new APIException(400, "找不到记录OlapAnalyze：" + id);
     }
 
     public OlapAnalyze doSave(OlapAnalyze m) {
