@@ -3,17 +3,17 @@
     <el-dialog title="选择维度" :visible.sync="dialogFormVisible" @close="closeBtn">
       <div class="container">
         <el-checkbox-group ref="group" v-model="selctCheckData" v-if="type === 1" size="mini">
-          <el-checkbox-button  v-for="(item, index) in options" @change="selectChange" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
+          <el-checkbox-button  v-for="(item, index) in options" :label="item.value" :key="index">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 5" size="mini">
-          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+          <el-checkbox-button  v-for="item in options" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" v-else-if="type === 6" size="mini">
-          <el-checkbox-button  v-for="item in options" @change="selectChange" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
+          <el-checkbox-button  v-for="item in options" :label="item.value" :key="item.id">{{item.value}}</el-checkbox-button>
         </el-checkbox-group>
         <el-checkbox-group ref="group" v-model="selctCheckData" size="mini" v-else>
-          <el-checkbox-button v-if="optionData && optionData.length > 0" v-for="(item, index) in optionData" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button>
-          <!-- <el-checkbox-button v-for="(item, index) in options" @change="selectChange" :label="item" :key="index">{{item}}</el-checkbox-button> -->
+          <el-checkbox-button v-if="optionData && optionData.length > 0" v-for="(item, index) in optionData" :label="item" :key="index">{{item}}</el-checkbox-button>
+          <!-- <el-checkbox-button v-for="(item, index) in options" :label="item" :key="index">{{item}}</el-checkbox-button> -->
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -62,9 +62,6 @@ export default {
     },
     closeBtn () {
       this.dialogFormVisible = false
-    },
-    selectChange (value) {
-      // console.log(this.selctCheckData, '啦啦啦啦啦')
     },
     submitBtn (index) {
       this.dialogFormVisible = false
