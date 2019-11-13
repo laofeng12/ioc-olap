@@ -34,7 +34,7 @@
           </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
           <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
-          <el-button class="button defualt-button" size="mini" @click="handlePublish" icon="el-icon-position" :disabled="!analyzeId">发布</el-button>
+          <el-button class="button defualt-button"  v-if="showPublish" size="mini" @click="handlePublish" icon="el-icon-position" :disabled="!analyzeId">发布</el-button>
           <el-button class="button defualt-button"  size="mini" @click="fullscreenToggle" icon="el-icon-full-screen">全屏</el-button>
         </div>
       </div>
@@ -132,6 +132,10 @@ export default {
     publishType: {
       type: String,
       default: 'olapAnalyze' // 默认分析
+    },
+    showPublish: {
+      type: Boolean,
+      default: false
     }
   },
   components: { 

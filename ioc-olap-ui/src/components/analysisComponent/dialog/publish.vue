@@ -1,32 +1,36 @@
 <template>
  <article class="publish-box" >
    <el-dialog class="dialog"   :title="title" :visible.sync="showDialog" :close-on-click-modal="false" @close="closeBtn">
-      <el-form v-loading="loading" :model="form" :rules="rules"  ref="form" label-width="100px">
+      <el-form v-loading="loading" :model="form" :rules="rules"  ref="form" label-width="110px">
         <el-form-item label="数据服务：" prop="moduleType">
-          <el-input :value="form.moduleTypeName" placeholder="输入数据服务" :disabled="true"></el-input>
+          <el-input :value="form.moduleTypeName" placeholder="数据服务" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="请求协议："  prop="apiProtocols">
-          <el-input :value="form.apiProtocols" placeholder="输入请求协议" :disabled="true"></el-input>
+          <el-input :value="form.apiProtocols" placeholder="请求协议" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="请求方式："  prop="apiMethod">
-          <el-input :value="form.apiMethod" placeholder="输入请求方式" :disabled="true"></el-input>
+          <el-input :value="form.apiMethod" placeholder="请求方式" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="接口名称："  prop="apiName">
           <el-input v-model="form.apiName" placeholder="输入接口名称" ></el-input>
         </el-form-item>
 
-        <el-form-item label="接口地址："  prop="apiUrl">
-          <el-input :value="form.apiUrl" placeholder="输入接口地址" :disabled="true"></el-input>
+        <el-form-item label="接口地址："  prop="apiPaths">
+          <el-input :value="form.apiPaths" placeholder="接口地址" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="提交方式："  prop="enctype">
-          <el-input :value="form.enctype" placeholder="输入提交方式" :disabled="true"></el-input>
+          <el-input :value="form.enctype" placeholder="提交方式" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="接口描述：" >
           <el-input type="textarea" v-model="form.apiDesc" :rows="3" placeholder="输入接口描述" ></el-input>
+        </el-form-item>
+
+        <el-form-item label="第三方地址："  v-if="form.token">
+          <el-input :value="form.apiUrl" placeholder="第三方接口地址" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="发布状态:" v-if="form.token">
@@ -93,9 +97,6 @@ export default {
           ],
           apiName: [
             { required: true, message: '请输入接口名称', trigger: 'blur' }
-          ],
-          apiPaths: [
-           { required: true, message: '请输入接口地址', trigger: 'blur' }
           ],
           apiProtocols: [
             { required: true, message: '请输入接口协议', trigger: 'blur' }

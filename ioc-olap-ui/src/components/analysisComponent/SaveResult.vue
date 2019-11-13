@@ -6,6 +6,7 @@
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content dis-flex" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" 
+        :showPublish="true"
         :analyzeId="analyzeId"
         publishType="olapRealQuery"
         :tableData="tableData" 

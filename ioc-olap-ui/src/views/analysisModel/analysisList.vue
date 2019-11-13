@@ -28,6 +28,7 @@
     </el-aside>
     <div class="cus-right dis-flex" v-loading="loading">
       <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
+                :showPublish="activeTab === 'my'"
                  publishType="olapAnalyze"
                  :analyzeId="analyzeId"
                  :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
@@ -100,8 +101,8 @@ export default {
       this.shareLoading = false
     },
     async searchCube (fileData, type) {
-      const params = { id: fileData.attrs.cubeId }
-      this.analyzeId = fileData.attrs.analyzeId
+      const params = { id: fileData.attrs ? fileData.attrs.cubeId : fileData.cubeId }
+      this.analyzeId = fileData.attrs ? fileData.attrs.analyzeId : fileData.analyzeId
       const res = await searchCubeApi(params)
       if (res.flags) {
         this.getTableById(fileData, type)
@@ -110,12 +111,12 @@ export default {
       }
     },
     async getTableById (fileData, type) {
-      const isSum = fileData.attrs.isSummation
+      const isSum = fileData.attrs ? fileData.attrs.isSummation : fileData.isSummation
       this.fileData = fileData
       this.loading = true
       const params = {
-        analyzeId: this.fileData.attrs.analyzeId,
-        cubeId: this.fileData.attrs.cubeId,
+        analyzeId: this.fileData.attrs ? this.fileData.attrs.analyzeId : this.fileData.analyzeId,
+        cubeId: this.fileData.attrs ? this.fileData.attrs.cubeId : this.fileData.cubeId,
         pageIndex: this.page,
         pageSize: this.size
       }
