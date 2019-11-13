@@ -302,7 +302,7 @@ const common = {
           encoding: '',
           lengths: length || '',
           columns_Type: type,
-          code_types: type,
+          code_types: item.code_types,
           encoding_version: '1',
           adds: 1,
           isShardBy: item.isShardBy
