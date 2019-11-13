@@ -119,7 +119,7 @@ export default {
   },
   methods: {
     initEditor () {
-      const graphData = JSON.parse(this.ModelAllList.graphData)
+      const graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
       this.editor = new IOCEditor({
         el: 'editorContainer', // 容器id
         baseInfo: '', // 基础信息，标题，描述，状态等
@@ -643,6 +643,7 @@ export default {
 }
 
 .tableRelation{
+  margin-top 16px
   height calc(100vh)
   position relative
   .containers{
