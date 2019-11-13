@@ -70,7 +70,7 @@
       </el-table>
     </el-dialog>
     <!-- 发布 -->
-     <publish ref="publish"></publish>
+     <publish ref="publish" :operateModule="publishType"></publish>
   </div>
 </template>
 
@@ -128,6 +128,10 @@ export default {
     noFolderPop: {
       type: Boolean,
       default: false
+    },
+    publishType: {
+      type: String,
+      default: 'olapAnalyze' // 默认分析
     }
   },
   components: { 

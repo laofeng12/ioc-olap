@@ -210,7 +210,6 @@ export default {
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
         this.jsonData = { cubeName: params.name, models: params.model }
-        debugger
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {

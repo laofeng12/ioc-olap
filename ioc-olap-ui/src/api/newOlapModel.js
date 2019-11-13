@@ -47,24 +47,24 @@ export function batchCreateJob (params) {
   })
 }
 // 查看发布接口
-export function getPublishInfo ({ analyzeId }) {
+export function getPublishInfo ({ analyzeId, operateModule }) {
   return fetch({
-    url: `/olap/apis/olapAnalyze/publish/${analyzeId}`,
+    url: `/olap/apis/${operateModule}/publish/${analyzeId}`,
     method: 'get'
   })
 }
 // 发布接口
 export function publish (params) {
   return fetch({
-    url: `/olap/apis/olapAnalyze/publish`,
+    url: `/olap/apis/${params.operateModule}/publish`,
     method: 'post',
     data: params
   })
 }
 // 删除发布接口
-export function delPublish ({ analyzeId }) {
+export function delPublish ({ analyzeId, operateModule }) {
   return fetch({
-    url: `/olap/apis/olapAnalyze/publish/${analyzeId}`,
+    url: `/olap/apis/${operateModule}/publish/${analyzeId}`,
     method: 'delete'
   })
 }

@@ -1,10 +1,17 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" 
+    @clickItem="getTableById" 
+    @editFunc="editSave"
                  vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
     <div class="content dis-flex" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" @exportFunc="exportFile"
-                 :shareList="shareList"></ResultBox>
+      <ResultBox v-if="tableData.length > 0" 
+        :analyzeId="analyzeId"
+        publishType="olapRealQuery"
+        :tableData="tableData" 
+        @exportFunc="exportFile"
+        :shareList="shareList">
+        </ResultBox>
       <div v-else class="replace-table">
         <img src="../../assets/img/replace_table.png" />
       </div>
@@ -22,6 +29,7 @@ export default {
   components: { FolderAside, ResultBox },
   data () {
     return {
+      analyzeId: '', // analyzeId
       search: '',
       textarea: '',
       lineNumber: '',
@@ -69,6 +77,7 @@ export default {
       this.menuListLoading = false
     },
     async getTableById (folderData, type) {
+      this.analyzeId = folderData.attrs.realQueryId
       this.loading = true
       try {
         const { columnMetas, results, shareList } = await searchOlapByIdApi({ id: folderData.attrs.realQueryId })

@@ -1,9 +1,9 @@
 <template>
- <article class="publish-box">
-   <el-dialog class="dialog" :title="title" :visible.sync="showDialog" :close-on-click-modal="false" @close="closeBtn">
-      <el-form :model="form" :rules="rules"  ref="form" label-width="100px">
+ <article class="publish-box" >
+   <el-dialog class="dialog"   :title="title" :visible.sync="showDialog" :close-on-click-modal="false" @close="closeBtn">
+      <el-form v-loading="loading" :model="form" :rules="rules"  ref="form" label-width="100px">
         <el-form-item label="数据服务：" prop="moduleType">
-          <el-input :value="form.moduleType" placeholder="输入数据服务" :disabled="true"></el-input>
+          <el-input :value="form.moduleTypeName" placeholder="输入数据服务" :disabled="true"></el-input>
         </el-form-item>
 
         <el-form-item label="请求协议："  prop="apiProtocols">
@@ -29,13 +29,13 @@
           <el-input type="textarea" v-model="form.apiDesc" :rows="3" placeholder="输入接口描述" ></el-input>
         </el-form-item>
 
-        <el-form-item label="发布状态:">
+        <el-form-item label="发布状态:" v-if="form.token">
           <el-switch v-model="form.status" > </el-switch>
         </el-form-item>
       </el-form>
        <div slot="footer" class="dialog-footer">
         <el-button  @click="closeBtn">取消</el-button>
-        <el-button type="primary" @click="submitBtn" >确定</el-button>
+        <el-button type="primary" @click="submitBtn" :loading="btnLoading">确定</el-button>
       </div>
     </el-dialog>
  </article>
@@ -47,6 +47,7 @@ import {
   publish,
   delPublish
   } from '@/api/newOlapModel'
+  import { moduleTypeStr } from './constant'
 
 export default {
   name: 'publish',
@@ -56,12 +57,20 @@ export default {
     title: {
       type: String,
       default: '发布数据查询接口'
+    },
+    // 操作模块（及时分析/查询都是用同一个，接口地址前缀不同）
+    operateModule: {
+      type: String,
+      required: true
     }
   },
   data () {
     return {
+      loading: false,
       showDialog: false,
+      btnLoading: false,
       analyzeId: '',
+      operateType: '', // edit add
       form: {
         apiDesc: '', // 接口描述
         apiMethod: '', // 接口请求方法
@@ -113,27 +122,58 @@ export default {
     },
     // 查看发布接口
     async getPublish () {
-      let params = {
-        analyzeId: this.analyzeId
+      try {
+        this.loading = true
+        let params = {
+        analyzeId: this.analyzeId,
+        operateModule: this.operateModule
       }
       const data = await getPublishInfo(params)
       this.form = Object.assign(this.form, data)
-      // debugger
+      data.token ? this.operateType = 'edit' :  this.operateType = 'add'
+      this.form.status = !!data.token
+      } catch(e) {
+      } finally {
+        this.loading = false
+      }
     },
-    // 发布接口
+    // 发布接口(edit or delete)
     submitBtn () {
-      if (!this.form.status) {
-
+      this.btnLoading = true
+      if (this.operateType === 'add') {
+        this.editPublish()
       } else {
-
+        // 编辑时如果状态为false 则调用发布的删除接口
+        !this.form.status ? this.deletePublish() : this.editPublish()
       }
     },
     // 新增/编辑
-    editPublish () {
+    async editPublish () {
+      try {
+        let params = { ...this.form }
+        params.operateModule = this.operateModule
+        await publish(params)
+        this.$message.success('接口发布成功')
+        this.showDialog = false
+      } catch(e) {
+      } finally {
+        this.btnLoading = false
+      }
     },
     // 删除
-    deletePublish () {
-
+    async deletePublish () {
+      try {
+        let params = {
+          analyzeId: this.analyzeId,
+          operateModule: this.operateModule
+        }
+        await delPublish(params)
+        this.$message.success('操作成功')
+        this.showDialog = false
+      } catch(e) {
+      } finally {
+        this.btnLoading = false
+      }
     },
     // 关闭弹窗
     closeBtn () {
@@ -142,7 +182,13 @@ export default {
       // this.$parent.init()
     }
   },
-  filters: {}
+  filters: {
+    moduleTypeStr (val) {
+      if (val === null || val === void 0) return ''
+      let obj = moduleTypeStr(val)
+      return obj ? obj.value : ''
+    }
+  }
 }
 </script>
 
@@ -153,7 +199,7 @@ export default {
       width: 620px;
     }
     .el-dialog__footer {
-      text-align: right;
+      text-align: right !important;
     }
   }
 }

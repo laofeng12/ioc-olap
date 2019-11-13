@@ -25,9 +25,11 @@
     </el-aside>
     <div class="cus-right dis-flex" v-loading="loading">
       <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
+                 publishType="olapAnalyze"
                  :analyzeId="analyzeId"
                  :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
-                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
+                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page">
+                 </ResultBox>
       <div v-else class="replace-table">
         <img src="@/assets/img/replace_table.png" />
       </div>
