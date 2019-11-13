@@ -52,7 +52,7 @@ export default {
       managementHead: [], // 表数据-头
       descriptionData: [],
       descriptionHead: [
-        { prop: 'name', label: '字段名称' },
+        { prop: 'definition', label: '字段名称' },
         { prop: 'type', label: '字段类型' },
         { prop: 'comment', label: '字段描述' }
       ]
@@ -187,8 +187,5 @@ export default {
       }
     }
 }
-.null_data {
-  margin: 50px 0;
-  text-align: center;
-}
+
 </style>

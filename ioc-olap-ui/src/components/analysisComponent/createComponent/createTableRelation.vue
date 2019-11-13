@@ -4,7 +4,9 @@
       <fact-table></fact-table>
       <div class="linkSetting" v-if="linkModal" ref="linkSetting">
         <h2 class="title">设置关联关系</h2>
-        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" @change="getModalRelationSelected">
+        <el-select name="public-choice" style="margin-top:10px;"  
+        placeholder="请选择关联关系" v-model="linkModal.join.type" 
+         @change="getModalRelationSelected">
           <el-option v-for="item in relationData" :key="item.label" 
           :value="item.label" 
           :label="item.value">
@@ -21,9 +23,10 @@
           placeholder="请选择关联字段" 
           @visible-change="getModalDataList(linkModal.joinId)" 
           @change="getModalForeignSelected">
-            <el-option v-for="coupon in couponList" :key="coupon.name" 
-            :label="coupon.name" :value="Object.assign(coupon, { index })" >
-              {{`${coupon.name}（${coupon.type}）`}}
+            <el-option v-for="coupon in couponList" 
+            :key="coupon.definition" :label="coupon.definition" 
+            :value="Object.assign(coupon, { index })" >
+              {{`${coupon.definition}（${coupon.type}）`}}
             </el-option>
           </el-select>
 
@@ -34,9 +37,9 @@
           @visible-change="getModalDataList(linkModal.id)" 
           @change="getModalPrimarySelected">
             <el-option v-for="coupon in couponList" 
-            :key="coupon.name" :label="coupon.name" 
+            :key="coupon.definition" :label="coupon.definition" 
             :value="Object.assign(coupon, { index })" >
-              {{`${coupon.name}（${coupon.type}）`}}
+              {{`${coupon.definition}（${coupon.type}）`}}
             </el-option>
           </el-select>
 
@@ -787,8 +790,10 @@ export default {
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
       console.log(e)
+      // debugger
       let index = e.index
-      let primary_key = e.name
+      // let primary_key = e.name
+      let primary_key = e.definition
       let pk_type = e.type
       let foreign_key = this.linkModalFields[index].foreign_key
       let fk_type = this.linkModalFields[index].fk_type
@@ -810,10 +815,12 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
+      // debugger
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
-      let foreign_key = e.name
+      // let foreign_key = e.name
+      let foreign_key = e.definition
       let fk_type = e.type
 
       if (index >= 0 && foreign_key && fk_type) {
@@ -833,7 +840,10 @@ export default {
     },
     // 存储已选择表对应的字段
     updateFields (alias, joinAlias, fields) {
-      let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
+      let primary_key = []
+      let foreign_key = []
+      let pk_type = []
+      let fk_type = []
 
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
@@ -847,6 +857,7 @@ export default {
       this.linkModal.join.foreign_key = foreign_key
       this.linkModal.join.pk_type = pk_type
       this.linkModal.join.fk_type = fk_type
+
       // 判断是否选中了关联对应的字段 (改变对应的文字以及样式)
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
@@ -1070,12 +1081,20 @@ export default {
 
     nextModel (val) {
       // if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
-      if (Object.keys(this.ModelAllList).length === 0) {
-        if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
+      if (!this.linkModal.join.type) {
+          this.$message.warning('请完善表关系~')
+          return
       }
-      this.$router.push('/analysisModel/createolap/setFiled')
+      if (!Object.keys(this.ModelAllList).length) {
+        if (!this.isTableAssociate()) {
+           this.$message.warning('请完善表关系~')
+           return
+        }
+      }
       this.$parent.getStepCountAdd(val)
       this.getIdToList()
+      this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      this.$router.push('/analysisModel/createolap/setFiled')
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
@@ -1086,7 +1105,6 @@ export default {
     getIdToList () {
       let arrId = []
       // 存储当前连线的id
-      
       let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
       if (this.jointResult.lookups.length > 0) {
         this.jointResult.lookups.forEach((item, index) => {

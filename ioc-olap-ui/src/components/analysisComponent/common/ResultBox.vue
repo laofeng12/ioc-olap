@@ -34,7 +34,8 @@
           </el-button>
           <el-button class="button" type="primary" size="mini" v-if="showType === 'isAnalysis'" @click="showSum">求和</el-button>
           <el-button class="button" type="primary" size="mini" @click="exportTable">导出结果</el-button>
-          <el-button class="button" type="primary" size="mini" @click="fullscreenToggle">全屏</el-button>
+          <el-button class="button defualt-button" size="mini" @click="handlePublish" icon="el-icon-position" :disabled="!analyzeId">发布</el-button>
+          <el-button class="button defualt-button"  size="mini" @click="fullscreenToggle" icon="el-icon-full-screen">全屏</el-button>
         </div>
       </div>
       <DynamicTable :tableData="tableData" :diffWidth="diffWidth" @handlePage="handlePage"
@@ -68,15 +69,22 @@
         <el-table-column prop="createTime" label="分享时间"></el-table-column>
       </el-table>
     </el-dialog>
+    <!-- 发布 -->
+     <publish ref="publish"></publish>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import DynamicTable from '../common/DynamicTable'
+import publish from '@/components/analysisComponent/dialog/publish'
 
 export default {
   props: {
+    analyzeId: {
+      type: [String, Number],
+      default: ''
+    },
     tableData: {
       type: Array,
       required: true
@@ -122,7 +130,10 @@ export default {
       default: false
     }
   },
-  components: { DynamicTable },
+  components: { 
+    DynamicTable,
+    publish
+     },
   data () {
     return {
       search: '',
@@ -179,6 +190,10 @@ export default {
     this.newForm = this.formData
   },
   methods: {
+    // 发布
+    handlePublish () {
+      this.$refs['publish'].init(this.analyzeId)
+    },
     analysisSearch () {
       if (this.newColList.length <= 0 && this.newRowList.length <= 0) return this.$message.error('至少填入一个维度值')
       if (this.newValueList.length <= 0) return this.$message.error('至少填入一个数值')
@@ -278,12 +293,15 @@ export default {
   .result {
     overflow: auto;
     margin: 0 24px 24px 12px;
+    & /deep/ .defualt-button{
+      border: 1px solid #0486FE;
+    }
     .resultBox {
       .top {
         .right {
-          flex-direction: row-reverse;
-          flex-wrap: wrap;
+          justify-content: flex-end;
           margin: 20px 0;
+          padding-right: 8px;
           .button {
             margin-bottom: 10px;
             margin-right: 10px;

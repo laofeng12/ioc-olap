@@ -116,6 +116,7 @@ export default {
             // t.databaseId = target.databaseId
             // t.table_name = target.writerTableName // 真实表名
           }
+          t.database = 'olap'
         })
       })
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
@@ -134,7 +135,7 @@ export default {
             dest.push({
               table: n.alias,
               columns: item.column.map(res => {
-                return res.name
+                return res.columnAlias
               })
             })
           }
@@ -143,7 +144,7 @@ export default {
           dest.push({
             table: item.resourceTableName,
             columns: item.column.map(res => {
-              return res.name
+              return res.columnAlias
             })
           })
         }
@@ -152,9 +153,11 @@ export default {
       // this.totalSaveData.models.modelDescData.dimensions = dest
       this.totalSaveData.models.modelDescData.dimensions = []
       // 增加对应关系
+      // debugger
       let relations = []
       this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
         tb.tableList.forEach(t => {
+          // resourceId
           let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
           if (target) {
             let writerTableName = target.writerTableName
@@ -179,34 +182,44 @@ export default {
           }
       })
       // 处理fact_table
-      this.totalSaveData.models.modelDescData.fact_table = this.totalSaveData.models.modelDescData.fact_table.replace('DEFAULT','async')
+      let tempStr = this.totalSaveData.models.modelDescData.fact_table.split('.')[0]
+      this.totalSaveData.models.modelDescData.fact_table = this.totalSaveData.models.modelDescData.fact_table.replace(tempStr,'olap')
+      // 处理 lookups
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        let tempStr = t.table.split('.')[0]
+        t.table = t.table.replace(tempStr,'olap')
+      })
+      // 处理刷新过滤设置
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column ?  this.totalSaveData.timingreFresh.buildMode = 1 : this.totalSaveData.timingreFresh.buildMode = 0
     },
     changesEncoding () {
       // 过滤rowkey
-      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
+      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.forEach(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
+      // console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
-      this.init()
-      // console.log(this.totalSaveData, '高级', this.totalSaveData.cube.cubeDescData.rowkey)
-      if (this.totalSaveData.cube.cubeDescData.name.length) {
-        this.completeLoading = true
-        throttle(async () => {
-          await saveolapModeldata(this.totalSaveData).then(_ => {
-            this.$message.success('保存成功~')
-            this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
-          }).catch(_ => {
-            this.completeLoading = false
-          })
-        }, 1000)
-      } else {
-        this.$message.warning('请填写模型名称~')
+      try {
+        // this.init()
+        this.changesEncoding()
+        if (this.totalSaveData.cube.cubeDescData.name.length) {
+          this.completeLoading = true
+          throttle(async () => {
+             await saveolapModeldata(this.totalSaveData).then(_ => {
+              this.$message.success('保存成功~')
+              this.$router.push('/analysisModel/Configuration')
+              this.$store.dispatch('resetList')
+            })
+          }, 1000)
+        } else {
+          this.$message.warning('请填写模型名称~')
+        }
+      } catch (e) {
+      } finally {
+        this.completeLoading = false
       }
     },
     prevModel (val) {

@@ -39,10 +39,33 @@ export function getResourceInfo ({ resourceId, type, databaseId, isOnlyPermitted
 }
 // 批量创建同步任务
 export function batchCreateJob (params) {
+  // /pds/datasync/dataSync/batchCreateJob
   return fetch({
-    url: `/pds/datasync/dataSync/batchCreateJob`,
+    url: `/olap/apis/olapSync/save`,
     method: 'post',
     data: params
+  })
+}
+// 查看发布接口
+export function getPublishInfo ({ analyzeId }) {
+  return fetch({
+    url: `/olap/apis/olapAnalyze/publish/${analyzeId}`,
+    method: 'get'
+  })
+}
+// 发布接口
+export function publish (params) {
+  return fetch({
+    url: `/olap/apis/olapAnalyze/publish`,
+    method: 'post',
+    data: params
+  })
+}
+// 删除发布接口
+export function delPublish ({ analyzeId }) {
+  return fetch({
+    url: `/olap/apis/olapAnalyze/publish/${analyzeId}`,
+    method: 'delete'
   })
 }
 

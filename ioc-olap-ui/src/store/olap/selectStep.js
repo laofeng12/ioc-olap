@@ -100,7 +100,7 @@ const selectStep = {
       // })
       state.saveSelectAllListFiled = []
       val.forEach(t => {
-        const target = state.saveSelectAllList.find(item => item.resourceId * 1 === t * 1 )
+        const target = state.saveSelectAllList.find(item => String(item.resourceId)  === String(t))
         if (target) {
           state.saveSelectAllListFiled.push(target)
         }
@@ -150,8 +150,8 @@ const selectStep = {
     },
      // 批量创建同步接口
      async batchCreateJob ({ commit }, params) {
-       const { data = [] } = await batchCreateJob(params)
-       commit('SET_BATCH_CREATEJOB', data)
+       const { rows = [] } = await batchCreateJob(params)
+       commit('SET_BATCH_CREATEJOB', rows)
     },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
@@ -347,7 +347,10 @@ const selectStep = {
     },
     // 设置已选择的表的总数据
     setSelectTableTotal ({ commit, state }) {
-      let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
+      // let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
+      state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
+      // debugger
+      let totalData = [...state.saveSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },
     // 存储数据湖点击的表

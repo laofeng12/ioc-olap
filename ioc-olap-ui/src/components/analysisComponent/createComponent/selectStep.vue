@@ -67,17 +67,18 @@ export default {
       this.selectTableTotal.forEach(({ databaseId,resourceTableName, resourceId, resourceName, type } )=> {
         params.push({
           cron:'0 0 2 * * ? *', // 定时任务的正则表达式，看你们的定时任务是多久同步一次
-          hiveDbName: 'default', // async
+          // hiveDbName: 'default', // async
           writerTableComment: 'olap',
           writerTableSource: `id_${resourceId}`,
           databaseId,
           resourceId,
           resourceName,
-          syncSource: type,
-          type
+          syncSource: 3, // 同步来源：0 数据集内部 1 碰撞组 2标签组 3olap组 4 bi 5 挖掘
+          type,
+          businessId: new Date().getTime()
         })
       })
-      await this.$store.dispatch('batchCreateJob', params)
+      this.$store.dispatch('batchCreateJob', params)
       // 清掉第二步创建的表
       this.$store.commit('ClearTableRelation')
       this.$store.dispatch('getAllColumnInfo')

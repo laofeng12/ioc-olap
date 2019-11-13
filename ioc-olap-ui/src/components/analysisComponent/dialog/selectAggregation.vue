@@ -50,9 +50,9 @@ export default {
     this.init()
   },
   watch: {
-    '$route' () {
-      this.init()
-    }
+    // '$route' () {
+    //   this.init()
+    // }
   },
   methods: {
     init () {

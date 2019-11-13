@@ -5,7 +5,7 @@
      <div class="trees" ref="treesBox" v-loading="loading">
        <el-scrollbar style="height:100%">
          <el-tree
-        v-if="dataList && dataList[0].children.length > 1"
+        
         ref="trees"
         :data="dataList"
         default-expand-all
@@ -25,7 +25,7 @@
           <span v-else  class="show-ellipsis">{{node.label}}</span>
         </span>
         </el-tree>
-        <span v-else style="width:200px;position:absolute;text-align:center;top:150px;">暂无数据</span>
+        <!-- <span v-else class="null_data">暂无数据</span> -->
        </el-scrollbar>
         <!-- <p v-if="loading">加载中...</p> -->
      </div>
@@ -66,6 +66,9 @@ export default {
     }
   },
   created () {
+    
+  },
+  mounted () {
     this.initEvent()
     this.init()
   },
@@ -78,24 +81,33 @@ export default {
         this.defaultKey = checkedNodes
         this.$refs.trees.setCheckedNodes(checkedNodes)
       })
-    },
-    init () {
       // 获取资源信息列表
       this.$root.eventBus.$on('getserchTableList', (data) => this.getserchTableList(data))
       // 接收已选择的复选框数据
       this.$root.eventBus.$on('saveSelectTables', _ => {
-        // 初始化默认勾选框数组 以及树列表的复选框
-        this.defaultKey = []
-        this.$refs.trees.setCheckedKeys([])
-        // 遍历已经勾选的数据赋值到勾选框数组
-        this.selectTableTotal.map(item => { this.defaultKey.push(item.id) })
-        // 去重勾选框数组
-        setTimeout(() => { this.defaultKey = [...new Set(this.defaultKey)] }, 500)
+        this.setDefualtKey()
       })
       // 重置复选框
       this.$root.eventBus.$on('clearSelect', _ => {
         this.$refs.trees.setCheckedKeys([])
       })
+    },
+    init () {
+      // 获取资源信息列表
+      // this.$root.eventBus.$on('getserchTableList', (data) => this.getserchTableList(data))
+      // this.setDefualtKey()
+    },
+    setDefualtKey () {
+       // 初始化默认勾选框数组 以及树列表的复选框
+        this.defaultKey = []
+        this.$refs['trees'].setCheckedKeys([])
+        // 遍历已经勾选的数据赋值到勾选框数组
+        this.selectTableTotal && this.selectTableTotal.forEach(item => { this.defaultKey.push(String(item.resourceId)) })
+        // 去重勾选框数组
+        this.$nextTick(_ => {
+          this.defaultKey = [...new Set(this.defaultKey)]
+        })
+        // setTimeout(() => {  }, 500)
     },
     // 获取资源列表
     async getserchTableList ({orgId, type, databaseType}) {
@@ -111,6 +123,9 @@ export default {
          Array.isArray(data) && data.forEach(t => {
           this.dataList[0].children.push({id: t.resourceId, label: t.resourceTableName, orgId, ...t})
          })
+         if (this.$route.query.cubeName) {
+           this.setDefualtKey()
+         }
         } catch (e) {
         } finally {
           this.loading = false
@@ -139,6 +154,7 @@ export default {
         type: type,
         delData: data
       }
+      // debugger
        if (type) {
           await this.$store.dispatch('getSelectTableList', nodeData)
         } else {
@@ -249,4 +265,5 @@ export default {
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
   background-color: #f0f0f0;
 }
+
 </style>

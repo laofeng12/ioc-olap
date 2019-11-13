@@ -16,7 +16,7 @@
         </div>
         <div v-else>
           <span class="cus-node-title"  :title="data.name">{{ data.name }}</span>
-          <span class="cus-node-title"  :title="data.name">-{{ data.virtualTableName }}</span>
+          <span class="cus-node-title"  :title="data.name" v-if="data.virtualTableName">-{{ data.virtualTableName }}</span>
         </div>
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">

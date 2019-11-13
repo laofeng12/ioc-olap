@@ -39,9 +39,9 @@ export default {
     }
   },
   watch: {
-    '$route' () {
-      // this.init()
-    }
+    // '$route' () {
+    //   this.init()
+    // }
   },
   mounted () {
     this.init()

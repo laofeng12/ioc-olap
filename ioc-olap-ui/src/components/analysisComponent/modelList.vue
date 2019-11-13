@@ -65,8 +65,8 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :command="{type: 'lookDetail', params: scope.row}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
-                  <!-- 1：成功，-1：失败，0：进行中-->
-                  <el-dropdown-item :command="{type: 'construct', params: scope.row}" v-if="scope.row.syncStatus === 1">构建</el-dropdown-item>
+                  <!-- 1：成功，-1：失败，0：进行中 :disabled="scope.row.syncStatus !== 1" -->
+                  <el-dropdown-item :command="{type: 'construct', params: scope.row}" >构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item v-if="scope.row.status === 'DISABLED'"
                                     :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
@@ -210,6 +210,7 @@ export default {
       if (type === 'lookDetail') {
         this.expands.push(params.uuid)
         this.jsonData = { cubeName: params.name, models: params.model }
+        debugger
         return
       }
       if (['disableds', 'enable', 'dels'].includes(type)) {
@@ -302,6 +303,7 @@ export default {
       this.getLoading = true
     },
     closeChangeLoading () {
+      this.tableData = []
       this.getLoading = false
       this.init()
     },

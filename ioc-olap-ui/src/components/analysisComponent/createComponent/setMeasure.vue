@@ -62,6 +62,7 @@ export default {
         this.$parent.getStepCountAdd(val)
       } else {
         this.$message.warning('至少添加一条度量')
+        return
       }
     },
     prevModel (val) {

@@ -32,7 +32,10 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="(scope.row.filed === '1' || scope.row.defaultVal === 'n') ? true : false">
+                    <el-radio-group 
+                    v-model="scope.row.filed === '1' ? '1' : scope.row.mode" 
+                    @change="radioChange(scope.row)" 
+                    :disabled="scope.row.filed === '1' || scope.row.defaultVal === 'n'">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
@@ -76,7 +79,7 @@ export default {
       // this.init()
     }
   },
-  created () {
+  mounted () {
     this.init()
   },
   methods: {
@@ -91,6 +94,7 @@ export default {
          * 根据从左侧菜单带过来的${data.id}来进行匹配${item.resourceId} 获取对应的所有字段
          */
         // 判断是否为一张事实表
+        // debugger
         if (!data.id) {
           this.loading = true
           setTimeout(() => {
@@ -98,10 +102,10 @@ export default {
               // let items = JSON.parse(item)
               item.column && item.column.map((n, i) => {
                 n.mode = n.mode ? n.mode : '2'
-                n.derived = n.name
-                n.titName = n.name
+                n.derived = n.definition
+                n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
-                n.id = `${data.alias}.${n.name}`
+                n.id = `${data.alias}.${n.definition}`
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
@@ -130,12 +134,12 @@ export default {
             if (item.resourceId === data.id) { // 根据id获取对应数据
             // if (items.name === data.joinTable) { // 根据name获取对应数据
               item.column && item.column.map((n, i) => {
-                n.mode = n.mode ? n.mode : '2'
-                n.derived = n.name
-                n.titName = n.name
+                n.mode = n.mode ? n.mode : '2' // 默认衍生模式
+                n.derived = n.definition
+                n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
                 // n.id = `${data.alias}${i}`
-                n.id = `${data.alias}.${n.name}`
+                n.id = `${data.alias}.${n.definition}`
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
@@ -194,12 +198,12 @@ export default {
         item.column.map((res, i) => {
           values.push({
             tableName: item.resourceTableName,
-            name: res.name,
-            titName: res.name,
-            id: `${item.resourceTableName}.${res.name}`,
+            name: res.columnAlias,
+            titName: res.columnAlias,
+            id: `${item.resourceTableName}.${res.columnAlias}`,
             resid: item.resourceId,
             mode: item.code ? item.code : '2',
-            derived: res.name,
+            derived: res.columnAlias,
             dataType: res.type,
             filed: item.name === code ? '1' : '0'
           })
@@ -321,11 +325,11 @@ export default {
       }
     },
     nextModel (val) {
-      if (this.saveSelectFiled.length === 0) {
+      if (!this.saveSelectFiled.length) {
         this.$message.warning('请选择维度字段')
       } else {
-        this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
+        this.$router.push('/analysisModel/createolap/setMeasure')
       }
     },
     prevModel (val) {

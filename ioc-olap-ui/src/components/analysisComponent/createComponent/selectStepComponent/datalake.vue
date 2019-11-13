@@ -15,13 +15,13 @@
               <span v-for="(n, i) in managementData[index]" :key="i" class="item_column">{{n ? n : '-'}}</span>
             </div>
           </div>
-          <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
+          <div v-else class="null_data">暂无数据</div>
        </el-scrollbar>
       </el-tab-pane>
       <el-tab-pane label="字段说明" name="2" class="el-tab-box">
         <el-scrollbar style="height:100%">
            <element-table v-if="descriptionData && descriptionData.length" :tableData="descriptionData" :colConfigs="descriptionHead"></element-table>
-           <div v-else style="text-align:center;margin-top:110px">暂无数据</div>
+           <div v-else class="null_data">暂无数据</div>
         </el-scrollbar>
       </el-tab-pane>
       </el-tabs>
@@ -51,7 +51,7 @@ export default {
       managementData: [], // 表数据
       descriptionData: [], // 字段说明
       descriptionHead: [ // 表格字段说明
-        { prop: 'name', label: '字段名称' },
+        { prop: 'columnAlias', label: '字段名称' },
         { prop: 'type', label: '字段类型' },
         { prop: 'comment', label: '字段描述' }
       ]
@@ -198,4 +198,5 @@ export default {
     }
   }
 }
+
 </style>

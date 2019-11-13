@@ -957,7 +957,6 @@ export default {
 
     nextModel (val) {
       if (this.jointResultData.lookups.length < 1) return this.$message.warning('请建立表关系~')
-      this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       let arrId = []
       // 存储当前连线的id
@@ -966,6 +965,7 @@ export default {
       })
       // 根据当前的id 去获取所有对应的字段
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
+      this.$router.push('/analysisModel/createolap/setFiled')
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')

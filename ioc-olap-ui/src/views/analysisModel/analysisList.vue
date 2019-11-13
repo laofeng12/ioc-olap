@@ -25,6 +25,7 @@
     </el-aside>
     <div class="cus-right dis-flex" v-loading="loading">
       <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
+                 :analyzeId="analyzeId"
                  :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
                  :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
       <div v-else class="replace-table">
@@ -46,6 +47,7 @@ export default {
   components: { FolderAside, ResultBox },
   data () {
     return {
+      analyzeId: '', // analyzeId
       activeTab: 'my',
       myMenuList: [],
       shareMenuList: [],
@@ -94,6 +96,7 @@ export default {
     },
     async searchCube (fileData, type) {
       const params = { id: fileData.attrs.cubeId }
+      this.analyzeId = fileData.attrs.analyzeId
       const res = await searchCubeApi(params)
       if (res.flags) {
         this.getTableById(fileData, type)
