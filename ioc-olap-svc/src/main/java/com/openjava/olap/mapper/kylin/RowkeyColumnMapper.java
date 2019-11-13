@@ -11,4 +11,5 @@ public class RowkeyColumnMapper {
     public String isShardBy;
     public String encoding_version;
     public String lengths;
+    public String code_types;
 }
