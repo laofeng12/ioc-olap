@@ -261,11 +261,11 @@ export default {
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
         lookups.push({
-          alias: t.alias,
+          alias: t.alias.toUpperCase(),
           id: t.id,
           SAxis: t.SAxis,
           YAxis: t.YAxis,
-          joinAlias: t.joinAlias,
+          joinAlias: t.joinAlias.toUpperCase(),
           joinId: t.joinId,
           joinTable: t.joinTable,
           joinSAxis: t.joinSAxis,
@@ -321,7 +321,6 @@ export default {
         this.addRectCell(e)
       }
     },
-
     // 更新模块
     updateModel (id, value) {
       let data = this.jointResult
@@ -338,7 +337,7 @@ export default {
               idx: linkIndex,
               field: 'alias'
             })
-            item.alias = value
+            item.alias = value.toUpperCase()
             t.attr('data', item)
           }
           if (t.get('source').id === id) {
@@ -346,7 +345,7 @@ export default {
               idx: linkIndex,
               field: 'joinAlias'
             })
-            item.joinAlias = value
+            item.joinAlias = value.toUpperCase()
             t.attr('data', item)
           }
         }
@@ -371,7 +370,6 @@ export default {
         type: 'warning'
       })
     },
-
     getFields (data) {
       let join = data.join
       let list = []
@@ -483,7 +481,7 @@ export default {
         let ele = eles[i]
         let attrs = ele.get('attrs')
         let pos = ele.get('position')
-        let text = attrs.text.label + attrs.text.alias
+        let text = attrs.text.label + attrs.text.alias.toUpperCase()
         if (ele.attributes.type !== 'standard.Link' && !result[text]) {
           result[text] = {
             x: pos.x,
@@ -525,9 +523,9 @@ export default {
         })
 
         result.lookups.push({
-          alias: t.alias,
+          alias: t.alias.toUpperCase(),
           id: t.id,
-          joinAlias: t.joinAlias,
+          joinAlias: t.joinAlias.toUpperCase(),
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,

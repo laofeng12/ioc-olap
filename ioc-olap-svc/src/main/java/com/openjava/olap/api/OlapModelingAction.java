@@ -179,7 +179,7 @@ public class OlapModelingAction extends BaseAction {
         models.getModelDescData().setFilter_condition(makeFilterSql(body.getFilterCondidion()));
 
         //构建需要保存的数据
-        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength());
+        OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength(),body.getGraphData());
         List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
         List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
 
@@ -431,7 +431,7 @@ public class OlapModelingAction extends BaseAction {
                 throw new APIException(400, "请先删除已经构建的块！");
             }
             cube.getCubeDescData().setVersion(cubeDescDataMapper.getVersion());
-            cube.getCubeDescData().setVersion(cubeDescDataMapper.getLast_modified());
+            cube.getCubeDescData().setLast_modified(cubeDescDataMapper.getLast_modified());
         }
 
         for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
@@ -457,6 +457,18 @@ public class OlapModelingAction extends BaseAction {
                     || rowKey.getEncoding().equals("")) {
                 throw new APIException(400, "rowKey数据格式有问题！");
             }
+
+            boolean isSetting = false;
+            for (AggregationGroupMapper groupMapper : cube.getCubeDescData().getAggregation_groups()) {
+                if (groupMapper.includes.contains(rowKey.column) == true) {
+                    isSetting = true;
+                    break;
+                }
+            }
+
+            if (!isSetting) {
+                throw new APIException(400, "维度【" + rowKey.column + "】未包含在维度中！");
+            }
         }
 
         if (cube.cubeDescData.measures.size() == 0) {
@@ -469,6 +481,17 @@ public class OlapModelingAction extends BaseAction {
             for (MeasureMapper measure : cube.cubeDescData.getMeasures()) {
                 if (Arrays.asList(companyType).contains(measure.getFunction().getExpression()) == true && Arrays.asList(supportType).contains(measure.getFunction().getReturntype()) == false) {
                     throw new APIException(400, "度量计算方式与字段类型不匹配！");
+                }
+
+                if (measure.getFunction().getExpression().equals("COUNT_DISTINCT")) {
+                    RowkeyColumnMapper mapper = cube.getCubeDescData().getRowkey().getRowkey_columns().stream().filter(p -> p.column.equals(measure.getFunction()
+                            .getParameter().getValue())).findFirst().orElse(null);
+                    if (mapper == null) {
+                        throw new APIException(400, "计算方式为【COUNT_DISTINCT】的度量计算列在设置维度中必须存在且为普通模式！");
+                    }
+                    if (mapper.getEncoding().equals("dict") || Integer.parseInt(mapper.getLengths()) <= 0) {
+                        throw new APIException(400, "计算方式为【COUNT_DISTINCT】的度量计算列在对应rowkey中不允许为【dict】编码方式且需指定长度！");
+                    }
                 }
             }
             for (DimensionMapper dimensionMapper : cube.getCubeDescData().getDimensions()) {
@@ -491,10 +514,11 @@ public class OlapModelingAction extends BaseAction {
         ModelsDescDataMapper model = modelHttpClient.entity(cube.getModel_name());
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
+        if (olapCube == null) {
+            throw new APIException("立方体数据缺失！");
+        }
         //事实表
         String factTable = model.getFact_table().substring(model.getFact_table().indexOf(".") + 1);
-
-
         //第一步
         //整理用户第一步点击选择的表并保存为前端需要的格式
         //data分组
@@ -624,6 +648,7 @@ public class OlapModelingAction extends BaseAction {
         paramMap.put("measureFiledLength", olapCube.getMeasureFiledLength());
         paramMap.put("timingreFresh", timingrefresh);
         paramMap.put("filterCondidion", olapFilterCondidions);
+        paramMap.put("graphData", olapCube.getGraphData());
         return paramMap;
     }
 

@@ -91,7 +91,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      measureTableList: 'measureTableList'
+      measureTableList: 'measureTableList',
+      dimensions: 'dimensions'
     })
   }
 }

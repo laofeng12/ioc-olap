@@ -35,4 +35,7 @@ public class ModelingMapper {
 
     @JSONField(name = "measureFiledLength")
     public Long measureFiledLength;
+
+    @JSONField(name = "graphData")
+    public String graphData;
 }

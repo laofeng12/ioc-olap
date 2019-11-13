@@ -1,6 +1,6 @@
 <template>
   <div class="completeCreate">
-    <el-form :model="totalSaveData" v-loading="completeLoading" :rules="rules">
+    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -32,7 +32,7 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
-import { throttle } from '@/utils/index'
+import { throttle, reduceObj } from '@/utils/index'
 import { ischeckWechatAccount } from '@/utils/rules'
 export default {
   components: {
@@ -55,11 +55,6 @@ export default {
           { validator: ischeckWechatAccount, trigger: 'blur' }
         ]
       }
-    }
-  },
-  watch: {
-    '$route' () {
-      // this.init()
     }
   },
   created () {
@@ -95,7 +90,6 @@ export default {
       this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list.forEach((n, i) => {
         if (n.length === 0) this.totalSaveData.cube.cubeDescData.mandatory_dimension_set_list = []
       })
-      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
       this.totalSaveData.cube.cubeDescData.hbase_mapping = JSON.parse(JSON.stringify(this.hbase_mapping))
       this.totalSaveData.cube.cubeDescData.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
@@ -141,7 +135,6 @@ export default {
         }
         return dest
       })
-      // this.totalSaveData.models.modelDescData.dimensions = dest
       this.totalSaveData.models.modelDescData.dimensions = []
     },
     changesEncoding () {
@@ -150,25 +143,31 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
+      this.totalSaveData.cubeDatalaketableNew.map(res => {
+        res.tableList = reduceObj(res.tableList, 'table_id')
+      })
+      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
       this.changesEncoding()
-      if (this.totalSaveData.cube.cubeDescData.name.length) {
-        this.completeLoading = true
-        throttle(async () => {
-          await saveolapModeldata(this.totalSaveData).then(_ => {
-            this.$message.success('保存成功~')
-            this.completeLoading = false
-            this.$router.push('/analysisModel/Configuration')
-            this.$store.dispatch('resetList')
-          }).catch(_ => {
-            this.completeLoading = false
-          })
-        }, 1000)
-      } else {
-        this.$message.warning('请填写模型名称~')
-      }
+      setTimeout(() => {
+        this.$refs.formData.validate(valid => {
+          if (valid) {
+            this.completeLoading = true
+            throttle(async () => {
+              await saveolapModeldata(this.totalSaveData).then(_ => {
+                this.$message.success('保存成功~')
+                this.completeLoading = false
+                this.$router.push('/analysisModel/Configuration')
+                this.$store.dispatch('resetList')
+              }).catch(_ => {
+                this.completeLoading = false
+              })
+            }, 1000)
+          }
+        })
+      }, 0)
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
