@@ -33,7 +33,7 @@ public class OlapQuerySyncResultJob {
     private final OlapTimingrefreshService olapTimingrefreshService;
     private final CubeHttpClient cubeHttpClient;
 
-    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:'0 1 * * * * ?'}")
+    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:'0 1 * * * ?'}")
     public void querySyncJobStatus()throws Exception{
         //查询出正在处于“数据同步中”的模型
         List<DataLakeJobQueryParam> params = olapCubeBuildService.queryCubeByFlags(CubeFlags.ON_SYNC.getFlags());
