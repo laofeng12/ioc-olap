@@ -32,13 +32,13 @@ module.exports = {
         changeOrigin: true
       },
       '/olapweb/olap/apis': {
-        // target: 'http://192.168.1.124:8081', // 林传港
-        target: 'http://219.135.182.3:30003', // 麒麟测试环境
+        target: 'http://192.168.1.124:8081', // 林传港
+        // target: 'http://219.135.182.3:30003', // 麒麟测试环境
         changeOrigin: true
       },
       '/olapweb/olap/': {
-        target: 'http://219.135.182.3:30003', // 麒麟测试环境
-        // target: 'http://192.168.4.211:8081', // 左烨本地
+        // target: 'http://219.135.182.3:30003', // 麒麟测试环境
+        target: 'http://192.168.1.124:8081', // 林传港
         pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }

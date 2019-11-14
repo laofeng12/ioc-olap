@@ -3,10 +3,15 @@
     <div class='editor-box'>
       <div id='editorContainer' ref="containers"></div>
       <div class='option' v-if="linkModal">
-        <base-info-panel class='base-info' :linkModal='linkModal' :relationData="relationData"
-                         :linkModalFields="linkModalFields" :couponList="couponList" @lookDetailData="lookDetailData"
-                         @getModalDataList="getModalDataList" @getModalPrimarySelected="getModalPrimarySelected"
-                         @addFields="addFields" @getModalForeignSelected="getModalForeignSelected"/>
+        <base-info-panel class='base-info'
+            :linkModal='linkModal' 
+            :relationData="relationData"
+            :linkModalFields="linkModalFields"
+            :couponList="couponList" 
+            @lookDetailData="lookDetailData"
+            @getModalDataList="getModalDataList" 
+            @getModalPrimarySelected="getModalPrimarySelected"
+            @addFields="addFields" @getModalForeignSelected="getModalForeignSelected"/>
       </div>
     </div>
     <create-table-modal ref="dialog"></create-table-modal>

@@ -44,14 +44,6 @@ const selectStep = {
     // 批量创建同步任务
     SET_BATCH_CREATEJOB (state, data = []) {
       state.batchCreateJob = data
-      // // 回写真实表名 selectTableTotal
-      // state.batchCreateJob.forEach(t => {
-      //   let target = state.selectTableTotal.find(item => item.resourceId === t.resourceId)
-      //   if (target) {
-      //     target.writerTableName = t.writerTableName
-      //   }
-      // })
-      // // dispatch('SelectStepList', state.saveSelectTable)
     },
     // 初始化所有的列
     SET_ALLLIISTONE(state) {

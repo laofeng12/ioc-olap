@@ -2,50 +2,35 @@
   <div class="selectStep">
     <div class="containers" v-loading="isLoading">
        <data-lake></data-lake>
-        <!-- <el-tabs v-model="activeName" @tab-click="tabClick">
-          <el-tab-pane label="数据湖" name="1">
-            <data-lake></data-lake>
-          </el-tab-pane>
-          <el-tab-pane label="本地上传" name="2">
-            <local-upload></local-upload>
-          </el-tab-pane>
-          <el-tab-pane label="已选择" name="3" :disabled="true" class="selctNum" v-if="selectTableTotal.length > 0">
-            <span slot="label"  style="cursor:pointer" @click="changes" class="selctNum">已选择：<i>{{selectTableTotal.length || 0}}</i></span>
-          </el-tab-pane>
-        </el-tabs> -->
     </div>
-    <select-modal ref="dialog"></select-modal>
+    <!-- <select-modal ref="dialog"></select-modal> -->
     <steps :step="1" @nextModel="nextModel"></steps>
   </div>
 </template>
 
 <script>
 import dataLake from '@/components/analysisComponent/createComponent/selectStepComponent/datalake'
-import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 import steps from '@/components/analysisComponent/modelCommon/steps'
-
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'selectStep',
   components: {
-    dataLake, 
-    selectModal, 
+    dataLake,
     steps
   },
   data () {
     return {
       isLoading: false,
-      activeName: '1',
-      dataList: []
+      activeName: '1'
     }
   },
   created () {
-    this.initEvent()
     this.init()
   },
   methods: {
     init () {
+      this.initEvent()
       // let totalData = this.selectTableTotal.length ? this.selectTableTotal : JSON.parse(getLocalStorage('selectTableTotal'))
       // totalData && totalData.map(res => {
       //   this.selectTableTotal.push(res.label)
@@ -78,22 +63,17 @@ export default {
           businessId: new Date().getTime()
         })
       })
-      this.$store.dispatch('batchCreateJob', params)
       // 清掉第二步创建的表
       this.$store.commit('ClearTableRelation')
       this.$store.dispatch('getAllColumnInfo')
       this.$router.push('/analysisModel/createolap/createTableRelation')
+      this.$store.dispatch('batchCreateJob', params)
     }
   },
   computed: {
     ...mapGetters({
-      saveSelectTable: 'saveSelectTable',
       selectTableTotal: 'selectTableTotal',
-      serchTableList: 'serchTableList',
-      saveLocalSelectTable: 'saveLocalSelectTable'
     })
-  },
-  beforeDestroy () {
   }
 }
 </script>

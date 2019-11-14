@@ -254,7 +254,7 @@ export default {
           if (item.resourceId === n.id) {
             item.column.forEach((k, i) => {
               AllData.push({
-                label: n.alias + '.' + k.name,
+                label: n.columnAlias + '.' + k.name,
                 id: k.id,
                 dataType: k.type
               })
@@ -269,7 +269,7 @@ export default {
       // 遍历筛选出所有事实表的数据
       this.SaveFactData.map(item => {
         factData.push(
-          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+          { id: item.id, dataType: item.type, label: `${item.tableName}.${item.columnAlias}` }
         )
       })
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
