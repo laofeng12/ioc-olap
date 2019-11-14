@@ -119,7 +119,7 @@ export default {
   },
   methods: {
     initEditor () {
-      const graphData = JSON.parse(this.ModelAllList.graphData)
+      const graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
       this.editor = new IOCEditor({
         el: 'editorContainer', // 容器id
         baseInfo: '', // 基础信息，标题，描述，状态等
@@ -581,7 +581,8 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      return this.nodeList.length - this.jointResultData.lookups.length <= 1
+      return (this.jointResultData.lookups.length > 0) &&
+        (this.nodeList.length - this.jointResultData.lookups.length <= 1)
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
@@ -643,6 +644,7 @@ export default {
 }
 
 .tableRelation{
+  margin-top 16px
   height calc(100vh)
   position relative
   .containers{

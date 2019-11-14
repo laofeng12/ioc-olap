@@ -192,7 +192,7 @@ public class OlapRealQueryAction extends BaseAction {
         try {
             return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
         } catch (Exception ex) {
-            throw new APIException(400, "查询错误,请确认使用模型的状态是启用的！");
+            throw new APIException(400, "查询失败！");
         }
     }
 
@@ -202,7 +202,12 @@ public class OlapRealQueryAction extends BaseAction {
     public QueryResultMapperVo queryById(Long id) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapRealQuery m = olapRealQueryService.get(id);
-        QueryResultMapper mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
+        QueryResultMapper mapper;
+        try {
+            mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
+        } catch (Exception ex) {
+            throw new APIException(400, "查询失败！");
+        }
         List<ShareUserDto> shareList = olapShareService.getList("RealQuery", String.valueOf(id), Long.valueOf(userVO.getUserId()));
         QueryResultMapperVo mapperVo = new QueryResultMapperVo();
         MyBeanUtils.copyPropertiesNotBlank(mapperVo, mapper);//复制mapper属性到VO中
@@ -244,7 +249,7 @@ public class OlapRealQueryAction extends BaseAction {
             QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
             Export.dualDate(mapper, response);
         } catch (Exception ex) {
-            throw new APIException(400, "导出错误,请确认使用模型的状态是启用的！");
+            throw new APIException(400, "导出失败！");
         }
     }
 
@@ -302,7 +307,7 @@ public class OlapRealQueryAction extends BaseAction {
         try {
             return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), userVO.getUserId());
         } catch (Exception ex) {
-            throw new APIException(400, "查询错误,请确认使用模型的状态是启用的！");
+            throw new APIException(400, "查询失败！");
         }
     }
 }
