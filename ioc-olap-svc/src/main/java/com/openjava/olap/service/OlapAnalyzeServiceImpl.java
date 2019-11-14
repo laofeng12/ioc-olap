@@ -548,9 +548,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             String columnType = cubeTableColumn.getColumnType();
             if (columnType != null && !columnType.equals("")) {
                 if (isStringType(columnType)) {
-                    sql += MessageFormat.format(" and {0} like '%{1}%'", cubeTableColumn.getColumnName(), key);
+                    sql += MessageFormat.format(" and {0} like ''%{1}%''", cubeTableColumn.getColumnName(), key);
                 } else {
-                    sql += MessageFormat.format(" and {0}={1}", cubeTableColumn.getColumnName(), key);
+                    sql += MessageFormat.format(" and cast({0} as varchar(20)) like ''%{1}%''", cubeTableColumn.getColumnName(), key);
                 }
             }
         }
