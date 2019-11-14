@@ -202,6 +202,10 @@ public class OlapModelingAction extends BaseAction {
                     Thread.sleep(500);
                     cubeMap = cubeHttpClient.create(cube);
                 } catch (Exception ex) {
+                    CubeDescDataMapper newErrorCube = cubeHttpClient.desc(cubeName);
+                    if (newErrorCube != null) {
+                        cubeHttpClient.delete(cubeName);
+                    }
                     modelHttpClient.delete(modelName);
                     throw ex;
                 }
