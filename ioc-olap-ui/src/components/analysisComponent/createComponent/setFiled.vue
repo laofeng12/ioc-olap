@@ -93,7 +93,6 @@ export default {
          * 根据从左侧菜单带过来的${data.id}来进行匹配${item.resourceId} 获取对应的所有字段
          */
         // 判断是否为一张事实表
-        // debugger
         if (!data.id) {
           this.loading = true
           setTimeout(() => {
