@@ -353,10 +353,12 @@ public class OlapCubeServiceImpl implements OlapCubeService {
     @Override
     public Map<String,List<OlapDatalaketable>> queryByFlags(Integer flags) {
         List<String> params = this.olapCubeRepository.getCubeNameByFlags(flags);
-        List<OlapDatalaketable> list = this.olapDatalaketableRepository.queryListInCubeNameList(params);
-        Map<String,List<OlapDatalaketable>> result = new HashMap<>();
-        if (list != null && !list.isEmpty()) {
-            result = list.stream().collect(Collectors.groupingBy(OlapDatalaketable::getCubeName));
+        Map<String, List<OlapDatalaketable>> result = new HashMap<>();
+        if (params != null && params.size()>0) {
+            List<OlapDatalaketable> list = this.olapDatalaketableRepository.queryListInCubeNameList(params);
+            if (list != null && !list.isEmpty()) {
+                result = list.stream().collect(Collectors.groupingBy(OlapDatalaketable::getCubeName));
+            }
         }
         return result;
     }

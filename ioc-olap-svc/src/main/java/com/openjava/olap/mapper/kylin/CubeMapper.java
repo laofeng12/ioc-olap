@@ -46,7 +46,7 @@ public class CubeMapper {
     @ApiModelProperty("状态值")
     private Integer flags;
 
-    public String getStatusName() {
+    public String getflagsName() {
         return CubeFlags.getByFlags(this.flags);
     }
 }

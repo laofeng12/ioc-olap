@@ -8,8 +8,9 @@ import com.openjava.olap.query.DataLakeJobQueryParam;
 import com.openjava.olap.service.OlapCubeBuildService;
 import com.openjava.olap.service.OlapTimingrefreshService;
 import com.openjava.olap.vo.DataLakeQueryJobStatusVo;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,16 +26,23 @@ import java.util.List;
  * @create 2019-11-06 16:17
  **/
 @Component
-@Slf4j
-@AllArgsConstructor
 public class OlapQuerySyncResultJob {
 
     private final OlapCubeBuildService olapCubeBuildService;
     private final OlapTimingrefreshService olapTimingrefreshService;
     private final CubeHttpClient cubeHttpClient;
+    private Logger log = LoggerFactory.getLogger(OlapQuerySyncResultJob.class);
 
-    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:'0 1 * * * ?'}")
+    @Autowired
+    public OlapQuerySyncResultJob(OlapCubeBuildService olapCubeBuildService, OlapTimingrefreshService olapTimingrefreshService, CubeHttpClient cubeHttpClient) {
+        this.olapCubeBuildService = olapCubeBuildService;
+        this.olapTimingrefreshService = olapTimingrefreshService;
+        this.cubeHttpClient = cubeHttpClient;
+    }
+
+    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:'0 0/1 * * * ?'}")
     public void querySyncJobStatus()throws Exception{
+        log.info("定时查询状态开始");
         //查询出正在处于“数据同步中”的模型
         List<DataLakeJobQueryParam> params = olapCubeBuildService.queryCubeByFlags(CubeFlags.ON_SYNC.getFlags());
         //封装成查询同步任务状态接口需要的参数消息体
@@ -57,6 +65,7 @@ public class OlapQuerySyncResultJob {
                 log.error("构建模型失败",e);
             }
         });
+        log.info("定时查询状态结束");
     }
 
     private void calculateByCurrentMoment(long begin,long end,OlapTimingrefresh record,List<CubeHbaseMapper> hbases){

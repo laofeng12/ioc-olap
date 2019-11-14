@@ -72,6 +72,7 @@ public class RestToken{
 
     public String post(Headers headers,String url,String json,String contentType)throws Exception{
         RequestBody body = RequestBody.create(MediaType.parse(contentType), json);
+        log.info("请求header:{}，url:{},参数:{}",JSON.toJSONString(headers.toString()),url,json);
         Request request = new Request.Builder()
             .url(url)
             .post(body)

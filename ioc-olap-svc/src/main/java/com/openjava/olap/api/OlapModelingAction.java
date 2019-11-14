@@ -124,7 +124,7 @@ public class OlapModelingAction extends BaseAction {
                 cubeList = cubeList.subList(0, limit);
             }
         }
-
+        this.olapCubeService.resetCubeStatus(cubeList);
         return new CubeListVo(cubeList, isNext);
     }
 
@@ -459,12 +459,12 @@ public class OlapModelingAction extends BaseAction {
 
         for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
             for (String fk : lookupsMapper.join.getForeign_key()) {
-                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(fk) && p.getDerived() == null).count() == 0) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equalsIgnoreCase(fk) && p.getDerived() == null).count() == 0) {
                     throw new APIException(400, "外键列【" + fk + "】必须在维度中存在且为非衍生模式！");
                 }
             }
             for (String pk : lookupsMapper.join.getPrimary_key()) {
-                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(pk)).count() == 0) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equalsIgnoreCase(pk)).count() == 0) {
                     throw new APIException(400, "主键列【" + pk + "】必须在维度中存在！");
                 }
             }
