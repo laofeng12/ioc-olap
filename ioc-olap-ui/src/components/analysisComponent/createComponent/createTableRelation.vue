@@ -581,7 +581,8 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      return this.nodeList.length - this.jointResultData.lookups.length <= 1
+      return (this.jointResultData.lookups.length > 0) &&
+        (this.nodeList.length - this.jointResultData.lookups.length <= 1)
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
