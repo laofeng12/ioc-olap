@@ -33,8 +33,14 @@ public class CubeHttpClient extends KylinHttpClient {
     public List<CubeMapper> list(Integer limit, Integer offset) throws APIException {
         String url = MessageFormat.format("{0}/kylin/api/cubes?limit={1}&offset={2}", config.address, limit.toString(), offset.toString());
         Class<CubeMapper[]> claszz = CubeMapper[].class;
-        CubeMapper[] result = HttpClient.get(url, config.authorization, claszz);
+        CubeMapper[] result = HttpClient.get2(url, config.authorization, claszz);
         return Arrays.asList(result);
+    }
+
+    public CubeMapper get(String cubeName) throws APIException {
+        String url = MessageFormat.format("{0}/kylin/api/cubes/{1}", config.address, cubeName);
+        CubeMapper result = HttpClient.get2(url, config.authorization, CubeMapper.class);
+        return result;
     }
 
     public CubeDescNewMapper create(CubeDescMapper cube) throws APIException {
