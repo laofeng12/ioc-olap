@@ -570,6 +570,7 @@ export default {
     },
 
     async nextModel (val) {
+      debugger
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       }
@@ -581,7 +582,9 @@ export default {
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
-      return this.nodeList.length - this.jointResultData.lookups.length <= 1
+      debugger
+      return (this.jointResultData.lookups.length > 0) &&
+        (this.nodeList.length - this.jointResultData.lookups.length <= 1)
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
