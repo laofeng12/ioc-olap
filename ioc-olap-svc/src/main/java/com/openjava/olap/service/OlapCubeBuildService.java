@@ -54,7 +54,7 @@ public interface OlapCubeBuildService {
      * @param olapTimingrefresh 定时构建任务
      * @return OlapCubeBuildVo 手动点击构建时返回的消息体，定时构建不返回
      */
-    OlapCubeBuildVo doBuildCube(String cubeName,Long begin,Long end, OlapTimingrefresh olapTimingrefresh)throws Exception;
+    OlapCubeBuildVo doBuildCube(String cubeName, OlapTimingrefresh olapTimingrefresh)throws Exception;
 
 
     /**
@@ -68,13 +68,12 @@ public interface OlapCubeBuildService {
 
     /**
      * <p>手动构建时，先判断状态是否满足</p>
-     * <p>保存用户选择构建的开始、结束时间到OLAP_TIMINGREFRESH</p>
+     * <p>保存用户选择构建的开始、结束时间或定时构建时计算好的开始、结束时间到OLAP_TIMINGREFRESH</p>
      * <p>调用触发同步任务方法</p>
      * @param cubeName 模型名称
-     * @param manual 是否手动构建，1手动，0定时
      * @return
      * @throws Exception
      */
-    OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end,Integer manual)throws Exception;
+    OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end)throws Exception;
 
 }

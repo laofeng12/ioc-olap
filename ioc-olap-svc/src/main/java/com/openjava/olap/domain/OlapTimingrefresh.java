@@ -104,11 +104,6 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Column(name = "END")
 	private Long end;
 
-	/**0:定时构建，1:手动构建**/
-	@ApiModelProperty("是否手动构建,0:定时构建，1:手动构建")
-	@Column(name = "MANUAL")
-	private Integer manual;
-
 	/**是否是增量，1：增量，0：全量。新建模型时保存该值**/
 	@ApiModelProperty("构建模式[1：增量，0：全量]")
 	@Column(name = "BUILD_MODE")
@@ -122,6 +117,7 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	public static transient final int BUILD_DELTA = 1;
 	/**全量构建**/
 	public static transient final int BUILD_WHOLE = 0;
+
 
 	@Transient
     @JsonIgnore

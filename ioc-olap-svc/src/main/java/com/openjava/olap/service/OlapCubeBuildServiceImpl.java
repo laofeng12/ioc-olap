@@ -183,17 +183,26 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     }
 
     @Override
-    public OlapCubeBuildVo doBuildCube(String cubeName, Long begin,Long end,OlapTimingrefresh olapTimingrefresh) throws Exception {
+    public OlapCubeBuildVo doBuildCube(String cubeName,OlapTimingrefresh olapTimingrefresh) throws Exception {
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
+        olapTimingrefresh.setFinalExecutionTime(new Date());
+        log.info("构建模型时的参数:{},{},{},{}",
+            cubeName,olapTimingrefresh.getBegin(),olapTimingrefresh.getEnd(),JSON.toJSONString(olapTimingrefresh));
         try {
-            log.info("构建模型时的参数:{},{},{},{}",cubeName,begin,end,JSON.toJSONString(olapTimingrefresh));
+            cubeAction.build(cubeName,olapTimingrefresh.getBegin(),olapTimingrefresh.getEnd());
             this.olapTimingrefreshService.doSave(olapTimingrefresh);
-            cubeAction.build(cubeName,begin,end);
             vo.setMsg("构建操作请求成功");
             vo.setStatus(1);
         }catch (Exception var1){
             vo.setMsg("构建操作请求失败");
             vo.setStatus(0);
+            OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
+            if (cube != null){
+                //如果构建这里出现了异常，就把模型状态恢复到“数据同步中”，这样“定时查询同步任务”下一次会再次尝试构建该模型
+                //暂时的处理，这里涉及逻辑过于复杂
+                cube.setFlags(CubeFlags.ON_SYNC.getFlags());
+                this.olapCubeService.doSave(cube);
+            }
             throw var1;
         }
         return vo;
@@ -205,7 +214,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     }
 
     @Override
-    public OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end,Integer manual) throws Exception {
+    public OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end) throws Exception {
         OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
         vo.setStatus(1);
@@ -218,22 +227,25 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         if (
             assertCubeStatus(CubeFlags.DISABLED.getFlags(),cube.getFlags())
                 || assertCubeStatus(CubeFlags.ON_SYNC.getFlags(),cube.getFlags())
+            || assertCubeStatus(CubeFlags.BUILDING.getFlags(),cube.getFlags())
             ){
             vo.setMsg("请求被拒绝，该模型的状态为：["+CubeFlags.getByFlags(cube.getFlags())
-                +"],状态为\"禁用\"或\"数据同步中\"的模型不能进行构建操作");
+                +"],状态为\"禁用\"或\"数据同步中\"或\"构建中\"的模型不能进行构建操作");
+            vo.setStatus(0);
+            return vo;
+        }
+        OlapTimingrefresh olapTimingrefresh = this.olapTimingrefreshService.findTableInfo(cubeName);
+        if (olapTimingrefresh == null){
+            vo.setMsg("查询不到该模型对应的构建配置");
             vo.setStatus(0);
             return vo;
         }
         List<DataLakeJobQueryParam> params = queryJobQueryParamsByCubeName(cubeName);
         //批量调用触发同步任务接口，开始同步数据
         this.batchTriggerJob(params);
-        OlapTimingrefresh olapTimingrefresh = this.olapTimingrefreshService.findTableInfo(cubeName);
-        if (olapTimingrefresh!=null){
-            olapTimingrefresh.setBegin(begin);
-            olapTimingrefresh.setEnd(end);
-            olapTimingrefresh.setManual(manual);
-            this.olapTimingrefreshService.doSave(olapTimingrefresh);
-        }
+        olapTimingrefresh.setBegin(begin);
+        olapTimingrefresh.setEnd(end);
+        this.olapTimingrefreshService.doSave(olapTimingrefresh);
         cube.setFlags(CubeFlags.ON_SYNC.getFlags());
         cube.setUpdateTime(new Date());
         this.olapCubeService.doSave(cube);

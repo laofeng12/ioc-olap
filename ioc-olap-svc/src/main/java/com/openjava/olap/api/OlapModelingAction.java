@@ -694,7 +694,7 @@ public class OlapModelingAction extends BaseAction {
         timingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
-        olapCubeBuildService.preBuild(cubeName,start,end,1);
+        olapCubeBuildService.preBuild(cubeName,start,end);
     }
 
 

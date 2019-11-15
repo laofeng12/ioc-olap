@@ -12,6 +12,7 @@ import com.openjava.olap.vo.OlapTableSyncVo;
 import lombok.extern.slf4j.Slf4j;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.plugin.sys.vo.UserVO;
+import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,18 +54,22 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
     }
 
     @Override
-    public OlapTableSync get(String databaseId,String resourceId) {
-        return this.repository.getByDatabaseIdAndResourceId(databaseId,resourceId);
+    public OlapTableSync get(String databaseId,String resourceId,String createBy) {
+        return this.repository.getByDatabaseIdAndResourceIdAndCreateBy(databaseId,resourceId,createBy);
     }
 
     @Override
+    @Security(session = true)
     public List<OlapTableSyncVo> available(List<OlapTableSyncParam> params)throws Exception {
+        //表名的生成：固定前缀+ConcurrentSequence.getInstance().getSequence()。判断是否同步过，查询databaseId,resourceId,userId即可
         Assert.notNull(this.dataLakeConfig.getBatchCreateSyncJobUrl(),"调用批量创建同步任务接口地址不能为空");
+        UserVO user = (UserVO) SsoContext.getUser();
+        String token = SsoContext.getToken();
         List<OlapTableSyncVo> results = new ArrayList<>();
         Iterator<OlapTableSyncParam> iterator = params.iterator();
         while (iterator.hasNext()){//相当于复制一份给results
             OlapTableSyncParam param = iterator.next();
-            OlapTableSync sync= this.get(param.getDatabaseId(),param.getResourceId());
+            OlapTableSync sync= this.get(param.getDatabaseId(),param.getResourceId(),user.getUserId());
             //只要是请求成功“批量同步任务接口”并返回成功，则标记为1
             if (sync != null){
                 if (sync.getSuccess() == null || sync.getSuccess() ==0){//失败的就拿去请求
@@ -86,7 +91,8 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     iterator.remove();//成功的就不拿去请求了
                 }
             }else {//从未请求过的也拿去请求
-                param.setWriterTableSource(this.REAL_TABLE_NAME_PREFIX+param.getResourceId());
+                //这里设置目标表名的生成规则
+                param.setWriterTableSource(this.REAL_TABLE_NAME_PREFIX+ConcurrentSequence.getInstance().getSequence());
                 OlapTableSyncVo vo = new OlapTableSyncVo();
                 vo.setDatabaseId(param.getDatabaseId());
                 vo.setResourceId(param.getResourceId());
@@ -96,8 +102,6 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
             }
         }
         log.info("请求参数:{}",JSON.toJSONString(params));
-        UserVO user = (UserVO) SsoContext.getUser();
-        String token = SsoContext.getToken();
         String result = "";
         if (!params.isEmpty()){
             result = restToken.postJson(

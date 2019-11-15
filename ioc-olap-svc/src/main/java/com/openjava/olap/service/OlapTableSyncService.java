@@ -10,7 +10,7 @@ public interface OlapTableSyncService {
 
     OlapTableSync save(OlapTableSync sync);
 
-    OlapTableSync get(String databaseId,String resourceId);
+    OlapTableSync get(String databaseId,String resourceId,String createBy);
 
     List<OlapTableSyncVo> available(List<OlapTableSyncParam> params)throws Exception;
 }

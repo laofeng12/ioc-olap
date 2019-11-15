@@ -5,6 +5,7 @@ import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.common.kylin.JobHttpClient;
 import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapTimingrefresh;
+import com.openjava.olap.mapper.kylin.CubeHbaseMapper;
 import com.openjava.olap.mapper.kylin.CubeMapper;
 import com.openjava.olap.mapper.kylin.JobsMapper;
 import com.openjava.olap.service.OlapCubeBuildService;
@@ -17,6 +18,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -77,22 +80,58 @@ public class OlapJob {
         if (timingreFresh != null) {
             Calendar calendar = Calendar.getInstance();
             for (OlapTimingrefresh fc : timingreFresh) {
-                if (fc.getFinalExecutionTime() != null) {//如果最后一次执行时间不为空，则用最后一次时间+构建周期<=当前时间来判断该模型是否到了定时构建的时刻
-                    calendar.setTime(fc.getFinalExecutionTime());
-                    if (isNeedExecute(calendar, fc.getFrequencytype(), fc.getInterval())) {
-                        OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
-                        if (cube != null){
-                            //该方法会先判断模型状态是否满足构建
-                            this.olapCubeBuildService.preBuild(cube.getName(),0L,0L,0);
+                List<CubeHbaseMapper> hbases = cubeHttpClient.hbase(fc.getCubeName());
+                if (hbases.size() > 0){//已经构建过，取最新的一条记录的结束时间作为本次构建的开始时间
+                    hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
+                    Long start = hbases.get(0).getDateRangeEnd()+1000;//时间戳，需要加1秒，否则麒麟构建会报错
+                    calendar.setTime(new Date(start));
+                    if (fc.getBuildMode() == OlapTimingrefresh.BUILD_WHOLE){
+                        //全量只需要判断时间到了没
+                        if (isNeedExecute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            start = 0L;
+                            Long end = 0L;
+                            OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                            if (cube != null){
+                                //该方法会先判断模型状态是否满足构建
+                                this.olapCubeBuildService.preBuild(cube.getName(),start,end);
+                            }
+                        }
+
+                    }else {
+                        if (isNeedExecute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            Long end = calendar.getTime().getTime();
+                            OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                            if (cube != null){
+                                //该方法会先判断模型状态是否满足构建
+                                this.olapCubeBuildService.preBuild(cube.getName(),start,end);
+                            }
                         }
                     }
-                } else {//如果最后一次执行时间都为空，说明从未被手动或定时构建过，判断是否到了定时构建的时刻则以创建时间为起点
-                    calendar.setTime(fc.getCreateTime());
-                    if (isNeedExecute(calendar, fc.getFrequencytype(), fc.getInterval())) {
-                        OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
-                        if (cube != null){
-                            //该方法会先判断模型状态是否满足构建
-                            this.olapCubeBuildService.preBuild(cube.getName(),0L,0L,0);
+                }else {//第一次构建
+                    Date start = Date.from(LocalDateTime
+                        .of(1970,1,1,1,0)
+                        .toInstant(ZoneOffset.ofHours(8)));
+                    calendar.setTime(start);
+                    if (fc.getBuildMode() == OlapTimingrefresh.BUILD_WHOLE){
+                        //全量构建，只需要判断时间到了没
+                        if (isNeedExecute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            Long begin = 0L;
+                            Long end = 0L;
+                            OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                            if (cube != null){
+                                //该方法会先判断模型状态是否满足构建
+                                this.olapCubeBuildService.preBuild(cube.getName(),begin,end);
+                            }
+                        }
+                    }else {
+                        Date end = null;
+                        if (isNeedExecute(calendar,fc.getFrequencytype(),fc.getInterval())){
+                            end = calendar.getTime();
+                            OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
+                            if (cube != null){
+                                //该方法会先判断模型状态是否满足构建
+                                this.olapCubeBuildService.preBuild(cube.getName(),start.getTime(),end.getTime());
+                            }
                         }
                     }
                 }
@@ -113,7 +152,9 @@ public class OlapJob {
                 calendar.add(Calendar.MONTH, interval);
                 break;
         }
+        //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
         if (calendar.getTimeInMillis() <= nowTime) {
+            calendar.setTime(new Date());
             return true;
         }
         return false;
