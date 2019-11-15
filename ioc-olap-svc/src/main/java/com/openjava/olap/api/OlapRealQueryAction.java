@@ -300,12 +300,10 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "查询数据-对外")
     @RequestMapping(value = "/query/{realQueryId}", method = RequestMethod.GET)
-    @Security(session = true)
     public QueryResultMapper query(@PathVariable Long realQueryId) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapRealQuery realQuery = olapRealQueryService.get(realQueryId);
         try {
-            return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), userVO.getUserId());
+            return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), realQuery.getCreateId().toString());
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }

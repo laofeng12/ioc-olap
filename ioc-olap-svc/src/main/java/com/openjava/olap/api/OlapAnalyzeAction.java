@@ -321,9 +321,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询数据-对外")
     @RequestMapping(value = "/query/{analyzeId}", method = RequestMethod.GET)
-    @Security(session = true)
     public AnyDimensionVo query(@PathVariable Long analyzeId) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapAnalyze analyze = olapAnalyzeService.get(analyzeId);
         return olapAnalyzeService.query(analyze.getAnalyzeId(), analyze.getCubeId());
     }
