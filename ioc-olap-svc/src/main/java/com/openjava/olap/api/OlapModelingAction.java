@@ -165,15 +165,13 @@ public class OlapModelingAction extends BaseAction {
     public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws Exception {
         List<TableNameRelationMapper> relations = body.getRelations();
         if (relations != null && !relations.isEmpty()){
-            body.setRelations(null);
-            String json = JSON.toJSONString(body);
+
             for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
                 if (mapper.getTableName()!=null && mapper.getVirtualTableName()!=null){
-                    json = TableNameTransposition.replaceAll(json,mapper.getVirtualTableName(),mapper.getTableName());
+                    TableNameTransposition.replaceAll(body,mapper.getTableName(),mapper.getVirtualTableName());
                 }
             }
-            log.info("请求模型消息体替换后:{}",json);
-            body = JSON.parseObject(json,ModelingMapper.class);
+            log.info("请求模型消息体替换后:{}",JSON.toJSONString(body));
         }
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
@@ -674,13 +672,11 @@ public class OlapModelingAction extends BaseAction {
         paramMap.put("filterCondidion", olapFilterCondidions);
         paramMap.put("graphData", olapCube.getGraphData());
         if (relations != null && !relations.isEmpty()){
-            String json = JSON.toJSONString(paramMap);
             for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
                 if (mapper.getVirtualTableName()!= null && mapper.getTableName()!=null) {
-                    json = TableNameTransposition.replaceAll(json, mapper.getTableName(), mapper.getVirtualTableName());
+                    TableNameTransposition.replaceAll(paramMap,mapper.getTableName(),mapper.getVirtualTableName());
                 }
             }
-            paramMap = JSON.parseObject(json);
         }
         return paramMap;
     }
