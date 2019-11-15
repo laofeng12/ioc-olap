@@ -1,7 +1,7 @@
 <template>
-  <div class="selectStep">
-    <div class="containers" v-loading="isLoading">
-       <data-lake></data-lake>
+  <div class="selectStep" >
+    <div class="containers" v-loading="isLoading" >
+       <data-lake ></data-lake>
     </div>
     <!-- <select-modal ref="dialog"></select-modal> -->
     <steps :step="1" @nextModel="nextModel"></steps>
@@ -64,10 +64,16 @@ export default {
         })
       })
       // 清掉第二步创建的表
-      this.$store.commit('ClearTableRelation')
-      this.$store.dispatch('getAllColumnInfo')
-      this.$router.push('/analysisModel/createolap/createTableRelation')
-      this.$store.dispatch('batchCreateJob', params)
+      this.isLoading = true
+      try {
+        this.$store.commit('ClearTableRelation')
+        await this.$store.dispatch('getAllColumnInfo')
+        await this.$store.dispatch('batchCreateJob', params)
+        this.$router.push('/analysisModel/createolap/createTableRelation')
+        this.isLoading = false
+      } catch(e) {
+        this.isLoading = false
+      }
     }
   },
   computed: {

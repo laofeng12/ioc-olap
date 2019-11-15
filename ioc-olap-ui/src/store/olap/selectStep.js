@@ -19,6 +19,7 @@ import { reduceObj, setLocalStorage, removeLocalStorage } from '@/utils/index'
 
 const selectStep = {
   state: {
+    tableJoinType: '',
     batchCreateJob: [], // 批量创建同步任务
     treeList: [], // 树形数据
     serchTableList: [], // 获取的表数据
@@ -41,6 +42,9 @@ const selectStep = {
     ]
   },
   mutations: {
+    SET_TABLE_JOINTYPE (state, data) {
+      state.tableJoinType = data
+    },
     // 批量创建同步任务
     SET_BATCH_CREATEJOB (state, data = []) {
       state.batchCreateJob = data

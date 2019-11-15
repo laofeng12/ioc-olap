@@ -26,9 +26,10 @@
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="name" label="模型名称" show-overflow-tooltip> </el-table-column>
-        <el-table-column min-width="100%" prop="status" label="模型状态" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="flagsName" label="模型状态" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div :style="{color: statusReviewFilter(scope.row.status, 4)}">{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
+            <!-- 0:不可用,1:可用,2:就绪,3:数据同步中,4:同步失败,5:构建中,6:构建失败 -->
+            <div :style="{color: statusReviewFilter((scope.row.flags === 0 || scope.row.flags === 4 || scope.row.flags === 6) ? 'DISABLED' : 'READY', 4)}">{{scope.row.flagsName}}</div>
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="size_kb" label="模型大小" show-overflow-tooltip>

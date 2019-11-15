@@ -124,8 +124,34 @@ export default {
     this.initEditor()
   },
   methods: {
+    init () {
+      this.TableCountNum = 0
+      // 初始化选择的别名组合
+      this.arrId = []
+      this.isEditLooks()
+      // 获取已经设置的第二步数据
+      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      let list = this.jointResult.lookups || []
+      // 新建图形
+      this.graph = new joint.dia.Graph()
+      // 实例化参数
+      let paper = new joint.dia.Paper({
+        el: document.querySelector('#myholder'),
+        width: '100%',
+        height: 700,
+        backgroundColor: '#ffffff',
+        model: this.graph,
+        gridSize: 1
+      })
+    },
     initEditor () {
-      const graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
+      // 编辑的时候 ModelAllList是一个object,新增的时候是一个array
+       let graphData = ''
+       if (!Array.isArray(this.ModelAllList)) {
+         graphData = Object.keys(JSON.parse(this.ModelAllList.graphData)).length ? JSON.parse(this.ModelAllList.graphData) : {}
+       } else {
+         graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
+       }
       this.editor = new IOCEditor({
         el: 'editorContainer', // 容器id
         baseInfo: '', // 基础信息，标题，描述，状态等
@@ -297,26 +323,6 @@ export default {
         fact_table: factTable,
         lookups
       }
-    },
-    init () {
-      this.TableCountNum = 0
-      // 初始化选择的别名组合
-      this.arrId = []
-      this.isEditLooks()
-      // 获取已经设置的第二步数据
-      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      let list = this.jointResult.lookups || []
-      // 新建图形
-      this.graph = new joint.dia.Graph()
-      // 实例化参数
-      let paper = new joint.dia.Paper({
-        el: document.querySelector('#myholder'),
-        width: '100%',
-        height: 700,
-        backgroundColor: '#ffffff',
-        model: this.graph,
-        gridSize: 1
-      })
     },
     // 判断是否是编辑进来的，需要将lookups里的表名筛选出来
     isEditLooks () {
@@ -518,8 +524,8 @@ export default {
       let result = {
         name: data.name || '',
         description: data.description || '',
-        SAxis: this.nodeList[0].x || 0,
-        YAxis: this.nodeList[0].y || 0,
+        SAxis: this.nodeList.length ? this.nodeList[0].x : 0,
+        YAxis: this.nodeList.length ? this.nodeList[0].y : 0,
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
@@ -591,13 +597,24 @@ export default {
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       }
+      if (!this.linkModal.join.type) {
+          this.$message.warning('请选择表的关联关系~')
+          return
+      }
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       const { graphData } = this.editor.getResult()
+      this.$store.commit('SET_TABLE_JOINTYPE',this.linkModal.join.type)
       await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
-      this.$router.push('/analysisModel/createolap/setFiled')
       this.$parent.getStepCountAdd(val)
       this.getIdToList()
-      this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       this.$router.push('/analysisModel/createolap/setFiled')
+      // this.$parent.getStepCountAdd(val)
+      // this.getIdToList()
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      // this.$router.push('/analysisModel/createolap/setFiled')
+
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      // this.$router.push('/analysisModel/createolap/setFiled')
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {

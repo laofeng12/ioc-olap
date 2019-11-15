@@ -33,8 +33,10 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
 import { throttle, reduceObj } from '@/utils/index'
-import { ischeckWechatAccount } from '@/utils/rules'
+import { isCheckModelName } from '@/utils/rules'
+
 export default {
+  name:'completeCreate',
   components: {
     steps
   },
@@ -52,7 +54,7 @@ export default {
       rules: {
         'cube.cubeDescData.name': [
           { required: true, message: '请输入模型名称', trigger: 'blur' },
-          { validator: ischeckWechatAccount, trigger: 'blur' }
+          { validator: isCheckModelName, trigger: 'blur' }
         ]
       }
     }
@@ -150,11 +152,9 @@ export default {
       })
       this.totalSaveData.models.modelDescData.dimensions = []
       // 增加对应关系
-      // debugger
       let relations = []
       this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
         tb.tableList.forEach(t => {
-          // resourceId
           let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
           if (target) {
             let writerTableName = target.writerTableName
@@ -195,25 +195,35 @@ export default {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
-      // console.log(this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns)
+      this.totalSaveData.cubeDatalaketableNew.map(res => {
+        res.tableList = reduceObj(res.tableList, 'table_id')
+      })
+      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
-      try {
-        // this.init()
-        this.changesEncoding()
-        if (this.totalSaveData.cube.cubeDescData.name.length) {
-          this.completeLoading = true
-          throttle(async () => {
-             await saveolapModeldata(this.totalSaveData).then(_ => {
-              this.$message.success('保存成功~')
-              this.$router.push('/analysisModel/Configuration')
-              this.$store.dispatch('resetList')
-            })
-          }, 1000)
-        } else {
+      if (!this.totalSaveData.cube.cubeDescData.name.length) {
           this.$message.warning('请填写模型名称~')
+          return
         }
+        // 处理表关联关系(暂时先这样处理,中间不知道哪里处理没了)
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        t.join.type = this.tableJoinType
+      })
+      try {
+        this.changesEncoding()
+        this.$refs.formData.validate(valid => {
+          if(valid) {
+            this.completeLoading = true
+            throttle(async () => {
+              await saveolapModeldata(this.totalSaveData).then(_ => {
+                this.$message.success('保存成功')
+                this.$router.push('/analysisModel/Configuration')
+                this.$store.dispatch('resetList')
+              })
+            }, 1000)
+          }
+        })
       } catch (e) {
       } finally {
         this.completeLoading = false
@@ -226,6 +236,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      tableJoinType: 'tableJoinType',
       batchCreateJob: 'batchCreateJob',
       totalSaveData: 'totalSaveData',
       ModelAllList: 'ModelAllList',

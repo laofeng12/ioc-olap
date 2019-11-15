@@ -140,7 +140,7 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
-import { getEncodingList } from '@/api/olapModel'
+// import { getEncodingList } from '@/api/olapModel'
 import { reduceObj } from '@/utils/index'
 export default {
   components: {
@@ -196,9 +196,9 @@ export default {
   methods: {
     init () {
       // 获取对应的字段
-      getEncodingList().then(res => {
-        // this.getAllcoding = res
-      })
+      // getEncodingList().then(res => {
+      //   // this.getAllcoding = res
+      // })
       // 重置高级组合
       this.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
