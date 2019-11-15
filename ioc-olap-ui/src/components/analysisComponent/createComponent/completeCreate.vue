@@ -71,6 +71,7 @@ export default {
         }
       })
       // 整理接口数据-----
+      debugger
       this.totalSaveData.models.modelDescData.fact_table = this.jointResultData.fact_table // 事实表明
       this.totalSaveData.models.modelDescData.lookups = this.jointResultData.lookups.filter(item => {
         return item.alias !== this.jointResultData.fact_table

@@ -4,14 +4,15 @@
       <div id='editorContainer' ref="containers"></div>
       <div class='option' v-if="linkModal">
         <base-info-panel class='base-info'
-            :linkModal='linkModal' 
+            :linkModal='linkModal'
             :relationData="relationData"
             :linkModalFields="linkModalFields"
             :couponList="couponList" 
             @lookDetailData="lookDetailData"
-            @getModalDataList="getModalDataList" 
+            @getModalDataList="getModalDataList"
             @getModalPrimarySelected="getModalPrimarySelected"
-            @addFields="addFields" @getModalForeignSelected="getModalForeignSelected"/>
+            @addFields="addFields"
+            @getModalForeignSelected="getModalForeignSelected"/>
       </div>
     </div>
     <create-table-modal ref="dialog"></create-table-modal>
@@ -492,6 +493,7 @@ export default {
       }
       Object.assign(this.linkModalModel, { data: this.linkModal })
       // this.linkModalModel.attr('data', this.linkModal)
+      debugger
       let result = this.addJointList(this.linkModal)
       this.$store.commit('SaveJointResult', result)
     },
@@ -604,8 +606,9 @@ export default {
       // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       const { graphData } = this.editor.getResult()
       this.$store.commit('SET_TABLE_JOINTYPE',this.linkModal.join.type)
+      debugger
       await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
-      this.$parent.getStepCountAdd(val)
+      this.$parent.getStepCountAdd(val) // 下一步
       this.getIdToList()
       this.$router.push('/analysisModel/createolap/setFiled')
       // this.$parent.getStepCountAdd(val)
@@ -636,11 +639,13 @@ export default {
         this.arrId.push(ids)
       }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
+      debugger
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
     },
+    // 查看表的数据
     lookDetailData (id) {
       this.$refs.dialog.dialog(id)
     },
