@@ -252,7 +252,6 @@ export default {
         this.linkModal = linkModal
 
         this.linkModalModel = graph.find(obj.source).model
-        debugger
       } else {
         this.removeEdge(id)
         this.$message.warning('只能事实表为源头')
@@ -408,13 +407,11 @@ export default {
           fk_type: ''
         }]
       }
-      debugger
       this.linkModalFields = [...this.linkModalFields, ...field]
     },
 
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
-      debugger
       let index = e.index
       // let primary_key = e.name
       let primary_key = e.definition
@@ -439,7 +436,6 @@ export default {
     },
     // 选择主表对应的字段
     getModalForeignSelected (e) {
-      debugger
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
@@ -489,7 +485,6 @@ export default {
       }
       Object.assign(this.linkModalModel, { data: this.linkModal })
       // this.linkModalModel.attr('data', this.linkModal)
-      debugger
       let result = this.addJointList(this.linkModal)
       this.$store.commit('SaveJointResult', result)
     },
@@ -602,7 +597,6 @@ export default {
       // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       const { graphData } = this.editor.getResult()
       this.$store.commit('SET_TABLE_JOINTYPE',this.linkModal.join.type)
-      debugger
       await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
       this.$parent.getStepCountAdd(val) // 下一步
       this.getIdToList()
@@ -635,7 +629,6 @@ export default {
         this.arrId.push(ids)
       }
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
-      debugger
     },
     prevModel (val) {
       this.$router.push('/analysisModel/createolap/selectStep')

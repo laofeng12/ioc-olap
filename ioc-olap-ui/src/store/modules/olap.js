@@ -229,7 +229,7 @@ const common = {
       getters.selectTableTotal.forEach((item, index) => {
         data.label === item.label ? getters.selectTableTotal[index]['filed'] = 1 : getters.selectTableTotal[index]['filed'] = 0
       })
-      getters.jointResultData.fact_table = `${data.item.database}.${data.label}`
+      getters.jointResultData.fact_table = `${data.item.database || data.item.resourceName || 'olap'}.${data.label}`
     },
     // 获取编辑的数据
     async SaveModelAllList ({ getters, store, state, dispatch }, data) {
