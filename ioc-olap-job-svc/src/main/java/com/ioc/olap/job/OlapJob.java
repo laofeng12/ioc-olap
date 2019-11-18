@@ -1,5 +1,6 @@
 package com.ioc.olap.job;
 
+import com.alibaba.fastjson.JSON;
 import com.openjava.olap.common.CubeFlags;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.common.kylin.JobHttpClient;
@@ -80,12 +81,13 @@ public class OlapJob {
         if (timingreFresh != null) {
             Calendar calendar = Calendar.getInstance();
             for (OlapTimingrefresh fc : timingreFresh) {
+                logger.info("定时构建：{}", JSON.toJSONString(fc));
                 List<CubeHbaseMapper> hbases = cubeHttpClient.hbase(fc.getCubeName());
                 if (hbases.size() > 0){//已经构建过，取最新的一条记录的结束时间作为本次构建的开始时间
                     hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
                     Long start = hbases.get(0).getDateRangeEnd()+1000;//时间戳，需要加1秒，否则麒麟构建会报错
                     calendar.setTime(new Date(start));
-                    if (fc.getBuildMode() == OlapTimingrefresh.BUILD_WHOLE){
+                    if (hbases.get(0).getDateRangeStart() == 0){
                         //全量只需要判断时间到了没
                         if (isNeedExecute(calendar,fc.getFrequencytype(),fc.getInterval())){
                             start = 0L;
@@ -108,6 +110,9 @@ public class OlapJob {
                         }
                     }
                 }else {//第一次构建
+                    if (fc.getBuildMode() ==null){
+                        continue;
+                    }
                     Date start = Date.from(LocalDateTime
                         .of(1970,1,1,1,0)
                         .toInstant(ZoneOffset.ofHours(8)));
@@ -180,7 +185,7 @@ public class OlapJob {
             List<JobsMapper> tmp = Arrays.asList(list);
             //找出模型对应的job，按照执行job结束时间来倒序，取第一个
             Optional<JobsMapper> job = tmp.stream().filter(a->s.getName().equals(a.getRelated_cube()))
-                .sorted(Comparator.comparing(JobsMapper::getExec_end_time)).findFirst();
+                .sorted(Comparator.comparing(JobsMapper::getExec_end_time).reversed()).findFirst();
             if (job.isPresent()){
                 String jobStatus = job.get().getJob_status();
                 switch (jobStatus){
@@ -189,6 +194,7 @@ public class OlapJob {
                         break;
                     case "ERROR"://job错误时，则模型为构建失败状态
                         status = CubeFlags.BUILD_FAILED.getFlags();
+                        break;
                     default:break;
                 }
             }
