@@ -33,7 +33,7 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
 import { throttle, reduceObj } from '@/utils/index'
-import { ischeckWechatAccount } from '@/utils/rules'
+import { isCheckModleName } from '@/utils/rules'
 export default {
   components: {
     steps
@@ -52,7 +52,7 @@ export default {
       rules: {
         'cube.cubeDescData.name': [
           { required: true, message: '请输入模型名称', trigger: 'blur' },
-          { validator: ischeckWechatAccount, trigger: 'blur' }
+          { validator: isCheckModleName, trigger: 'blur' }
         ]
       }
     }
