@@ -3,7 +3,7 @@
     <el-dialog :title="titles" :visible.sync="dialogFormVisible" @close="closeBtn">
       <el-form :model="formData" ref="formData" :rules="rules">
         <el-form-item label="度量名称" :label-width="formLabelWidth" prop="name">
-          <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）"></el-input>
+          <el-input v-model="formData.name" autocomplete="off" placeholder="请输入度量名称（1~10个字）" maxlength="10" show-word-limit></el-input>
         </el-form-item>
         <el-form-item label="计算方式" :label-width="formLabelWidth" prop="function.expression">
           <el-select v-model="formData.function.expression" placeholder="请选择" @change="selectChange">
