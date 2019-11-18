@@ -42,6 +42,15 @@ export function ischeckWechatAccount (rule, value, callback) {
   }
 }
 
+export function isCheckModleName (rule, value, callback) {
+  const reg = /^([a-zA-Z0-9_]){1,16}$/ // 英文数字下划线
+  if (!reg.test(value)) {
+    return callback(new Error('仅支持字母数字以及下划线'))
+  } else {
+    callback()
+  }
+}
+
 export function checkPort (rule, value, callback) {
   if (value <= 1 || value > 65535) {
     callback(new Error('端口必须大于1且小于65535'))
