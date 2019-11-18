@@ -70,15 +70,18 @@ const selectStep = {
     CHANGE_SERACHTYPE: (state, val) => {
       state.searchType = val
     },
+    // 选择数据表
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableTotal = val.filter(item => { return item.label })
+      removeLocalStorage('selectTableTotal')
       setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 移除选择的数据
     REMOVE_SETSELCT_TABLE_COUNT: (state, { id }) => {
       const index = state.selectTableTotal.findIndex(t => t.id === id)
       state.selectTableTotal.splice(index, 1)
-      setLocalStorage('selectTableTotal', state.selectTableTotal)
+      // removeLocalStorage('selectTableTotal')
+      // setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 存储所有选择的表对应的字段
     SaveSelectAllListone (state, val = {}) {
@@ -193,7 +196,7 @@ const selectStep = {
       })
     },
     // ----------------------------------------
-    // 根据树的id获取对应的表
+    // 根据树的id获取对应的
     GetSerchTable ({ commit }, id) {
       return new Promise((resolve, reject) => {
         getResourcedirectory(id).then(res => {
@@ -345,7 +348,6 @@ const selectStep = {
     setSelectTableTotal ({ commit, state }) {
       // let totalData = [...state.saveSelectTable, ...state.saveLocalSelectTable]
       state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
-      // debugger
       let totalData = [...state.saveSelectTable]
       commit('SETSELCT_TABLE_COUNT', totalData)
     },

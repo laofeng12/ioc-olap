@@ -56,9 +56,15 @@ export default {
       saveLocalSelectTable: 'saveLocalSelectTable'
     }),
     tableData () {
-      return (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
-        return res.label
+      // return (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
+      //   return res.label
+      // })
+      if (this.selectTableTotal.length) {
+        return this.selectTableTotal.filter(res => {
+         return res.label
       })
+      }
+      return []
     }
   }
 }

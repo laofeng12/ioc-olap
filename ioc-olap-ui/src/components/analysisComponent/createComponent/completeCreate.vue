@@ -1,6 +1,6 @@
 <template>
-  <div class="completeCreate">
-    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
+  <div class="completeCreate"  v-loading="isLoading">
+    <el-form :model="totalSaveData" ref="formData"  :rules="rules" >
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -42,7 +42,7 @@ export default {
   },
   data () {
     return {
-      completeLoading: false,
+      isLoading: false,
       formData: {
         factName: '',
         dimensionLength: '',
@@ -211,22 +211,24 @@ export default {
         t.join.type = this.tableJoinType
       })
       try {
+        this.isLoading = true
         this.changesEncoding()
+        const that = this
         this.$refs.formData.validate(valid => {
           if(valid) {
-            this.completeLoading = true
+            that.isLoading = true
             throttle(async () => {
               await saveolapModeldata(this.totalSaveData).then(_ => {
+                this.isLoading = false
                 this.$message.success('保存成功')
                 this.$router.push('/analysisModel/Configuration')
                 this.$store.dispatch('resetList')
-              })
+              }).catch(_ => this.isLoading = false )
             }, 1000)
           }
         })
       } catch (e) {
-      } finally {
-        this.completeLoading = false
+        this.isLoading = false
       }
     },
     prevModel (val) {

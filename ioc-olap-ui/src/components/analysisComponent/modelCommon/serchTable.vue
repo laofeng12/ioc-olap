@@ -1,11 +1,10 @@
 <template>
   <div class="serchTable">
-    <div   @click="handleSelect" class="selctNum">已选择：<i>{{selectTableTotal.length || '请选择数据'}}</i></div>
+    <div @click="handleSelect" class="selctNum">已选择：<i>{{selectTableTotal.length || '请选择数据'}}</i></div>
      <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model="serachvalue" clearable></el-input>
      <div class="trees" ref="treesBox" v-loading="loading">
        <el-scrollbar style="height:100%">
          <el-tree
-        
         ref="trees"
         :data="dataList"
         default-expand-all
@@ -77,7 +76,7 @@ export default {
       // 弹出框移除数据
       this.$root.eventBus.$on('modal-remove', data => {
         const checkedNodes = this.$refs.trees.getCheckedNodes()
-        checkedNodes.splice(checkedNodes.findIndex(t => t === data.id), 1)
+        checkedNodes.splice(checkedNodes.findIndex(t => t.id === data.id), 1)
         this.defaultKey = checkedNodes
         this.$refs.trees.setCheckedNodes(checkedNodes)
       })
