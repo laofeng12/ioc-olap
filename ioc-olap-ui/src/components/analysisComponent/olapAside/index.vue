@@ -30,8 +30,13 @@
                     :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                        <span v-if="item.children && item.children.length">{{item.virtualTableName}}</span>
-                        <span v-else>{{item.name}}</span>
+                        <span v-if="!item.virtualTableName">{{item.name}}</span> 
+                         <el-tooltip placement="top" v-else>
+                           <span slot="content">{{item.virtualTableName}}</span>
+                           <span slot="content"> - {{item.name}}</span>
+                           <span >{{item.virtualTableName}}</span>
+                           <span >{{item.name}}</span>
+                         </el-tooltip>
                       </span>
                       <!--<ul v-if="item.children">-->
                         <!--<li v-for=" (v, i) in item.children" :key="`${index}-${i}`" >-->
@@ -66,8 +71,15 @@
                     :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                        <span v-if="item.children && item.children.length">{{item.virtualTableName}}</span>
-                        <span v-else>{{item.name}}</span>
+                         <span v-if="!item.virtualTableName">{{item.name}}</span> 
+                         <el-tooltip placement="top" v-else>
+                           <span slot="content">{{item.virtualTableName}}</span>
+                           <span slot="content"> - {{item.name}}</span>
+                           <span >{{item.virtualTableName}}</span>
+                           <span >{{item.name}}</span>
+                         </el-tooltip>
+                        <!-- <span v-if="item.children && item.children.length">{{item.virtualTableName}}</span>
+                        <span v-else>{{item.name}}</span> -->
                       </span>
                     </li>
                   </ul>
