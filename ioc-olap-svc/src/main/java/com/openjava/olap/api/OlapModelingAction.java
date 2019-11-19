@@ -11,7 +11,6 @@ import com.openjava.olap.service.*;
 import com.openjava.olap.vo.CubeListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import net.sf.ehcache.transaction.xa.EhcacheXAException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
@@ -696,7 +695,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:构建")
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
     @Security(session = true)
-    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws APIException {
+    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws Exception {
         //增量全量验证
         CubeDescDataMapper cubeDescDataMapper = cubeHttpClient.desc(cubeName);
         if (cubeDescDataMapper == null) {
