@@ -677,6 +677,7 @@ public class OlapModelingAction extends BaseAction {
                     TableNameTransposition.replaceAll(paramMap,mapper.getTableName(),mapper.getVirtualTableName());
                 }
             }
+            paramMap.put("relations",relations);
         }
         return paramMap;
     }

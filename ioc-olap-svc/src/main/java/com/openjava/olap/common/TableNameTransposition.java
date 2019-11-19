@@ -121,8 +121,75 @@ public class TableNameTransposition {
         for (Map.Entry<String,Object> entry : map.entrySet()){
             if (entry.getKey().equalsIgnoreCase("ModesList")){
                 ModelsDescDataMapper m = (ModelsDescDataMapper) entry.getValue();
+                String[]sr = m.getFact_table().split("\\.");
+                if (sr.length==2 && sr[1].equalsIgnoreCase(tableName)){
+                    m.setFact_table(sr[0]+"."+virtualTableName);
+                }
+                m.getLookups().forEach(s->{
+                    String[]rs = s.getTable().split("\\.");
+                    if (rs.length==2 && rs[1].equalsIgnoreCase(tableName)){
+                        s.setTable(rs[0]+"."+virtualTableName);
+                    }
+                    if (s.getAlias().equalsIgnoreCase(tableName)){
+                        s.setAlias(virtualTableName);
+                    }
+                    if (s.getJoinTable().equalsIgnoreCase(tableName)){
+                        s.setJoinTable(virtualTableName);
+                    }
+                    if (s.getJoinAlias().equalsIgnoreCase(tableName)){
+                        s.setJoinAlias(virtualTableName);
+                    }
+                    List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
+                    for (int x=0;x<pks.size();x++) {
+                        String[]sr4 = pks.get(x).split("\\.");
+                        if (sr4[0].equalsIgnoreCase(virtualTableName)) {
+                            pks.set(x,tableName+"."+sr4[1]);
+                        }
+                    }
+                    List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
+                    for (int x=0;x<fks.size();x++) {
+                        String[]sr5 = fks.get(x).split("\\.");
+                        if (sr5[0].equalsIgnoreCase(virtualTableName)) {
+                            fks.set(x,tableName+"."+sr5[1]);
+                        }
+                    }
+                });
+                m.getDimensions().forEach(s->{
+                    if (s.getTable().equalsIgnoreCase(tableName)){
+                        s.setTable(virtualTableName);
+                    }
+                });
             }else if (entry.getKey().equalsIgnoreCase("CubeList")){
                 CubeDescDataMapper c = (CubeDescDataMapper) entry.getValue();
+                c.getDimensions().forEach(s->{
+                    if (s.getTable().equalsIgnoreCase(tableName)){
+                        s.setTable(virtualTableName);
+                    }
+                    String[]sr = s.getId().split("\\.");
+                    if (sr.length>0&&sr[0].equalsIgnoreCase(tableName)){
+                        s.setId(virtualTableName+"."+sr[1]);
+                    }
+                });
+                c.getMeasures().forEach(s->{
+                    String[]sr = s.getFunction().getParameter().getValue().split("\\.");
+                    if (sr.length>0 && sr[0].equalsIgnoreCase(tableName)){
+                        s.getFunction().getParameter().setValue(virtualTableName+"."+sr[1]);
+                    }
+                });
+                c.getRowkey().getRowkey_columns().forEach(s->{
+                    String[]sr = s.getColumn().split("\\.");
+                    if (sr.length>0 && sr[0].equalsIgnoreCase(tableName)){
+                        s.setColumn(virtualTableName+"."+sr[1]);
+                    }
+                });
+                c.getAggregation_groups().forEach(s->{
+                    for (int x = 0;x<s.getIncludes().size();x++) {
+                        String[] sr =  s.getIncludes().get(x).split("\\.");
+                        if (sr.length > 0 && sr[0].equalsIgnoreCase(tableName)) {
+                            s.getIncludes().set(x,virtualTableName + "." + sr[1]);
+                        }
+                    }
+                });
             }else if (entry.getKey().equalsIgnoreCase("TableList")){
                 List<CubeDatalaketableNewMapper> list = (List<CubeDatalaketableNewMapper>) entry.getValue();
                 list.forEach(s->{

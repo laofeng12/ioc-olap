@@ -475,11 +475,13 @@ public class OlapCubeServiceImpl implements OlapCubeService {
     @Override
     public List<CubeMapper> resetCubeStatus(List<CubeMapper> result) {
         List<String> cubeNameList = result.stream().map(CubeMapper::getName).collect(Collectors.toList());
-        List<OlapCube> list = this.olapCubeRepository.findByCubeNameList(cubeNameList);
-        result.forEach(s->{
-            list.stream().filter(x->x.getName().equals(s.getName()))
-                .forEach(y->s.setFlags(y.getFlags()));
-        });
+        if (!cubeNameList.isEmpty()) {
+            List<OlapCube> list = this.olapCubeRepository.findByCubeNameList(cubeNameList);
+            result.forEach(s -> {
+                list.stream().filter(x -> x.getName().equals(s.getName()))
+                    .forEach(y -> s.setFlags(y.getFlags()));
+            });
+        }
         return result;
     }
 }
