@@ -1,15 +1,12 @@
 <template>
   <div class="folderAside" v-loading="menuListLoading">
     <el-row class="left-search">
-      <el-input
-        size="small"
-        suffix-icon="el-icon-search"
-        placeholder="请输入关键词"
-        v-model="searchKey">
-      </el-input>
+      <el-input size="small" suffix-icon="el-icon-search" placeholder="请输入关键词" maxlength="20"
+                v-model="searchKey"></el-input>
     </el-row>
-    <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList" :props="menuDefault"
-             default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem" ref="alltree">
+    <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList"
+             :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
+             :empty-text="emptyText" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
         <span class="cus-node-content" v-if="showDo" @click.stop>
@@ -65,10 +62,10 @@
         </div>
         <div class="centerButton">
           <div>
-            <el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>
+            <el-button icon="el-icon-arrow-right" @click="addShare"></el-button>
           </div>
           <div class="m-t-20">
-            <el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>
+            <el-button icon="el-icon-arrow-left" @click="reduceShare"></el-button>
           </div>
         </div>
         <div class="box">
@@ -130,7 +127,12 @@ export default {
     iconType: {
       type: String,
       required: false
-    }
+    },
+    emptyText: {
+      type: String,
+      required: false,
+      default: '暂无数据'
+    },
   },
   data () {
     return {
