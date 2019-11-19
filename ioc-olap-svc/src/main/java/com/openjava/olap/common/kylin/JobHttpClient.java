@@ -3,13 +3,9 @@ package com.openjava.olap.common.kylin;
 import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.mapper.kylin.JobStepOutputMapper;
 import com.openjava.olap.mapper.kylin.JobsMapper;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
-import org.ljdp.secure.annotation.Security;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.text.MessageFormat;
 @Component
@@ -24,7 +20,9 @@ public class JobHttpClient extends KylinHttpClient {
         sBuffer.append("jobSearchMode=ALL");
         sBuffer.append("&limit=" + limit);
         sBuffer.append("&offset=" + offset);
-        sBuffer.append("&projectName=" + projectName);
+        if (StringUtils.isNotBlank(projectName)) {
+            sBuffer.append("&projectName=").append(projectName);
+        }
         sBuffer.append("&timeFilter=1");
         url = sBuffer.toString();
         Class<JobsMapper[]> clazz = JobsMapper[].class;

@@ -1,15 +1,13 @@
 package com.openjava.olap.domain;
 
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.data.domain.Persistable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.domain.Persistable;
+
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * 实体
@@ -55,6 +53,9 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
 
     @ApiModelProperty("前端要存的id")
     private String tableId;
+
+    @ApiModelProperty("虚拟表名")
+    private String virtualTableName;
 
     @Transient
     @JsonIgnore
@@ -205,5 +206,15 @@ public class OlapCubeTable implements Persistable<Long>, Serializable {
     }
     public void setTableId(String tableId) {
         this.tableId = tableId;
+    }
+
+    @Column(name = "VIRTUAL_TABLE_NAME")
+    @Length(max = 200)
+    public String getVirtualTableName() {
+        return virtualTableName;
+    }
+
+    public void setVirtualTableName(String virtualTableName) {
+        this.virtualTableName = virtualTableName;
     }
 }

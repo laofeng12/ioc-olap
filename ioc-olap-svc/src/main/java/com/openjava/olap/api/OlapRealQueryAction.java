@@ -156,7 +156,8 @@ public class OlapRealQueryAction extends BaseAction {
                 if (nodeVo == null) {
                     nodeVo = new TreeNodeVo();
                     nodeVo.setId(table.getId().toString());
-                    nodeVo.setName(table.getTableName());
+                    nodeVo.setName(table.getTableName());//真实表名，两个同时返回，不需要替换
+                    nodeVo.setVirtualTableName(table.getVirtualTableName());//虚拟表名
                     nodeVo.setChildren(new ArrayList<TreeNodeVo>());
                     tree.getChildren().add(nodeVo);
                 }
