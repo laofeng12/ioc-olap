@@ -38,6 +38,11 @@ export default {
       dataList: {}
     }
   },
+  watch: {
+    // '$route' () {
+    //   this.init()
+    // }
+  },
   mounted () {
     this.init()
   },
@@ -123,10 +128,10 @@ export default {
       // 存储事实表的所有字段
       if (index === 0) {
         this.saveSelectAllList.map((item, index) => {
-          let items = JSON.parse(item)
-          if (items.resourceId === this.dataList.lookups[0].id) {
+          // let items = JSON.parse(item)
+          if (item.resourceId === this.dataList.lookups[0].id) {
             let list = {
-              data: items.data.columns,
+              data: item.column,
               list: this.dataList.lookups[0]
             }
             this.$store.commit('SaveFactData', list)

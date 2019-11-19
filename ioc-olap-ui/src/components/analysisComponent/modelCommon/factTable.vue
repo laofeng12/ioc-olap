@@ -29,6 +29,7 @@
 <script>
 import setfactTable from '@/components/analysisComponent/dialog/setfactTable'
 import { mapGetters } from 'vuex'
+
 export default {
   components: {
     setfactTable

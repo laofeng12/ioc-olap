@@ -9,7 +9,7 @@ export function getModelDataList (params) {
   })
 }
 
-// 查看立方体
+// 立方体详情
 export function descDataList (params) {
   return fetch({
     url: '/olap/apis/OlapModeling/desc',

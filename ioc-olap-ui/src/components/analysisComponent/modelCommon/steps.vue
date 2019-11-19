@@ -1,9 +1,9 @@
 <template>
   <div class="step_dv">
     <div class="steps">
-      <el-button v-if="step!==1" @click="prevModel">上一步</el-button>
-      <el-button v-if="step!==7" type="primary" @click="nextModel">下一步</el-button>
-      <el-button type="primary" v-if="step===7" @click="nextModel">完成</el-button>
+      <el-button v-if="step !== 1" @click="prevModel">上一步</el-button>
+      <el-button v-if="step !== 7" type="primary" @click="nextModel">下一步</el-button>
+      <el-button type="primary" v-if="step === 7" @click="nextModel">完成</el-button>
     </div>
   </div>
 </template>
@@ -45,6 +45,7 @@ export default {
     z-index 10
     bottom 0
     left 0
+    box-shadow: 0 0 5px #e7e7e9;
   }
 .steps{
   position: fixed;

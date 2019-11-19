@@ -48,7 +48,6 @@ export function throttle (fn, wait = 500, scope) {
 
 // 状态显示判断
 export function statusReviewFilter (status, type) {
-  console.log('status', status, type)
   // 共享状态
   const statusMap1 = {
     0: '#F56C6C',
@@ -85,10 +84,10 @@ export function statusReviewFilter (status, type) {
 }
 
 // 去重对象
-export function reduceObj (arr, name) {
+export function reduceObj (arr, attribute) {
   let obj = {}
-  let arrs = arr.reduce((item, next) => {
-    obj[next[name]] ? '' : obj[next[name]] = true && item.push(next)
+  let arrs = arr.reduce((item, currentObj) => {
+    obj[currentObj[attribute]] ? '' : obj[currentObj[attribute]] = true && item.push(currentObj)
     return item
   }, [])
   return arrs

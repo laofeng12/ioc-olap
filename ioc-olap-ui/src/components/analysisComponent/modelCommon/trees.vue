@@ -1,22 +1,32 @@
 <template>
   <div class="mechanism folderAside">
-    <el-input suffix-icon="el-icon-search" type="text" placeholder="输入机构名称筛选" v-model="serachvalue"  clearable></el-input>
+    <el-input suffix-icon="el-icon-search" type="text" placeholder="输入关键词" v-model="serachvalue"  clearable></el-input>
     <div class="trees">
-      <el-tree
-        :data="treeList"
+      <el-scrollbar style="height:100%">
+        <el-tree
         ref="tree"
+        lazy
+        :indent="12"
+        :data="treeList"
+        :load="getChildTreeList"
         v-loading="treeLoading"
         auto-expand-parent
-        :expand-on-click-node="false"
         node-key="id"
-        @node-expand="nodeExpand"
         @node-click="getCurrents"
         highlight-current
         :default-expanded-keys="defaultOpenKeys"
-        :render-content="renderContent"
         :filter-node-method="filterNode"
         :props="defaultProps">
+        <span class="custom-tree-node" slot-scope='{ node }'>
+          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark" :enterable="false" 
+          :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
+            <span class="show-ellipsis">{{ node.label }}</span>
+          </el-tooltip>
+            <span v-else  class="show-ellipsis">{{node.label}}</span>
+        </span>    
       </el-tree>
+      </el-scrollbar>
+      
     </div>
   </div>
 </template>
@@ -24,30 +34,22 @@
 <script>
 import { setTimeout } from 'timers'
 import { mapGetters } from 'vuex'
-import { getselectCatalog } from '@/api/olapModel'
+import { getCatalog, getDtalakeTreeList } from '@/api/newOlapModel'
 import { getLocalStorage } from '@/utils/index'
+
 export default {
+  name: 'treeList',
   data () {
     return {
       treeLoading: false,
       showTree: true,
       serachvalue: '',
-      treeList: [
-        {
-          label: '数据湖',
-          id: '1337',
-          children: []
-        },
-        {
-          label: '自建目录',
-          id: '1338',
-          children: []
-        }
-      ],
+      treeList: [],
       defaultOpenKeys: [], // 默认展开的key
       defaultProps: {
-        children: 'children',
-        label: 'label'
+        label: 'orgName',
+        children: 'subOrgList',
+        isLeaf: 'isLeaf'
       }
     }
   },
@@ -56,203 +58,139 @@ export default {
       this.$refs.tree.filter(val)
     }
   },
-  mounted () {
-    this.init()
-  },
   methods: {
     init () {
-      // 默认选择第一行
-      // let ModelAllList = this.ModelAllList.length > 0 ? this.ModelAllList : JSON.parse(getLocalStorage('ModelAllList'))
-      // let serchTableList = this.serchTableList.length > 0 ? this.serchTableList : JSON.parse(getLocalStorage('serchTableList'))
-      // console.log('刷新后的', serchTableList)
-      // 判断是否是刷新过后的
-      // if (this.serchTableList.length < 1 && JSON.parse(getLocalStorage('ModelAllList'))) {
-      //   setTimeout(() => {
-      //     this.$root.eventBus.$emit('getserchTableList', serchTableList, 1)
-      //   }, 500)
+      this.getTreeList()
+      // if (this.$route.query.cubeName) {
+      //   setTimeout(() => { this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1) }, 1000)
       // }
     },
-    fetchTreeList (val) {
-      this.treeLoading = true
-      // this.fetchDatas(val) // 数据湖
-      this.fetchKelinData()
-    },
-    fetchDatas (val) {
-      /** 数据湖 */
-      this.$store.dispatch('GetTreeList').then(res => {
-        if (res && res.code === 200) {
-          this.treeLoading = false
-          this.setTree(res.data.dataLakeDirectoryTree, 1)
-          this.setTree(res.data.dataSetDirectoryTree, 2)
-          const ids = val || this.treeList[0].id
-          const newids = ids.length > 10 ? this.treeList[0].id : val
-          newids && setTimeout(() => {
-            this.$refs.tree.store.nodesMap[newids].expanded = true
-          }, 500)
-          this.defaultFrist(this.treeList)
+    // fetchTreeList (val) {
+    //   this.treeLoading = true
+    //   // this.fetchDatas(val) // 数据湖
+    //   this.fetchKelinData()
+    // },
+    // 左边树形列表 目录树（数据湖+自定义源+本地空间+数据集）
+    async getTreeList () {
+      try {
+        this.treeLoading = true
+        const { data } = await getCatalog()
+        if (!data) {
+          this.$message.error('获取资源目录失败！')
+          return
         }
-      }).finally(() => {
+        this.treeList = []
+        if (data.dataLakeTreeName && data.dataLakeTree) {
+          this.treeList.push({
+            id: 'sjh',
+            orgName:'数据湖',
+            isLeaf: false,
+            subOrgList: data.dataLakeTree
+          })
+        }
+        if (data.dataSetTreeName && data.dataSetTree) {
+          this.treeList.push({
+            id: 'sjj',
+            orgName:'数据集',
+            isLeaf: false,
+            subOrgList: data.dataSetTree
+          })
+        }
+        if (data.dataSourceTreeName && data.dataSourceTree) {
+          this.treeList.push({
+            id: 'zdy',
+            orgName:'自定义',
+            isLeaf: false,
+            subOrgList: data.dataSourceTree
+          })
+        }
+        if (data.localSpaceTreeName && data.localSpaceTree) {
+          this.treeList.push({
+            id: 'sc',
+            orgName:'上传',
+            isLeaf: false,
+            subOrgList: data.localSpaceTree
+          })
+        }
+      } catch (e) {
+        console.log(e)
+      } finally {
         this.treeLoading = false
-      })
+      }
     },
-    fetchKelinData () {
-      // kelin测试
-      getselectCatalog().then(res => {
-        this.treeLoading = false
-        res.map(res => {
-          res.label = res.orgName
-          res.id = res.orgId
-        })
-        this.treeList = res
-      })
-    },
-    // 默认点击第一项的递归计算
-    defaultFrist (val) {
-    },
-    setTree (val, type) {
-      let item = []
-      val && val.map((list, i) => {
-        let newData = {}
-        newData.label = list.orgName
-        newData.databaseType = list.databaseType
-        newData.orgId = list.orgId
-        newData.resNum = list.resNum
-        newData.id = list.id
-        newData.parentId = list.parentId
-        newData.is_show_add = true
-        newData.isLeaf = list.isLeaf
-        newData.type = list.type
-        newData.orgtype = list.orgtype
-        newData.isTable = list.isTable
-        // newData.children = list.children ? this.setTree(list.children) : []
-        newData.children = list.isLeaf === true ? [] : [{}]
-        item.push(newData)
-      })
-      type === 1 ? this.treeList[0].children = item : this.treeList[1].children = item
-      return item
-    },
+    // 过滤节点
     filterNode (value, data) {
       if (!value) return true
-      return data.label.indexOf(value) !== -1
-    },
-    renderContent (h, { node, data, store }) {
-      return h('span', {
-        class: `tree${node.id}`
-      }, [
-        h('span', {
-        }, node.label)
-      ])
-    },
-    // 展开列表
-    nodeExpand (data, node, me) {
-      if (!data.orgId) return
-      this.fetchTree(data, node)
+      return data.orgName.indexOf(value) !== -1
     },
     // 选中对应的表
-    getCurrents (data, node, me) {
-      if (data.isLeaf === true) {
-        if (data.databaseType !== '1') {
-          this.$message.warning('暂只支持HIVE类型数据查询')
-        } else {
-          this.fetchResourceList(data, node.parent.key)
-        }
+    getCurrents (data, node, self) {
+      if (data.isLeaf) {
+        this.getResourceList(data, node.parent.key)
       }
-      // 为资源列表的时候（数据湖）
-      if (!data.isTable && data.resNum > 0) {
-        // this.fetchResourceList(data)
-      }
-      // kelin
-      let lastId = node.parent.label ? node.parent.key : node.key
-      this.fetchResourceList(data, lastId)
-      // 保存数据到store
-      this.$store.dispatch('SaveSelectData', data)
     },
-    fetchTree (data) {
-      this.treeLoading = true
-      this.$store.dispatch('GetTreeTwoList', { orgId: data.orgId, databaseType: data.databaseType }).then(res => {
-        if (res.code === 200) {
+    // 资源列表
+    getResourceList (data, nodeId) {
+      this.$throttle(_ => {
+          this.$root.eventBus.$emit('getserchTableList', data)
+        }, 300)
+    },
+    // 获取数据湖目录树 fetchTree
+    async getChildTreeList (node, resolve) {
+      if (node.level === 0) return resolve(this.treeList)
+      if (node.level === 1) return resolve(node.data.subOrgList)
+      if (!node.isLeaf) {
+         this.treeLoading = true
+        let params = {
+          orgId: node.data.orgId,
+          databaseType: node.data.databaseType
+        }
+        try {
+          const { data } = await getDtalakeTreeList(params)
+          data ? resolve(data) : []
+        } catch (e) {
+        } finally {
           this.treeLoading = false
-          res.data.map(res => {
-            res.label = res.orgName
-            res.children = res.isLeaf === true || res.isTable === true ? [] : [{}]
-          })
-          if (res.data.length) data.children = res.data
         }
-      }).finally(() => {
-        this.treeLoading = false
-      })
-    },
-    fetchResourceList (data, nodeId) {
-      this.$root.eventBus.$emit('getserchTableList', data, 1)
-      // 点击时清除其他选择框
-      this.$root.eventBus.$emit('clearSelect')
-      // 存储当前点击的父节点的id
-      this.$store.dispatch('setLastClickTab', nodeId)
-      // 保存选择的数据源数据
-    },
-    fetchResourceInfo (data, nodeId) {
-      this.$store.dispatch('GetResourceInfo', { resourceId: data.orgId, type: data.type }).then(res => {
-        if (res.code === 200) {
-          this.$root.eventBus.$emit('getserchTableList', res)
-          // 点击时清除其他选择框
-          this.$root.eventBus.$emit('clearSelect')
-          // 存储当前点击的父节点的id
-          this.$store.dispatch('setLastClickTab', nodeId)
-        }
-      })
+      }
     }
-    // fetchTree (id, nodeId) {
-    //   this.$store.dispatch('GetSerchTable', id).then(res => {
-    //     if (res.code === 200) {
-    //       this.$root.eventBus.$emit('getserchTableList', res)
-    //       // 点击时清除其他选择框
-    //       this.$root.eventBus.$emit('clearSelect')
-    //       // 存储当前选择数据源
-    //       this.$store.dispatch('setSerchTable', res)
-    //       // 存储当前点击的父节点的id
-    //       this.$store.dispatch('setLastClickTab', nodeId)
-    //       // 保存选择的数据源数据
-    //     }
-    //   })
-    // }
   },
   computed: {
     ...mapGetters({
-      saveSelectTable: 'saveSelectTable',
-      saveLocalSelectTable: 'saveLocalSelectTable',
       ModelAllList: 'ModelAllList',
-      lastClickTab: 'lastClickTab',
-      mockjsonData: 'mockjsonData', // 模拟数据
       serchTableList: 'serchTableList'
     })
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
-    this.$root.eventBus.$off('clearSelect')
-    this.$root.eventBus.$off('saveSelectTables')
+    // this.$root.eventBus.$off('clearSelect')
   },
   created () {
-    this.fetchTreeList(this.lastClickTab)
-    this.$nextTick(function () {
-      this.$refs.tree.setCurrentKey(this.lastClickTab)
-    })
+    this.init()
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+.datalake {
+  .mechanism {
+     width 330px !important;
+  }
+}
   .mechanism{
     background #ffffff
     height 100%
     .trees{
-      width 208px
-      height 85%
-      // overflow auto
+      width: 298px !important;
+      height: calc(100% - 32px);
+      margin-bottom: 0;
     }
     >>>.el-tree{
-      height 100%
-      width 100%
+      height 100%;
+      width 100%;
       overflow auto
+      margin-bottom: 0;
+      padding-bottom: 0 !important;
     }
     >>>.el-input__suffix{
       margin-top -3px
@@ -306,5 +244,12 @@ export default {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: #B5D2DE;
   }
+}
+.show-ellipsis {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>

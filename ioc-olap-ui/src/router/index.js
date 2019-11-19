@@ -99,7 +99,7 @@ export default new Router({
         {
           path: 'instantInquiry',
           name: 'instantInquiry',
-          meta: { title: '即席分析' },
+          meta: { title: '即席查询' },
           component: () => import('@/views/analysisModel/instantInquiry.vue')
         }
         // {
