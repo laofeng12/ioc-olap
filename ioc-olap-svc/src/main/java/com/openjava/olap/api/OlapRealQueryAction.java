@@ -1,12 +1,9 @@
 package com.openjava.olap.api;
 
-import com.alibaba.fastjson.JSON;
 import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.common.Export;
-import com.openjava.olap.common.GateWayConfig;
 import com.openjava.olap.common.GateWayHttpClient;
-import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
@@ -17,7 +14,6 @@ import com.openjava.olap.vo.QueryResultMapperVo;
 import com.openjava.olap.vo.TreeNodeVo;
 import com.openjava.olap.vo.TreeVo;
 import io.swagger.annotations.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
@@ -30,10 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 
