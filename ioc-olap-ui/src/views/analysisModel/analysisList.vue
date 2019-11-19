@@ -4,40 +4,56 @@
       <el-row class="left-tabs">
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
-            <FolderAside :menuList="myMenuList" :menuDefault="menuDefault" vueType="myOlap" @editFunc="edit"
-                         @deleteFunc="deleteAnalysis" :menuListLoading="myLoading" @clickItem="searchCube"
-                         @getAnalysisList="getFolderWithQuery"></FolderAside>
+            <FolderAside 
+            :menuList="myMenuList" 
+            :menuDefault="menuDefault" 
+            vueType="myOlap" 
+            @editFunc="edit"
+            @deleteFunc="deleteAnalysis" 
+            :menuListLoading="myLoading" 
+            @clickItem="searchCube"
+            @getAnalysisList="getFolderWithQuery">
+            </FolderAside>
           </el-tab-pane>
+
           <el-tab-pane label="分享" name="share">
-            <FolderAside :menuList="shareMenuList" :menuDefault="menuDefault" vueType="shareOlap" :showDo="false"
-                         :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
+            <FolderAside :menuList="shareMenuList" 
+            :menuDefault="menuDefault" 
+            vueType="shareOlap" 
+            :showDo="false"
+            :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
           </el-tab-pane>
         </el-tabs>
       </el-row>
     </el-aside>
     <div class="cus-right dis-flex" v-loading="loading">
       <ResultBox v-if="activeTab === 'my' ? tableDataByMy.length > 0 : tableDataByShare.length > 0"
+                :showPublish="activeTab === 'my'"
+                 publishType="olapAnalyze"
+                 :analyzeId="analyzeId"
                  :tableData="activeTab === 'my' ? tableDataByMy : tableDataByShare" showType="needNew" @handlePage="handlePage"
-                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page"></ResultBox>
+                 :shareList="shareList" @exportFunc="exportFile" :pageData="pageData" :page="page">
+                 </ResultBox>
       <div v-else class="replace-table">
-        <img src="../../assets/img/replace_table.png" />
+        <img src="@/assets/img/replace_table.png" />
       </div>
     </div>
   </el-container>
 </template>
 
 <script>
-import FolderAside from '../../components/analysisComponent/common/FolderAside'
-import ResultBox from '../../components/analysisComponent/common/ResultBox'
+import FolderAside from '@/components/analysisComponent/common/FolderAside'
+import ResultBox from '@/components/analysisComponent/common/ResultBox'
 import {
   getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi,
   searchCubeApi
-} from '../../api/olapAnalysisList'
+} from '@/api/olapAnalysisList'
 
 export default {
   components: { FolderAside, ResultBox },
   data () {
     return {
+      analyzeId: '', // analyzeId
       activeTab: 'my',
       myMenuList: [],
       shareMenuList: [],
@@ -86,6 +102,7 @@ export default {
     },
     async searchCube (fileData, type) {
       const params = { id: fileData.attrs ? fileData.attrs.cubeId : fileData.cubeId }
+      this.analyzeId = fileData.attrs ? fileData.attrs.analyzeId : fileData.analyzeId
       const res = await searchCubeApi(params)
       if (res.flags) {
         this.getTableById(fileData, type)

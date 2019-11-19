@@ -1,6 +1,6 @@
 <template>
-  <div class="completeCreate">
-    <el-form :model="totalSaveData" ref="formData" v-loading="completeLoading" :rules="rules">
+  <div class="completeCreate"  v-loading="isLoading">
+    <el-form :model="totalSaveData" ref="formData"  :rules="rules" >
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
        <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
@@ -33,14 +33,16 @@ import steps from '@/components/analysisComponent/modelCommon/steps'
 import { mapGetters } from 'vuex'
 import { saveolapModeldata } from '@/api/olapModel'
 import { throttle, reduceObj } from '@/utils/index'
-import { ischeckWechatAccount } from '@/utils/rules'
+import { isCheckModelName } from '@/utils/rules'
+
 export default {
+  name:'completeCreate',
   components: {
     steps
   },
   data () {
     return {
-      completeLoading: false,
+      isLoading: false,
       formData: {
         factName: '',
         dimensionLength: '',
@@ -52,7 +54,7 @@ export default {
       rules: {
         'cube.cubeDescData.name': [
           { required: true, message: '请输入模型名称', trigger: 'blur' },
-          { validator: ischeckWechatAccount, trigger: 'blur' }
+          { validator: isCheckModelName, trigger: 'blur' }
         ]
       }
     }
@@ -104,6 +106,19 @@ export default {
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
+      // 增加  databaseId
+      this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
+        tb.tableList.forEach(t => {
+          let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
+          if (target) {
+            t.virtualTableName = t.table_name // 虚拟表名
+            t.databaseId = target.databaseId
+            // t.databaseId = target.databaseId
+            // t.table_name = target.writerTableName // 真实表名
+          }
+          t.database = 'olap'
+        })
+      })
       this.totalSaveData.dimensionLength = this.jointResultData.lookups.length
       this.totalSaveData.dimensionFiledLength = this.saveSelectFiled.length
       this.totalSaveData.measureFiledLength = this.measureTableList.length
@@ -113,33 +128,70 @@ export default {
       */
       let dest = []
       this.saveSelectAllListFiled.map((item, index) => {
-        let data = JSON.parse(item)
+        // let data = JSON.parse(item)
         // 遍历第二步存储的表 根据id来找出事实表的那条数据
         this.totalSaveData.models.modelDescData.lookups.forEach((n, i) => {
-          if (data.resourceId === n.id) {
+          if (item.resourceId === n.id) {
             dest.push({
               table: n.alias,
-              columns: data.data.columns.map(res => {
-                return res.name
+              columns: item.column.map(res => {
+                return res.columnAlias
               })
             })
           }
         })
-        if (this.jointResultData.fact_table.split('.')[1] === data.name) {
+        if (this.jointResultData.fact_table.split('.')[1] === item.resourceTableName) {
           dest.push({
-            table: data.name,
-            columns: data.data.columns.map(res => {
-              return res.name
+            table: item.resourceTableName,
+            columns: item.column.map(res => {
+              return res.columnAlias
             })
           })
         }
         return dest
       })
       this.totalSaveData.models.modelDescData.dimensions = []
+      // 增加对应关系
+      let relations = []
+      this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
+        tb.tableList.forEach(t => {
+          let target = this.batchCreateJob.find(item => item.resourceId === t.resourceId)
+          if (target) {
+            let writerTableName = target.writerTableName
+            let table_name = t.table_name
+            relations.push({
+              jobId: target.jobId,
+              resourceId: target.resourceId,
+              tableName: writerTableName,
+              virtualTableName: table_name
+            })
+          }
+        })
+      })
+      this.totalSaveData.relations = relations
+      // lookups 增加虚拟表
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        let target = this.batchCreateJob.find(item => item.resourceId === t.id)
+          if (target) {
+            t.virtualTableName = t.table ? t.table.replace('async.','').replace('DEFAULT.','') : t.table // 虚拟表名
+            t.table = t.table ?  t.table.replace('DEFAULT','async') : t.table
+            // t.table_name = target.writerTableName // 真实表名
+          }
+      })
+      // 处理fact_table
+      let tempStr = this.totalSaveData.models.modelDescData.fact_table.split('.')[0]
+      this.totalSaveData.models.modelDescData.fact_table = this.totalSaveData.models.modelDescData.fact_table.replace(tempStr,'olap')
+      // 处理 lookups
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        let tempStr = t.table.split('.')[0]
+        t.table = t.table.replace(tempStr,'olap')
+      })
+      // 处理刷新过滤设置
+      this.totalSaveData.models.modelDescData.partition_desc.partition_date_column ?  this.totalSaveData.timingreFresh.buildMode = 1 : this.totalSaveData.timingreFresh.buildMode = 0
     },
     changesEncoding () {
       // 过滤rowkey
-      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.map(res => {
+      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.forEach(res => {
         let leh = res.lengths ? `:${res.lengths}` : ''
         res.encoding = `${res.columns_Type}${leh}`
       })
@@ -150,24 +202,34 @@ export default {
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
-      this.changesEncoding()
-      setTimeout(() => {
+      if (!this.totalSaveData.cube.cubeDescData.name.length) {
+          this.$message.warning('请填写模型名称~')
+          return
+        }
+        // 处理表关联关系(暂时先这样处理,中间不知道哪里处理没了)
+      this.totalSaveData.models.modelDescData.lookups.forEach(t => {
+        t.join.type = this.tableJoinType
+      })
+      try {
+        this.isLoading = true
+        this.changesEncoding()
+        const that = this
         this.$refs.formData.validate(valid => {
-          if (valid) {
-            this.completeLoading = true
+          if(valid) {
+            that.isLoading = true
             throttle(async () => {
               await saveolapModeldata(this.totalSaveData).then(_ => {
-                this.$message.success('保存成功~')
-                this.completeLoading = false
+                this.isLoading = false
+                this.$message.success('保存成功')
                 this.$router.push('/analysisModel/Configuration')
                 this.$store.dispatch('resetList')
-              }).catch(_ => {
-                this.completeLoading = false
-              })
+              }).catch(_ => this.isLoading = false )
             }, 1000)
           }
         })
-      }, 0)
+      } catch (e) {
+        this.isLoading = false
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)
@@ -176,6 +238,8 @@ export default {
   },
   computed: {
     ...mapGetters({
+      tableJoinType: 'tableJoinType',
+      batchCreateJob: 'batchCreateJob',
       totalSaveData: 'totalSaveData',
       ModelAllList: 'ModelAllList',
       saveSelectFiled: 'saveSelectFiled', // 已选的维度

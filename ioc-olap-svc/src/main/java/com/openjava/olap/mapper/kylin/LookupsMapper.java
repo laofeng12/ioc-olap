@@ -9,6 +9,8 @@ import lombok.Setter;
 public class LookupsMapper {
     @JSONField(name = "table")
     public String table;
+    @JSONField(name = "virtualTableName")
+    public String virtualTableName;
     @JSONField(name = "kind")
     public String kind;
     @JSONField(name = "alias")

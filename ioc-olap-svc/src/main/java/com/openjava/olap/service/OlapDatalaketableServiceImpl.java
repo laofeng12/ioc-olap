@@ -1,16 +1,18 @@
 package com.openjava.olap.service;
 
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Resource;
-
+import com.openjava.olap.common.DataLakeConfig;
 import com.openjava.olap.domain.OlapDatalaketable;
 import com.openjava.olap.query.OlapDatalaketableDBParam;
 import com.openjava.olap.repository.OlapDatalaketableRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 构建选择表业务层
@@ -23,6 +25,9 @@ public class OlapDatalaketableServiceImpl implements OlapDatalaketableService {
 
     @Resource
     private OlapDatalaketableRepository olapDatalaketableRepository;
+
+    @Autowired
+    DataLakeConfig dataLakeConfig;
 
     public Page<OlapDatalaketable> query(OlapDatalaketableDBParam params, Pageable pageable) {
         Page<OlapDatalaketable> pageresult = olapDatalaketableRepository.query(params, pageable);
@@ -66,4 +71,5 @@ public class OlapDatalaketableServiceImpl implements OlapDatalaketableService {
     public List<OlapDatalaketable> getListByCubeName(String cubeName) {
         return olapDatalaketableRepository.getListByCubeName(cubeName);
     }
+
 }

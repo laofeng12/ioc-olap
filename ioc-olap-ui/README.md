@@ -18,4 +18,4 @@
 5. oc create -f docker/platform-webui-test.yaml -->
 
 * 访问地址
-http://183.6.55.26:30003/olapweb/
+http://219.135.182.2:30003/olapweb/

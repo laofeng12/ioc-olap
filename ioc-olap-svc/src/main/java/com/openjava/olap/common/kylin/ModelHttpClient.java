@@ -21,8 +21,8 @@ public class ModelHttpClient extends KylinHttpClient {
         return Arrays.asList(result);
     }
 
-    public ModelsDescDataMapper entity(String postman) throws APIException {
-        String url = config.address + "/kylin/api/model/" + postman;
+    public ModelsDescDataMapper entity(String modelName) throws APIException {
+        String url = config.address + "/kylin/api/model/" + modelName;
         ModelsDescDataMapper result = HttpClient.get2(url, config.authorization, ModelsDescDataMapper.class);
         return result;
     }

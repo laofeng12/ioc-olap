@@ -163,6 +163,7 @@ export function getselectTable (params) {
     params
   })
 }
+// 获取表的所有列
 export function getselectColumn (params) {
   return fetch({
     url: '/olap/apis/OlapModeling/selectColumn?resourceIds=' + params,

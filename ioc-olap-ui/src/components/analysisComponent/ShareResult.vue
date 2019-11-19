@@ -3,7 +3,7 @@
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" vueType="shareResult" @clickItem="getTableById"
                  :menuListLoading="menuListLoading" :showDo="false" :needNewFolder="false"></FolderAside>
     <div class="content dis-flex" v-loading="loading">
-      <ResultBox v-if="tableData.length > 0" :tableData="tableData" :shareList="shareList"
+      <ResultBox v-if="tableData.length > 0"   :tableData="tableData" :shareList="shareList"
                  @exportFunc="exportFile"></ResultBox>
       <div v-else class="replace-table">
         <img src="../../assets/img/replace_table.png" />

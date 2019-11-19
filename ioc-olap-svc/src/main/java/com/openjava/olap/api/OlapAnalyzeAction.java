@@ -207,10 +207,12 @@ public class OlapAnalyzeAction {
                 TreeVo meareTreeVo = new TreeVo();
                 meareTreeVo.setId(table.getId().toString());
                 meareTreeVo.setName(table.getName());
+                meareTreeVo.setVirtualTableName(table.getVirtualTableName());
                 meareTreeVo.setChildren(new ArrayList<TreeNodeVo>());
                 TreeVo dimTreeVo = new TreeVo();
                 dimTreeVo.setId(table.getId().toString());
                 dimTreeVo.setName(table.getName());
+                dimTreeVo.setVirtualTableName(table.getVirtualTableName());
                 dimTreeVo.setChildren(new ArrayList<TreeNodeVo>());
                 ArrayList<OlapCubeTableColumn> cubeTableColumns = olapCubeTableColumnService.getListByTableId(table.getCubeTableId());
                 for (OlapCubeTableColumn column : cubeTableColumns) {
@@ -223,7 +225,8 @@ public class OlapAnalyzeAction {
                     axisVo.setColumnName(column.getColumnName());
                     axisVo.setIsDict(table.getIsDict());
                     axisVo.setTableAlias(table.getTableAlias());
-                    axisVo.setTableName(table.getTableName());
+                    axisVo.setTableName(table.getVirtualTableName());//变更为虚拟表名
+                    axisVo.setVirtualTableName(table.getTableName());//换为真实表名，以备后患
                     axisVo.setCubeId(table.getCubeId());
                     axisVo.setName(table.getName());
                     axisVo.setColumnId(column.getCubeTableColumnId());
@@ -321,9 +324,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询数据-对外")
     @RequestMapping(value = "/query/{analyzeId}", method = RequestMethod.GET)
-    @Security(session = true)
     public AnyDimensionVo query(@PathVariable Long analyzeId) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapAnalyze analyze = olapAnalyzeService.get(analyzeId);
         return olapAnalyzeService.query(analyze.getAnalyzeId(), analyze.getCubeId());
     }

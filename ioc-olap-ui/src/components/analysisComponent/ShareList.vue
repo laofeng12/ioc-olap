@@ -124,8 +124,10 @@ export default {
       return filterTime(time)
     }
   },
-  mounted () {
+  created () {
     this.init()
+  },
+  mounted () {
   },
   methods: {
     async init (val) {
@@ -145,7 +147,6 @@ export default {
     },
     searchFetch (val) {
       this.init(val)
-      console.log(val)
     },
     // 展开详情
     clickTable (val) {

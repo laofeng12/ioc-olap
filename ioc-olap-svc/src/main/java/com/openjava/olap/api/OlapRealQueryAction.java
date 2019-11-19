@@ -1,12 +1,9 @@
 package com.openjava.olap.api;
 
-import com.alibaba.fastjson.JSON;
 import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.common.Export;
-import com.openjava.olap.common.GateWayConfig;
 import com.openjava.olap.common.GateWayHttpClient;
-import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
@@ -17,7 +14,6 @@ import com.openjava.olap.vo.QueryResultMapperVo;
 import com.openjava.olap.vo.TreeNodeVo;
 import com.openjava.olap.vo.TreeVo;
 import io.swagger.annotations.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
@@ -30,10 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -156,7 +150,8 @@ public class OlapRealQueryAction extends BaseAction {
                 if (nodeVo == null) {
                     nodeVo = new TreeNodeVo();
                     nodeVo.setId(table.getId().toString());
-                    nodeVo.setName(table.getTableName());
+                    nodeVo.setName(table.getTableName());//真实表名，两个同时返回，不需要替换
+                    nodeVo.setVirtualTableName(table.getVirtualTableName());//虚拟表名
                     nodeVo.setChildren(new ArrayList<TreeNodeVo>());
                     tree.getChildren().add(nodeVo);
                 }
@@ -300,12 +295,10 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "查询数据-对外")
     @RequestMapping(value = "/query/{realQueryId}", method = RequestMethod.GET)
-    @Security(session = true)
     public QueryResultMapper query(@PathVariable Long realQueryId) throws APIException {
-        OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapRealQuery realQuery = olapRealQueryService.get(realQueryId);
         try {
-            return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), userVO.getUserId());
+            return cubeHttpClient.query(realQuery.getSql(), 0, realQuery.getLimit(), realQuery.getCreateId().toString());
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }

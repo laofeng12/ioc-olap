@@ -140,7 +140,7 @@
 import steps from '@/components/analysisComponent/modelCommon/steps'
 import selectAggregation from '@/components/analysisComponent/dialog/selectAggregation'
 import { mapGetters } from 'vuex'
-import { getEncodingList } from '@/api/olapModel'
+// import { getEncodingList } from '@/api/olapModel'
 import { reduceObj } from '@/utils/index'
 export default {
   components: {
@@ -184,6 +184,11 @@ export default {
       }
     }
   },
+  watch: {
+    // '$route' () {
+    //   this.init()
+    // }
+  },
   mounted () {
     this.init()
     this.resortAggregation()
@@ -191,9 +196,9 @@ export default {
   methods: {
     init () {
       // 获取对应的字段
-      getEncodingList().then(res => {
-        // this.getAllcoding = res
-      })
+      // getEncodingList().then(res => {
+      //   // this.getAllcoding = res
+      // })
       // 重置高级组合
       this.hbase_mapping.column_family.forEach((item, index) => {
         if (item.name === 'F1') {
@@ -224,10 +229,22 @@ export default {
       const { hierarchy_dims, joint_dims } = this.aggregation_groups[0].select_rule
       let hierarchy_dimsLen = hierarchy_dims[0].length
       let joint_dimsLen = joint_dims[0].length
-      if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) return this.$message.warning('至少选择两个层级维度')
-      if (joint_dimsLen > 0 && joint_dimsLen < 2) return this.$message.warning('至少选择两联合级维度')
-      if (this.aggregation_groups[0].includes.length < 1) return this.$message.warning('请选择包含维度~')
-      if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) return this.$message.warning('请选择高级列组合~')
+      if (hierarchy_dimsLen > 0 && hierarchy_dimsLen < 2) {
+        this.$message.warning('至少选择两个层级维度')
+        return
+      }
+      if (joint_dimsLen > 0 && joint_dimsLen < 2) {
+        this.$message.warning('至少选择两联合级维度')
+        return
+      }
+      if (this.aggregation_groups[0].includes.length < 1) {
+        this.$message.warning('请选择包含维度~')
+        return
+      }
+      if (this.hbase_mapping.column_family.length < 1 || (this.hbase_mapping.column_family[0].columns && this.hbase_mapping.column_family[0].columns[0].measure_refs.length < 1)) {
+        this.$message.warning('请选择高级列组合~')
+        return
+      }
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

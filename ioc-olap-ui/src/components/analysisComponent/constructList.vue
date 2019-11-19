@@ -121,6 +121,8 @@
 import { mapGetters } from 'vuex'
 import { pauseJobListModeling, cancelJobListModeling, resumeJobListModeling, deleteJobListModeling, getLogDetailsApi } from '@/api/modelList'
 import { filterTime } from '@/utils/index'
+
+// 构建列表
 export default {
   data () {
     return {
@@ -148,8 +150,10 @@ export default {
       return filterTime(time)
     }
   },
-  mounted () {
+  created () {
     this.init()
+  },
+  mounted () {
   },
   computed: {
     ...mapGetters({
@@ -161,38 +165,50 @@ export default {
   },
   methods: {
     async update (val) {
-      const params = {
+      try {
+        this.getLoading = true
+        const params = {
         limit: this.tableData.length,
         offset: 0,
         ...val
       }
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
-      this.getLoading = false
-      this.setTimeout = setTimeout(this.update, 6000)
+      // 不明白这里为什么加个定时器
+      // this.setTimeout = setTimeout(this.update, 6000)
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.getLoading = false
+      }
     },
     async init () {
       clearTimeout(this.setTimeout)
-      const params = {
+      try {
+        this.getLoading = true
+        const params = {
         limit: 15,
         offset: this.offset
       }
-      this.getLoading = true
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       if (res.length > 0) {
         this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
       } else {
         this.moreShow = false
-        // this.$message.success('已加载所有数据')
+        this.$message.success('已加载全部数据')
       }
-      this.getLoading = false
-      this.update()
+      // this.update()
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.getLoading = false
+      }
     },
     searchFetch (val) {
-      this.getLoading = true
       clearTimeout(this.setTimeout)
       this.update(val)
     },
+    // 操作
     handleCommand (val) {
       // clearTimeout(this.setTimeout)
       const { type, params } = val

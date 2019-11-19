@@ -252,9 +252,9 @@ export default {
         return res.label === val
       })
       this.saveSelectAllList.forEach((item, index) => {
-        let items = JSON.parse(item)
-        if (items.resourceId === valId[0].id) {
-          this.textOptions = items.data.columns
+        // let items = JSON.parse(item)
+        if (item.resourceId === valId[0].id) {
+          this.textOptions = item.column
         }
       })
     },

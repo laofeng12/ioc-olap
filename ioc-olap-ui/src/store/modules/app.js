@@ -96,7 +96,6 @@ const app = {
         .then(res => {
           let list = res.resources || []
           commit('SET_MENU_LIST', list)
-          dispatch('GetCatalogMenu')
         })
         .catch(error => {
           console.log(error)

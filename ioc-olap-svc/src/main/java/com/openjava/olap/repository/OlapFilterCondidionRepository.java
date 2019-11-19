@@ -1,6 +1,5 @@
 package com.openjava.olap.repository;
 
-import com.openjava.olap.domain.OlapCubeTableColumn;
 import com.openjava.olap.domain.OlapFilterCondidion;
 import org.ljdp.core.spring.data.DynamicJpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,5 +28,5 @@ public interface OlapFilterCondidionRepository extends DynamicJpaRepository<Olap
     @Transactional
     @Modifying
     @Query(value = "delete from OLAP_FILTER_CONDIDION t where t.CUBE_NAME=:cubeName", nativeQuery = true)
-    void deleteByCubeName(String cubeName);
+    void deleteByCubeName(@Param("cubeName") String cubeName);
 }
