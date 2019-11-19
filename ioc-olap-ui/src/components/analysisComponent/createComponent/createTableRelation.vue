@@ -24,6 +24,7 @@ import BaseInfoPanel from '@/components/analysisComponent/modelCommon/BaseInfoPa
 import createTableModal from '@/components/analysisComponent/dialog/createTableModal'
 import { mapGetters } from 'vuex'
 
+
 let joint = require('jointjs')
 /**
  * routers 设置连线的type
@@ -118,8 +119,34 @@ export default {
     this.initEditor()
   },
   methods: {
+    init () {
+      this.TableCountNum = 0
+      // 初始化选择的别名组合
+      this.arrId = []
+      this.isEditLooks()
+      // 获取已经设置的第二步数据
+      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+      let list = this.jointResult.lookups || []
+      // 新建图形
+      this.graph = new joint.dia.Graph()
+      // 实例化参数
+      let paper = new joint.dia.Paper({
+        el: document.querySelector('#myholder'),
+        width: '100%',
+        height: 700,
+        backgroundColor: '#ffffff',
+        model: this.graph,
+        gridSize: 1
+      })
+    },
     initEditor () {
-      const graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
+      // 编辑的时候 ModelAllList是一个object,新增的时候是一个array
+       let graphData = ''
+       if (!Array.isArray(this.ModelAllList)) {
+         graphData = Object.keys(JSON.parse(this.ModelAllList.graphData)).length ? JSON.parse(this.ModelAllList.graphData) : {}
+       } else {
+         graphData = this.ModelAllList.length > 0 ? JSON.parse(this.ModelAllList.graphData) : {}
+       }
       this.editor = new IOCEditor({
         el: 'editorContainer', // 容器id
         baseInfo: '', // 基础信息，标题，描述，状态等
@@ -253,13 +280,15 @@ export default {
       })
       arr.forEach(t => {
         let { primary_key, foreign_key, pk_type, fk_type, isCompatible, type } = t.join
-        let primary_key_result = []; let foreign_key_result = []
+        let primary_key_result = []
+        let foreign_key_result = []
         let table = t.table.split('.')[1];
 
         (primary_key || []).forEach((m, i) => {
           primary_key_result.push(primary_key[i].split('.')[1])
           foreign_key_result.push(foreign_key[i].split('.')[1])
         })
+
         lookups.push({
           alias: t.alias.toUpperCase(),
           id: t.id,
@@ -289,26 +318,6 @@ export default {
         fact_table: factTable,
         lookups
       }
-    },
-    init () {
-      this.TableCountNum = 0
-      // 初始化选择的别名组合
-      this.arrId = []
-      this.isEditLooks()
-      // 获取已经设置的第二步数据
-      this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      let list = this.jointResult.lookups || []
-      // 新建图形
-      this.graph = new joint.dia.Graph()
-      // 实例化参数
-      let paper = new joint.dia.Paper({
-        el: document.querySelector('#myholder'),
-        width: '100%',
-        height: 700,
-        backgroundColor: '#ffffff',
-        model: this.graph,
-        gridSize: 1
-      })
     },
     // 判断是否是编辑进来的，需要将lookups里的表名筛选出来
     isEditLooks () {
@@ -404,8 +413,9 @@ export default {
     // 选择子表对应的字段
     getModalPrimarySelected (e) {
       let index = e.index
-      let primary_key = e.name
-      let pk_type = e.dataType
+      // let primary_key = e.name
+      let primary_key = e.definition
+      let pk_type = e.type
       let foreign_key = this.linkModalFields[index].foreign_key
       let fk_type = this.linkModalFields[index].fk_type
 
@@ -421,6 +431,7 @@ export default {
         if (foreign_key && fk_type) {
           this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
+        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       }
     },
     // 选择主表对应的字段
@@ -428,8 +439,9 @@ export default {
       let index = e.index
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
-      let foreign_key = e.name
-      let fk_type = e.dataType
+      // let foreign_key = e.name
+      let foreign_key = e.definition
+      let fk_type = e.type
 
       if (index >= 0 && foreign_key && fk_type) {
         if (fk_type && pk_type && pk_type !== fk_type) {
@@ -448,7 +460,11 @@ export default {
     },
     // 存储已选择表对应的字段
     updateFields (alias, joinAlias, fields) {
-      let primary_key = []; let foreign_key = []; let pk_type = []; let fk_type = []
+      let primary_key = []
+      let foreign_key = []
+      let pk_type = []
+      let fk_type = []
+
       fields.forEach((t, i) => {
         if (t.primary_key && t.foreign_key && t.pk_type && t.fk_type) {
           primary_key.push(`${t.primary_key}`)
@@ -461,6 +477,7 @@ export default {
       this.linkModal.join.foreign_key = foreign_key
       this.linkModal.join.pk_type = pk_type
       this.linkModal.join.fk_type = fk_type
+
       // 判断是否选中了关联对应的字段 (改变对应的文字以及样式)
       if (primary_key.length > 0 && this.linkModalModel.labels) {
         this.linkModalModel.labels([{ position: 0.5, attrs: { image: { 'xlink:href': this.url }, text: { text: '已关联', 'fill': '#0486FE', 'font-weight': 'bold', 'z-index': '-1', 'font-size': '12px' } } }])
@@ -500,8 +517,8 @@ export default {
       let result = {
         name: data.name || '',
         description: data.description || '',
-        SAxis: this.nodeList[0].x || 0,
-        YAxis: this.nodeList[0].y || 0,
+        SAxis: this.nodeList.length ? this.nodeList[0].x : 0,
+        YAxis: this.nodeList.length ? this.nodeList[0].y : 0,
         fact_table: `${data.name}.${data.fact_table}`,
         lookups: []
       };
@@ -573,11 +590,24 @@ export default {
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       }
+      if (!this.linkModal.join.type) {
+          this.$message.warning('请选择表的关联关系~')
+          return
+      }
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       const { graphData } = this.editor.getResult()
+      this.$store.commit('SET_TABLE_JOINTYPE',this.linkModal.join.type)
       await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
-      this.$router.push('/analysisModel/createolap/setFiled')
-      this.$parent.getStepCountAdd(val)
+      this.$parent.getStepCountAdd(val) // 下一步
       this.getIdToList()
+      this.$router.push('/analysisModel/createolap/setFiled')
+      // this.$parent.getStepCountAdd(val)
+      // this.getIdToList()
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      // this.$router.push('/analysisModel/createolap/setFiled')
+
+      // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      // this.$router.push('/analysisModel/createolap/setFiled')
     },
     // 判断拖入画布的表是否都关联上
     isTableAssociate () {
@@ -604,14 +634,24 @@ export default {
       this.$router.push('/analysisModel/createolap/selectStep')
       this.$parent.getStepCountReduce(val)
     },
+    // 查看表的数据
     lookDetailData (id) {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
+      //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
+      //     // this.couponList = res.data
+      //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      //   })
+      // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
+      //   this.couponList = res.data.columns
+      // })
+      // 模拟数据
+      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
+      // 根据name去获取本地对应的数据
       (this.saveSelectAllList || []).forEach((item, index) => {
-        let items = JSON.parse(item)
-        if (items.resourceId === id) {
-          this.couponList = items.data.columns || []
+        if (item.resourceId === id) {
+          this.couponList = item.column || []
         }
       })
     }

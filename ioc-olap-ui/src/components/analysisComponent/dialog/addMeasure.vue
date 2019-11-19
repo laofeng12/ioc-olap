@@ -33,35 +33,6 @@
               <el-option v-for="item in backType" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <!-- <el-table :data="formData.answers">
-            <el-table-column
-              label="序号"
-              prop='index'
-              width="100"
-              align="center">
-            </el-table-column>
-            <el-table-column
-              label="选择字段"
-              align="center">
-              <template slot-scope="scope">
-                <el-form-item :prop="'answers.' + scope.$index + '.answertext'">
-                  <el-select v-model="scope.row.answertext" placeholder="请选择字段">
-                    <el-option v-for="(item, index) in fieldtextOption" :key="index" :label="item.label" :value="item.label"></el-option>
-                  </el-select>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              fixed="right"
-              width="200"
-              align="center">
-              <template slot-scope="scope">
-                <el-button type="text" size="small" @click="handDeleteMethod(scope.row.roleid, scope.$index)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-button type="primary" @click="addtext">+添加字段</el-button> -->
         </div>
         <div v-if="formData.computeMode==='TOP_N'" class="coutTopn">
           <el-form-item label="返回类型" :label-width="formLabelWidth">
@@ -263,15 +234,29 @@ export default {
       // 创建一个接受所有维度的盒子
       let AllData = []
       // 遍历筛选出第三步所有勾选的数据
+      // this.saveSelectAllList.forEach((item, index) => {
+      //   let items = JSON.parse(item)
+      //   this.jointResultData.lookups.forEach((n, i) => {
+      //     if (items.resourceId === n.id) {
+      //       items.data.columns.forEach((k, i) => {
+      //         AllData.push({
+      //           label: n.alias + '.' + k.name,
+      //           id: k.id,
+      //           dataType: k.dataType
+      //         })
+      //       })
+      //     }
+      //   })
+      // })
       this.saveSelectAllList.forEach((item, index) => {
-        let items = JSON.parse(item)
+        // let items = JSON.parse(item)
         this.jointResultData.lookups.forEach((n, i) => {
-          if (items.resourceId === n.id) {
-            items.data.columns.forEach((k, i) => {
+          if (item.resourceId === n.id) {
+            item.column.forEach((k, i) => {
               AllData.push({
-                label: n.alias + '.' + k.name,
+                label: n.columnAlias + '.' + k.name,
                 id: k.id,
-                dataType: k.dataType
+                dataType: k.type
               })
             })
           }
@@ -284,7 +269,7 @@ export default {
       // 遍历筛选出所有事实表的数据
       this.SaveFactData.map(item => {
         factData.push(
-          { id: item.id, dataType: item.dataType, label: `${item.tableName}.${item.name}` }
+          { id: item.id, dataType: item.type, label: `${item.tableName}.${item.columnAlias}` }
         )
       })
       this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])

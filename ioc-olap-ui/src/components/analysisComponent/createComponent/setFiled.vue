@@ -19,7 +19,7 @@
               style="margin-top: 10px;">
               <el-table-column type="selection" :selectable="isSelectable" width="30" prop="全选" align="center"></el-table-column>
               <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
-              <el-table-column prop="dataType" label="字段类型" align="center"> </el-table-column>
+              <el-table-column prop="type" label="字段类型" align="center"> </el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
@@ -32,7 +32,10 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode" @change="radioChange(scope.row)" :disabled="(scope.row.filed === '1' || scope.row.defaultVal === 'n') ? true : false">
+                    <el-radio-group 
+                    v-model="scope.row.filed === '1' ? '1' : scope.row.mode" 
+                    @change="radioChange(scope.row)" 
+                    :disabled="scope.row.filed === '1' || scope.row.defaultVal === 'n'">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
                     </el-radio-group>
@@ -75,7 +78,7 @@ export default {
       this.$refs.filedTable.init()
     }
   },
-  created () {
+  mounted () {
     this.init()
   },
   methods: {
@@ -94,17 +97,18 @@ export default {
           this.loading = true
           setTimeout(() => {
             this.saveSelectAllListFiled.forEach((item, index) => {
-              let items = JSON.parse(item)
-              items.data.columns && items.data.columns.map((n, i) => {
+              // let items = JSON.parse(item)
+              item.column && item.column.map((n, i) => {
                 n.mode = n.mode ? n.mode : '2'
-                n.derived = n.name
-                n.titName = n.name
+                n.derived = n.definition
+                n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
-                n.id = `${data.alias}.${n.name}`
+                n.id = `${data.alias}.${n.definition}`
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
-              this.tableData = items.data.columns
+              // this.tableData = items.data.columns
+              this.tableData = item.column
               let arr = []
               setTimeout(() => {
                 this.tableData && this.tableData.forEach((item, i) => {
@@ -124,19 +128,20 @@ export default {
           }, 1000)
         } else {
           this.saveSelectAllListFiled.forEach((item, index) => {
-            let items = JSON.parse(item)
-            if (items.resourceId === data.id) { // 根据id获取对应数据
-              items.data.columns && items.data.columns.map((n, i) => {
-                n.mode = n.mode ? n.mode : '2'
-                n.derived = n.name
-                n.titName = n.name
+            // let items = JSON.parse(item)
+            if (item.resourceId === data.id) { // 根据id获取对应数据
+            // if (items.name === data.joinTable) { // 根据name获取对应数据
+              item.column && item.column.map((n, i) => {
+                n.mode = n.mode ? n.mode : '2' // 默认衍生模式
+                n.derived = n.definition
+                n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
                 // n.id = `${data.alias}${i}`
-                n.id = `${data.alias}.${n.name}`
+                n.id = `${data.alias}.${n.definition}`
                 n.filed = data.alias === code ? '1' : '0'
               })
               // 获取对应的字段赋值到列表
-              this.tableData = items.data.columns
+              this.tableData = item.column
               // 调用获取默认勾选的方法
               this.processData(code, data.alias)
               let arr = []
@@ -171,19 +176,34 @@ export default {
     processData (code, alias) {
       // 处理所有表对应的字段
       let values = []
-      this.saveSelectAllListFiled.map((item, index) => {
-        let items = JSON.parse(item)
-        items.data.columns.map((res, i) => {
+      // this.saveSelectAllListFiled.map((item, index) => {
+      //   let items = JSON.parse(item)
+      //   items.data.columns.map((res, i) => {
+      //     values.push({
+      //       tableName: items.name,
+      //       name: res.name,
+      //       titName: res.name,
+      //       id: `${items.name}.${res.name}`,
+      //       resid: items.resourceId,
+      //       mode: items.code ? items.code : '2',
+      //       derived: res.name,
+      //       dataType: res.dataType,
+      //       filed: items.name === code ? '1' : '0'
+      //     })
+      //   })
+      // })
+      this.saveSelectAllListFiled.forEach((item, index) => {
+        item.column.map((res, i) => {
           values.push({
-            tableName: items.name,
-            name: res.name,
-            titName: res.name,
-            id: `${items.name}.${res.name}`,
-            resid: items.resourceId,
-            mode: items.code ? items.code : '2',
-            derived: res.name,
-            dataType: res.dataType,
-            filed: items.name === code ? '1' : '0'
+            tableName: item.resourceTableName,
+            name: res.columnAlias,
+            titName: res.columnAlias,
+            id: `${item.resourceTableName}.${res.columnAlias}`,
+            resid: item.resourceId,
+            mode: item.code ? item.code : '2',
+            derived: res.columnAlias,
+            dataType: res.type,
+            filed: item.name === code ? '1' : '0'
           })
         })
       })
@@ -303,11 +323,11 @@ export default {
       }
     },
     nextModel (val) {
-      if (this.saveSelectFiled.length === 0) {
+      if (!this.saveSelectFiled.length) {
         this.$message.warning('请选择维度字段')
       } else {
-        this.$router.push('/analysisModel/createolap/setMeasure')
         this.$parent.getStepCountAdd(val)
+        this.$router.push('/analysisModel/createolap/setMeasure')
       }
     },
     prevModel (val) {

@@ -10,12 +10,14 @@
         </div>
       </div>
     </div>
-    <div class="linkSetting">
-      <div class="item" v-if="jointResult.lookups" v-for="(item, index) in jointResult.lookups" :key="index">
+    <div class="linkSetting" v-if="jointResult.lookups">
+      <div class="item" v-for="(item, index) in jointResult.lookups" :key="index">
         <h3 class="itemTitle">关联关系{{index+1}}</h3>
         <h5>主表：{{item.joinTable}}</h5>
+        <!-- <h5>子表：{{item.table.substring(item.table.indexOf('.') + 1)}}</h5> -->
+        <h5>连接类型：{{getJoinTypeStr(item.join.type)}}</h5>
         <h5>子表：{{item.table}}{{item.alias !== (item.table) ? `（${item.alias}）` : '' }}</h5>
-        <h5>连接类型：{{item.join.type}}</h5>
+        <!-- <h5>连接类型：{{item.join.type}}</h5> -->
         关联字段：
         <div v-for="(n, index) in item.join.foreign_key" :key="index">
           <span>{{sortSplit(item.join.foreign_key[index])}}</span> => <span>{{sortSplit(item.join.primary_key[index])}}</span>
@@ -69,6 +71,9 @@ export default {
     this.init()
   },
   methods: {
+    getJoinTypeStr (value) {
+      return value === 'left' ? '左连接' :  value === 'inner' ? '内连接' : ''
+    },
     sortSplit (data) {
       let val = data.substring(data.indexOf('.') + 1)
       return val
