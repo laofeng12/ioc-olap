@@ -18,10 +18,10 @@
              <span  class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            </template>
           <el-tooltip placement="top" v-else>
-           <span slot="content" class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
-           <span slot="content" class="cus-node-title"  :title="data.name-data.virtualTableName" v-else>{{ data.name}} - {{ data.virtualTableName }}</span>
-           <span  class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
-           <span  class="cus-node-title"  :title="data.name-data.virtualTableName" v-else>{{ data.name}}-{{ data.virtualTableName }}</span>
+           <span slot="content" class="cus-node-title"  v-if="!data.virtualTableName">{{ data.name }}</span>
+           <span slot="content" class="cus-node-title"  v-else>{{ data.virtualTableName }} - {{ data.name}}</span>
+           <span  class="cus-node-title"  v-if="!data.virtualTableName">{{ data.name }}</span>
+           <span  class="cus-node-title"  v-else>{{ data.virtualTableName }} - {{ data.name}}</span>
           </el-tooltip>
         </div>
         <!-- <div v-else>
