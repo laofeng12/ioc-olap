@@ -1,21 +1,20 @@
 package com.openjava.olap.service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-
 import com.openjava.olap.domain.OlapCubeTable;
 import com.openjava.olap.domain.OlapDatalaketable;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeTableDBParam;
 import com.openjava.olap.repository.OlapCubeTableRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件夹表业务层
@@ -108,6 +107,7 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
             cubeTable.setName(lm.getAlias());//表中文名称
             cubeTable.setCubeId(cubeId);//立方体ID
             cubeTable.setTableName(tableName);//表名称
+            cubeTable.setVirtualTableName(lm.getVirtualTableName());// 虚拟表名
             cubeTable.setTableAlias(lm.getAlias());//表别名
             cubeTable.setIsDict(0);//是否是事实表
             cubeTable.setDatabaseName(libraryName);//数据库名称

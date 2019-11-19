@@ -1,18 +1,16 @@
 package com.openjava.olap.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.domain.*;
-import com.openjava.olap.mapper.kylin.CubeDatalaketableNewMapper;
-import com.openjava.olap.mapper.kylin.CubeDescMapper;
-import com.openjava.olap.mapper.kylin.MeasureMapper;
-import com.openjava.olap.mapper.kylin.ModelsDescDataMapper;
+import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 文件夹表业务层接口
@@ -51,9 +49,21 @@ public interface OlapCubeService {
 
 	boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
 					  List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,
-					  OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions, ArrayList<MeasureMapper> countMappers) throws Exception;
+					  OlapTimingrefresh timingreFresh, Date date, OaUserVO userVO, List<OlapFilterCondidion> condidions, ArrayList<MeasureMapper> countMappers, List<TableNameRelationMapper> list) throws Exception;
 
 	void saveTableClone(OlapCube olapCube, ArrayList<OlapCubeTable> cubeTablesList, ArrayList<OlapCubeTableColumn> findByColumn,
 						OlapFilter findTableInfo, ArrayList<OlapCubeTableRelation> olapcubeList, OlapTimingrefresh olapTimingrefresh,
 						List<OlapDatalaketable> datalaketables, OaUserVO loginUser, String cloneCubeName);
+
+	/**
+	 * <p>根据模型状态查询模型列表,再按照模型名称查询关联的表</p>
+	 * <p>最后按照模型名称分组</p>
+	 * @param flags
+	 * @return Map,key:cubeName,value:OlapDatalaketable
+	 */
+	Map<String,List<OlapDatalaketable>> queryByFlags(Integer flags);
+
+	List<OlapCube> queryListByFlags(Integer flags);
+
+	List<CubeMapper> resetCubeStatus(List<CubeMapper> result);
 }

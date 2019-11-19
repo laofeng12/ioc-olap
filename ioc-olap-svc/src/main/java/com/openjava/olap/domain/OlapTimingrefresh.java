@@ -1,22 +1,18 @@
 package com.openjava.olap.domain;
 
-import java.util.Date;
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.data.domain.Persistable;
-import org.hibernate.validator.constraints.Length;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.domain.Persistable;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 实体
@@ -100,9 +96,28 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Column(name = "AUTORELOAD")
 	private Integer autoReload;
 
+	@ApiModelProperty("开始时间，增量时，需要传参")
+	@Column(name = "BEGIN")
+	private Long begin;
+
+	@ApiModelProperty("结束时间，增量时，需要传参")
+	@Column(name = "END")
+	private Long end;
+
+	/**是否是增量，1：增量，0：全量。新建模型时保存该值**/
+	@ApiModelProperty("构建模式[1：增量，0：全量]")
+	@Column(name = "BUILD_MODE")
+	private Integer buildMode;
+
 	@ApiModelProperty("是否新增")
 	@Transient
     private Boolean isNew;
+
+	/**增量构建**/
+	public static transient final int BUILD_DELTA = 1;
+	/**全量构建**/
+	public static transient final int BUILD_WHOLE = 0;
+
 
 	@Transient
     @JsonIgnore

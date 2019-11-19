@@ -75,7 +75,7 @@ public class OLAPApplication {
 	private String apiSkey;
 	@Bean
 	public SessionValidator sessionValidator() {
-		return new RedisSessionVaidator(apiSkey);
+		return new IocRedisSessionVaidator(apiSkey);
 //		return new EhcacheSessionValidator();
 	}
 	
