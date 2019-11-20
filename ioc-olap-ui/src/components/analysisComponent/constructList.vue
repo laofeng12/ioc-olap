@@ -6,14 +6,8 @@
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
     </header>
-    <el-table
-        v-loading="getLoading"
-        :data="tableData"
-        ref="multipleTable"
-        tooltip-effect="dark"
-        :header-cell-class-name="tableHead"
-        stripe
-        >
+    <el-table v-loading="getLoading" :data="tableData" ref="multipleTable" tooltip-effect="dark"
+        :header-cell-class-name="tableHead" stripe>
         <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>

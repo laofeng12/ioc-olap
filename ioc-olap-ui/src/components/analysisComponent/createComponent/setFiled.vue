@@ -32,9 +32,9 @@
                 align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group 
-                    v-model="scope.row.filed === '1' ? '1' : scope.row.mode" 
-                    @change="radioChange(scope.row)" 
+                    <el-radio-group
+                    v-model="scope.row.filed === '1' ? '1' : scope.row.mode"
+                    @change="radioChange(scope.row)"
                     :disabled="scope.row.filed === '1' || scope.row.defaultVal === 'n'">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
