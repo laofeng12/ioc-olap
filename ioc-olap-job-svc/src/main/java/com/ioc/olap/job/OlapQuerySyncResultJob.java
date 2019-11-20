@@ -36,7 +36,7 @@ public class OlapQuerySyncResultJob {
         this.cubeHttpClient = cubeHttpClient;
     }
 
-    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:'0 0/1 * * * ?'}")
+    @Scheduled(cron = "${schedule.cubeStatus.querySyncJob:0 0/1 * * * ?}")
     public void querySyncJobStatus()throws Exception{
         log.info("定时查询状态开始");
         //查询出正在处于“数据同步中”的模型
