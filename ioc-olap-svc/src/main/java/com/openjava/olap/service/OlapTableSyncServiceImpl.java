@@ -5,7 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.olap.common.DataLakeConfig;
 import com.openjava.olap.common.RestToken;
+import com.openjava.olap.common.kylin.HiveHttpClient;
 import com.openjava.olap.domain.OlapTableSync;
+import com.openjava.olap.mapper.kylin.TableStructureMapper;
 import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.repository.OlapTableSyncRepository;
 import com.openjava.olap.vo.OlapTableSyncVo;
@@ -35,16 +37,21 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
     @Value("${olap.sync.realTableNamePrefix:OLAP_}")
     private String REAL_TABLE_NAME_PREFIX;
 
+    @Value("${olap.kylin.databaseName:olap}")
+    private String DATABASE_NAME;
+
     private final OlapTableSyncRepository repository;
     private final DataLakeConfig dataLakeConfig;
     private final RestToken restToken;
+    private final HiveHttpClient hiveHttpClient;
 
     public OlapTableSyncServiceImpl(
         OlapTableSyncRepository repository,
-        DataLakeConfig dataLakeConfig, RestToken restToken) {
+        DataLakeConfig dataLakeConfig, RestToken restToken, HiveHttpClient hiveHttpClient) {
         this.repository = repository;
         this.dataLakeConfig = dataLakeConfig;
         this.restToken = restToken;
+        this.hiveHttpClient = hiveHttpClient;
     }
 
     @Transactional
@@ -77,6 +84,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     OlapTableSyncVo vo = new OlapTableSyncVo();
                     vo.setDatabaseId(param.getDatabaseId());
                     vo.setResourceId(param.getResourceId());
+                    vo.setVirtualTableName(sync.getVirtualTableName());
                     vo.setWriterTableName(sync.getTableName());
                     vo.setSyncId(sync.getSyncId());
                     vo.setIsNew(false);
@@ -86,6 +94,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     vo.setDatabaseId(param.getDatabaseId());
                     vo.setResourceId(param.getResourceId());
                     vo.setSuccess(true);
+                    vo.setVirtualTableName(sync.getVirtualTableName());
                     vo.setWriterTableName(sync.getTableName());
                     results.add(vo);
                     iterator.remove();//成功的就不拿去请求了
@@ -96,6 +105,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                 OlapTableSyncVo vo = new OlapTableSyncVo();
                 vo.setDatabaseId(param.getDatabaseId());
                 vo.setResourceId(param.getResourceId());
+                vo.setVirtualTableName(param.getResourceName());
                 vo.setWriterTableName(param.getWriterTableSource());
                 vo.setIsNew(true);
                 results.add(vo);
@@ -132,7 +142,24 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                 });
             });
         }
+        queryHiveTableMeta(results);
         return results;
+    }
+
+    /**
+     * 查询hive表结构，字段信息
+     * @param list
+     * @throws Exception
+     */
+    @Security(session = true)
+    private void queryHiveTableMeta(List<OlapTableSyncVo> list)throws Exception{
+        String project = ((UserVO)SsoContext.getUser()).getUserId();
+        if (list != null && !list.isEmpty()){
+            for (OlapTableSyncVo s : list) {
+                TableStructureMapper meta = this.hiveHttpClient.getTableMeta(project, DATABASE_NAME, s.getWriterTableName());
+                s.setMeta(meta);
+            }
+        }
     }
 
     @Override
