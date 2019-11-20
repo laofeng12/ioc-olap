@@ -86,3 +86,28 @@
 .center-input .el-input__inner {
   text-align: center;
 }
+.el-dialog__header {
+  border-bottom: 1px solid #f0f0f0;
+}
+// elementui 滚动条
+.el-scrollbar__wrap{
+  overflow-x: hidden;
+}
+.el-scrollbar__bar.is-vertical {
+  width: 4px;
+  top: 2px;
+}
+.el-scrollbar__thumb,.el-scrollbar__thumb:hover  {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.el-scrollbar__bar.is-horizontal {
+  height: 4px;
+  left: 2px;
+}
+.el-scrollbar__bar.is-horizontal:hover, .el-scrollbar__bar.is-horizontal:active {
+  height: 6px;
+  left: 2px;
+}
+.el-tree__empty-text {
+  font-size: 14px;
+}

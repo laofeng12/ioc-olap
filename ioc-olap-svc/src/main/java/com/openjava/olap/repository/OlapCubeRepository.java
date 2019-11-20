@@ -39,4 +39,13 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
 
     @Query(value = "select c.* from OLAP_CUBE c inner join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId", nativeQuery = true)
     List<OlapCube> getOlapShareByShareUserId(@Param("shareUserId") String shareUserId);
+
+    @Query(value = "select c.NAME from OLAP_CUBE c where c.FLAGS=:flags",nativeQuery = true)
+    List<String> getCubeNameByFlags(@Param("flags") Integer flags);
+
+    @Query(value = "select * from OLAP_CUBE c where c.FLAGS=:flags",nativeQuery = true)
+    List<OlapCube> getListByFlags(@Param("flags") Integer flags);
+
+    @Query(value = "select t.* from OLAP_CUBE t where t.NAME in (:nameList)", nativeQuery = true)
+    List<OlapCube> findByCubeNameList(@Param("nameList")List<String> cubeNameList);
 }

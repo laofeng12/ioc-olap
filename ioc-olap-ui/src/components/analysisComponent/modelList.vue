@@ -26,9 +26,10 @@
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="name" label="模型名称" show-overflow-tooltip> </el-table-column>
-        <el-table-column min-width="100%" prop="status" label="模型状态" show-overflow-tooltip>
+        <el-table-column min-width="100%" prop="flagsName" label="模型状态" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div :style="{color: statusReviewFilter(scope.row.status, 4)}">{{scope.row.status === 'DISABLED' ? '禁用' : '启用'}}</div>
+            <!-- 0:不可用,1:可用,2:就绪,3:数据同步中,4:同步失败,5:构建中,6:构建失败 -->
+            <div :style="{color: statusReviewFilter((scope.row.flags === 0 || scope.row.flags === 4 || scope.row.flags === 6) ? 'DISABLED' : 'READY', 4)}">{{scope.row.flagsName}}</div>
           </template>
         </el-table-column>
         <el-table-column min-width="100%" prop="size_kb" label="模型大小" show-overflow-tooltip>
@@ -65,7 +66,8 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :command="{type: 'lookDetail', params: scope.row}">查看</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
-                  <el-dropdown-item :command="{type: 'construct', params: scope.row}">构建</el-dropdown-item>
+                  <!-- 1：成功，-1：失败，0：进行中 :disabled="scope.row.syncStatus !== 1" -->
+                  <el-dropdown-item :command="{type: 'construct', params: scope.row}" >构建</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item v-if="scope.row.status === 'DISABLED'"
                                     :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
@@ -124,24 +126,34 @@ export default {
       return filterTime(time)
     }
   },
-  mounted () {
+  created () {
     this.init()
   },
+  mounted () {
+  },
   methods: {
-    async init (val) {
-      this.getLoading = true
-      const params = {
+    init (val) {
+      this.getModelList(val)  
+    },
+    // 模型列表
+    async getModelList (val) {
+      try {
+        this.getLoading = true
+        const params = {
         limit: 15,
         offset: this.offset,
-        dateType: 1,
+        dateType: 1, // 1：模型列表 2：构建列表 
         ...val
       }
       const { cubeMappers: res, next } = await getModelDataList(params)
-      if (res.length > 0) {
+      if (res && res.length > 0) {
         this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
       }
       this.moreShow = next
-      this.getLoading = false
+      } catch(e) {
+      } finally {
+        this.getLoading = false
+      }
     },
     async update (val) {
       this.getLoading = true
@@ -291,6 +303,7 @@ export default {
       this.getLoading = true
     },
     closeChangeLoading () {
+      this.tableData = []
       this.getLoading = false
       this.init()
     },

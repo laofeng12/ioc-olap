@@ -1,23 +1,20 @@
 package com.openjava.olap.domain;
 
-import java.util.Date;
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.data.domain.Persistable;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.data.domain.Persistable;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 实体
  * @author xiepc
- *
+ * @see com.openjava.olap.common.CubeFlags 模型状态定义
  */
 @ApiModel("立方体")
 @Entity
@@ -42,7 +39,7 @@ public class OlapCube implements Persistable<Long>,Serializable {
 	private Long updateId;
 	@ApiModelProperty("更新人名称")
 	private String updateName;
-	@ApiModelProperty("0 不可用 1可用")
+	@ApiModelProperty("0:不可用,1:可用,2:就绪,3:数据同步中,4:同步失败,5:构建中,6:构建失败,")
 	private Integer flags;
 	@ApiModelProperty("维度表数量")
 	private Long dimensionLength;

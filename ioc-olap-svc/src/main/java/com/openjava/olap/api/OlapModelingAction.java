@@ -3,6 +3,7 @@ package com.openjava.olap.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.TableNameTransposition;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
@@ -10,14 +11,17 @@ import com.openjava.olap.service.*;
 import com.openjava.olap.vo.CubeListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import net.sf.ehcache.transaction.xa.EhcacheXAException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -33,6 +37,7 @@ import java.util.stream.Collectors;
 @Api(tags = "模型")
 @RestController
 @RequestMapping("/olap/apis/OlapModeling")
+@Slf4j
 public class OlapModelingAction extends BaseAction {
 
     @Resource
@@ -59,6 +64,9 @@ public class OlapModelingAction extends BaseAction {
     @Resource
     private OlapDatalaketableService olapDatalaketableService;
 
+    @Resource
+    private OlapCubeBuildService olapCubeBuildService;
+
     @Autowired
     ModelHttpClient modelHttpClient;
     @Autowired
@@ -79,6 +87,7 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
     @Security(session = true)
     public CubeListVo cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
+        // 先查询麒麟的模型列表，后读取数据库的模型状态字段，之所以保留查询麒麟列表，是因为要返回date_range_end上一次构建时间
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
         List<CubeMapper> cubeList = new ArrayList<>();
@@ -115,7 +124,7 @@ public class OlapModelingAction extends BaseAction {
                 cubeList = cubeList.subList(0, limit);
             }
         }
-
+        this.olapCubeService.resetCubeStatus(cubeList);
         return new CubeListVo(cubeList, isNext);
     }
 
@@ -154,6 +163,16 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/createModeling", method = RequestMethod.POST)
     @Security(session = true)
     public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws Exception {
+        List<TableNameRelationMapper> relations = body.getRelations();
+        if (relations != null && !relations.isEmpty()){
+
+            for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
+                if (mapper.getTableName()!=null && mapper.getVirtualTableName()!=null){
+                    TableNameTransposition.replaceAll(body,mapper.getTableName(),mapper.getVirtualTableName());
+                }
+            }
+            log.info("请求模型消息体替换后:{}",JSON.toJSONString(body));
+        }
         ModelsMapper models = body.getModels();
         CubeDescMapper cube = body.getCube();
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -232,7 +251,7 @@ public class OlapModelingAction extends BaseAction {
         try {
             //保存所有数据
             olapCubeService.saveTable(olapCube, cubeTablesList, olapcubeList, body.getCubeDatalaketableNew(), cube, models.getModelDescData(), body.getTimingreFresh(),
-                    date, userVO, body.getFilterCondidion(), countMappers);
+                    date, userVO, body.getFilterCondidion(), countMappers,relations);
         } catch (Exception ex) {
             if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
                 modelHttpClient.delete(modelName);
@@ -390,7 +409,8 @@ public class OlapModelingAction extends BaseAction {
         if (cubeDatalaketableNew != null) {
             for (CubeDatalaketableNewMapper datalaketableNew : cubeDatalaketableNew) {
                 for (OlapDatalaketable table : datalaketableNew.getTableList()) {
-                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
+//                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
+                    String name = "olap" + "." + table.getTable_name();//TODO 这里前缀olap是固定的hive数据库名，需加到配置文件里
                     tableNameList.add(name);
                 }
             }
@@ -409,7 +429,7 @@ public class OlapModelingAction extends BaseAction {
         } else {
             String[] strArrayTrue = project.getTables().toArray(new String[0]);
             String[] tableName = tableNameList.stream().toArray(String[]::new);
-            //对比是否存在,存在的就不要加进去了tables
+            //对比是否存在,存在的就不要加进去了tables,拿差集
             String[] tableNameArray = minus(strArrayTrue, tableName);
             if (tableNameArray.length != 0) {
                 List<String> list = Arrays.asList(tableNameArray);
@@ -441,12 +461,12 @@ public class OlapModelingAction extends BaseAction {
 
         for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
             for (String fk : lookupsMapper.join.getForeign_key()) {
-                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(fk) && p.getDerived() == null).count() == 0) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equalsIgnoreCase(fk) && p.getDerived() == null).count() == 0) {
                     throw new APIException(400, "外键列【" + fk + "】必须在维度中存在且为非衍生模式！");
                 }
             }
             for (String pk : lookupsMapper.join.getPrimary_key()) {
-                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equals(pk)).count() == 0) {
+                if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equalsIgnoreCase(pk)).count() == 0) {
                     throw new APIException(400, "主键列【" + pk + "】必须在维度中存在！");
                 }
             }
@@ -518,6 +538,7 @@ public class OlapModelingAction extends BaseAction {
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
         ModelsDescDataMapper model = modelHttpClient.entity(cube.getModel_name());
         List<OlapDatalaketable> table = olapDatalaketableService.getListByCubeName(cubeName);
+        List<TableNameRelationMapper> relations = TableNameTransposition.extract(table);
         OlapCube olapCube = olapCubeService.findTableInfo(cubeName);
         if (olapCube == null) {
             throw new APIException(400, "立方体数据缺失！");
@@ -555,11 +576,11 @@ public class OlapModelingAction extends BaseAction {
             String[] joinFk = l.join.getPrimary_key();
             for (int i = 0; i < joinPk.length; i++) {
                 String joinPkSub = joinPk[i].substring(joinPk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnName().equals(joinPkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityPk = column.stream().filter(p -> p.getColumnName().equalsIgnoreCase(joinPkSub)).findFirst();
                 pkList.add(EntityPk.get().getColumnType());
 
                 String joinFkSub = joinFk[i].substring(joinFk[i].indexOf(".") + 1);
-                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnName().equals(joinFkSub)).findFirst();
+                Optional<OlapCubeTableColumn> EntityFk = column.stream().filter(p -> p.getColumnName().equalsIgnoreCase(joinFkSub)).findFirst();
                 fkList.add(EntityFk.get().getColumnType());
             }
             l.join.setPk_type(pkList);
@@ -627,8 +648,8 @@ public class OlapModelingAction extends BaseAction {
             Optional<OlapCubeTable> cubeEntity = cubetable.stream().filter(p -> p.getTableAlias().equalsIgnoreCase(dimension.getTable())).findFirst();
             //列信息
             Optional<OlapCubeTableColumn> columnEntity = olapCubeTableColumnService.findByCubeTableId(cubeEntity.get().getCubeTableId())
-                    .stream().filter(p -> p.getColumnAlias().equals(colmn)).findFirst();
-            RowkeyColumnMapper columnMapper = cube.getRowkey().getRowkey_columns().stream().filter(p -> p.getColumn().equals(full)).findFirst().orElse(null);
+                    .stream().filter(p -> p.getColumnAlias().equalsIgnoreCase(colmn)).findFirst();
+            RowkeyColumnMapper columnMapper = cube.getRowkey().getRowkey_columns().stream().filter(p -> p.getColumn().equalsIgnoreCase(full)).findFirst().orElse(null);
             //赋值列信息
             if (columnEntity.isPresent()) {
                 dimension.setColumn_type(columnEntity.get().getColumnType());
@@ -659,6 +680,14 @@ public class OlapModelingAction extends BaseAction {
         paramMap.put("timingreFresh", timingrefresh);
         paramMap.put("filterCondidion", olapFilterCondidions);
         paramMap.put("graphData", olapCube.getGraphData());
+        if (relations != null && !relations.isEmpty()){
+            for (TableNameRelationMapper mapper : relations){//循环每个表，全局替换
+                if (mapper.getVirtualTableName()!= null && mapper.getTableName()!=null) {
+                    TableNameTransposition.replaceAll(paramMap,mapper.getTableName(),mapper.getVirtualTableName());
+                }
+            }
+            paramMap.put("relations",relations);
+        }
         return paramMap;
     }
 
@@ -666,7 +695,7 @@ public class OlapModelingAction extends BaseAction {
     @ApiOperation(value = "立方体:构建")
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
     @Security(session = true)
-    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws APIException {
+    public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws Exception {
         //增量全量验证
         CubeDescDataMapper cubeDescDataMapper = cubeHttpClient.desc(cubeName);
         if (cubeDescDataMapper == null) {
@@ -699,8 +728,7 @@ public class OlapModelingAction extends BaseAction {
         timingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
-        olapTimingrefreshService.doSave(timingrefresh);
-        cubeHttpClient.build(cubeName, start, end);
+        olapCubeBuildService.preBuild(cubeName,start,end);
     }
 
 
@@ -1038,4 +1066,5 @@ public class OlapModelingAction extends BaseAction {
     public OlapTimingrefresh getTimingrefresh(String cubeName) throws APIException {
         return olapTimingrefreshService.findTableInfo(cubeName);
     }
+
 }

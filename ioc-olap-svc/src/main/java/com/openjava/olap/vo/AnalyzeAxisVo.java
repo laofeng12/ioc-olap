@@ -40,4 +40,7 @@ public class AnalyzeAxisVo {
     private Integer isInclude;
     @ApiModelProperty("选中的值列表 逗号分隔")
     private String selectValues;
+
+    @ApiModelProperty("虚拟表名")
+    private String virtualTableName;
 }

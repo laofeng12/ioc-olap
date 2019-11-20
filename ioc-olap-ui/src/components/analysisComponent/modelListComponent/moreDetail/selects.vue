@@ -40,7 +40,8 @@ export default {
     init () {
       if (this.jsonData) {
         this.descriptionData = this.jsonData.TableList && this.jsonData.TableList[0].tableList.map((res, index) => {
-          return { index: index + 1, type: res.type === 1 ? '数据湖' : '本地上传', table_name: res.table_name }
+          // 0 数据湖 1 数据集 2 自定义 3本地空间
+          return { index: index + 1, type: Number(res.type) === 0 ? '数据湖' : Number(res.type) === 1 ? ' 数据集': Number(res.type) === 2 ? '自定义' : '本地空间', table_name: res.table_name }
         })
       }
     }

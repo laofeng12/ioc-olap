@@ -91,6 +91,13 @@ kylin:
   account:  ADMIN
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
+olap:
+  datalake:
+    #调用数据集模块的接口地址
+    host: http://219.135.182.2:31013
+    querySyncJobStateUrl: /pds/datasync/dataSync/batchStatus
+    batchCreateSyncJobUrl: /pds/datasync/dataSync/batchCreateJob
+    batchActiveSyncJobUrl: /pds/datasync/dataSync/batchTriggerJob
 
 gateway:
   address:  http://219.135.182.2:31012

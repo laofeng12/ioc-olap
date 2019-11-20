@@ -100,9 +100,9 @@ export default {
       //   this.textOptions = res.data.columns
       // })
       this.saveSelectAllList.forEach((item, index) => {
-        let items = JSON.parse(item)
-        if (items.name === val) {
-          this.textOptions = items.data.columns
+        // let item = JSON.parse(item)
+        if (item.resourceTableName === val) {
+          this.textOptions = item.column
         }
       })
     },

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class TreeVo {
     private String name;
     private String id;
+    private String virtualTableName;
     private ArrayList<TreeNodeVo> children;
     private Object attrs;
 

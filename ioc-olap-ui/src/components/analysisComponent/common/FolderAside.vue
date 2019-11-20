@@ -8,7 +8,23 @@
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
              :empty-text="emptyText" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span class="cus-node-title" :title="data.name">{{ data.name }}</span>
+        <div>
+           <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
+           <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
+           <template v-if="!data.virtualTableName">
+             <span  class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
+           </template>
+          <el-tooltip placement="top" v-else>
+           <span slot="content" class="cus-node-title"  v-if="!data.virtualTableName">{{ data.name }}</span>
+           <span slot="content" class="cus-node-title"  v-else>{{ data.virtualTableName }} - {{ data.name}}</span>
+           <span  class="cus-node-title"  v-if="!data.virtualTableName">{{ data.name }}</span>
+           <span  class="cus-node-title"  v-else>{{ data.virtualTableName }} - {{ data.name}}</span>
+          </el-tooltip>
+        </div>
+        <!-- <div v-else>
+          <span class="cus-node-title"  :title="data.name">{{ data.name }}</span>
+          <span class="cus-node-title"  :title="data.name-data.virtualTableName" v-if="data.virtualTableName">-{{ data.virtualTableName }}</span>
+        </div> -->
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">
             <!--<el-button type="primary" size="mini">-->

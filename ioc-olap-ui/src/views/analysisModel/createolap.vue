@@ -49,12 +49,17 @@ export default {
         const params = {
           cubeName, models
         }
-        descDataList(params).then(res => {
+        descDataList(params).then(async res => {
           if (res.CubeList) {
             this.isLoading = false
-            this.$store.dispatch('SaveModelAllList', res)
+            await this.$store.dispatch('SaveModelAllList', res)
+            const tempModelAllObj = res.TableList[0].tableList[0]
             if (this.$route.query.cubeName) {
-              this.$root.eventBus.$emit('getserchTableList', { orgId: this.ModelAllList.TableList[0].orgId }, 1)
+              await this.$root.eventBus.$emit('getserchTableList', {
+              orgId: tempModelAllObj.orgId,
+              type: Number(tempModelAllObj.type),
+              databaseType: Number(tempModelAllObj.databaseType) }, 1)
+              // this.$root.eventBus.$emit('saveSelectTables')
             }
           }
         })
@@ -94,7 +99,7 @@ export default {
   }
   header{
     width 100%
-    margin-bottom 16px
+    // margin-bottom 16px
 	.el-form {
 		overflow: hidden;
 		background: #f2f2f2;
@@ -122,11 +127,11 @@ export default {
       height auto
     }
     >>>.selectStep >>>.el-tabs__content{
-     height calc(100vh - 200px)
+     height calc(100vh - 195px)
     }
   }
   .showBox.selectStep >>>.el-tabs__content{
-    height calc(100vh - 200px)
+    height calc(100vh - 195px)
   }
   .hideBox{
     opacity 0

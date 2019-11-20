@@ -38,4 +38,7 @@ public class ModelingMapper {
 
     @JSONField(name = "graphData")
     public String graphData;
+
+    @JSONField(name = "relations")
+    public List<TableNameRelationMapper> relations;
 }

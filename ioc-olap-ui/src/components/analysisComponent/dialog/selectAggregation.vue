@@ -49,6 +49,11 @@ export default {
     this.resortAggregation()
     this.init()
   },
+  watch: {
+    // '$route' () {
+    //   this.init()
+    // }
+  },
   methods: {
     init () {
       // 处理编辑的时候

@@ -16,7 +16,7 @@
     "echarts": "^4.2.1",
     "element-ui": "^2.9.1",
     "file-saver": "^2.0.2",
-    "flow-edit": "^0.1.2",
+    "flow-edit": "^0.1.5",
     "gojs": "^2.0.13",
     "jointjs": "^3.0.2",
     "js-cookie": "^2.2.0",

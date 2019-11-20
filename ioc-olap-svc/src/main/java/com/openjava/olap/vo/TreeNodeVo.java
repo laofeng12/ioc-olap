@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class TreeNodeVo {
     private String id;
     private String name;
+    private String virtualTableName;
     private ArrayList<TreeNodeVo> children;
     private Object attrs;
 
