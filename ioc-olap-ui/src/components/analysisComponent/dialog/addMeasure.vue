@@ -177,7 +177,8 @@ export default {
         { value: '5', label: 'TOP 5000' },
         { value: '6', label: 'TOP 10000' }
       ],
-      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float', 'decimal(19,4)', 'bigint'],
+      jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float',
+        'decimal(19,4)', 'bigint', 'number'],
       rules: {
         name: [
           { required: true, message: '请输入度量名称', trigger: 'blur' }

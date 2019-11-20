@@ -104,6 +104,24 @@ export default {
       jointResultData: 'jointResultData'
     })
   },
+  watch: {
+    selectTableTotal: {
+      handler: function (val) {
+        const factTable = val.map((v, i) => {
+          const obj = Object.assign({}, v, {
+            databaseType: `${i}`,
+            title: v.label,
+            icon: `${process.env.BASE_URL}dataBase.svg`,
+            isLeaf: true
+          })
+          return obj
+        })
+        this.factTable[0].list = factTable
+        this.editor.updatePannelList(this.factTable)
+      },
+      deep: true
+    }
+  },
   mounted () {
     const factTable = this.selectTableTotal.map((v, i) => {
       const obj = Object.assign({}, v, {

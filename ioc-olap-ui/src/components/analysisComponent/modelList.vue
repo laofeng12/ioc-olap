@@ -132,24 +132,29 @@ export default {
   mounted () {
   },
   methods: {
-    init (val) {
-      this.getModelList(val)  
+    init (val, type) {
+      this.getModelList(val, type)
     },
     // 模型列表
-    async getModelList (val) {
+    async getModelList (val, type) {
+      if (type === 'search') {
+        this.offset = 0
+      }
       try {
         this.getLoading = true
         const params = {
-        limit: 15,
-        offset: this.offset,
-        dateType: 1, // 1：模型列表 2：构建列表 
-        ...val
-      }
-      const { cubeMappers: res, next } = await getModelDataList(params)
-      if (res && res.length > 0) {
-        this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
-      }
-      this.moreShow = next
+          limit: 15,
+          offset: this.offset,
+          dateType: 1, // 1：模型列表 2：构建列表
+          ...val
+        }
+        const { cubeMappers: res, next } = await getModelDataList(params)
+        if (type === 'search') {
+          this.tableData = res
+        } else if (res && res.length > 0) {
+          this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
+        }
+        this.moreShow = next
       } catch(e) {
       } finally {
         this.getLoading = false
@@ -173,7 +178,7 @@ export default {
       this.getLoading = false
     },
     searchFetch (val) {
-      this.init(val)
+      this.init(val, 'search')
     },
     createolap () {
       removeAllStorage() // 新增的时候清除本地存储
