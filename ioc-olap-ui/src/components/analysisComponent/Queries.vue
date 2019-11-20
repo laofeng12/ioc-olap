@@ -2,7 +2,7 @@
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="menuList" :menuDefault="menuDefault" iconType="cube"
                  :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
-                 :showDo="false"></FolderAside>
+                 :showDo="false" emptyText="无可用的OLAP模型，请先创建/构建可用的模型"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">

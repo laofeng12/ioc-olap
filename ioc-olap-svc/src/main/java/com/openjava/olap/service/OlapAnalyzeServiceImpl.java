@@ -1,10 +1,5 @@
 package com.openjava.olap.service;
 
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-
 import com.openjava.olap.common.StringUtils;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
@@ -20,10 +15,16 @@ import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件夹表业务层
@@ -54,6 +55,10 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
 
     @Resource
     private OlapCubeRepository olapCubeRepository;
+
+    /**麒麟访问hive数据库的库名**/
+    @Value("${olap.kylin.databaseName:olap}")
+    private String KYLIN_DATABASE_NAME;
 
     @Autowired
     private CubeHttpClient cubeHttpClient;
@@ -143,11 +148,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     }
                 }
             }
-            return p.getJoinType() + " join " + p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
+            return p.getJoinType() + " join " + KYLIN_DATABASE_NAME+"."+p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
         }).collect(Collectors.toList());
         String where = filters.size() > 0 ? String.join(" and ", filters) : "1=1";
         String sql = MessageFormat.format("select {0} from {1} as {2} {3} where {4} group by {5} order by {5}", String.join(",", selectColumns),
-                dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), where, String.join(",", groups));
+            KYLIN_DATABASE_NAME+"."+dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), where, String.join(",", groups));
         return sql;
     }
 
@@ -214,7 +219,14 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             writeJoinTable(dict, relations, joinTables, cubeTables, axis.getTableId());
             // 列名构建
             if (axis.getType() != 4) {
-                column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getColumnChName());
+                if (axis.getExpressionType() != null){
+                    //这里主要是为了防止SQL语法错误的问题
+                    // ... as ... as后面的变量名不能是数字、关键字
+                    column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getExpressionType()+"_"+axis.getColumnChName()+"_");
+                }else {
+
+                    column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getColumnChName());
+                }
                 if (!selectColumns.contains(column)) {
                     selectColumns.add(column);
                 }

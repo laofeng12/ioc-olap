@@ -17,7 +17,7 @@
         @check-change="handleCheckChange"
         @node-click="handleNodeClick">
         <span class="custom-tree-node" slot-scope="{ node  }">
-          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark" 
+          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark"
             :enterable="false" :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
             <span>{{ node.label ? node.label : '全选' }}</span>
           </el-tooltip>
@@ -65,7 +65,7 @@ export default {
     }
   },
   created () {
-    
+
   },
   mounted () {
     this.initEvent()
@@ -153,12 +153,11 @@ export default {
         type: type,
         delData: data
       }
-      // debugger
-       if (type) {
-          await this.$store.dispatch('getSelectTableList', nodeData)
-        } else {
-          await this.$store.dispatch('delSelectTableList', list)
-        }
+     if (type) {
+        await this.$store.dispatch('getSelectTableList', nodeData)
+      } else {
+        await this.$store.dispatch('delSelectTableList', list)
+      }
       await this.$store.dispatch('setSelectTableTotal')
     }
   },
