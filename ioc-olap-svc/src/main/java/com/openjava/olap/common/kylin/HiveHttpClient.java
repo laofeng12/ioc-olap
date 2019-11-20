@@ -2,6 +2,7 @@ package com.openjava.olap.common.kylin;
 
 import com.alibaba.fastjson.JSON;
 import com.openjava.olap.common.HttpClient;
+import com.openjava.olap.mapper.kylin.TableStructureMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.springframework.stereotype.Component;
@@ -23,4 +24,10 @@ public class HiveHttpClient extends KylinHttpClient {
         hash.put("calculate", true);
         HttpClient.post2(url, JSON.toJSONString(hash), config.authorization, String.class);
     }
+
+    public TableStructureMapper getTableMeta(String project,String database,String tableName)throws APIException{
+        String url = config.address + "/kylin/api/tables/" + project + "/" + database+"."+tableName;
+        return HttpClient.get(url, config.authorization, TableStructureMapper.class);
+    }
+
 }

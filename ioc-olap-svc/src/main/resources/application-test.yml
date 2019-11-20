@@ -92,6 +92,10 @@ kylin:
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
 olap:
+  sync:
+    realTableNamePrefix: OLAP_
+  kylin:
+    databaseName: olap
   datalake:
     #调用数据集模块的接口地址
     host: http://219.135.182.2:31013
