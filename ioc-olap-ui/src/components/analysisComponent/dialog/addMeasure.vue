@@ -178,7 +178,7 @@ export default {
         { value: '6', label: 'TOP 10000' }
       ],
       jsonType: ['smallint', 'int4', 'double', 'tinyint', 'numeric', 'long8', 'integer', 'real', 'float',
-        'decimal(19,4)', 'bigint', 'number'],
+        'decimal(19,4)', 'bigint'],
       rules: {
         name: [
           { required: true, message: '请输入度量名称', trigger: 'blur' }
@@ -202,11 +202,9 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       SaveFactData: 'SaveFactData',
       jointResultData: 'jointResultData',
-      saveSelectAllList: 'saveSelectAllList'
+      saveSelectAllList: 'saveSelectAllList',
+      batchCreateJob: 'batchCreateJob'
     })
-  },
-  mounted () {
-    // console.log(this.formData)
   },
   methods: {
     resetData () {
@@ -273,7 +271,20 @@ export default {
           { id: item.id, dataType: item.type, label: `${item.tableName}.${item.columnAlias}` }
         )
       })
-      this.fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      const fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
+      let list = []
+      this.batchCreateJob.forEach(v => {
+        list = [...list, ...v.meta.columns]
+      })
+      fieldtextOption.forEach(item => {
+        list.forEach(v => {
+          const label = item.label.split('.')[1].toUpperCase()
+          if (label === v.name) {
+            item.dataType = v.datatype
+          }
+        })
+      })
+      this.fieldtextOption = fieldtextOption
     },
     closeBtn () {
       this.dialogFormVisible = false
