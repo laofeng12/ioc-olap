@@ -22,6 +22,7 @@ import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -58,6 +59,10 @@ public class OlapRealQueryAction extends BaseAction {
     private IocAuthorizationToken iocAuthorizationToken;
     @Autowired
     private GateWayHttpClient gateWayHttpClient;
+
+    /**麒麟查找hive的数据库名**/
+    @Value("${olap.kylin.databaseName:olap}")
+    private String databaseName;
 
 
     /**
@@ -181,9 +186,12 @@ public class OlapRealQueryAction extends BaseAction {
     @Security(session = true)
     public QueryResultMapper query(String sql, Integer limit) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        // 统一给查询表名或join表名加上前缀数据库名
         if (limit == -1) {
             limit = Integer.MAX_VALUE;
         }
+        // 主要加库名
+        sql = formatSql(sql);
         try {
             return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
         } catch (Exception ex) {
@@ -303,4 +311,21 @@ public class OlapRealQueryAction extends BaseAction {
             throw new APIException(400, "查询失败！");
         }
     }
+
+
+    private String formatSql(String sql)throws APIException{
+        if (sql == null || "".equalsIgnoreCase(sql)){
+            throw new APIException("sql不能为空");
+        }
+        String[] str = sql.split("\\s+");//按照空格分隔
+        StringBuilder sb = new StringBuilder();
+        for (int i=0;i<str.length;i++){
+            if (str[i].equalsIgnoreCase("from")
+                || str[i].equalsIgnoreCase("join")){
+                sb.append(str[i]).append(" ").append(this.databaseName).append(".");
+            }else sb.append(str[i]).append(" ");
+        }
+        return sb.toString();
+    }
+
 }
