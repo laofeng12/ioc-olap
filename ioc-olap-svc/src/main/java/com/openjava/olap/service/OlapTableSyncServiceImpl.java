@@ -100,8 +100,9 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     iterator.remove();//成功的就不拿去请求了
                 }
             }else {//从未请求过的也拿去请求
-                //这里设置目标表名的生成规则
-                param.setWriterTableSource(this.REAL_TABLE_NAME_PREFIX+ConcurrentSequence.getInstance().getSequence());
+                //这里设置目标表名的生成规则;虚拟表名+资源id+用户id
+                String tableName = param.getResourceName()+param.getResourceId()+user.getUserId();
+                param.setWriterTableSource(tableName);
                 OlapTableSyncVo vo = new OlapTableSyncVo();
                 vo.setDatabaseId(param.getDatabaseId());
                 vo.setResourceId(param.getResourceId());
