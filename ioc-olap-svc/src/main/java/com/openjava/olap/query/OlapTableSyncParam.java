@@ -25,6 +25,8 @@ public class OlapTableSyncParam {
     private String hiveDbName = "olap";
     @ApiModelProperty("同步类型，olap固定值为3")
     private Integer syncSource;
+    @ApiModelProperty("虚拟表名")
+    private String virtualTableName;
     private Integer type;
     private String writerTableComment;
     private String writerTableSource;
