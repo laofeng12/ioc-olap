@@ -3,10 +3,12 @@ package com.openjava.olap.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.olap.common.DataLakeConfig;
 import com.openjava.olap.common.RestToken;
 import com.openjava.olap.common.kylin.HiveHttpClient;
 import com.openjava.olap.domain.OlapTableSync;
+import com.openjava.olap.mapper.kylin.PreloadTableMapper;
 import com.openjava.olap.mapper.kylin.TableStructureMapper;
 import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.repository.OlapTableSyncRepository;
@@ -54,8 +56,13 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
         this.hiveHttpClient = hiveHttpClient;
     }
 
-    @Transactional
+    /**
+     * <p>这里加事务不因异常而回滚的原因在于，不管save方法的前面或后面发生什么异常，都要保存同步记录，这样才能防止一张表多次请求同步</p>
+     * @param sync
+     * @return
+     */
     @Override
+    @Transactional(noRollbackFor = Exception.class)
     public OlapTableSync save(OlapTableSync sync) {
         return this.repository.save(sync);
     }
@@ -74,6 +81,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
         String token = SsoContext.getToken();
         List<OlapTableSyncVo> results = new ArrayList<>();
         Iterator<OlapTableSyncParam> iterator = params.iterator();
+        log.info("前端传递的表：{}",JSON.toJSONString(params));
         while (iterator.hasNext()){//相当于复制一份给results
             OlapTableSyncParam param = iterator.next();
             OlapTableSync sync= this.get(param.getDatabaseId(),param.getResourceId(),user.getUserId());
@@ -100,25 +108,26 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     iterator.remove();//成功的就不拿去请求了
                 }
             }else {//从未请求过的也拿去请求
-                //这里设置目标表名的生成规则
-                param.setWriterTableSource(this.REAL_TABLE_NAME_PREFIX+ConcurrentSequence.getInstance().getSequence());
+                //这里设置目标表名的生成规则;虚拟表名+资源id+用户id
+                String tableName = param.getVirtualTableName()+"_"+param.getResourceId()+"_"+user.getUserId();
+                param.setWriterTableSource(tableName);
                 OlapTableSyncVo vo = new OlapTableSyncVo();
                 vo.setDatabaseId(param.getDatabaseId());
                 vo.setResourceId(param.getResourceId());
-                vo.setVirtualTableName(param.getResourceName());
+                vo.setVirtualTableName(param.getVirtualTableName());
                 vo.setWriterTableName(param.getWriterTableSource());
                 vo.setIsNew(true);
                 results.add(vo);
             }
         }
-        log.info("请求参数:{}",JSON.toJSONString(params));
+        log.info("请求创建同步任务的参数:{}",JSON.toJSONString(params));
         String result = "";
         if (!params.isEmpty()){
             result = restToken.postJson(
                 this.dataLakeConfig.getHost()+this.dataLakeConfig.getBatchCreateSyncJobUrl(),
                 params,token);
         }
-        log.info("结果返回:{}",result);
+        log.info("请求创建同步任务结果返回:{}",result);
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray array;
         if (jsonObject!= null && jsonObject.containsKey("data") && (array=jsonObject.getJSONArray("data"))!= null ){
@@ -138,11 +147,17 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                     oo.setCreateBy(user.getUserId());
                     //不为空的时候，就是更新，为空则新增
                     oo.setSyncId(b.getSyncId() == null?ConcurrentSequence.getInstance().getSequence():b.getSyncId());
+                    log.info("保存记录:{}",JSON.toJSONString(oo));
                     this.save(oo);//保存记录
                 });
             });
         }
-        queryHiveTableMeta(results);
+        try {
+            queryHiveTableMeta(results);
+        }catch (Exception var1){
+            log.error("加载麒麟表结构失败",var1);
+            throw var1;
+        }
         return results;
     }
 
@@ -156,6 +171,10 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
         String project = ((UserVO)SsoContext.getUser()).getUserId();
         if (list != null && !list.isEmpty()){
             for (OlapTableSyncVo s : list) {
+                PreloadTableMapper result = this.hiveHttpClient.preloadTable(project,DATABASE_NAME,s.getWriterTableName());
+                if (result.getLoaded().isEmpty()){
+                    throw new ApiException("无法加载hive表");
+                }
                 TableStructureMapper meta = this.hiveHttpClient.getTableMeta(project, DATABASE_NAME, s.getWriterTableName());
                 s.setMeta(meta);
             }

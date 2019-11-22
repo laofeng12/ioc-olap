@@ -18,6 +18,7 @@ import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +43,9 @@ public class OlapModelingAction extends BaseAction {
 
     @Resource
     private OlapCubeService olapCubeService;
+    /**麒麟访问hive数据库的库名**/
+    @Value("${olap.kylin.databaseName:olap}")
+    private String KYLIN_DATABASE_NAME;
 
     @Resource
     private com.openjava.olap.service.OlapCubeTableService olapCubeTableService;
@@ -410,7 +414,7 @@ public class OlapModelingAction extends BaseAction {
             for (CubeDatalaketableNewMapper datalaketableNew : cubeDatalaketableNew) {
                 for (OlapDatalaketable table : datalaketableNew.getTableList()) {
 //                    String name = datalaketableNew.getOrgName() + "." + table.getTable_name();
-                    String name = "olap" + "." + table.getTable_name();//TODO 这里前缀olap是固定的hive数据库名，需加到配置文件里
+                    String name = KYLIN_DATABASE_NAME + "." + table.getTable_name();//TODO 这里前缀olap是固定的hive数据库名，需加到配置文件里
                     tableNameList.add(name);
                 }
             }

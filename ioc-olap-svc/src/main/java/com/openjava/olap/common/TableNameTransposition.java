@@ -142,15 +142,15 @@ public class TableNameTransposition {
                     List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
                     for (int x=0;x<pks.size();x++) {
                         String[]sr4 = pks.get(x).split("\\.");
-                        if (sr4[0].equalsIgnoreCase(virtualTableName)) {
-                            pks.set(x,tableName+"."+sr4[1]);
+                        if (sr4[0].equalsIgnoreCase(tableName)) {
+                            pks.set(x,virtualTableName+"."+sr4[1]);
                         }
                     }
                     List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
                     for (int x=0;x<fks.size();x++) {
                         String[]sr5 = fks.get(x).split("\\.");
-                        if (sr5[0].equalsIgnoreCase(virtualTableName)) {
-                            fks.set(x,tableName+"."+sr5[1]);
+                        if (sr5[0].equalsIgnoreCase(tableName)) {
+                            fks.set(x,virtualTableName+"."+sr5[1]);
                         }
                     }
                 });
