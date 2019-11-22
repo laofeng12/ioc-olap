@@ -4,7 +4,6 @@ import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.service.OlapTableSyncService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +46,9 @@ public class OlapTableSyncAction{
             response.getBody().put("rows",result.get("result"));
             response.getBody().put("msg",result.get("msg"));
         }else {
-            throw new APIException(result.get("msg").toString());
+            response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new HashMap<>());
+            response.getBody().put("rows",result.get("result"));
+            response.getBody().put("msg",result.get("msg"));
         }
         return response;
     }
