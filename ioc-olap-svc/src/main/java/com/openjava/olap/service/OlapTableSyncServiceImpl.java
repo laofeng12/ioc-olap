@@ -142,6 +142,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             oo.setDatabaseId(b.getDatabaseId());
                             oo.setResourceId(b.getResourceId());
                             b.setSuccess(item.getBoolean("success"));
+                            b.setSuccess(item.getBoolean("success"));
                             oo.setIsNew(b.getIsNew());
                             oo.setSuccess(item.getBoolean("success")?1:0);
                             oo.setCreateBy(user.getUserId());
@@ -151,6 +152,10 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             this.save(oo);//保存记录
                         });
                 });
+            }
+            int failed = (int) results.stream().filter(s-> !s.getSuccess()).count();
+            if (failed>0){
+                throw new Exception();
             }
             queryHiveTableMeta(results);
         }catch (Exception var1){
