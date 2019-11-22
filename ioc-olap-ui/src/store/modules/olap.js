@@ -249,6 +249,7 @@ const common = {
       state.ModelAllList.TableList && await dispatch('SavestepSelectData', getters.ModelAllList.TableList)
       // 赋值第二步模型的表
       getters.jointResultData.lookups = data.ModesList.lookups
+
       getters.jointResultData.fact_table = data.ModesList.fact_table
       // 赋值第三步
       data.ModesList.dimensions.map(res => {

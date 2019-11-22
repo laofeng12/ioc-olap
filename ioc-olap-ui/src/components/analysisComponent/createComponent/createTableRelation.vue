@@ -404,13 +404,15 @@ export default {
       let foreign_key = join.foreign_key || []
       let pk_type = join.pk_type || []
       let fk_type = join.fk_type || []
+      let type = join.type
 
       primary_key.forEach((t, i) => {
         list.push({
-          primary_key: `${primary_key[i]}`,
-          foreign_key: `${foreign_key[i]}`,
+          primary_key: `${primary_key[i].split('.')[1]}`,
+          foreign_key: `${foreign_key[i].split('.')[1]}`,
           pk_type: pk_type[i],
-          fk_type: fk_type[i]
+          fk_type: fk_type[i],
+          type
         })
       })
       return list
