@@ -3,37 +3,36 @@
     <el-row class='title'>设置关联关系</el-row>
     <div class="base-info-container">
       <div class="linkSetting" v-if="linkModal" ref="linkSetting">
-        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" 
-        v-model="linkModal.join.type" value="">
+        <el-select name="public-choice" style="margin-top:10px;"  placeholder="请选择关联关系" v-model="linkModal.join.type" value="">
           <el-option v-for="item in relationData" :key="item.label" :value="item.label" :label="item.value">{{item.value}}</el-option>
         </el-select>
-
         <div class="item" v-for="(item, index) in linkModalFields" :key="index">
-          <h3 class="itemTitle">关联关系{{index+1}}： <a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a></h3>
-          <h4 class="itemTableTitle"><span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span></h4>
-
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key" placeholder="请选择关联字段" 
-          @visible-change="getModalDataList(linkModal.joinId)" 
-          @change="getModalForeignSelected" value="">
-            <el-option v-for="coupon in couponList" 
-            :key="coupon.definition" :label="coupon.definition" 
-            :value="Object.assign(coupon, { index })" >
-            {{`${coupon.definition}（${coupon.type}）`}}
+          <h3 class="itemTitle">
+            关联关系{{index+1}}：<a v-if="index > 0" @click="removeField(index)" href="javascript:;">删除</a>
+          </h3>
+          <h4 class="itemTableTitle">
+            <span>{{linkModal.joinTable}}</span> <span @click="lookDetailData(linkModal.joinId)">查看</span>
+          </h4>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].foreign_key"
+                     placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.joinId)"
+                     @change="getModalForeignSelected(linkModalFields[index].foreign_key, index)">
+            <el-option v-for="coupon in couponList" :key="coupon.definition" :label="coupon.definition"
+                       :value="Object.assign(coupon, { index })" >
+              {{`${coupon.definition}（${coupon.type}）`}}
             </el-option>
           </el-select>
-
-          <h4 class="itemTableTitle"><span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span></h4>
-          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key" placeholder="请选择关联字段" 
-          @visible-change="getModalDataList(linkModal.id)" 
-          @change="getModalPrimarySelected" value="">
-            <el-option v-for="coupon in couponList" 
-            :key="coupon.definition" :label="coupon.definition" 
-            :value="Object.assign(coupon, { index })" >
-            {{`${coupon.definition}（${coupon.type}）`}}
+          <h4 class="itemTableTitle">
+            <span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span>
+          </h4>
+          <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key"
+                     placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)"
+                     @change="getModalPrimarySelected(linkModalFields[index].primary_key, index)">
+            <el-option v-for="coupon in couponList" :key="coupon.definition" :label="coupon.definition"
+                       :value="Object.assign(coupon, { index })" >
+              {{`${coupon.definition}（${coupon.type}）`}}
             </el-option>
           </el-select>
         </div>
-
         <div class="itemAdd"><a href="javascript:;" @click="addFields()" class="itemAddBtn">+添加关联关系</a></div>
       </div>
     </div>
@@ -74,14 +73,17 @@ export default {
     getModalDataList (id) {
       this.$emit('getModalDataList', id)
     },
-    getModalPrimarySelected (e) {
-      this.$emit('getModalPrimarySelected', e)
+    getModalPrimarySelected (e, index) {
+      this.$emit('getModalPrimarySelected', e, index)
     },
     addFields () {
       this.$emit('addFields')
     },
-    getModalForeignSelected (e) {
-      this.$emit('getModalForeignSelected', e)
+    getModalForeignSelected (e, index) {
+      this.$emit('getModalForeignSelected', e, index)
+    },
+    removeField (index) {
+      this.$emit('removeField', index)
     }
   }
 }
