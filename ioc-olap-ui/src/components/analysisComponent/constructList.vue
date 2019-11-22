@@ -158,11 +158,11 @@ export default {
     clearTimeout(this.setTimeout)
   },
   methods: {
-    async update (val) {
+    async update (val, type) {
       try {
         this.getLoading = true
         const params = {
-        limit: this.tableData.length,
+        limit: type === 'search' ? 15 : this.tableData.length,
         offset: 0,
         ...val
       }
@@ -200,7 +200,7 @@ export default {
     },
     searchFetch (val) {
       clearTimeout(this.setTimeout)
-      this.update(val)
+      this.update(val, 'search')
     },
     // 操作
     handleCommand (val) {
