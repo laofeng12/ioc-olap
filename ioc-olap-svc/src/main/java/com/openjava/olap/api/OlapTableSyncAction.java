@@ -4,6 +4,7 @@ import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.service.OlapTableSyncService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author linchuangang
@@ -38,9 +40,15 @@ public class OlapTableSyncAction{
             response.getBody().put("msg","消息体参数不能为空");
             return response;
         }
-        response = ResponseEntity.ok(new HashMap<>());
-        response.getBody().put("rows",this.olapTableSyncService.available(params));
-        response.getBody().put("msg","同步成功");
+        Map<String,Object> result = this.olapTableSyncService.available(params);
+        Integer success = (Integer) result.get("success");
+        if (success == 1){
+            response = ResponseEntity.ok(new HashMap<>());
+            response.getBody().put("rows",result.get("result"));
+            response.getBody().put("msg",result.get("msg"));
+        }else {
+            throw new APIException(result.get("msg").toString());
+        }
         return response;
     }
 }
