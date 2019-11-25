@@ -22,28 +22,14 @@ public class AuditComponentProxy {
         Assert.notNull(auditComponet,"审计操作组件不能为空");
         this.auditComponet = auditComponet;
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        Assert.notNull(executor,"初始化线程池失败");
     }
 
-    private final String OPERATION_SERVICE = "BI分析报表";
-    public final Long MANAGER_TYPE = 1L, SELECT_TYPE = 2L, EXPORT_TYPE = 3L, IMPORT_TYPE = 4L;
-    public final String OLAP_MODEL_MODULE = "OLAP建模", REAL_QUERY_MODULE = "即席查询", OLAP_ANALYZE_MODULE = "OLAP分析";
-
-    public void audit(String module, String fuctionLev1, String functionLev2, Long type, String recordId, Long fileId, String fileUrl, String dataBeforeOperat
-            , String dataAfterOperat) {
+    public void saveAudit(AuditLogParam param) {
         try {
             executor.execute(() -> {
-                AuditLogVO vo = new AuditLogVO();
-                vo.setType(type);
-                vo.setOperationService(OPERATION_SERVICE);
-                vo.setOperationModule(module);
-                vo.setFunctionLev1(fuctionLev1);
-                vo.setFunctionLev2(functionLev2);
-                vo.setRecordId(recordId);
-                vo.setDataBeforeOperat(dataBeforeOperat);
-                vo.setDataAfterOperat(dataAfterOperat);
-                vo.setFileId(fileId);
-                vo.setFileUrl(fileUrl);
                 try {
+                    AuditLogVO vo = getLog(param);
                     auditComponet.saveAuditLog(vo);
                 } catch (Exception e) {
                     logger.error("保存审计日志失败！", e);
@@ -54,10 +40,19 @@ public class AuditComponentProxy {
         }
     }
 
-    private AuditLogVO getLog(){
+    private AuditLogVO getLog(AuditLogParam param){
         AuditLogVO vo = new AuditLogVO();
+        vo.setUserId(Long.parseLong(param.getOperator().getUserId()));
+        vo.setAccount(param.getOperator().getUserAccount());
+        vo.setRequestId(param.getRequestId());
+        vo.setOperationModule(param.getModule().getValue());
+        vo.setOperationService(param.getService().getValue());
+        vo.setFunctionLev1(param.getPrimaryTitle().getValue());
+        vo.setFunctionLev2(param.getSecondaryTitle().getValue());
+        vo.setDataBeforeOperat(param.getBefore());
+        vo.setDataAfterOperat(param.getAfter());
+        vo.setType((long)param.getType().getIndex());
         return vo;
     }
-
 
 }

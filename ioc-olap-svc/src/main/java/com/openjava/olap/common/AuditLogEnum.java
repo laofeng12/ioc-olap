@@ -2,7 +2,7 @@ package com.openjava.olap.common;
 
 public enum AuditLogEnum {
 
-    LOG_SERVICE_NAME("BI分析"),
+    LOG_SERVICE_NAME("BI分析报表"),
 
     LOG_MODULES_OLAP_MODEL("OLAP模型"),
     LOG_MODULES_REAL_TIME_QUERY("即席查询"),
@@ -63,13 +63,8 @@ public enum AuditLogEnum {
 
 
 
-    LOG_ANALYZE_TITLE_LEVEL_SECONDARY_SHARE_EXPORT("导出"),
+    LOG_ANALYZE_TITLE_LEVEL_SECONDARY_SHARE_EXPORT("导出");
 
-
-    LOG_EVENT_MANAGE("管理"),
-    LOG_EVENT_EXPORT("导出"),
-    LOG_EVENT_LOAD("导入"),
-    LOG_EVENT_QUERY("查询");
 
 
     AuditLogEnum(String value){
@@ -83,5 +78,26 @@ public enum AuditLogEnum {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public enum AuditLogEvent{
+        LOG_EVENT_MANAGE(1),
+        LOG_EVENT_QUERY(2),
+        LOG_EVENT_EXPORT(3),
+        LOG_EVENT_LOAD(4);
+
+        private Integer index;
+
+        AuditLogEvent(Integer index) {
+            this.index = index;
+        }
+
+        public Integer getIndex() {
+            return index;
+        }
+
+        public void setIndex(Integer index) {
+            this.index = index;
+        }
     }
 }
