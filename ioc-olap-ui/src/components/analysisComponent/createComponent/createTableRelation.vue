@@ -136,7 +136,10 @@ export default {
     this.init()
     this.initEditor()
   },
+  activated () {
+  },
   methods: {
+
     init () {
       this.TableCountNum = 0
       // 初始化选择的别名组合

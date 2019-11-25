@@ -220,7 +220,7 @@ export default {
                 this.isLoading = false
                 this.$message.success('保存成功')
                 this.$router.push('/analysisModel/Configuration')
-                this.$store.dispatch('resetList')
+                this.$store.dispatch('resetList') // 保存成功所有module 触发resetList
               }).catch(_ => this.isLoading = false )
             }, 1000)
           }

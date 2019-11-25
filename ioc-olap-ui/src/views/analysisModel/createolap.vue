@@ -71,10 +71,11 @@ export default {
     getStepCountReduce (val) {
       this.selectStep -= 1
     },
-    tobackList () {
-      this.$router.push('/analysisModel/Configuration')
-      this.$store.dispatch('resetList')
-    },
+    // 暂时不用 longbensong
+    // tobackList () {
+    //   this.$router.push('/analysisModel/Configuration')
+    //   this.$store.dispatch('resetList')
+    // },
     blurIpt (val) {
       let result = val.target.value
       let flag = isChineseChar(val.target.value)
