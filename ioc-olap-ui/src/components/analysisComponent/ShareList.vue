@@ -165,7 +165,8 @@ export default {
       let texts = ''
       switch (type) {
         case 'lookShare':
-
+          this.expands.push(params.uuid)
+          this.jsonData = { cubeName: params.name, models: params.model }
           break
         case 'dels':
 
@@ -235,7 +236,9 @@ export default {
           })
         }
       }
-      this.$refs[type].dialog(params)
+      if (type !== 'lookShare') {
+        this.$refs[type].dialog(params)
+      }
     },
     closeExpands () {
       this.expands = []

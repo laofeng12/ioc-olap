@@ -18,7 +18,7 @@
         :filter-node-method="filterNode"
         :props="defaultProps">
         <span class="custom-tree-node" slot-scope='{ node }'>
-          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark" :enterable="false" 
+          <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark"
           :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
             <span class="show-ellipsis">{{ node.label }}</span>
           </el-tooltip>

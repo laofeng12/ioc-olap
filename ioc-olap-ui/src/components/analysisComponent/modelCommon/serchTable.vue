@@ -18,7 +18,7 @@
         @node-click="handleNodeClick">
         <span class="custom-tree-node" slot-scope="{ node  }">
           <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark"
-            :enterable="false" :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
+            :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
             <span>{{ node.label ? node.label : '全选' }}</span>
           </el-tooltip>
           <span v-else  class="show-ellipsis">{{node.label}}</span>
@@ -50,7 +50,7 @@ export default {
       loading: false,
       defaultKey: [],
       dataList: [{
-        // id: 1,
+        id: 9999999999,
         label: '全选',
         children: []
       }]
@@ -137,7 +137,7 @@ export default {
     // 过滤
     filterNode (value, data) {
       if (!value) return true
-      return data.label.indexOf(value) !== -1
+       return data.label && data.label.indexOf(value) !== -1
     },
     // 点击节点
     handleNodeClick (data) {
