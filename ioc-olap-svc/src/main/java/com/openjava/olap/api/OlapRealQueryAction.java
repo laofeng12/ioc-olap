@@ -191,7 +191,7 @@ public class OlapRealQueryAction extends BaseAction {
             limit = Integer.MAX_VALUE;
         }
         // 主要加库名
-        sql = formatSql(sql);
+        sql = formatSql(sql,true);
         try {
             return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
         } catch (Exception ex) {
@@ -205,6 +205,9 @@ public class OlapRealQueryAction extends BaseAction {
     public QueryResultMapperVo queryById(Long id) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapRealQuery m = olapRealQueryService.get(id);
+        if (m.getSql() != null){
+            m.setSql(formatSql(m.getSql(),true));
+        }
         QueryResultMapper mapper;
         try {
             mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
@@ -221,7 +224,7 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
     @Security(session = true)
-    public List<TreeVo> folderWithQuery() {
+    public List<TreeVo> folderWithQuery() throws Exception{
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         List<TreeVo> trees = new ArrayList<TreeVo>();
         List<OlapFolder> folders = olapFolderService.getListByTypeAndCreateId(Long.parseLong(userVO.getUserId()), "RealQuery");
@@ -229,6 +232,10 @@ public class OlapRealQueryAction extends BaseAction {
             TreeVo tree = new TreeVo(folder.getName(), folder.getFolderId().toString(), new ArrayList<TreeNodeVo>(), folder);
             List<OlapRealQuery> olapRealQueries = olapRealQueryService.getListWithFolderId(folder.getFolderId());
             for (OlapRealQuery realQuery : olapRealQueries) {
+                if (realQuery.getSql() != null){
+                    //用户看到的select语句，不需要显示库名
+                    realQuery.setSql(formatSql(realQuery.getSql(),false));
+                }
                 tree.getChildren().add(new TreeNodeVo(realQuery.getName(), realQuery.getRealQueryId().toString(), null, realQuery));
             }
             trees.add(tree);
@@ -313,17 +320,29 @@ public class OlapRealQueryAction extends BaseAction {
     }
 
 
-    private String formatSql(String sql)throws APIException{
+    /**
+     * 动态加上或移除olap库名
+     * @param sql
+     * @param databaseNameVisible true:加上库名，false:去掉库名
+     * @return
+     * @throws APIException
+     */
+    private String formatSql(String sql,boolean databaseNameVisible)throws APIException{
         if (sql == null || "".equalsIgnoreCase(sql)){
             throw new APIException("sql不能为空");
         }
         String[] str = sql.split("\\s+");//按照空格分隔
         StringBuilder sb = new StringBuilder();
-        for (int i=0;i<str.length;i++){
-            if (str[i].equalsIgnoreCase("from")
-                || str[i].equalsIgnoreCase("join")){
-                sb.append(str[i]).append(" ").append(this.databaseName).append(".");
-            }else sb.append(str[i]).append(" ");
+        if (databaseNameVisible) {
+            for (int i = 0; i < str.length; i++) {
+                if (str[i].equalsIgnoreCase("from")
+                    || str[i].equalsIgnoreCase("join")) {
+                    sb.append(str[i]).append(" ").append(this.databaseName).append(".");
+                } else sb.append(str[i]).append(" ");
+            }
+        }else {
+            sql = sql.replaceAll(this.databaseName+".","");
+            return sql;
         }
         return sb.toString();
     }
