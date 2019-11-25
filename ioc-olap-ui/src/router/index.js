@@ -125,7 +125,7 @@ export default new Router({
         {
           path: 'newOlapAnalysis',
           name: 'newOlapAnalysis',
-          meta: { title: '新建olap分析' },
+          meta: { title: '编辑页面' },
           component: () => import('@/views/analysisModel/analysis.vue')
         }
       ]

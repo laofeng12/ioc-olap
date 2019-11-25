@@ -144,18 +144,12 @@ export default {
       this.isEditLooks()
       // 获取已经设置的第二步数据
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
-      let list = this.jointResult.lookups || []
+      if (this.jointResult.lookups.length > 0) {
+        this.linkModal = this.jointResult.lookups[0]
+        this.linkModalFields = this.getFields(this.linkModal)
+      }
       // 新建图形
       this.graph = new joint.dia.Graph()
-      // 实例化参数
-      let paper = new joint.dia.Paper({
-        el: document.querySelector('#myholder'),
-        width: '100%',
-        height: 700,
-        backgroundColor: '#ffffff',
-        model: this.graph,
-        gridSize: 1
-      })
     },
     initEditor () {
       // 编辑的时候 ModelAllList是一个object,新增的时候是一个array
