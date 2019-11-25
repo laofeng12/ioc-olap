@@ -7,7 +7,7 @@
     <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList"
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
              :empty-text="emptyText" ref="alltree">
-      <span class="custom-tree-node" slot-scope="{ node, data }">
+      <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode" @mouseleave="leaveNode">
         <div>
            <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
@@ -199,6 +199,12 @@ export default {
     }
   },
   methods: {
+    enterNode(e) {
+      e.target.classList.add('hideLongText')
+    },
+    leaveNode(e) {
+      e.target.classList.remove('hideLongText')
+    },
     clickTreeItem (data, node, self) {
       let that = this
       if (node.parent.parent || this.vueType === 'shareResult' || this.vueType === 'shareOlap') {
@@ -450,6 +456,17 @@ export default {
       width: 84%;
       overflow: hidden;
       text-overflow: ellipsis;
+      &.hideLongText{
+        div{
+          .cus-node-title{
+            display: block;
+            width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+      }
       .cus-node-title {
         color: #262626;
         font-size: 14px;

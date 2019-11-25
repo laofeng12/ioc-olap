@@ -30,7 +30,6 @@
             <div>
               <el-switch
                 v-model="formData.autoReload"
-                @change="changeUploadNum"
                 active-color="#13ce66"
                 inactive-color="#cccccc">
               </el-switch>
@@ -62,6 +61,23 @@
 import { buildModeling, getTimingrefresh } from '@/api/modelList'
 export default {
   data () {
+    // const checkNumber = (rule, val, callback) => {
+    //   const value = Number(val)
+    //   if (!value) {
+    //     return callback(new Error('频率不能为空'))
+    //   }
+    //   setTimeout(() => {
+    //     if (!Number.isInteger(value)) {
+    //       callback(new Error('请输入数字值'))
+    //     } else {
+    //       if (value <= 0) {
+    //         callback(new Error('必须为正整数'))
+    //       } else {
+    //         callback()
+    //       }
+    //     }
+    //   }, 1)
+    // }
     return {
       dataList: {},
       formData: {},
@@ -84,6 +100,11 @@ export default {
           { required: true, message: '请选择结束时间', trigger: 'change' }
         ]
       }
+      // formDataRules: {
+      //   interval: [
+      //     { validator: checkNumber, trigger: 'blur' }
+      //   ]
+      // }
     }
   },
   methods: {
@@ -110,6 +131,10 @@ export default {
               end: this.form.endTime ? this.getTimezoneOffset(this.form.endTime) * 1000 : '0'
             }
             this.$throttle(async () => {
+              if (Number(this.formData.interval) <= 0) {
+                this.$parent.closeChangeLoadingLoser()
+                return this.$message.error('频率必须为正整数')
+              }
               await buildModeling(this.formData, parmas).then(res => {
                 this.$message.success('构建成功~')
                 this.form.startTime = ''
@@ -125,10 +150,6 @@ export default {
         }
       })
     },
-    changeUploadNum () {
-
-    },
-    // getTimingrefresh
     _getTimingrefresh (name) {
       getTimingrefresh({ cubeName: name }).then(res => {
         this.formData = res

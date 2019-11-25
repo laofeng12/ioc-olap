@@ -123,6 +123,23 @@ export default {
     steps, addReloadSet
   },
   data () {
+    const checkNumber = (rule, val, callback) => {
+      const value = Number(val)
+      if (!value) {
+        return callback(new Error('频率不能为空'))
+      }
+      setTimeout(() => {
+        if (!Number.isInteger(value)) {
+          callback(new Error('请输入数字值'))
+        } else {
+          if (value <= 0) {
+            callback(new Error('必须为正整数'))
+          } else {
+            callback()
+          }
+        }
+      }, 1)
+    }
     return {
       formData: {
         autoReload: false,
@@ -172,7 +189,7 @@ export default {
           { required: false, message: '请选择日期格式', trigger: 'change' }
         ],
         interval: [
-          { required: true, message: '请填写更新频率', trigger: 'blur' }
+          { required: true, validator: checkNumber, trigger: 'blur' }
         ]
       }
     }

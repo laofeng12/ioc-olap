@@ -6,7 +6,7 @@
         <base-info-panel class='base-info' :linkModal='linkModal' :relationData="relationData"
                          :linkModalFields="linkModalFields" :couponList="couponList" @lookDetailData="lookDetailData"
                          @getModalDataList="getModalDataList" @getModalPrimarySelected="getModalPrimarySelected"
-                         @addFields="addFields" @getModalForeignSelected="getModalForeignSelected"/>
+                         @addFields="addFields" @getModalForeignSelected="getModalForeignSelected" @removeField="removeField"/>
       </div>
     </div>
     <create-table-modal ref="dialog"></create-table-modal>
@@ -404,13 +404,15 @@ export default {
       let foreign_key = join.foreign_key || []
       let pk_type = join.pk_type || []
       let fk_type = join.fk_type || []
+      let type = join.type
 
       primary_key.forEach((t, i) => {
         list.push({
-          primary_key: `${primary_key[i]}`,
-          foreign_key: `${foreign_key[i]}`,
+          primary_key: `${primary_key[i].split('.')[1]}`,
+          foreign_key: `${foreign_key[i].split('.')[1]}`,
           pk_type: pk_type[i],
-          fk_type: fk_type[i]
+          fk_type: fk_type[i],
+          type
         })
       })
       return list
@@ -429,9 +431,7 @@ export default {
     },
 
     // 选择子表对应的字段
-    getModalPrimarySelected (e) {
-      let index = e.index
-      // let primary_key = e.name
+    getModalPrimarySelected (e, index) {
       let primary_key = e.definition
       let pk_type = e.type
       let foreign_key = this.linkModalFields[index].foreign_key
@@ -453,8 +453,7 @@ export default {
       }
     },
     // 选择主表对应的字段
-    getModalForeignSelected (e) {
-      let index = e.index
+    getModalForeignSelected (e, index) {
       let primary_key = this.linkModalFields[index].primary_key
       let pk_type = this.linkModalFields[index].pk_type
       // let foreign_key = e.name
@@ -467,10 +466,8 @@ export default {
           foreign_key = ''
           fk_type = ''
         }
-
         this.linkModalFields[index].foreign_key = foreign_key
         this.linkModalFields[index].fk_type = fk_type
-
         if (primary_key && pk_type) {
           this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
@@ -657,21 +654,17 @@ export default {
       this.$refs.dialog.dialog(id)
     },
     getModalDataList (id) {
-      //   this.$store.dispatch('GetColumnList', { dsDataSourceId: 2, tableName: id }).then(res => {
-      //     // this.couponList = res.data
-      //     this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'columnName': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'columnName': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'columnName': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'columnName': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'columnName': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-      //   })
-      // this.$store.dispatch('GetResourceInfo', { resourceId: id }).then(res => {
-      //   this.couponList = res.data.columns
-      // })
-      // 模拟数据
-      // this.couponList = [{ 'comment': '所属老板', 'isSupport': 'true', 'name': 'SUO_SHU_LAO_BAN', 'dataType': 'string' }, { 'comment': '老板电话', 'isSupport': 'true', 'name': 'LAO_BAN_DIAN_HUA', 'dataType': 'string' }, { 'comment': '餐馆名称', 'isSupport': 'true', 'name': 'CAN_GUAN_MING_CHENG', 'dataType': 'string' }, { 'comment': '餐馆地址', 'isSupport': 'true', 'name': 'CAN_GUAN_DI_ZHI', 'dataType': 'string' }, { 'comment': null, 'isSupport': 'true', 'name': 'DS_U_X5OSRKK1C_ID', 'dataType': 'number' }]
-      // 根据name去获取本地对应的数据
       (this.saveSelectAllList || []).forEach((item, index) => {
         if (item.resourceId === id) {
           this.couponList = item.column || []
         }
       })
+    },
+    removeField (index) {
+      if (this.linkModalFields.length > 1) {
+        this.linkModalFields.splice(index, 1)
+        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+      }
     }
   }
 }
