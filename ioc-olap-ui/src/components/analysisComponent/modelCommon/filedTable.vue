@@ -1,14 +1,14 @@
 <template>
   <div class="factTable">
-     <el-input type="text" placeholder="请输入关键词" v-model="value" clearable></el-input>
-     <ul v-if="dataList.lookups && dataList.lookups.length">
-       <el-tooltip v-for="(item, index) in dataList.lookups" :key="index" effect="dark" :content="titleData[index]" placement="right">
+     <el-input type="text" placeholder="请输入关键词" v-model="value" @input="handleInput" clearable></el-input>
+     <ul v-if="tabaleList && tabaleList.length">
+       <el-tooltip v-for="(item, index) in tabaleList" :key="index" effect="dark" :content="titleData[index]" placement="right">
         <li
           :class="item.isActive===1?'actives':''"
           :style="{color: current===index?colors:''}"
           :key="index" @click="changeLi(item, index)">
           <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
-          <span class="tableTitle">{{titleData[index]}}</span>
+          <span class="tableTitle">{{item.alias}}</span>
           <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
         </li>
        </el-tooltip>
@@ -184,6 +184,12 @@ export default {
     getFeact () {
       let data = this.dataList.fact_table
       return data.substring(data.indexOf('.') + 1)
+    },
+    tabaleList () {
+      if (this.value) {
+        return this.dataList.lookups.filter(t => t.alias.indexOf(this.value) !== -1)
+      }
+      return this.dataList.lookups
     }
   }
 }
