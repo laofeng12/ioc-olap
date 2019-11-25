@@ -2,8 +2,7 @@ package com.openjava.olap.api;
 
 import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.common.Export;
-import com.openjava.olap.common.GateWayHttpClient;
+import com.openjava.olap.common.*;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
@@ -19,6 +18,7 @@ import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +64,9 @@ public class OlapRealQueryAction extends BaseAction {
     @Value("${olap.kylin.databaseName:olap}")
     private String databaseName;
 
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
+
 
     /**
      * 用主键获取数据
@@ -103,6 +106,16 @@ public class OlapRealQueryAction extends BaseAction {
             body.setFlags(0);
             body.setIsNew(true);
             OlapRealQuery dbObj = olapRealQueryService.doSave(body);
+            //新建查询-保存结果
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_REAL_TIME_QUERY,AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_PRIMARY_SAVE_QUERY,
+                AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVE_QUERY_PERSIST_RESULT, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){
+                    {
+                        add(body);
+                    }
+                },new ArrayList<Object>(){{add(dbObj);}});
+            this.auditComponentProxy.saveAudit(param);
         } else {
             OlapRealQuery db = olapRealQueryService.get(body.getId());
             MyBeanUtils.copyPropertiesNotBlank(db, body);
@@ -111,6 +124,16 @@ public class OlapRealQueryAction extends BaseAction {
             db.setCreateName(userVO.getUserAccount());
             db.setIsNew(false);
             olapRealQueryService.doSave(db);
+            //已保存结果-编辑
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_REAL_TIME_QUERY,AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_PRIMARY_SAVED_RESULT,
+                AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_EDIT, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){
+                    {
+                        add(body);
+                    }
+                },new ArrayList<Object>(){{add(db);}});
+            this.auditComponentProxy.saveAudit(param);
         }
 
         return body;
@@ -191,9 +214,20 @@ public class OlapRealQueryAction extends BaseAction {
             limit = Integer.MAX_VALUE;
         }
         // 主要加库名
-        sql = formatSql(sql,true);
+        String formatSql = formatSql(sql,true);
+        //已保存结果-查询数据
+        //新建查询-查询，两个一级标题联合了
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_REAL_TIME_QUERY,AuditLogEnum.LOG_PRIMARY_TITLE_UNITE_SAVE_QUERY_SAVED_RESULT,
+            AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_QUERY_DATA, AuditLogEnum.AuditLogEvent.LOG_EVENT_QUERY,
+            new ArrayList<Object>(){
+                {
+                    add(sql);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
         try {
-            return cubeHttpClient.query(sql, 0, limit, userVO.getUserId());
+            return cubeHttpClient.query(formatSql, 0, limit, userVO.getUserId());
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }
@@ -256,11 +290,25 @@ public class OlapRealQueryAction extends BaseAction {
     @Security(session = true)
     public void export(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
         try {
-            QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
+            String formatSql = formatSql(sql,true);
+            QueryResultMapper mapper = cubeHttpClient.query(formatSql, 0, limit, project);
             Export.dualDate(mapper, response);
         } catch (Exception ex) {
             throw new APIException(400, "导出失败！");
         }
+        //已保存结果-导出结果
+        // 新建查询-导出结果 共用
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_REAL_TIME_QUERY,AuditLogEnum.LOG_PRIMARY_TITLE_UNITE_SAVE_QUERY_SAVED_RESULT,
+            AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_EXPORT_RESULT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){
+                {
+                    add(sql);
+                    add(limit);
+                    add(project);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
@@ -275,6 +323,16 @@ public class OlapRealQueryAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
         gateWayHttpClient.registerApi(body, token);
+        // 即席查询-已保存结果-发布接口
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),userVO, AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_REAL_TIME_QUERY,AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_PRIMARY_SAVED_RESULT,
+            AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_PUBLISH, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(body);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "查看发布接口")

@@ -42,6 +42,7 @@ public class AuditComponentProxy {
 
     private AuditLogVO getLog(AuditLogParam param){
         AuditLogVO vo = new AuditLogVO();
+        Assert.notNull(param,"构建日志实体时，参数不能为空");
         vo.setUserId(Long.parseLong(param.getOperator().getUserId()));
         vo.setAccount(param.getOperator().getUserAccount());
         vo.setRequestId(param.getRequestId());

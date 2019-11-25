@@ -1,13 +1,16 @@
 package com.openjava.olap.api;
 
-import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.AuditComponentProxy;
+import com.openjava.olap.common.AuditLogEnum;
+import com.openjava.olap.common.AuditLogParam;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.service.OlapShareService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "共享接口")
@@ -24,6 +27,9 @@ import java.util.List;
 public class OlapShareAction {
     @Resource
     private OlapShareService olapShareService;
+
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
 
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
@@ -42,6 +48,35 @@ public class OlapShareAction {
         } else {
             olapShareService.save(userIds, sourceType, sourceId, Long.parseLong(userVO.getUserId()), userVO.getUserName());
         }
+        if (sourceType.equalsIgnoreCase("Analyze")){
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+                AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_SHARING, AuditLogEnum.AuditLogEvent.LOG_EVENT_QUERY,
+                new ArrayList<Object>(){{add(userIds);add(sourceType);add(sourceId);add(cubeName);}},new ArrayList<Object>(){{}});
+            //olap分析 - 共享
+            this.auditComponentProxy.saveAudit(param);
+        }else if (sourceType.equalsIgnoreCase("RealQuery")){
+            //即席查询 - 共享
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_PRIMARY_SAVED_RESULT,
+                AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_SHARING, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){{add(userIds);add(sourceType);add(sourceId);add(cubeName);}},new ArrayList<Object>(){{}});
+            this.auditComponentProxy.saveAudit(param);
+        }else if (sourceType.equalsIgnoreCase("cube")){
+            //模型列表-共享
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+                AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_SHARE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){
+                    {
+                        add(userIds);
+                        add(sourceId);
+                        add(cubeName);
+                        add(sourceType);
+                    }
+                },new ArrayList<Object>(){{}});
+            this.auditComponentProxy.saveAudit(param);
+        }
     }
 
     @ApiOperation(value = "读取共享")
@@ -50,6 +85,20 @@ public class OlapShareAction {
     public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (StringUtils.isNotBlank(cubeName)) {
+            if (sourceType.equalsIgnoreCase("cube")){
+                //共享列表-查看
+                AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                    AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_SHARE_LIST,
+                    AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_SHARE_LIST_VIEW, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                    new ArrayList<Object>(){
+                        {
+                            add(sourceId);
+                            add(cubeName);
+                            add(sourceType);
+                        }
+                    },new ArrayList<Object>(){{}});
+                this.auditComponentProxy.saveAudit(param);
+            }
             return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()), cubeName);
         } else {
             return olapShareService.getList(sourceType, sourceId, Long.parseLong(userVO.getUserId()));

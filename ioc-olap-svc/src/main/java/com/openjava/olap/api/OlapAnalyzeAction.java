@@ -2,8 +2,7 @@ package com.openjava.olap.api;
 
 import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.common.Export;
-import com.openjava.olap.common.GateWayHttpClient;
+import com.openjava.olap.common.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.mapper.CustomApiMapper;
@@ -17,6 +16,7 @@ import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,9 @@ public class OlapAnalyzeAction {
     private GateWayHttpClient gateWayHttpClient;
     @Resource
     private IocAuthorizationToken iocAuthorizationToken;
+
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
 
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
@@ -124,6 +127,7 @@ public class OlapAnalyzeAction {
     public AnalyzeVo save(@RequestBody AnalyzeVo analyzeVo) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Date date = new Date();
+        AuditLogParam param = null;
         if (analyzeVo.getIsNew() == null || analyzeVo.getIsNew()) {
             SequenceService ss = ConcurrentSequence.getInstance();
             analyzeVo.setAnalyzeId(ss.getSequence());
@@ -133,6 +137,15 @@ public class OlapAnalyzeAction {
             analyzeVo.setFlags(0);
             analyzeVo.setIsNew(true);
             AnalyzeVo dbObj = olapAnalyzeService.save(analyzeVo);
+            //新建olap分析
+            param = new AuditLogParam(SsoContext.getRequestId(),userVO, AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+                AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_NEW_ANALYZE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){
+                    {
+                        add(dbObj);
+                    }
+                },new ArrayList<>());
         } else {
             OlapAnalyze db = olapAnalyzeService.get(analyzeVo.getId());
             analyzeVo.setCreateId(db.getCreateId());
@@ -143,7 +156,13 @@ public class OlapAnalyzeAction {
             analyzeVo.setUpdateTime(date);
             analyzeVo.setIsNew(false);
             olapAnalyzeService.save(analyzeVo);
+            //编辑olap分析
+            param = new AuditLogParam(SsoContext.getRequestId(),userVO, AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+                AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EDIT_ANALYZE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){{add(db);}},new ArrayList<Object>(){{add(analyzeVo);}});
         }
+        this.auditComponentProxy.saveAudit(param);
         return analyzeVo;
     }
 
@@ -160,6 +179,12 @@ public class OlapAnalyzeAction {
     public void export(Long analyzeId, Long cubeId, HttpServletResponse response) throws Exception {
         AnyDimensionVo dimensionVo = olapAnalyzeService.query(analyzeId, cubeId);
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(analyzeId);add(cubeId);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "直接导出数据", notes = "报文格式：content-type=application/download")
@@ -169,6 +194,12 @@ public class OlapAnalyzeAction {
         OlapCube cube = olapCubeService.get(cubeId);
         AnyDimensionVo dimensionVo = olapAnalyzeService.query(cubeId, axises, cube.getCreateId().toString());
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(axises);add(cubeId);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "导出已保存的分页数据", notes = "报文格式：content-type=application/download")
@@ -177,6 +208,13 @@ public class OlapAnalyzeAction {
     public void export(Long analyzeId, Long cubeId, Integer pageIndex, Integer pageSize, HttpServletResponse response) throws Exception {
         AnyDimensionVo dimensionVo = olapAnalyzeService.queryPaging(pageIndex, pageSize, analyzeId, cubeId);
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(analyzeId);add(cubeId);add(pageIndex);add(pageSize);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-共享-导出
+        //olap分析-我的-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "直接导出分页数据", notes = "报文格式：content-type=application/download")
@@ -186,6 +224,12 @@ public class OlapAnalyzeAction {
         OlapCube cube = olapCubeService.get(cubeId);
         AnyDimensionVo dimensionVo = olapAnalyzeService.queryPaging(pageIndex, pageSize, cubeId, axises, cube.getCreateId().toString());
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(cubeId);add(pageIndex);add(pageSize);add(axises);add(cube);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "获取当前登录人立方体、指标、维度数据")
@@ -289,6 +333,12 @@ public class OlapAnalyzeAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
         gateWayHttpClient.registerApi(body, token);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_PUBLISH, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){{add(body);}},new ArrayList<Object>(){{}});
+        //olap分析 - 发布接口
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "查看发布接口")
