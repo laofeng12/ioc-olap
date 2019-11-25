@@ -44,12 +44,12 @@ export function ischeckWechatAccount (rule, value, callback) {
 
 /**
  * @description: 模型名称检查
- * @param {type} 
+ * @param {type}
  * @return: 50个字符,支持数字字母
  * @author: longbs
  */
 export function isCheckModelName (rule, value, callback) {
-  const reg = /^([a-zA-Z0-9]){1,50}$/ // 英文数字下划线
+  const reg = /^([a-zA-Z0-9_]){1,50}$/ // 英文数字下划线
   if (!reg.test(value)) {
     return callback(new Error('仅支持字母数字以及下划线'))
   } else {

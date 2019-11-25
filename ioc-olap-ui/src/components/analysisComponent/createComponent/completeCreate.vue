@@ -211,12 +211,10 @@ export default {
         t.join.type = this.tableJoinType
       })
       try {
-        this.isLoading = true
         this.changesEncoding()
-        const that = this
         this.$refs.formData.validate(valid => {
-          if(valid) {
-            that.isLoading = true
+          if (valid) {
+            this.isLoading = true
             throttle(async () => {
               await saveolapModeldata(this.totalSaveData).then(_ => {
                 this.isLoading = false

@@ -7,7 +7,7 @@
     <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList"
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
              :empty-text="emptyText" ref="alltree">
-      <span class="custom-tree-node" slot-scope="{ node, data }">
+      <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">
         <div>
            <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
@@ -199,6 +199,9 @@ export default {
     }
   },
   methods: {
+    enterNode(e) {
+      e.target.parentElement.parentElement.classList.add('hideLongText')
+    },
     clickTreeItem (data, node, self) {
       let that = this
       if (node.parent.parent || this.vueType === 'shareResult' || this.vueType === 'shareOlap') {
@@ -434,6 +437,33 @@ export default {
     box-shadow: 5px 0 10px 0 rgba(0,0,0,0.05);
     margin-right: 20px;
     position: relative;
+    .el-tree{
+      /deep/ .el-tree-node{
+        &.hideLongText:hover{
+          .el-tree-node__content{
+            .custom-tree-node{
+              /deep/ .cus-node-title{
+                display: block;
+                width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+            }
+          }
+        // .custom-tree-node{
+        //   .cus-node-title{
+        //     display: block;
+        //     width: 100px;
+        //     overflow: hidden;
+        //     text-overflow: ellipsis;
+        //     white-space: nowrap;
+        //   }
+        // }
+        
+      }
+      }
+    }
     .cus-node-content {
       //display: none;
       opacity: 0;

@@ -260,7 +260,7 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column: item.titName,
               id: item.id,
-              column_type: item.dataType,
+              column_type: item.dataType || item.type,
               name: item.name
             })
             /**
@@ -272,7 +272,7 @@ const setFiled = {
             state.dimensions.push({
               table: item.tableName,
               tableId: `${item.tableName}.${item.name}`,
-              column_type: item.dataType,
+              column_type: item.dataType || item.type,
               id: item.id,
               derived: item.mode === '1' ? null : item.titName.split(','),
               // derived: item.mode === '1' ? null : item.titName,
