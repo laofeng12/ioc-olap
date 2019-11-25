@@ -91,9 +91,6 @@ export default {
       })
       this.getActiveChange()
     },
-    handleInput () {
-
-    },
     getActiveChange () {
       this.titleData.forEach((item, index) => {
         this.saveSelectFiled.forEach((n, i) => {

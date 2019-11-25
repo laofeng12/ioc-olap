@@ -43,7 +43,7 @@ export default {
     },
     // 下一步
     async nextModel (val) {
-      if (this.selectTableTotal.length < 1) {
+      if (this.selectTableTotal.length < 2) {
         this.$message.warning('请选择创建模型的数据源，且不少于两张表')
         return
       }
