@@ -11,8 +11,8 @@
           <el-table :data="tableData" v-loading="loading" ref="multipleTable" tooltip-effect="dark" class="statusDiv"
                     @select="selectcheck" @select-all="selectAllCheck" style="margin-top: 10px;">
               <el-table-column type="selection" :selectable="isSelectable" width="30" prop="全选" align="center"></el-table-column>
-              <el-table-column prop="titName" label="字段名称" align="center"> </el-table-column>
-              <el-table-column prop="type" label="字段类型" align="center"> </el-table-column>
+              <el-table-column prop="titName" label="字段名称" align="center"></el-table-column>
+              <el-table-column prop="type" label="字段类型" align="center"></el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
                 <template slot-scope="scope">
                   <el-form-item :prop="'tableData.' + scope.$index + '.name'">
@@ -20,9 +20,7 @@
                   </el-form-item>
                 </template>
               </el-table-column>
-              <el-table-column
-                label="维度组合名称"
-                align="center">
+              <el-table-column label="维度组合名称" align="center">
                 <template slot-scope="scope">
                   <div class="play">
                     <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode"
@@ -454,6 +452,9 @@ export default {
       }
       .el-checkbox__inner::after{
       }
+    }
+    >>>.el-table .cell {
+      overflow inherit
     }
   }
 }

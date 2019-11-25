@@ -30,7 +30,7 @@
                     :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                        <span v-if="!item.virtualTableName">{{item.name}}</span> 
+                        <span v-if="!item.virtualTableName">{{item.name}}</span>
                          <el-tooltip placement="top" v-else>
                            <span slot="content">{{item.virtualTableName}}</span>
                            <span slot="content"> - {{item.name}}</span>
@@ -71,7 +71,7 @@
                     :class="`data-list left-list ${(item.children && item.children.length > 0) ? 'parent' : ''}`">
                       <span class="line">
                         <i class="el-icon-notebook-2"></i>
-                         <span v-if="!item.virtualTableName">{{item.name}}</span> 
+                         <span v-if="!item.virtualTableName">{{item.name}}</span>
                          <el-tooltip placement="top" v-else>
                            <span slot="content">{{item.virtualTableName}}</span>
                            <span slot="content"> - {{item.name}}</span>
@@ -318,7 +318,7 @@ export default {
       if (val) this.handleShrinkSearch(val, 'measureSearch')
     },
     selectCubeId (val) {
-      this.changeCubeId(val)
+      this.getCubes(val)
       this.cleanAllList()
     },
     editData (val) {
@@ -356,10 +356,10 @@ export default {
     this.getCubes()
   },
   methods: {
-    async getCubes () {
+    async getCubes (val) {
       const menuList = await getCubesApi()
       this.menuList = menuList
-      if (this.selectCubeId) this.changeCubeId(this.selectCubeId)
+      if (this.selectCubeId) this.changeCubeId(val || this.selectCubeId)
     },
     changeCubeId (val) {
       const { dimensures, measures, cubeId } = this.menuList.filter(v => v.cubeId === val)[0]

@@ -131,7 +131,10 @@ export default {
               end: this.form.endTime ? this.getTimezoneOffset(this.form.endTime) * 1000 : '0'
             }
             this.$throttle(async () => {
-              if (Number(this.formData.interval) <= 0) return this.$message.error('频率必须为正整数')
+              if (Number(this.formData.interval) <= 0) {
+                this.$parent.closeChangeLoadingLoser()
+                return this.$message.error('频率必须为正整数')
+              }
               await buildModeling(this.formData, parmas).then(res => {
                 this.$message.success('构建成功~')
                 this.form.startTime = ''
