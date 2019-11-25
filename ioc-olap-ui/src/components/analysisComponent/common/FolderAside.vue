@@ -153,29 +153,13 @@ export default {
   mounted() {
     this.$nextTick(() => {
       setTimeout(() => {
-        // let elements = document.querySelectorAll('.el-tree-node')
-        // for (let i of elements) {
-        //   i.classList.add('hideLongText')
-        //   i.addEventListener('mouseenter',function(){
-        //     console.log('enter')
-        //     i.classList.add('hideLongText')
-        //   });
-        //   i.addEventListener('mouseleave',function(){
-        //     console.log('leave')
-
-        //     i.classList.remove('hideLongText')
-        //   });
-        // }
         let elements = document.querySelectorAll('.el-tree-node__content')
         for (let i of elements) {
           i.classList.add('hideLongText')
           i.addEventListener('mouseenter',function(){
-            console.log('enter')
             i.classList.add('hideLongText')
           });
           i.addEventListener('mouseleave',function(){
-            console.log('leave')
-
             i.classList.remove('hideLongText')
           });
         }
