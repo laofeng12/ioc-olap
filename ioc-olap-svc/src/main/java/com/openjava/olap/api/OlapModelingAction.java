@@ -3,6 +3,9 @@ package com.openjava.olap.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.AuditComponentProxy;
+import com.openjava.olap.common.AuditLogEnum;
+import com.openjava.olap.common.AuditLogParam;
 import com.openjava.olap.common.TableNameTransposition;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,13 +87,15 @@ public class OlapModelingAction extends BaseAction {
     HiveHttpClient hiveHttpClient;
     @Autowired
     TableHttpClient tableHttpClient;
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
 
     private static Object lock = new Object();
 
 
     @ApiOperation(value = "模型列表")
     @RequestMapping(value = "/cubeList", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public CubeListVo cubeList(String cubeName, Integer limit, Integer offset, int dateType) throws APIException {
         // 先查询麒麟的模型列表，后读取数据库的模型状态字段，之所以保留查询麒麟列表，是因为要返回date_range_end上一次构建时间
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
@@ -129,12 +135,24 @@ public class OlapModelingAction extends BaseAction {
             }
         }
         this.olapCubeService.resetCubeStatus(cubeList);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_VIEW, AuditLogEnum.AuditLogEvent.LOG_EVENT_QUERY,
+            new ArrayList<Object>(){
+                {
+                    add(limit);
+                    add(offset);
+                    add(cubeName);
+                    add(dateType);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
         return new CubeListVo(cubeList, isNext);
     }
 
     @ApiOperation(value = "构建列表")
     @RequestMapping(value = "/jobsList", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public List<JobsMapper> jobsList(Long limit, Long offset, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String projectName = userVO.getUserId();
@@ -149,7 +167,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "第六步——获取Encoding")
     @RequestMapping(value = "/encodingList", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public EncodingDataMapper encodingList() throws APIException {
         return tableHttpClient.encodingDataType();
     }
@@ -157,7 +175,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "第六步——获取Encoding2")
     @RequestMapping(value = "/encoding2List", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public HashMap encoding2List() throws APIException {
         return tableHttpClient.encodingDataTypeCount();
     }
@@ -165,7 +183,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "第七步——完成创建")
     @RequestMapping(value = "/createModeling", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public Map<String, Object> createModeling(@RequestBody ModelingMapper body) throws Exception {
         List<TableNameRelationMapper> relations = body.getRelations();
         if (relations != null && !relations.isEmpty()){
@@ -266,7 +284,31 @@ public class OlapModelingAction extends BaseAction {
             }
             throw ex;
         }
-
+        if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
+            //模型列表-新增
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(), (UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_OLAP_MODEL, AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+                AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_SAVE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>() {
+                    {
+                        add(body);
+                    }
+                }, new ArrayList<Object>() {{
+            }});
+            this.auditComponentProxy.saveAudit(param);
+        }else {
+            //模型列表-编辑
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(), (UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_OLAP_MODEL, AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+                AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_EDIT, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>() {
+                    {
+                        add(body);
+                    }
+                }, new ArrayList<Object>() {{
+            }});
+            this.auditComponentProxy.saveAudit(param);
+        }
         paramMap.put("ModesList", modelMap);
         paramMap.put("CubeList", cubeMap);
         return paramMap;
@@ -536,7 +578,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "立方体:查看")
     @RequestMapping(value = "/desc", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public Map<String, Object> desc(String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeName);
@@ -698,7 +740,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "立方体:构建")
     @RequestMapping(value = "/build", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void build(String cubeName, Long start, Long end, @RequestBody OlapTimingrefresh timingrefresh) throws Exception {
         //增量全量验证
         CubeDescDataMapper cubeDescDataMapper = cubeHttpClient.desc(cubeName);
@@ -733,12 +775,25 @@ public class OlapModelingAction extends BaseAction {
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
         olapCubeBuildService.preBuild(cubeName,start,end);
+        //模型列表-构建
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_BUILD, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(start);
+                    add(end);
+                    add(cubeName);
+                    add(timingrefresh);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
     @ApiOperation(value = "立方体:刷新")
     @RequestMapping(value = "/refresh", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void refresh(String cubeName, Long startTime, Long endTime) throws Exception {
         CubeMapper cubeMapper;
         try {
@@ -756,13 +811,24 @@ public class OlapModelingAction extends BaseAction {
         }
 
         cubeHttpClient.refresh(cubeName, startTime, endTime);
-
+        //模型列表-刷新
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_REFRESH, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(startTime);
+                    add(endTime);
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
     @ApiOperation(value = "立方体:合并")
     @RequestMapping(value = "/merge", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void merge(String cubeName, Long start, Long end) throws Exception {
         CubeMapper cubeMapper;
         try {
@@ -781,7 +847,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "立方体:禁用")
     @RequestMapping(value = "/disable", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void disable(String cubeName) throws APIException {
         CubeMapper cubeMapper;
         try {
@@ -800,12 +866,22 @@ public class OlapModelingAction extends BaseAction {
         olapCube.setIsNew(false);
         olapCube.setFlags(0);
         olapCubeService.doSave(olapCube);
+        //模型列表-禁用
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_DISABLE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
     @ApiOperation(value = "立方体:启用")
     @RequestMapping(value = "/enable", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void enable(String cubeName) throws APIException {
         CubeMapper cubeMapper;
         try {
@@ -830,11 +906,21 @@ public class OlapModelingAction extends BaseAction {
             olapCube.setFlags(1);
             olapCubeService.doSave(olapCube);
         }
+        //模型列表-启用
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_ENABLE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "立方体:复制")
     @RequestMapping(value = "/clone", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void clone(String cubeName, String cubeNameClone) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         CubeDescDataMapper cube = cubeHttpClient.desc(cubeNameClone);
@@ -867,7 +953,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "立方体:删除")
     @RequestMapping(value = "/deleteCube", method = RequestMethod.DELETE)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void deleteCube(String cubeName) throws APIException {
         CubeMapper cubeMapper = null;
         try {
@@ -897,12 +983,22 @@ public class OlapModelingAction extends BaseAction {
             olapTimingrefreshService.deleteCubeName(cubeName);
             olapDatalaketableService.deleteCubeName(cubeName);
         }
+        //模型列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_DELETE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
     @ApiOperation(value = "构建列表:停止")
     @RequestMapping(value = "/cancelJob", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void cancelJob(String jobsId) throws APIException {
         jobsHttpClient.cancel(jobsId);
         jobsHttpClient.cancel(jobsId);
@@ -910,14 +1006,14 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "构建列表:暂停")
     @RequestMapping(value = "/pauseJob", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void pauseJob(String cubeName, String jobsId) throws APIException {
         jobsHttpClient.pause(jobsId);
     }
 
     @ApiOperation(value = "构建列表:运行")
     @RequestMapping(value = "/resumeJob", method = RequestMethod.PUT)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void resumeJob(String jobsId) throws APIException {
         jobsHttpClient.resume(jobsId);
     }
@@ -925,16 +1021,26 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "构建列表:删除JOB")
     @RequestMapping(value = "/deleteJob", method = RequestMethod.DELETE)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public void deleteJob(String jobsId) throws APIException {
 //        jobsAction.cancel(jobsId);
         jobsHttpClient.delete(jobsId);
+        //构建列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_BUILD_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_BUILD_LIST_DELETE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(jobsId);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
     @ApiOperation(value = "查看所有目录")
     @RequestMapping(value = "/selectCatalog", method = RequestMethod.GET)
-    @Security(session = false)
+    @Security(session = true, allowResources = {"OlapModel"})
     public String selectCatalog() {
         String json = "[{\"orgName\": \"DEFAULT\",\"orgId\": 1},{\"orgName\":\"KYLIN\",\"orgId\":2}]";
         return json;
@@ -943,7 +1049,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "查看所有表")
     @RequestMapping(value = "/selectTable", method = RequestMethod.GET)
-    @Security(session = false)
+    @Security(session = true, allowResources = {"OlapModel"})
     public String selectTable(String orgId) {
         String json = "[{\"resourceId\":\"ef3cb5ff-03e2-438d-a729-cbdf60ff39cb\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_CATEGORY_GROUPINGS\",\"source_type\":0,\"orgId\":\"2\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"KYLIN\"},{\"resourceId\":\"f86af73f-c96a-4eb8-9de7-3cca85aae998\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_SALES\",\"source_type\":0,\"orgId\":\"2\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"KYLIN\"},{\"resourceId\":\"84bbe31a-384f-45c8-8d5d-c1d311095b5a\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_ACCOUNT\",\"source_type\":0,\"orgId\":\"2\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"KYLIN\"},{\"resourceId\":\"050f3ab8-4c36-49d2-a29d-30e246e7c662\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_CAL_DT\",\"source_type\":0,\"orgId\":\"2\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"KYLIN\"},{\"resourceId\":\"19e90d39-6cc3-4d20-b08d-1d8771f1ea1d\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"orgId\":\"2\",\"resourceTableName\":\"KYLIN_COUNTRY\",\"database\":\"KYLIN\"},{\"resourceId\":\"c65b5c62-6d14-4456-bc37-2f7bff28fcca\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_CATEGORY_GROUPINGS\",\"source_type\":0,\"orgId\":\"1\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"DEFAULT\"},{\"resourceId\":\"3fa28668-b02c-49cf-aa53-008e06c49cb7\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_SALES\",\"source_type\":0,\"orgId\":\"1\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"DEFAULT\"},{\"resourceId\":\"2abeafff-b218-46de-b06c-abd10365d273\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_ACCOUNT\",\"source_type\":0,\"orgId\":\"1\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"DEFAULT\"},{\"resourceId\":\"a2a023c7-8e9d-4d5d-bc5e-9a3b09ce8972\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_CAL_DT\",\"source_type\":0,\"orgId\":\"1\",\"table_type\":\"MANAGED_TABLE\",\"database\":\"DEFAULT\"},{\"resourceId\":\"34ac809f-7728-423b-81af-29f931c2da39\",\"last_modified\":0,\"orgId\":\"1\",\"version\":\"2.3.1.0\",\"resourceTableName\":\"KYLIN_COUNTRY\",\"database\":\"DEFAULT\"}]";
 
@@ -955,19 +1061,8 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "查看列")
     @RequestMapping(value = "/selectColumn", method = RequestMethod.GET)
-    @Security(session = false)
+    @Security(session = true, allowResources = {"OlapModel"})
     public List<String> selectColumn(String[] resourceIds) {
-
-//        String json = "[{\"resourceId\":\"84bbe31a-384f-45c8-8d5d-c1d311095b5a\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_ACCOUNT\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"ACCOUNT_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"ACCOUNT_BUYER_LEVEL\",\"datatype\":\"integer\"},{\"id\":\"3\",\"name\":\"ACCOUNT_SELLER_LEVEL\",\"datatype\":\"integer\"},{\"id\":\"4\",\"name\":\"ACCOUNT_COUNTRY\",\"datatype\":\"varchar(256)\"},{\"id\":\"5\",\"name\":\"ACCOUNT_CONTACT\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"KYLIN\"}},{\"resourceId\":\"050f3ab8-4c36-49d2-a29d-30e246e7c662\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_CAL_DT\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"CAL_DT\",\"datatype\":\"date\",\"comment\":\"Date, PK\"},{\"id\":\"2\",\"name\":\"YEAR_BEG_DT\",\"datatype\":\"date\",\"comment\":\"YEAR Begin Date\"},{\"id\":\"3\",\"name\":\"QTR_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Quarter Begin Date\"},{\"id\":\"4\",\"name\":\"MONTH_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Month Begin Date\"},{\"id\":\"5\",\"name\":\"WEEK_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Week Begin Date\"},{\"id\":\"6\",\"name\":\"AGE_FOR_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"7\",\"name\":\"AGE_FOR_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"8\",\"name\":\"AGE_FOR_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"9\",\"name\":\"AGE_FOR_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"10\",\"name\":\"AGE_FOR_DT_ID\",\"datatype\":\"smallint\"},{\"id\":\"11\",\"name\":\"AGE_FOR_RTL_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"12\",\"name\":\"AGE_FOR_RTL_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"13\",\"name\":\"AGE_FOR_RTL_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"14\",\"name\":\"AGE_FOR_RTL_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"15\",\"name\":\"AGE_FOR_CS_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"16\",\"name\":\"DAY_OF_CAL_ID\",\"datatype\":\"integer\"},{\"id\":\"17\",\"name\":\"DAY_OF_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"18\",\"name\":\"DAY_OF_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"19\",\"name\":\"DAY_OF_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"20\",\"name\":\"DAY_OF_WEEK_ID\",\"datatype\":\"integer\"},{\"id\":\"21\",\"name\":\"WEEK_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"22\",\"name\":\"WEEK_OF_CAL_ID\",\"datatype\":\"integer\"},{\"id\":\"23\",\"name\":\"MONTH_OF_QTR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"24\",\"name\":\"MONTH_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"25\",\"name\":\"MONTH_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"26\",\"name\":\"QTR_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"27\",\"name\":\"QTR_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"28\",\"name\":\"YEAR_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"29\",\"name\":\"YEAR_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"30\",\"name\":\"QTR_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"31\",\"name\":\"MONTH_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"32\",\"name\":\"WEEK_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"33\",\"name\":\"CAL_DT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"34\",\"name\":\"CAL_DT_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"35\",\"name\":\"CAL_DT_SHORT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"36\",\"name\":\"YTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"37\",\"name\":\"QTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"38\",\"name\":\"MTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"39\",\"name\":\"WTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"40\",\"name\":\"SEASON_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"41\",\"name\":\"DAY_IN_YEAR_COUNT\",\"datatype\":\"smallint\"},{\"id\":\"42\",\"name\":\"DAY_IN_QTR_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"43\",\"name\":\"DAY_IN_MONTH_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"44\",\"name\":\"DAY_IN_WEEK_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"45\",\"name\":\"RTL_YEAR_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"46\",\"name\":\"RTL_QTR_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"47\",\"name\":\"RTL_MONTH_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"48\",\"name\":\"RTL_WEEK_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"49\",\"name\":\"CS_WEEK_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"50\",\"name\":\"CAL_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"51\",\"name\":\"DAY_OF_WEEK\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"52\",\"name\":\"MONTH_ID\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"53\",\"name\":\"PRD_DESC\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"54\",\"name\":\"PRD_FLAG\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"55\",\"name\":\"PRD_ID\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"56\",\"name\":\"PRD_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"57\",\"name\":\"QTR_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"58\",\"name\":\"QTR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"59\",\"name\":\"QTR_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"60\",\"name\":\"RETAIL_WEEK\",\"datatype\":\"varchar(256)\"},{\"id\":\"61\",\"name\":\"RETAIL_YEAR\",\"datatype\":\"varchar(256)\"},{\"id\":\"62\",\"name\":\"RETAIL_START_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"63\",\"name\":\"RETAIL_WK_END_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"64\",\"name\":\"WEEK_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"65\",\"name\":\"WEEK_NUM_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"66\",\"name\":\"WEEK_BEG_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"67\",\"name\":\"WEEK_END_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"68\",\"name\":\"WEEK_IN_YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"69\",\"name\":\"WEEK_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"70\",\"name\":\"WEEK_BEG_END_DESC_MDY\",\"datatype\":\"varchar(256)\"},{\"id\":\"71\",\"name\":\"WEEK_BEG_END_DESC_MD\",\"datatype\":\"varchar(256)\"},{\"id\":\"72\",\"name\":\"YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"73\",\"name\":\"YEAR_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"74\",\"name\":\"CAL_DT_MNS_1YEAR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"75\",\"name\":\"CAL_DT_MNS_2YEAR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"76\",\"name\":\"CAL_DT_MNS_1QTR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"77\",\"name\":\"CAL_DT_MNS_2QTR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"78\",\"name\":\"CAL_DT_MNS_1MONTH_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"79\",\"name\":\"CAL_DT_MNS_2MONTH_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"80\",\"name\":\"CAL_DT_MNS_1WEEK_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"81\",\"name\":\"CAL_DT_MNS_2WEEK_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"82\",\"name\":\"CURR_CAL_DT_MNS_1YEAR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"83\",\"name\":\"CURR_CAL_DT_MNS_2YEAR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"84\",\"name\":\"CURR_CAL_DT_MNS_1QTR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"85\",\"name\":\"CURR_CAL_DT_MNS_2QTR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"86\",\"name\":\"CURR_CAL_DT_MNS_1MONTH_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"87\",\"name\":\"CURR_CAL_DT_MNS_2MONTH_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"88\",\"name\":\"CURR_CAL_DT_MNS_1WEEK_YN_IND\",\"datatype\":\"tinyint\"},{\"id\":\"89\",\"name\":\"CURR_CAL_DT_MNS_2WEEK_YN_IND\",\"datatype\":\"tinyint\"},{\"id\":\"90\",\"name\":\"RTL_MONTH_OF_RTL_YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"91\",\"name\":\"RTL_QTR_OF_RTL_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"92\",\"name\":\"RTL_WEEK_OF_RTL_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"93\",\"name\":\"SEASON_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"94\",\"name\":\"YTM_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"95\",\"name\":\"YTQ_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"96\",\"name\":\"YTW_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"97\",\"name\":\"KYLIN_CAL_DT_CRE_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"98\",\"name\":\"KYLIN_CAL_DT_CRE_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"99\",\"name\":\"KYLIN_CAL_DT_UPD_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"100\",\"name\":\"KYLIN_CAL_DT_UPD_USER\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"KYLIN\"}},{\"resourceId\":\"ef3cb5ff-03e2-438d-a729-cbdf60ff39cb\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_CATEGORY_GROUPINGS\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"LEAF_CATEG_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"LEAF_CATEG_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"3\",\"name\":\"SITE_ID\",\"datatype\":\"integer\"},{\"id\":\"4\",\"name\":\"CATEG_BUSN_MGR\",\"datatype\":\"varchar(256)\"},{\"id\":\"5\",\"name\":\"CATEG_BUSN_UNIT\",\"datatype\":\"varchar(256)\"},{\"id\":\"6\",\"name\":\"REGN_CATEG\",\"datatype\":\"varchar(256)\"},{\"id\":\"7\",\"name\":\"USER_DEFINED_FIELD1\",\"datatype\":\"varchar(256)\"},{\"id\":\"8\",\"name\":\"USER_DEFINED_FIELD3\",\"datatype\":\"varchar(256)\"},{\"id\":\"9\",\"name\":\"KYLIN_GROUPINGS_CRE_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"10\",\"name\":\"KYLIN_GROUPINGS_UPD_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"11\",\"name\":\"KYLIN_GROUPINGS_CRE_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"12\",\"name\":\"KYLIN_GROUPINGS_UPD_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"13\",\"name\":\"META_CATEG_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"14\",\"name\":\"META_CATEG_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"15\",\"name\":\"CATEG_LVL2_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"16\",\"name\":\"CATEG_LVL3_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"17\",\"name\":\"CATEG_LVL4_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"18\",\"name\":\"CATEG_LVL5_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"19\",\"name\":\"CATEG_LVL6_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"20\",\"name\":\"CATEG_LVL7_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"21\",\"name\":\"CATEG_LVL2_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"22\",\"name\":\"CATEG_LVL3_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"23\",\"name\":\"CATEG_LVL4_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"24\",\"name\":\"CATEG_LVL5_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"25\",\"name\":\"CATEG_LVL6_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"26\",\"name\":\"CATEG_LVL7_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"27\",\"name\":\"CATEG_FLAGS\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"28\",\"name\":\"ADULT_CATEG_YN\",\"datatype\":\"varchar(256)\"},{\"id\":\"29\",\"name\":\"DOMAIN_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"30\",\"name\":\"USER_DEFINED_FIELD5\",\"datatype\":\"varchar(256)\"},{\"id\":\"31\",\"name\":\"VCS_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"32\",\"name\":\"GCS_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"33\",\"name\":\"MOVE_TO\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"34\",\"name\":\"SAP_CATEGORY_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"35\",\"name\":\"SRC_ID\",\"datatype\":\"tinyint\"},{\"id\":\"36\",\"name\":\"BSNS_VRTCL_NAME\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"KYLIN\"}},{\"resourceId\":\"19e90d39-6cc3-4d20-b08d-1d8771f1ea1d\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_COUNTRY\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"COUNTRY\",\"datatype\":\"varchar(256)\"},{\"id\":\"2\",\"name\":\"LATITUDE\",\"datatype\":\"double\"},{\"id\":\"3\",\"name\":\"LONGITUDE\",\"datatype\":\"double\"},{\"id\":\"4\",\"name\":\"NAME\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"KYLIN\"}},{\"resourceId\":\"f86af73f-c96a-4eb8-9de7-3cca85aae998\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_SALES\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"TRANS_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"PART_DT\",\"datatype\":\"date\"},{\"id\":\"3\",\"name\":\"LSTG_FORMAT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"4\",\"name\":\"LEAF_CATEG_ID\",\"datatype\":\"bigint\"},{\"id\":\"5\",\"name\":\"LSTG_SITE_ID\",\"datatype\":\"integer\"},{\"id\":\"6\",\"name\":\"SLR_SEGMENT_CD\",\"datatype\":\"smallint\"},{\"id\":\"7\",\"name\":\"PRICE\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"8\",\"name\":\"ITEM_COUNT\",\"datatype\":\"bigint\"},{\"id\":\"9\",\"name\":\"SELLER_ID\",\"datatype\":\"bigint\"},{\"id\":\"10\",\"name\":\"BUYER_ID\",\"datatype\":\"bigint\"},{\"id\":\"11\",\"name\":\"OPS_USER_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"12\",\"name\":\"OPS_REGION\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"KYLIN\"}},{\"resourceId\":\"2abeafff-b218-46de-b06c-abd10365d273\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_ACCOUNT\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"ACCOUNT_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"ACCOUNT_BUYER_LEVEL\",\"datatype\":\"integer\"},{\"id\":\"3\",\"name\":\"ACCOUNT_SELLER_LEVEL\",\"datatype\":\"integer\"},{\"id\":\"4\",\"name\":\"ACCOUNT_COUNTRY\",\"datatype\":\"varchar(256)\"},{\"id\":\"5\",\"name\":\"ACCOUNT_CONTACT\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}},{\"resourceId\":\"a2a023c7-8e9d-4d5d-bc5e-9a3b09ce8972\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_CAL_DT\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"CAL_DT\",\"datatype\":\"date\",\"comment\":\"Date, PK\"},{\"id\":\"2\",\"name\":\"YEAR_BEG_DT\",\"datatype\":\"date\",\"comment\":\"YEAR Begin Date\"},{\"id\":\"3\",\"name\":\"QTR_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Quarter Begin Date\"},{\"id\":\"4\",\"name\":\"MONTH_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Month Begin Date\"},{\"id\":\"5\",\"name\":\"WEEK_BEG_DT\",\"datatype\":\"date\",\"comment\":\"Week Begin Date\"},{\"id\":\"6\",\"name\":\"AGE_FOR_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"7\",\"name\":\"AGE_FOR_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"8\",\"name\":\"AGE_FOR_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"9\",\"name\":\"AGE_FOR_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"10\",\"name\":\"AGE_FOR_DT_ID\",\"datatype\":\"smallint\"},{\"id\":\"11\",\"name\":\"AGE_FOR_RTL_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"12\",\"name\":\"AGE_FOR_RTL_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"13\",\"name\":\"AGE_FOR_RTL_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"14\",\"name\":\"AGE_FOR_RTL_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"15\",\"name\":\"AGE_FOR_CS_WEEK_ID\",\"datatype\":\"smallint\"},{\"id\":\"16\",\"name\":\"DAY_OF_CAL_ID\",\"datatype\":\"integer\"},{\"id\":\"17\",\"name\":\"DAY_OF_YEAR_ID\",\"datatype\":\"smallint\"},{\"id\":\"18\",\"name\":\"DAY_OF_QTR_ID\",\"datatype\":\"smallint\"},{\"id\":\"19\",\"name\":\"DAY_OF_MONTH_ID\",\"datatype\":\"smallint\"},{\"id\":\"20\",\"name\":\"DAY_OF_WEEK_ID\",\"datatype\":\"integer\"},{\"id\":\"21\",\"name\":\"WEEK_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"22\",\"name\":\"WEEK_OF_CAL_ID\",\"datatype\":\"integer\"},{\"id\":\"23\",\"name\":\"MONTH_OF_QTR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"24\",\"name\":\"MONTH_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"25\",\"name\":\"MONTH_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"26\",\"name\":\"QTR_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"27\",\"name\":\"QTR_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"28\",\"name\":\"YEAR_OF_CAL_ID\",\"datatype\":\"smallint\"},{\"id\":\"29\",\"name\":\"YEAR_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"30\",\"name\":\"QTR_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"31\",\"name\":\"MONTH_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"32\",\"name\":\"WEEK_END_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"33\",\"name\":\"CAL_DT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"34\",\"name\":\"CAL_DT_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"35\",\"name\":\"CAL_DT_SHORT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"36\",\"name\":\"YTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"37\",\"name\":\"QTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"38\",\"name\":\"MTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"39\",\"name\":\"WTD_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"40\",\"name\":\"SEASON_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"41\",\"name\":\"DAY_IN_YEAR_COUNT\",\"datatype\":\"smallint\"},{\"id\":\"42\",\"name\":\"DAY_IN_QTR_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"43\",\"name\":\"DAY_IN_MONTH_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"44\",\"name\":\"DAY_IN_WEEK_COUNT\",\"datatype\":\"tinyint\"},{\"id\":\"45\",\"name\":\"RTL_YEAR_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"46\",\"name\":\"RTL_QTR_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"47\",\"name\":\"RTL_MONTH_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"48\",\"name\":\"RTL_WEEK_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"49\",\"name\":\"CS_WEEK_BEG_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"50\",\"name\":\"CAL_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"51\",\"name\":\"DAY_OF_WEEK\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"52\",\"name\":\"MONTH_ID\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"53\",\"name\":\"PRD_DESC\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"54\",\"name\":\"PRD_FLAG\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"55\",\"name\":\"PRD_ID\",\"datatype\":\"varchar(256)\",\"comment\":\"\"},{\"id\":\"56\",\"name\":\"PRD_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"57\",\"name\":\"QTR_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"58\",\"name\":\"QTR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"59\",\"name\":\"QTR_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"60\",\"name\":\"RETAIL_WEEK\",\"datatype\":\"varchar(256)\"},{\"id\":\"61\",\"name\":\"RETAIL_YEAR\",\"datatype\":\"varchar(256)\"},{\"id\":\"62\",\"name\":\"RETAIL_START_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"63\",\"name\":\"RETAIL_WK_END_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"64\",\"name\":\"WEEK_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"65\",\"name\":\"WEEK_NUM_DESC\",\"datatype\":\"varchar(256)\"},{\"id\":\"66\",\"name\":\"WEEK_BEG_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"67\",\"name\":\"WEEK_END_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"68\",\"name\":\"WEEK_IN_YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"69\",\"name\":\"WEEK_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"70\",\"name\":\"WEEK_BEG_END_DESC_MDY\",\"datatype\":\"varchar(256)\"},{\"id\":\"71\",\"name\":\"WEEK_BEG_END_DESC_MD\",\"datatype\":\"varchar(256)\"},{\"id\":\"72\",\"name\":\"YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"73\",\"name\":\"YEAR_IND\",\"datatype\":\"varchar(256)\"},{\"id\":\"74\",\"name\":\"CAL_DT_MNS_1YEAR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"75\",\"name\":\"CAL_DT_MNS_2YEAR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"76\",\"name\":\"CAL_DT_MNS_1QTR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"77\",\"name\":\"CAL_DT_MNS_2QTR_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"78\",\"name\":\"CAL_DT_MNS_1MONTH_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"79\",\"name\":\"CAL_DT_MNS_2MONTH_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"80\",\"name\":\"CAL_DT_MNS_1WEEK_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"81\",\"name\":\"CAL_DT_MNS_2WEEK_DT\",\"datatype\":\"varchar(256)\"},{\"id\":\"82\",\"name\":\"CURR_CAL_DT_MNS_1YEAR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"83\",\"name\":\"CURR_CAL_DT_MNS_2YEAR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"84\",\"name\":\"CURR_CAL_DT_MNS_1QTR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"85\",\"name\":\"CURR_CAL_DT_MNS_2QTR_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"86\",\"name\":\"CURR_CAL_DT_MNS_1MONTH_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"87\",\"name\":\"CURR_CAL_DT_MNS_2MONTH_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"88\",\"name\":\"CURR_CAL_DT_MNS_1WEEK_YN_IND\",\"datatype\":\"tinyint\"},{\"id\":\"89\",\"name\":\"CURR_CAL_DT_MNS_2WEEK_YN_IND\",\"datatype\":\"tinyint\"},{\"id\":\"90\",\"name\":\"RTL_MONTH_OF_RTL_YEAR_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"91\",\"name\":\"RTL_QTR_OF_RTL_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"92\",\"name\":\"RTL_WEEK_OF_RTL_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"93\",\"name\":\"SEASON_OF_YEAR_ID\",\"datatype\":\"tinyint\"},{\"id\":\"94\",\"name\":\"YTM_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"95\",\"name\":\"YTQ_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"96\",\"name\":\"YTW_YN_ID\",\"datatype\":\"tinyint\"},{\"id\":\"97\",\"name\":\"KYLIN_CAL_DT_CRE_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"98\",\"name\":\"KYLIN_CAL_DT_CRE_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"99\",\"name\":\"KYLIN_CAL_DT_UPD_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"100\",\"name\":\"KYLIN_CAL_DT_UPD_USER\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}},{\"resourceId\":\"c65b5c62-6d14-4456-bc37-2f7bff28fcca\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_CATEGORY_GROUPINGS\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"LEAF_CATEG_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"LEAF_CATEG_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"3\",\"name\":\"SITE_ID\",\"datatype\":\"integer\"},{\"id\":\"4\",\"name\":\"CATEG_BUSN_MGR\",\"datatype\":\"varchar(256)\"},{\"id\":\"5\",\"name\":\"CATEG_BUSN_UNIT\",\"datatype\":\"varchar(256)\"},{\"id\":\"6\",\"name\":\"REGN_CATEG\",\"datatype\":\"varchar(256)\"},{\"id\":\"7\",\"name\":\"USER_DEFINED_FIELD1\",\"datatype\":\"varchar(256)\"},{\"id\":\"8\",\"name\":\"USER_DEFINED_FIELD3\",\"datatype\":\"varchar(256)\"},{\"id\":\"9\",\"name\":\"KYLIN_GROUPINGS_CRE_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"10\",\"name\":\"KYLIN_GROUPINGS_UPD_DATE\",\"datatype\":\"varchar(256)\"},{\"id\":\"11\",\"name\":\"KYLIN_GROUPINGS_CRE_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"12\",\"name\":\"KYLIN_GROUPINGS_UPD_USER\",\"datatype\":\"varchar(256)\"},{\"id\":\"13\",\"name\":\"META_CATEG_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"14\",\"name\":\"META_CATEG_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"15\",\"name\":\"CATEG_LVL2_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"16\",\"name\":\"CATEG_LVL3_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"17\",\"name\":\"CATEG_LVL4_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"18\",\"name\":\"CATEG_LVL5_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"19\",\"name\":\"CATEG_LVL6_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"20\",\"name\":\"CATEG_LVL7_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"21\",\"name\":\"CATEG_LVL2_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"22\",\"name\":\"CATEG_LVL3_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"23\",\"name\":\"CATEG_LVL4_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"24\",\"name\":\"CATEG_LVL5_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"25\",\"name\":\"CATEG_LVL6_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"26\",\"name\":\"CATEG_LVL7_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"27\",\"name\":\"CATEG_FLAGS\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"28\",\"name\":\"ADULT_CATEG_YN\",\"datatype\":\"varchar(256)\"},{\"id\":\"29\",\"name\":\"DOMAIN_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"30\",\"name\":\"USER_DEFINED_FIELD5\",\"datatype\":\"varchar(256)\"},{\"id\":\"31\",\"name\":\"VCS_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"32\",\"name\":\"GCS_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"33\",\"name\":\"MOVE_TO\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"34\",\"name\":\"SAP_CATEGORY_ID\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"35\",\"name\":\"SRC_ID\",\"datatype\":\"tinyint\"},{\"id\":\"36\",\"name\":\"BSNS_VRTCL_NAME\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}},{\"resourceId\":\"34ac809f-7728-423b-81af-29f931c2da39\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_COUNTRY\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"COUNTRY\",\"datatype\":\"varchar(256)\"},{\"id\":\"2\",\"name\":\"LATITUDE\",\"datatype\":\"double\"},{\"id\":\"3\",\"name\":\"LONGITUDE\",\"datatype\":\"double\"},{\"id\":\"4\",\"name\":\"NAME\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}},{\"resourceId\":\"3fa28668-b02c-49cf-aa53-008e06c49cb7\",\"last_modified\":0,\"version\":\"2.3.1.0\",\"name\":\"KYLIN_SALES\",\"data\":{\"columns\":[{\"id\":\"1\",\"name\":\"TRANS_ID\",\"datatype\":\"bigint\"},{\"id\":\"2\",\"name\":\"PART_DT\",\"datatype\":\"date\"},{\"id\":\"3\",\"name\":\"LSTG_FORMAT_NAME\",\"datatype\":\"varchar(256)\"},{\"id\":\"4\",\"name\":\"LEAF_CATEG_ID\",\"datatype\":\"bigint\"},{\"id\":\"5\",\"name\":\"LSTG_SITE_ID\",\"datatype\":\"integer\"},{\"id\":\"6\",\"name\":\"SLR_SEGMENT_CD\",\"datatype\":\"smallint\"},{\"id\":\"7\",\"name\":\"PRICE\",\"datatype\":\"decimal(19,4)\"},{\"id\":\"8\",\"name\":\"ITEM_COUNT\",\"datatype\":\"bigint\"},{\"id\":\"9\",\"name\":\"SELLER_ID\",\"datatype\":\"bigint\"},{\"id\":\"10\",\"name\":\"BUYER_ID\",\"datatype\":\"bigint\"},{\"id\":\"11\",\"name\":\"OPS_USER_ID\",\"datatype\":\"varchar(256)\"},{\"id\":\"12\",\"name\":\"OPS_REGION\",\"datatype\":\"varchar(256)\"}],\"source_type\":1,\"table_type\":null,\"database\":\"DEFAULT\"}}]";
-//        List<DemoColumn> list = JSONObject.parseArray(json, DemoColumn.class);
-//        List<String> listColumn = new ArrayList<String>();
-//        for (String resour : resourceIds) {
-//            Optional<DemoColumn> dr = list.stream().filter(p -> p.getResourceId().equals(resour)).findFirst();
-//            String json1 = JSON.toJSONString(dr.get());
-//            listColumn.add(json1);
-//        }
-//        return listColumn;
-
         List<String> list = new ArrayList<String>();
         for (String resourceId : resourceIds) {
             String json = "";
@@ -1028,8 +1123,19 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "查看job某一步骤的详细返回数据")
     @RequestMapping(value = "/getJobStepOut", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public JobStepOutputMapper getJobStepOut(String jobId, String stepId) throws APIException {
+        //构建列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_BUILD_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_BUILD_LIST_CHECK_LOG, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(jobId);
+                    add(stepId);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
         return jobsHttpClient.output(jobId, stepId);
     }
 
@@ -1066,7 +1172,7 @@ public class OlapModelingAction extends BaseAction {
 
     @ApiOperation(value = "查看立方体定时构建配置")
     @RequestMapping(value = "/getTimingrefresh", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public OlapTimingrefresh getTimingrefresh(String cubeName) throws APIException {
         return olapTimingrefreshService.findTableInfo(cubeName);
     }

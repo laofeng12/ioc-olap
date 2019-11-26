@@ -20,10 +20,10 @@
         </div>
         <div class="centerButton">
           <div>
-            <el-button icon="el-icon-arrow-right" circle @click="addShare"></el-button>
+            <el-button icon="el-icon-arrow-right" @click="addShare"></el-button>
           </div>
           <div class="m-t-20">
-            <el-button icon="el-icon-arrow-left" circle @click="reduceShare"></el-button>
+            <el-button icon="el-icon-arrow-left" @click="reduceShare"></el-button>
           </div>
         </div>
         <div class="box">
