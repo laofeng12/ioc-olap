@@ -142,6 +142,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             oo.setTableName(b.getWriterTableName());//设置真实表名
                             oo.setDatabaseId(b.getDatabaseId());
                             oo.setResourceId(b.getResourceId());
+                            oo.setVirtualTableName(b.getVirtualTableName());
                             b.setSuccess(item.getBoolean("success"));
                             b.setSuccess(item.getBoolean("success"));
                             oo.setIsNew(b.getIsNew());
