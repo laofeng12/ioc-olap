@@ -6,7 +6,7 @@
     <div class="content">
       <div class="editSql">
         <div class="editor">
-          <div class="number">
+          <!-- <div class="number">
             <div>1</div>
             <div>2</div>
             <div>3</div>
@@ -17,8 +17,8 @@
             <div>8</div>
             <div>9</div>
             <div>10</div>
-          </div>
-          <el-input class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
+          </div> -->
+          <el-input id="codeTextarea" class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
         </div>
         <div class="bottom">
           <el-checkbox class="checkbox" v-model="checked">限制查询行数</el-checkbox>
@@ -40,7 +40,7 @@ import { mapGetters } from 'vuex'
 import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
 import { getCubeTreeApi, saveOlapApi, searchOlapApi, exportExcelApi } from '../../api/instantInquiry'
-
+var lineObjOffsetTop = 5;
 export default {
   components: { FolderAside, ResultBox },
   props: {
@@ -51,6 +51,7 @@ export default {
   },
   data () {
     return {
+      defaultLines: 1,
       search: '',
       textarea: '',
       lineNumber: '100',
@@ -100,8 +101,53 @@ export default {
   },
   mounted () {
     this.getAsideList()
+    this.$nextTick(() => {
+      this.createTextAreaWithLines('codeTextarea')
+    }, 500)
   },
   methods: {
+    positionLineObj(obj,ta) {
+      var string = '';
+      this.defaultLines = ta.value.split('\n').length;
+      for(var num = 1; num <= this.defaultLines; num++) {
+        if(string.length>0) string = string + '<br>';
+        string = string + num;
+      }
+      obj.style.top = (lineObjOffsetTop - ta.scrollTop) + 'px'; 
+      obj.innerHTML = string;
+    },
+    // 动态生成左边代码行数
+    createTextAreaWithLines(id) {
+      var _this = this;
+      var el = document.createElement('DIV');
+      var ta = document.getElementById(id);
+      ta.parentNode.insertBefore(el,ta);
+      el.appendChild(ta);
+      el.className='textAreaWithLines';
+      el.style.width = (ta.offsetWidth) + 'px';
+      ta.style.position = 'absolute';
+      ta.style.width = '100%';
+      el.style.backgroundColor = '#EBEBEB';
+      ta.style.left = '30px';
+      el.style.height = (ta.offsetHeight + 2) + 'px';
+      el.style.overflow='hidden';
+      el.style.position = 'relative';
+      el.style.width = (ta.offsetWidth) + 'px';
+      var lineObj = document.createElement('DIV');
+      lineObj.style.position = 'absolute';
+      lineObj.style.top = lineObjOffsetTop + 'px';
+      lineObj.style.left = '0px';
+      lineObj.style.width = '30px';
+      el.insertBefore(lineObj,ta);
+      lineObj.style.textAlign = 'center';
+      lineObj.className='lineObj';
+      lineObj.style.lineHeight = '30px'
+      _this.positionLineObj(lineObj,ta);
+      ta.onkeydown = function() { _this.positionLineObj(lineObj,ta); };
+      ta.onkeyup = function() { _this.positionLineObj(lineObj,ta); };
+
+      ta.onscroll = function() { _this.positionLineObj(lineObj,ta); };
+    },
     async getAsideList () {
       this.menuListLoading = true
       const res = await getCubeTreeApi()
@@ -208,6 +254,7 @@ export default {
           }
           .textarea {
             overflow: hidden;
+            width: calc(100% - 30px);
             /deep/ textarea {
               line-height: 30px;
               border: none;
