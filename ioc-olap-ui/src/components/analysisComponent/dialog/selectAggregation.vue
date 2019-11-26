@@ -84,8 +84,6 @@ export default {
       })
     },
     dialog (type, index, findIndex) {
-      console.log(this.selectDataidList, 'id')
-      // debugger
       this.dialogFormVisible = true
       switch (type) {
         case 1:

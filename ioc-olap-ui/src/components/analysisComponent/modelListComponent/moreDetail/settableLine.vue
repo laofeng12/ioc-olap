@@ -121,7 +121,6 @@ export default {
     },
     init () {
       this.jointResult = this.initJointResult(JSON.parse(JSON.stringify(this.jsonData.ModesList.lookups)))
-      // debugger
       let list = this.jointResult.lookups || []
       this.graph = new joint.dia.Graph()
       let paper = new joint.dia.Paper({
