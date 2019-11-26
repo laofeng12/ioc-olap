@@ -134,7 +134,7 @@ const selectStep = {
     // 获取所有选中的表列
     async getAllColumnInfo ({ state, commit }) {
       commit('SET_ALLLIISTONE')
-      state.saveSelectTable.forEach(async ({resourceId, type, databaseId, isOnlyPermitted  = 1}) => {
+      state.saveSelectTable.forEach(async ({resourceId, type, databaseId, isOnlyPermitted  = 2}) => {
         const { data } = await getNewResourceInfo({resourceId, type, databaseId, isOnlyPermitted})
         commit('SaveSelectAllListone', data)
       })

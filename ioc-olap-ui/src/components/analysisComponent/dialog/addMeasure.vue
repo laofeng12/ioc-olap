@@ -271,6 +271,7 @@ export default {
           { id: item.id, dataType: item.type, label: `${item.tableName}.${item.columnAlias}` }
         )
       })
+      debugger
       const fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
       let list = []
       this.batchCreateJob.forEach(v => {
