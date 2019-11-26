@@ -240,7 +240,6 @@ const setFiled = {
       getters.aggregation_groups[0].includes = val
       getters.selectDataidList[0].includesId = idval
       dispatch('SaveselectIncludesData', val)
-      // debugger
       state.reloadNeedData = [...data]
     },
     // 存储洗选的维度（传给后端的)
