@@ -51,7 +51,7 @@ export default {
   },
   data () {
     return {
-      defaultLines: 11,
+      defaultLines: 1,
       search: '',
       textarea: '',
       lineNumber: '100',
@@ -108,11 +108,7 @@ export default {
   methods: {
     positionLineObj(obj,ta) {
       var string = '';
-      if (obj.offsetTop === -13) {
-        this.defaultLines = 12
-      } else if (obj.offsetTop < -13) {
-        this.defaultLines += (-13 - obj.offsetTop) / 30
-      }
+      this.defaultLines = ta.value.split('\n').length;
       for(var num = 1; num <= this.defaultLines; num++) {
         if(string.length>0) string = string + '<br>';
         string = string + num;
@@ -148,6 +144,8 @@ export default {
       lineObj.style.lineHeight = '30px'
       _this.positionLineObj(lineObj,ta);
       ta.onkeydown = function() { _this.positionLineObj(lineObj,ta); };
+      ta.onkeyup = function() { _this.positionLineObj(lineObj,ta); };
+
       ta.onscroll = function() { _this.positionLineObj(lineObj,ta); };
     },
     async getAsideList () {
