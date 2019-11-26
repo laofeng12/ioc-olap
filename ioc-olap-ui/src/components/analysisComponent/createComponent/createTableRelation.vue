@@ -136,8 +136,6 @@ export default {
     this.init()
     this.initEditor()
   },
-  activated () {
-  },
   methods: {
 
     init () {

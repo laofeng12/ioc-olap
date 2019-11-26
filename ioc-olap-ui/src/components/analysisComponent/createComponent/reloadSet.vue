@@ -194,7 +194,7 @@ export default {
       }
     }
   },
-  mounted () {
+  activated () {
     this.init()
     this.searchList()
   },

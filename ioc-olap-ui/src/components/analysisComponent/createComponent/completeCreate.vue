@@ -59,7 +59,7 @@ export default {
       }
     }
   },
-  created () {
+  activated () {
     this.init()
   },
   methods: {

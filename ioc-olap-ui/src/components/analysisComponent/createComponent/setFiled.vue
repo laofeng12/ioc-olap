@@ -68,7 +68,7 @@ export default {
       this.$refs.filedTable.init()
     }
   },
-  mounted () {
+  activated () {
     this.init()
   },
   methods: {

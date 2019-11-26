@@ -189,7 +189,7 @@ export default {
     //   this.init()
     // }
   },
-  mounted () {
+  activated () {
     this.init()
     this.resortAggregation()
   },
