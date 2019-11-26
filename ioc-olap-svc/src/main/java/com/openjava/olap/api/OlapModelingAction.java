@@ -3,6 +3,9 @@ package com.openjava.olap.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openjava.admin.user.vo.OaUserVO;
+import com.openjava.olap.common.AuditComponentProxy;
+import com.openjava.olap.common.AuditLogEnum;
+import com.openjava.olap.common.AuditLogParam;
 import com.openjava.olap.common.TableNameTransposition;
 import com.openjava.olap.common.kylin.*;
 import com.openjava.olap.domain.*;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +87,8 @@ public class OlapModelingAction extends BaseAction {
     HiveHttpClient hiveHttpClient;
     @Autowired
     TableHttpClient tableHttpClient;
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
 
     private static Object lock = new Object();
 
@@ -129,6 +135,18 @@ public class OlapModelingAction extends BaseAction {
             }
         }
         this.olapCubeService.resetCubeStatus(cubeList);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_VIEW, AuditLogEnum.AuditLogEvent.LOG_EVENT_QUERY,
+            new ArrayList<Object>(){
+                {
+                    add(limit);
+                    add(offset);
+                    add(cubeName);
+                    add(dateType);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
         return new CubeListVo(cubeList, isNext);
     }
 
@@ -266,7 +284,31 @@ public class OlapModelingAction extends BaseAction {
             }
             throw ex;
         }
-
+        if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
+            //模型列表-新增
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(), (UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_OLAP_MODEL, AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+                AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_SAVE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>() {
+                    {
+                        add(body);
+                    }
+                }, new ArrayList<Object>() {{
+            }});
+            this.auditComponentProxy.saveAudit(param);
+        }else {
+            //模型列表-编辑
+            AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(), (UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_OLAP_MODEL, AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+                AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_EDIT, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>() {
+                    {
+                        add(body);
+                    }
+                }, new ArrayList<Object>() {{
+            }});
+            this.auditComponentProxy.saveAudit(param);
+        }
         paramMap.put("ModesList", modelMap);
         paramMap.put("CubeList", cubeMap);
         return paramMap;
@@ -733,6 +775,19 @@ public class OlapModelingAction extends BaseAction {
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
         olapCubeBuildService.preBuild(cubeName,start,end);
+        //模型列表-构建
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_BUILD, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(start);
+                    add(end);
+                    add(cubeName);
+                    add(timingrefresh);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
@@ -756,7 +811,18 @@ public class OlapModelingAction extends BaseAction {
         }
 
         cubeHttpClient.refresh(cubeName, startTime, endTime);
-
+        //模型列表-刷新
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_REFRESH, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(startTime);
+                    add(endTime);
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
@@ -800,6 +866,16 @@ public class OlapModelingAction extends BaseAction {
         olapCube.setIsNew(false);
         olapCube.setFlags(0);
         olapCubeService.doSave(olapCube);
+        //模型列表-禁用
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_DISABLE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
@@ -830,6 +906,16 @@ public class OlapModelingAction extends BaseAction {
             olapCube.setFlags(1);
             olapCubeService.doSave(olapCube);
         }
+        //模型列表-启用
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_ENABLE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "立方体:复制")
@@ -897,6 +983,16 @@ public class OlapModelingAction extends BaseAction {
             olapTimingrefreshService.deleteCubeName(cubeName);
             olapDatalaketableService.deleteCubeName(cubeName);
         }
+        //模型列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_MODEL_LIST_DELETE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(cubeName);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
@@ -929,6 +1025,16 @@ public class OlapModelingAction extends BaseAction {
     public void deleteJob(String jobsId) throws APIException {
 //        jobsAction.cancel(jobsId);
         jobsHttpClient.delete(jobsId);
+        //构建列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_BUILD_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_BUILD_LIST_DELETE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(jobsId);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
     }
 
 
@@ -1019,6 +1125,17 @@ public class OlapModelingAction extends BaseAction {
     @RequestMapping(value = "/getJobStepOut", method = RequestMethod.GET)
     @Security(session = true, allowResources = {"OlapModel"})
     public JobStepOutputMapper getJobStepOut(String jobId, String stepId) throws APIException {
+        //构建列表-删除
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_BUILD_LIST,
+            AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_SECONDARY_BUILD_LIST_CHECK_LOG, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){
+                {
+                    add(jobId);
+                    add(stepId);
+                }
+            },new ArrayList<Object>(){{}});
+        this.auditComponentProxy.saveAudit(param);
         return jobsHttpClient.output(jobId, stepId);
     }
 
