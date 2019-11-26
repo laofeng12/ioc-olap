@@ -43,7 +43,7 @@ public class OlapFolderAction extends BaseAction {
      * 保存
      */
     @ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
     @RequestMapping(method = RequestMethod.POST)
     public OlapFolder doSave(@RequestBody OlapFolder body) throws APIException {
         Date date = new Date();
@@ -61,8 +61,7 @@ public class OlapFolderAction extends BaseAction {
             body.setFlags(0);
             OlapFolder dbObj = olapFolderService.doSave(body);
         } else {
-            if (olapFolderService.checkExsitName(body.getName(), body.getFolderId(), Long.parseLong(userVO.getUserId())))
-            {
+            if (olapFolderService.checkExsitName(body.getName(), body.getFolderId(), Long.parseLong(userVO.getUserId()))) {
                 throw new APIException(400, "名称已经存在！");
             }
             OlapFolder db = olapFolderService.get(body.getId());
@@ -81,7 +80,7 @@ public class OlapFolderAction extends BaseAction {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
     })
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public void doDelete(@RequestParam("id") Long id) {
         olapFolderService.doDelete(id);
@@ -91,14 +90,14 @@ public class OlapFolderAction extends BaseAction {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
     })
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public void doRemove(@RequestParam("ids") String ids) {
         olapFolderService.doRemove(ids);
     }
 
     @ApiOperation(value = "获取个人的文件夹列表", nickname = "listWhthPerson")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
     @RequestMapping(value = "/listWhthPerson", method = RequestMethod.GET)
     public List<OlapFolder> listWhthPerson() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
@@ -106,7 +105,7 @@ public class OlapFolderAction extends BaseAction {
     }
 
     @ApiOperation(value = "根据ID获取单个文件夹信息", nickname = "folder")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
     @RequestMapping(value = "/folder", method = RequestMethod.GET)
     public OlapFolder folder(Long id) {
         return olapFolderService.get(id);

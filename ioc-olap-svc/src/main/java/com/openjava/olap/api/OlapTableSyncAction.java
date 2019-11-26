@@ -31,7 +31,7 @@ public class OlapTableSyncAction{
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "保存模型关联的表同步到hive的记录")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public Object save(@RequestBody List<OlapTableSyncParam> params)throws Exception{
         ResponseEntity<HashMap<String,Object>> response;
         if (params == null){

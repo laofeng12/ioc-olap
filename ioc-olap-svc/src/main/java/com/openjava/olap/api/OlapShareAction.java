@@ -27,7 +27,7 @@ public class OlapShareAction {
 
     @ApiOperation(value = "保存共享")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery", "OlapAnalyze", "OlapModel"})
     public void save(Long[] userIds, String sourceType, Long sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (userIds != null) {
@@ -46,7 +46,7 @@ public class OlapShareAction {
 
     @ApiOperation(value = "读取共享")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery", "OlapAnalyze", "OlapModel"})
     public List<ShareUserDto> get(String sourceType, String sourceId, String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         if (StringUtils.isNotBlank(cubeName)) {

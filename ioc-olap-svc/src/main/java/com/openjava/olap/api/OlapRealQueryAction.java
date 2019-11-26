@@ -78,7 +78,7 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiResponses({
             @io.swagger.annotations.ApiResponse(code = 20020, message = "会话失效")
     })
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public OlapRealQuery get(@PathVariable("id") Long id) throws APIException {
         OlapRealQuery m = olapRealQueryService.get(id);
@@ -89,7 +89,7 @@ public class OlapRealQueryAction extends BaseAction {
      * 保存
      */
     @ApiOperation(value = "保存", nickname = "save", notes = "报文格式：content-type=application/json")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     @RequestMapping(method = RequestMethod.POST)
     public OlapRealQuery doSave(@RequestBody OlapRealQuery body) throws APIException {
         Date date = new Date();
@@ -120,7 +120,7 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "主键编码", required = true, paramType = "post"),
     })
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public void doDelete(@RequestParam("id") Long id) {
         olapRealQueryService.doDelete(id);
@@ -130,14 +130,14 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ids", value = "主键编码用,分隔", required = true, paramType = "post"),
     })
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public void doRemove(@RequestParam("ids") String ids) {
         olapRealQueryService.doRemove(ids);
     }
 
     @ApiOperation(value = "获取自己创建的立方体树形结构列表")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     @RequestMapping(value = "/CubeTree", method = RequestMethod.GET)
     public ArrayList<TreeVo> CubeTree() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
@@ -183,7 +183,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "查询数据")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public QueryResultMapper query(String sql, Integer limit) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         // 统一给查询表名或join表名加上前缀数据库名
@@ -201,7 +201,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "通过ID查询数据")
     @RequestMapping(value = "/queryById", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public QueryResultMapperVo queryById(Long id) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapRealQuery m = olapRealQueryService.get(id);
@@ -223,7 +223,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public List<TreeVo> folderWithQuery() throws Exception{
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         List<TreeVo> trees = new ArrayList<TreeVo>();
@@ -245,7 +245,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "获取共享的即时查询")
     @RequestMapping(value = "/queryShare", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public List<OlapRealQuery> queryShare() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapRealQueryService.getAllShares(Long.parseLong(userVO.getUserId()));
@@ -253,7 +253,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "导出即时查询", nickname = "export", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/export", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public void export(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
         try {
             QueryResultMapper mapper = cubeHttpClient.query(sql, 0, limit, project);
@@ -265,7 +265,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public void publish(@RequestBody CustomApiMapper body) throws Exception {
         if (StringUtils.isBlank(body.getApiMethod()) || StringUtils.isBlank(body.getApiName())
                 || StringUtils.isBlank(body.getApiPaths()) || StringUtils.isBlank(body.getEnctype())) {
@@ -279,7 +279,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "查看发布接口")
     @RequestMapping(value = "/publish/{realQueryId}", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public CustomApiMapper publish(@PathVariable Long realQueryId) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
@@ -301,7 +301,7 @@ public class OlapRealQueryAction extends BaseAction {
 
     @ApiOperation(value = "删除发布接口")
     @RequestMapping(value = "/publish/{realQueryId}", method = RequestMethod.DELETE)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapRealQuery"})
     public void deletePublish(@PathVariable Long realQueryId) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
