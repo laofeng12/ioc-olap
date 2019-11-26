@@ -31,12 +31,20 @@ public class OlapTableSyncAction{
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "保存模型关联的表同步到hive的记录")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapModel"})
     public Object save(@RequestBody List<OlapTableSyncParam> params)throws Exception{
         ResponseEntity<HashMap<String,Object>> response;
         if (params == null){
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new HashMap<>());
             response.getBody().put("msg","消息体参数不能为空");
+            return response;
+        }
+        //前端巨坑，需要检查一下必要参数的完整性
+        long a = params.stream().filter(s->s.getVirtualTableName()==null||s.getVirtualTableName().equals(""))
+            .count();
+        if (a>0){
+            response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new HashMap<>());
+            response.getBody().put("msg","请检查参数的完整性");
             return response;
         }
         Map<String,Object> result = this.olapTableSyncService.available(params);

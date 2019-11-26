@@ -2,8 +2,7 @@ package com.openjava.olap.api;
 
 import com.openjava.admin.component.IocAuthorizationToken;
 import com.openjava.admin.user.vo.OaUserVO;
-import com.openjava.olap.common.Export;
-import com.openjava.olap.common.GateWayHttpClient;
+import com.openjava.olap.common.*;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.dto.ShareUserDto;
 import com.openjava.olap.mapper.CustomApiMapper;
@@ -17,6 +16,7 @@ import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
 import org.ljdp.component.sequence.SequenceService;
+import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +50,12 @@ public class OlapAnalyzeAction {
     @Resource
     private IocAuthorizationToken iocAuthorizationToken;
 
+    @Resource
+    private AuditComponentProxy auditComponentProxy;
+
     @ApiOperation(value = "获取层级文件夹结构")
     @RequestMapping(value = "/folderWithQuery", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public List<TreeVo> folderWithQuery() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         List<TreeVo> trees = new ArrayList<TreeVo>();
@@ -70,7 +73,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "获取共享的OLAP分析")
     @RequestMapping(value = "/queryShare", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public List<OlapAnalyze> queryShare() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapAnalyzeService.getAllShares(Long.parseLong(userVO.getUserId()));
@@ -78,7 +81,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询已构建好的OLAP分析数据")
     @RequestMapping(value = "/query", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnyDimensionShareVo query(Long analyzeId, Long cubeId) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         AnyDimensionShareVo shareVo = new AnyDimensionShareVo();
@@ -91,7 +94,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "直接查询OLAP分析的数据")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnyDimensionVo query(Long cubeId, @RequestBody List<AnalyzeAxisVo> axises) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapAnalyzeService.query(cubeId, axises, userVO.getUserId());
@@ -99,7 +102,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询已构建好的OLAP分析分页数据")
     @RequestMapping(value = "/queryPaging", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnyDimensionShareVo queryPaging(Long analyzeId, Long cubeId, Integer pageIndex, Integer pageSize) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         AnyDimensionShareVo shareVo = new AnyDimensionShareVo();
@@ -112,7 +115,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "查询未构建好的OLAP分析分页数据")
     @RequestMapping(value = "/queryPaging", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnyDimensionVo queryPaging(Long cubeId, Integer pageIndex, Integer pageSize, @RequestBody List<AnalyzeAxisVo> axises) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         return olapAnalyzeService.queryPaging(pageIndex, pageSize, cubeId, axises, userVO.getUserId());
@@ -120,10 +123,11 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "保存OLAP分析接口")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnalyzeVo save(@RequestBody AnalyzeVo analyzeVo) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Date date = new Date();
+        AuditLogParam param = null;
         if (analyzeVo.getIsNew() == null || analyzeVo.getIsNew()) {
             SequenceService ss = ConcurrentSequence.getInstance();
             analyzeVo.setAnalyzeId(ss.getSequence());
@@ -133,6 +137,15 @@ public class OlapAnalyzeAction {
             analyzeVo.setFlags(0);
             analyzeVo.setIsNew(true);
             AnalyzeVo dbObj = olapAnalyzeService.save(analyzeVo);
+            //新建olap分析
+            param = new AuditLogParam(SsoContext.getRequestId(),userVO, AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+                AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_NEW_ANALYZE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){
+                    {
+                        add(dbObj);
+                    }
+                },new ArrayList<>());
         } else {
             OlapAnalyze db = olapAnalyzeService.get(analyzeVo.getId());
             analyzeVo.setCreateId(db.getCreateId());
@@ -143,54 +156,85 @@ public class OlapAnalyzeAction {
             analyzeVo.setUpdateTime(date);
             analyzeVo.setIsNew(false);
             olapAnalyzeService.save(analyzeVo);
+            //编辑olap分析
+            param = new AuditLogParam(SsoContext.getRequestId(),userVO, AuditLogEnum.LOG_SERVICE_NAME,
+                AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+                AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EDIT_ANALYZE, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+                new ArrayList<Object>(){{add(db);}},new ArrayList<Object>(){{add(analyzeVo);}});
         }
+        this.auditComponentProxy.saveAudit(param);
         return analyzeVo;
     }
 
     @ApiOperation(value = "获取指定的OLAP分析接口")
     @RequestMapping(value = "/get", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public AnalyzeVo get(Long id) throws APIException {
         return olapAnalyzeService.getVo(id);
     }
 
     @ApiOperation(value = "导出已保存的数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/exportExist", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void export(Long analyzeId, Long cubeId, HttpServletResponse response) throws Exception {
         AnyDimensionVo dimensionVo = olapAnalyzeService.query(analyzeId, cubeId);
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(analyzeId);add(cubeId);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "直接导出数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/export", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void export(Long cubeId, @RequestBody List<AnalyzeAxisVo> axises, HttpServletResponse response) throws Exception {
         OlapCube cube = olapCubeService.get(cubeId);
         AnyDimensionVo dimensionVo = olapAnalyzeService.query(cubeId, axises, cube.getCreateId().toString());
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(axises);add(cubeId);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "导出已保存的分页数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/exportPagingExist", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void export(Long analyzeId, Long cubeId, Integer pageIndex, Integer pageSize, HttpServletResponse response) throws Exception {
         AnyDimensionVo dimensionVo = olapAnalyzeService.queryPaging(pageIndex, pageSize, analyzeId, cubeId);
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(analyzeId);add(cubeId);add(pageIndex);add(pageSize);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-共享-导出
+        //olap分析-我的-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "直接导出分页数据", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/exportPaging", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void export(Long cubeId, Integer pageIndex, Integer pageSize, @RequestBody List<AnalyzeAxisVo> axises, HttpServletResponse response) throws Exception {
         OlapCube cube = olapCubeService.get(cubeId);
         AnyDimensionVo dimensionVo = olapAnalyzeService.queryPaging(pageIndex, pageSize, cubeId, axises, cube.getCreateId().toString());
         Export.dualAnyDimensionVoDate(dimensionVo, response);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_EXPORT, AuditLogEnum.AuditLogEvent.LOG_EVENT_EXPORT,
+            new ArrayList<Object>(){{add(cubeId);add(pageIndex);add(pageSize);add(axises);add(cube);}},new ArrayList<Object>(){{add(dimensionVo);}});
+        //olap分析-导出
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "获取当前登录人立方体、指标、维度数据")
     @RequestMapping(value = "/Cubes", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public List<AnalyzeCubeVo> Cubes() {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         List<OlapCube> cubes = olapCubeService.getValidListByUserId(Long.parseLong(userVO.getUserId()));
@@ -256,7 +300,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "获取维度表某列数据")
     @RequestMapping(value = "/queryDimension", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public QueryResultMapper queryDimension(Long tableId, Long columnId, String key, Integer pageIndex, Integer pageSize) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         Integer offeset = (pageIndex - 1) * pageSize;
@@ -264,14 +308,14 @@ public class OlapAnalyzeAction {
     }
 
     @ApiOperation(value = "删除", nickname = "delete")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public void doDelete(@RequestParam("id") Long id) {
         olapAnalyzeService.doDelete(id);
     }
 
     @ApiOperation(value = "查询立方体对象")
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     @RequestMapping(value = "/cube", method = RequestMethod.GET)
     public OlapCube cube(@RequestParam("id") Long id) {
         return olapCubeService.get(id);
@@ -279,7 +323,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "发布接口", nickname = "publish", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/publish", method = RequestMethod.POST)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void publish(@RequestBody CustomApiMapper body) throws Exception {
         if (StringUtils.isBlank(body.getApiMethod()) || StringUtils.isBlank(body.getApiName())
                 || StringUtils.isBlank(body.getApiPaths()) || StringUtils.isBlank(body.getEnctype())) {
@@ -289,11 +333,17 @@ public class OlapAnalyzeAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
         gateWayHttpClient.registerApi(body, token);
+        AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO) SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
+            AuditLogEnum.LOG_MODULES_ANALYZE,AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_PRIMARY_MINE,
+            AuditLogEnum.LOG_ANALYZE_TITLE_LEVEL_SECONDARY_MINE_PUBLISH, AuditLogEnum.AuditLogEvent.LOG_EVENT_MANAGE,
+            new ArrayList<Object>(){{add(body);}},new ArrayList<Object>(){{}});
+        //olap分析 - 发布接口
+        this.auditComponentProxy.saveAudit(param);
     }
 
     @ApiOperation(value = "查看发布接口")
     @RequestMapping(value = "/publish/{analyzeId}", method = RequestMethod.GET)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public CustomApiMapper publish(@PathVariable Long analyzeId) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
@@ -315,7 +365,7 @@ public class OlapAnalyzeAction {
 
     @ApiOperation(value = "删除发布接口")
     @RequestMapping(value = "/publish/{analyzeId}", method = RequestMethod.DELETE)
-    @Security(session = true)
+    @Security(session = true, allowResources = {"OlapAnalyze"})
     public void deletePublish(@PathVariable Long analyzeId) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         String token = iocAuthorizationToken.generateAesToken(userVO);
