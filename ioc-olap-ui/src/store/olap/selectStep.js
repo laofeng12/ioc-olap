@@ -112,14 +112,6 @@ const selectStep = {
         item.tableName = list.list.joinTable
         return item
       })
-    },
-    ClearTableRelation (getters) {
-      getters.jointResultData = {
-        name: 'joint',
-        description: '',
-        fact_table: '',
-        lookups: []
-      }
     }
   },
   actions: {

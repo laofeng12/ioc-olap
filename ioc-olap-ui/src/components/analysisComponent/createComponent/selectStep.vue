@@ -65,8 +65,9 @@ export default {
       })
       try {
         this.isLoading = true
-        // 清掉第二步创建的表
-        this.$store.commit('ClearTableRelation')
+        // 第二步初始化
+        this.$store.commit('INI_TABLE_RELATION')
+        // await this.$store.dispatch('resetList')
         await this.$store.dispatch('getAllColumnInfo')
         await this.$store.dispatch('batchCreateJob', params)
         this.$router.push('/analysisModel/createolap/createTableRelation')

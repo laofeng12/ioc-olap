@@ -1,6 +1,6 @@
 <template>
   <div class="factTable">
-     <el-input type="text" placeholder="请输入关键词" v-model="value" @input="handleInput" clearable></el-input>
+     <el-input type="text" placeholder="请输入关键词" v-model="value"  clearable></el-input>
      <ul v-if="tabaleList && tabaleList.length">
        <el-tooltip v-for="(item, index) in tabaleList" :key="index" effect="dark" :content="titleData[index]" placement="right">
         <li

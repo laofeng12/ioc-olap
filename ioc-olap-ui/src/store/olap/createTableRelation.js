@@ -51,10 +51,21 @@ const creatTableRelation = {
     },
     RESET_CREATE_TABLETIONS (state, payload) {
       state.jointResultData = payload
+    },
+    // 初始化第二步
+    INI_TABLE_RELATION (state) {
+      state.jointResultData = {
+        name: 'joint',
+        description: '',
+        fact_table: '',
+        lookups: []
+      }
+      state.foreignKeyData = []
     }
   },
   actions: {
     resetList ({ state }) {
+      // commit('INI_TABLE_RELATION')
       state.jointResultData = {
         name: 'joint',
         description: '',
