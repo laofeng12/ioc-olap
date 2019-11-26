@@ -49,7 +49,7 @@ export default {
       tableData: []
     }
   },
-  mounted () {
+  activated () {
     this.init()
   },
   methods: {

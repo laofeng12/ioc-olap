@@ -237,17 +237,16 @@ const selectStep = {
     SelectStepList ({ state }, data) {
       let map = {}
       let dest = []
-      let localData = []
       data.map((item, i) => {
         // 如果是本地上传的数据
-        if (item.type === 2) {
-          localData.push({
-            orgId: item.orgId,
-            table_name: item.label,
-            type: item.type,
-            table_id: item.id
-          })
-        } else {
+        // if (item.type === 2) {
+        //   localData.push({
+        //     orgId: item.orgId,
+        //     table_name: item.label,
+        //     type: item.type,
+        //     table_id: item.id
+        //   })
+        // } else {
           // 如果是数据湖的数据
           if (!map[item.database]) {
             dest.push({
@@ -265,7 +264,7 @@ const selectStep = {
               }
             }
           }
-        }
+        // }
       })
       dest.map(res => {
         res.tableList.map(n => {
@@ -277,7 +276,7 @@ const selectStep = {
       })
       state.selectStepList = dest
     },
-    // 存储数据湖的数据
+    // 勾选触发--存储数据湖的数据
     getSelectTableList ({ state, dispatch, getters }, data) {
       data.map(item => {
         if (!item.children) {

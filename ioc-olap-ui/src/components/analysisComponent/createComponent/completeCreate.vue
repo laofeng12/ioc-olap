@@ -59,7 +59,7 @@ export default {
       }
     }
   },
-  created () {
+  activated () {
     this.init()
   },
   methods: {
@@ -105,6 +105,7 @@ export default {
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
       this.totalSaveData.timingreFresh.dataMany = this.reloadData.dataMany === true ? 1 : 0
+
       this.totalSaveData.cubeDatalaketableNew = this.selectStepList
       // 增加  databaseId
       this.totalSaveData.cubeDatalaketableNew.forEach(tb => {
