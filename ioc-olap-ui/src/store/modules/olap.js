@@ -254,8 +254,6 @@ const common = {
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)
       })
-      // saveSelectFiled
-      // debugger
       data.CubeList.dimensions.map((res, i) => {
         getters.saveSelectFiled.push({
           titName: res.name,
