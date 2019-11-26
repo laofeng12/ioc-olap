@@ -144,7 +144,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             oo.setResourceId(b.getResourceId());
                             oo.setVirtualTableName(b.getVirtualTableName());
                             b.setSuccess(item.getBoolean("success"));
-                            b.setSuccess(item.getBoolean("success"));
+                            b.setMessage(item.getString("message"));
                             oo.setIsNew(b.getIsNew());
                             oo.setSuccess(item.getBoolean("success")?1:0);
                             oo.setCreateBy(user.getUserId());
