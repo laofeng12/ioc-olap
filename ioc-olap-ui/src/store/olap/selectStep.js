@@ -141,8 +141,9 @@ const selectStep = {
     },
      // 批量创建同步接口
      async batchCreateJob ({ commit }, params) {
-       const { rows = [] } = await batchCreateJob(params)
-       commit('SET_BATCH_CREATEJOB', rows)
+       const data = await batchCreateJob(params)
+       commit('SET_BATCH_CREATEJOB', data.rows)
+       return data
     },
     // 获取第一步树列表
     GetTreeList ({ commit }) {
