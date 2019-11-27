@@ -229,7 +229,7 @@ export default {
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
           if (!(/^\d{1,}$/.test(this.folderForm.sortNum))) {
-            this.$message.error('文件夹序号为数字')
+            this.$message.error('文件夹序号必须为数字')
           } else {
             try {
             await newOlapFolderApi(data)
