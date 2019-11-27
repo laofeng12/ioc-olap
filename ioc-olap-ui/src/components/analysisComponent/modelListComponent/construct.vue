@@ -8,6 +8,7 @@
           </el-form-item>
           <el-form-item label="开始时间" :label-width="formLabelWidth" prop="startTime">
             <el-date-picker
+              :format="dateType"
               v-model="form.startTime"
               value-format="timestamp"
               type="datetime"
@@ -105,6 +106,12 @@ export default {
       //     { validator: checkNumber, trigger: 'blur' }
       //   ]
       // }
+    }
+  },
+  props: {
+    dateType: {
+      type: String,
+      default: 'yyyy-MM-dd'
     }
   },
   methods: {

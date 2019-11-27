@@ -84,7 +84,7 @@
       </el-table>
     <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <clones ref="clones"></clones>
-    <construct ref="construct"></construct>
+    <construct ref="construct" :dateType="dateType"></construct>
     <reloads ref="reloads"></reloads>
     <merge ref="merge"></merge>
     <sharedTable ref="sharedTable"></sharedTable>
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
+import { descDataList, getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import { filterTime, removeAllStorage, statusReviewFilter } from '@/utils/index'
 export default {
@@ -101,6 +101,7 @@ export default {
   },
   data () {
     return {
+      dateType: '',
       searchData: {
         cubeName: ''
       },
@@ -260,8 +261,18 @@ export default {
           }
           this.getLoading = false
         })
+        this.$refs[type].dialog(params)
       }
       if (type === 'construct') {
+        const info = {
+          cubeName: params.name,
+          models: params.model
+        }
+        descDataList(info).then((res) => {
+          // this.dateType = res.
+          this.dateType = res.ModesList.partition_desc.partition_date_format
+          // console.log(this.dateType)
+        })
         this.$refs['construct'].dialog(params)
         // if (params.segments.length > 0 && params.partitionDateColumn) {
         // } else {
@@ -290,8 +301,9 @@ export default {
             cubeName: params.name, models: params.model
           }
         })
+        this.$refs[type].dialog(params)
       }
-      this.$refs[type].dialog(params)
+      
     },
     closeExpands () {
       this.expands = []
