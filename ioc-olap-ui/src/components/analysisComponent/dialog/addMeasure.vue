@@ -278,7 +278,8 @@ export default {
       })
       fieldtextOption.forEach(item => {
         list.forEach(v => {
-          const label = item.label.split('.')[1].toUpperCase()
+          // const label = item.label.split('.')[1].toUpperCase()
+          const label = item.label.split('.')[1]
           if (label === v.name) {
             item.dataType = v.datatype || v.type
           }
