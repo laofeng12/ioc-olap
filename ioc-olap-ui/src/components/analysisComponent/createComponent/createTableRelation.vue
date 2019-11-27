@@ -303,11 +303,13 @@ export default {
         })
 
         lookups.push({
-          alias: t.alias.toUpperCase(),
+          // alias: t.alias.toUpperCase(),
+          alias: t.alias,
           id: t.id,
           SAxis: t.SAxis,
           YAxis: t.YAxis,
-          joinAlias: t.joinAlias.toUpperCase(),
+          // joinAlias: t.joinAlias.toUpperCase(),
+          joinAlias: t.joinAlias,
           joinId: t.joinId,
           joinTable: t.joinTable,
           joinSAxis: t.joinSAxis,
@@ -359,7 +361,8 @@ export default {
               idx: linkIndex,
               field: 'alias'
             })
-            item.alias = value.toUpperCase()
+            // item.alias = value.toUpperCase()
+            item.alias = value
             t.attr('data', item)
           }
           if (t.get('source').id === id) {
@@ -367,7 +370,8 @@ export default {
               idx: linkIndex,
               field: 'joinAlias'
             })
-            item.joinAlias = value.toUpperCase()
+            // item.joinAlias = value.toUpperCase()
+            item.joinAlias = value
             t.attr('data', item)
           }
         }
@@ -509,7 +513,8 @@ export default {
         let ele = eles[i]
         let attrs = ele.get('attrs')
         let pos = ele.get('position')
-        let text = attrs.text.label + attrs.text.alias.toUpperCase()
+        // let text = attrs.text.label + attrs.text.alias.toUpperCase()
+        let text = attrs.text.label + attrs.text.alias
         if (ele.attributes.type !== 'standard.Link' && !result[text]) {
           result[text] = {
             x: pos.x,
@@ -551,9 +556,11 @@ export default {
         })
 
         result.lookups.push({
-          alias: t.alias.toUpperCase(),
+          // alias: t.alias.toUpperCase(),
+          alias: t.alias,
           id: t.id,
-          joinAlias: t.joinAlias.toUpperCase(),
+          // joinAlias: t.joinAlias.toUpperCase(),
+          joinAlias: t.joinAlias,
           joinId: t.joinId,
           joinTable: t.joinTable,
           kind: t.kind,
@@ -627,7 +634,6 @@ export default {
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
-      debugger
       let arrId = []
       // 存储当前连线的id
       let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
