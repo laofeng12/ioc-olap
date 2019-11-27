@@ -250,8 +250,8 @@ const setFiled = {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {
           /**
-           * ${mode} =1 就是普通模式
-           * 普通模式需要传入column
+           * ${mode} =1 就是普通模式 
+           * 普通模式需要传入column 普通模式需要传入derived
            */
           if (String(item.mode) === '1') {
             state.dimensions.push({
@@ -259,6 +259,7 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column: item.titName,
               id: item.id,
+              derived: item.titName.split(','),
               column_type: item.dataType || item.type,
               name: item.name
             })
