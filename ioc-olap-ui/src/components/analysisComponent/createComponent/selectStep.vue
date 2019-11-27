@@ -49,15 +49,15 @@ export default {
       }
       this.$parent.getStepCountAdd(val)
       let params = []
-      this.selectTableTotal.forEach(({ databaseId,resourceTableName, resourceId, resourceName, type} )=> {
+      this.selectTableTotal.forEach(({ databaseId,resourceTableName, resourceId, resourceName, type, virtualTableName} )=> {
         params.push({
           cron:'0 0 2 * * ? *', // 定时任务的正则表达式，看你们的定时任务是多久同步一次
           writerTableComment: 'olap',
           writerTableSource: `id_${resourceId}`,
           databaseId,
           resourceId,
-          resourceName,
-          virtualTableName: resourceTableName,
+          resourceName: resourceName || virtualTableName,
+          virtualTableName: resourceTableName || virtualTableName,
           syncSource: 3, // 同步来源：0 数据集内部 1 碰撞组 2标签组 3olap组 4 bi 5 挖掘
           type,
           businessId: new Date().getTime()
@@ -69,7 +69,10 @@ export default {
         this.$store.commit('INI_TABLE_RELATION')
         // await this.$store.dispatch('resetList')
         await this.$store.dispatch('getAllColumnInfo')
-        await this.$store.dispatch('batchCreateJob', params)
+        const data = await this.$store.dispatch('batchCreateJob', params)
+        if (data) {
+          this.$message.warning(data.msg)
+        }
         this.$router.push('/analysisModel/createolap/createTableRelation')
         this.isLoading = false
       } catch(e) {
