@@ -271,7 +271,6 @@ export default {
           { id: item.id, dataType: item.type, label: `${item.tableName}.${item.columnAlias}` }
         )
       })
-      debugger
       const fieldtextOption = n === true ? [...factData, ...AllData] : (n === false ? [...factData] : [...selectData])
       let list = []
       this.batchCreateJob.forEach(v => {
@@ -280,7 +279,7 @@ export default {
       fieldtextOption.forEach(item => {
         list.forEach(v => {
           // const label = item.label.split('.')[1].toUpperCase()
-          const label = item.label.split('.')[1]
+          const label = item.label.split('.')[1].toUpperCase()
           if (label === v.name) {
             item.dataType = v.datatype || v.type
           }
