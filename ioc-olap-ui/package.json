@@ -21,7 +21,7 @@
     "jointjs": "^3.0.2",
     "js-cookie": "^2.2.0",
     "lodash": "^4.17.14",
-    "nhc-portal": "^0.2.4",
+    "nhc-portal": "^0.3.5",
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
     "qs.js": "^0.1.12",

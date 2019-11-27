@@ -135,6 +135,7 @@ export default {
               // 调用获取默认勾选的方法
               this.processData(code, data.alias)
               let arr = []
+              // 搞不懂明明 processData 里面调用了以此勾选, 为什么还要做一次
               setTimeout(() => {
                 /**
                  * 遍历获取tableData列表
@@ -144,7 +145,7 @@ export default {
                  */
                 this.tableData && this.tableData.forEach((item, i) => {
                   this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                    if (val.id === item.id) {
+                    if (val.id === item.id || val.id.toUpperCase() === item.id.toUpperCase() ) {
                       this.tableData[i].name = String(val.name)
                       this.tableData[i].mode = String(val.mode)
                       arr.push(item)
@@ -163,7 +164,7 @@ export default {
       })
     },
     // 处理第二步建立的模型对应的字段
-    processData (code, alias) {
+    async processData (code, alias) {
       // 处理所有表对应的字段
       let values = []
       // this.saveSelectAllListFiled.map((item, index) => {
@@ -192,7 +193,7 @@ export default {
             resid: item.resourceId,
             mode: item.code ? item.code : '2',
             derived: res.columnAlias,
-            dataType: res.type,
+            type: res.type,
             filed: item.name === code ? '1' : '0'
           })
         })
@@ -293,6 +294,13 @@ export default {
         this.$store.dispatch('SaveSelectFiled', selectRows)
         this.$store.dispatch('SaveFiledData')
       }, 300)
+
+        
+        // // 存放到store
+        // await this.$store.dispatch('SaveSelectFiled', selectRows)
+        // await this.$store.dispatch('SaveFiledData')
+        // // 调用默认选中的数据
+        // this.toggleSelection(resultData)
     },
     // 判断是否为主键或者外键
     isSelectable (row, index) {

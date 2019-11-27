@@ -79,6 +79,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
         UserVO user = (UserVO) SsoContext.getUser();
         String token = SsoContext.getToken();
         List<OlapTableSyncVo> results = new ArrayList<>();
+        StringBuilder sb = new StringBuilder(1024);
         try {
             Iterator<OlapTableSyncParam> iterator = params.iterator();
             log.info("前端传递的表：{}", JSON.toJSONString(params));
@@ -145,28 +146,44 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             oo.setVirtualTableName(b.getVirtualTableName());
                             b.setSuccess(item.getBoolean("success"));
                             b.setMessage(item.getString("message"));
+                            //第一步，先判断success是否为false
+                            //如果是false,再判断repeatCreate是否为true，为true表示该资源已经创建过同步任务了
+                            //在success=false，repeatCreate=false的情况下，就可以认为资源创建同步任务失败了
+                            //这里采集错误信息，统一返回给前端
+                            if (item.getBoolean("success") == null || !item.getBoolean("success")){
+                                if (item.getBoolean("repeatCreate") != null && item.getBoolean("repeatCreate")){
+                                    b.setSuccess(true);
+                                    oo.setSuccess(1);
+                                }else {
+                                    sb.append("[表:")
+                                        .append(b.getVirtualTableName())
+                                        .append("加载失败,")
+                                        .append(item.getString("message"))
+                                        .append("]\n");
+                                }
+                            }
                             oo.setIsNew(b.getIsNew());
                             oo.setSuccess(item.getBoolean("success")?1:0);
                             oo.setCreateBy(user.getUserId());
                             //不为空的时候，就是更新，为空则新增
                             oo.setSyncId(b.getSyncId() == null? ConcurrentSequence.getInstance().getSequence():b.getSyncId());
-                            log.info("保存记录:{}",JSON.toJSONString(oo));
+                            log.debug("保存记录:{}",JSON.toJSONString(oo));
                             this.save(oo);//保存记录
                         });
                 });
             }
-            int failed = (int) results.stream().filter(s-> !s.getSuccess()).count();
+            int failed = (int) results.stream().filter(s-> s.getSuccess() == null || !s.getSuccess()).count();
             if (failed>0){
-                throw new Exception();
+                success = 0;
             }
             queryHiveTableMeta(results);
         }catch (Exception var1){
             log.error("加载麒麟表结构失败",var1);
             success = 0;
-            msg = "加载麒麟表结构失败";
+            msg = "加载表结构失败";
         }
         map.put("success",success);
-        map.put("msg",msg);
+        map.put("msg",success == 1?msg:msg+"\n"+sb.toString());
         map.put("result",results);
         return map;
     }
