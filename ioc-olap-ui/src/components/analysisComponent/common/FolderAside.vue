@@ -50,7 +50,7 @@
           <el-input v-model="folderForm.name" maxlength="20" show-word-limit></el-input>
         </el-form-item>
         <el-form-item label="文件夹序号" label-width="105px" prop="sortNum">
-          <el-input type="number" v-model="folderForm.sortNum" maxlength="20" show-word-limit></el-input>
+          <el-input v-model="folderForm.sortNum" maxlength="10" show-word-limit></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -228,7 +228,10 @@ export default {
       Object.assign(data, this.folderForm)
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
-          try {
+          if (!(/^\d{1,}$/.test(this.folderForm.sortNum))) {
+            this.$message.error('文件夹序号为数字')
+          } else {
+            try {
             await newOlapFolderApi(data)
             this.$message.success('操作成功')
             this.newVisible = false
@@ -239,6 +242,7 @@ export default {
             }
           } catch (e) {
             console.error(e)
+          }
           }
         }
       })
@@ -288,6 +292,7 @@ export default {
     async deleteFolder (id) {
       await deleteOlapFolderApi({ id })
       this.$message.success('删除成功')
+      this.$emit('getAnalysisList')
       await this.$store.dispatch('getSaveFolderListAction')
     },
     async getShareUserList (node, data) {
