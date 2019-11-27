@@ -476,9 +476,8 @@ public class OlapModelingAction extends BaseAction {
             String[] strArrayTrue = project.getTables().toArray(new String[0]);
             String[] tableName = tableNameList.stream().toArray(String[]::new);
             //对比是否存在,存在的就不要加进去了tables,拿差集
-            String[] tableNameArray = minus(strArrayTrue, tableName);
-            if (tableNameArray.length != 0) {
-                List<String> list = Arrays.asList(tableNameArray);
+            List<String> list = minus(tableName, strArrayTrue);
+            if (!list.isEmpty()) {
                 hiveHttpClient.create(list, userVO.getUserId());
             }
         }
@@ -1140,34 +1139,22 @@ public class OlapModelingAction extends BaseAction {
     }
 
 
-    //求两个数组的差集
-    public static String[] minus(String[] arr1, String[] arr2) {
-        LinkedList<String> list = new LinkedList<String>();
-        LinkedList<String> history = new LinkedList<String>();
-        String[] longerArr = arr1;
-        String[] shorterArr = arr2;
-        //找出较长的数组来减较短的数组
-        if (arr1.length > arr2.length) {
-            longerArr = arr2;
-            shorterArr = arr1;
-        }
-        for (String str : longerArr) {
-            if (!list.contains(str)) {
-                list.add(str);
-            }
-        }
-        for (String str : shorterArr) {
-            if (list.contains(str)) {
-                history.add(str);
-                list.remove(str);
-            } else {
-                if (!history.contains(str)) {
-                    list.add(str);
-                }
-            }
-        }
-        String[] result = {};
-        return list.toArray(result);
+    /**
+     * <p>求origin与target数组的差集</p>
+     * <p>即origin与target比较元素的值是否相同，</p>
+     * <p>如果origin里面有元素存在于target中，则删除掉origin里面的该元素，</p>
+     * <p>最后得到的就是origin与target的差集</p>
+     * @param origin
+     * @param target
+     * @return
+     */
+    public static List<String> minus(String[] origin, String[] target) {
+        List<String> a1 = new ArrayList<>();
+        Collections.addAll(a1,origin);
+        List<String> a2 = new ArrayList<>();
+        Collections.addAll(a2,target);
+        a1.removeAll(a2);
+        return a1;
     }
 
     @ApiOperation(value = "查看立方体定时构建配置")
