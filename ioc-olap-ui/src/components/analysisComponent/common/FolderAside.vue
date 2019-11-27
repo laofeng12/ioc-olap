@@ -343,7 +343,6 @@ export default {
         }
       })
       await saveShareApi(url, data)
-      this.$message.success('分享成功')
       this.shareVisible = false
       this.$emit('clickItem', this.shareData, 'share')
     },

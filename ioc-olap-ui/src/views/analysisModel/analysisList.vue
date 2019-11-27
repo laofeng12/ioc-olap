@@ -106,6 +106,7 @@ export default {
       const res = await searchCubeApi(params)
       if (res.flags) {
         this.getTableById(fileData, type)
+        this.$message.success('分享成功')
       } else {
         this.$message.error('该立方体已禁用')
       }
