@@ -596,7 +596,7 @@ export default {
       let result = this.formatJointList(this.jointResult)
       return result
     },
-
+    // 下一步
     async nextModel (val) {
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
@@ -627,6 +627,7 @@ export default {
     },
     // 根据当前的id 去获取所有对应的字段
     getIdToList () {
+      debugger
       let arrId = []
       // 存储当前连线的id
       let ids = this.defaultId ? this.defaultId : this.defaultIdAsiad
