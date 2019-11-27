@@ -161,12 +161,15 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
                 long suc = value.stream().filter(s->s.getStatus() != null && s.getStatus() == 4).count();
                 //统计同步失败的总数
                 long failed = value.stream().filter(s->s.getStatus() != null && s.getStatus() == 5).count();
+                //统计异常状态的总数
+                long error = value.stream().filter(s->s.getStatus() ==null || s.getStatus() == 500).count();
+
                 if (value.size() == suc){
                     //全部表同步成功，cube才能设为构建中
                     status = CubeFlags.BUILDING.getFlags();
                     cubeNameList.add(key);
                 }
-                if (failed>0){
+                if (failed>0 || error>0){
                     //只要有一个失败，这个cube就相当于同步失败
                     status = CubeFlags.SYNC_FAILED.getFlags();
                 }
