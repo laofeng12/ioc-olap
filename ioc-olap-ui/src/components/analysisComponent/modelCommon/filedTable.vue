@@ -187,9 +187,9 @@ export default {
     },
     tabaleList () {
       if (this.value) {
-        return this.dataList.lookups.filter(t => t.alias.indexOf(this.value) !== -1)
+        return this.dataList.lookups.filter(t => t.alias.indexOf(this.value) !== -1) || []
       }
-      return this.dataList.lookups
+      return this.dataList.lookups || []
     }
   }
 }
