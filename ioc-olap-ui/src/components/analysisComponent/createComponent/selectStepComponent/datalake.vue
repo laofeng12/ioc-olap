@@ -39,8 +39,8 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'datalake',
   components: {
-    serchTable, 
-    trees, 
+    serchTable,
+    trees,
     elementTable
   },
   data () {
@@ -66,7 +66,7 @@ export default {
       this.$root.eventBus.$on('getTableHeadList', (params) => this.getTableHeadList(params))
     },
     // 获取资源信息-表头 isOnlyPermitted:0：显示全部，1：只显示有权限部分
-    async getTableHeadList ({resourceId, type, databaseId, isOnlyPermitted = 1 }) {
+    async getTableHeadList ({resourceId, type, databaseId, isOnlyPermitted = 2 }) {
         try {
           this.loadingPlan = true
           let params = {
@@ -81,7 +81,7 @@ export default {
           Array.isArray(data.column) && data.column.forEach(t => {
             tempHeand.push({ label: t.comment, ...t })
           })
-          this.managementHead = tempHeand 
+          this.managementHead = tempHeand
           // 获取数据
           if (this.managementHead && this.managementHead.length) {
             this.getResourceData(resourceId, type, databaseId)

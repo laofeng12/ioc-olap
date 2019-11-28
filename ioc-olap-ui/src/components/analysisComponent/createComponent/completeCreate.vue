@@ -199,7 +199,19 @@ export default {
       this.totalSaveData.cubeDatalaketableNew.map(res => {
         res.tableList = reduceObj(res.tableList, 'table_id')
       })
+      let list = []
+      this.totalSaveData.models.modelDescData.lookups.forEach(v => {
+        list = [...list, ...v.join.foreign_key]
+      })
+      const joinAliasList = Array.from(new Set(list))
       this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
+      this.totalSaveData.cube.cubeDescData.dimensions.forEach(item => {
+        joinAliasList.forEach(v => {
+          if (item.tableId === v) {
+            item.derived = null
+          }
+        })
+      })
     },
     // 处理 dimensions（选择维度）
     nextModel (val) {
