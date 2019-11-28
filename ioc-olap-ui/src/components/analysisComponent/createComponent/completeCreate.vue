@@ -56,7 +56,8 @@ export default {
           { required: true, message: '请输入模型名称', trigger: 'blur' },
           { validator: isCheckModelName, trigger: 'blur' }
         ]
-      }
+      },
+      realData: {}
     }
   },
   activated () {
@@ -191,35 +192,44 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column ?  this.totalSaveData.timingreFresh.buildMode = 1 : this.totalSaveData.timingreFresh.buildMode = 0
     },
     changesEncoding () {
-      // 过滤rowkey
-      this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns.forEach(res => {
-        let leh = res.lengths ? `:${res.lengths}` : ''
-        res.encoding = `${res.columns_Type}${leh}`
-      })
+      let list = []
+      let arr = []
+      let dimensions = JSON.parse(JSON.stringify(this.dimensions))
       this.totalSaveData.cubeDatalaketableNew.map(res => {
         res.tableList = reduceObj(res.tableList, 'table_id')
       })
-      let list = []
-      this.totalSaveData.models.modelDescData.lookups.forEach(v => {
-        list = [...list, ...v.join.foreign_key]
+      const foreignKey = this.totalSaveData.models.modelDescData.lookups[0].joinAlias
+
+      dimensions.forEach(v => {
+        if (v.table === foreignKey) {
+          list.push(v.tableId)
+        }
       })
       const joinAliasList = Array.from(new Set(list))
-      this.totalSaveData.cube.cubeDescData.dimensions = JSON.parse(JSON.stringify(this.dimensions))
-      this.totalSaveData.cube.cubeDescData.dimensions.forEach(item => {
+      dimensions.forEach(item => {
         joinAliasList.forEach(v => {
           if (item.tableId === v) {
+            arr.push({
+              column: item.id,
+              encoding: 'dict',
+              lengths: '',
+              code_types: item.type ? item.type : '',
+              encoding_version: '1',
+              isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
+            })
             item.derived = null
           }
         })
       })
+      this.realData = JSON.parse(JSON.stringify(this.totalSaveData))
+      Object.assign(this.realData.cube.cubeDescData.rowkey, { rowkey_columns: arr })
+      Object.assign(this.realData.cube.cubeDescData, { dimensions })
     },
-    // 处理 dimensions（选择维度）
     nextModel (val) {
       if (!this.totalSaveData.cube.cubeDescData.name.length) {
           this.$message.warning('请填写模型名称~')
           return
         }
-        // 处理表关联关系(暂时先这样处理,中间不知道哪里处理没了)
       this.totalSaveData.models.modelDescData.lookups.forEach(t => {
         t.join.type = this.tableJoinType
       })
@@ -229,7 +239,7 @@ export default {
           if (valid) {
             this.isLoading = true
             throttle(async () => {
-              await saveolapModeldata(this.totalSaveData).then(_ => {
+              await saveolapModeldata(this.realData).then(_ => {
                 this.isLoading = false
                 this.$message.success('保存成功')
                 this.$router.push('/analysisModel/Configuration')

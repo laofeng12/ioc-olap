@@ -398,7 +398,7 @@ export default {
     },
     getFields (data = {}) {
       let join = data.join
-      if (!join) return this.$message.text('请设置字段关系')
+      if (!join) return this.$message.warning('请设置字段关系')
       let list = []
       let primary_key = join.primary_key || []
       let foreign_key = join.foreign_key || []
