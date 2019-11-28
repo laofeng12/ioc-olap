@@ -406,7 +406,6 @@ export default {
       let pk_type = join.pk_type || []
       let fk_type = join.fk_type || []
       let type = join.type
-      debugger
       primary_key.forEach((t, i) => {
         list.push({
           primary_key: `${primary_key[i].includes('.') ? primary_key[i].split('.')[1] : primary_key[i]}`,
@@ -615,10 +614,14 @@ export default {
       }
       // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       const { graphData } = this.editor.getResult()
+      // 关联
       this.$store.commit('SET_TABLE_JOINTYPE',this.linkModal.join.type)
       await this.$store.dispatch('getGraphData', JSON.stringify(graphData))
-      this.$parent.getStepCountAdd(val) // 下一步
+      // 下一步
+      this.$parent.getStepCountAdd(val)
+      // 获取表的列
       this.getIdToList()
+      // 跳转到第三步
       this.$router.push('/analysisModel/createolap/setFiled')
       // this.$parent.getStepCountAdd(val)
       // this.getIdToList()
@@ -647,6 +650,7 @@ export default {
         arrId.push(ids)
         this.arrId.push(ids)
       }
+      // 存储已经建表对应的所有字段
       this.$store.commit('SaveSelectAllListtwo', [...new Set(arrId)])
     },
     prevModel (val) {

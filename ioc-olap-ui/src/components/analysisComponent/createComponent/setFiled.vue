@@ -64,11 +64,12 @@ export default {
     }
   },
   watch: {
-    '$route' () {
-      this.$refs.filedTable.init()
-    }
+    // '$route' () {
+    //   this.$refs.filedTable.init()
+    // }
   },
   activated () {
+    this.$refs.filedTable.init()
     this.init()
   },
   methods: {

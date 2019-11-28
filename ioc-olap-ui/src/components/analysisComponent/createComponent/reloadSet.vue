@@ -30,12 +30,12 @@
         <h4 style="margin-top:30px;">日期字段</h4>
         <el-form-item label="日期字段表" class="datarowmore" prop="data1a">
           <el-select v-model="formData.data1a" placeholder="请选择数据表" @change="selectTable" @visible-change="visibleData(0)" clearable>
-            <el-option v-for="(item, index) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
+            <el-option v-for="(item) in tableOptions" :key="item.id" :label="item.label" :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期字段" prop="data1b">
           <el-select v-model="formData.data1b" placeholder="请选择日期字段" clearable>
-            <el-option v-for="(item, index) in textOptions" :key="item.id" :label="item.name" :value="item.name"></el-option>
+            <el-option v-for="(item) in textOptions" :key="item.id" :label="item.columnAlias" :value="item.definition"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式" prop="partition_date_format">
@@ -204,7 +204,7 @@ export default {
        * 遍历已选择的表（筛选出事实表的这条数据）
        * 赋值给日期字段表 tableOptions
        */
-      this.selectTableTotal.map(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
+      this.selectTableTotal.forEach(item => { item.filed = item.label === this.jointResultData.fact_table.split('.')[1] ? 1 : 0 })
       this.tableOptions = this.selectTableTotal.filter(res => { return res.filed === 1 })
       // 默认调用根据表名去获取对应的字段名
       this.fetchDeac(this.tableOptions[0].label)
