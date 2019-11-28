@@ -22,7 +22,7 @@
         </div>
         <div class="bottom">
           <el-checkbox class="checkbox" v-model="checked">限制查询行数</el-checkbox>
-          <el-input-number class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini" controls-position="right"></el-input-number>
+          <el-input-number class="lineNumber" v-model="lineNumber" :disabled="!checked" size="mini" controls-position="right" :min="0"></el-input-number>
           <el-button class="querybutton" type="primary" size="mini" @click="searchOlap" :loading="loading">查询</el-button>
         </div>
       </div>
