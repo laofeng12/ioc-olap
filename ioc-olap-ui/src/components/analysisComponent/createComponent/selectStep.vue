@@ -72,8 +72,13 @@ export default {
         // await this.$store.dispatch('resetList')
         await this.$store.dispatch('getAllColumnInfo')
         const data = await this.$store.dispatch('batchCreateJob', params)
-        if (data) {
+        let isShowMsg = false
+        data.rows.forEach(t => {
+          isShowMsg = !t.success
+        })
+        if (isShowMsg && data) {
           this.$message.warning(data.msg)
+          return
         }
         this.$router.push('/analysisModel/createolap/createTableRelation')
         this.isLoading = false
