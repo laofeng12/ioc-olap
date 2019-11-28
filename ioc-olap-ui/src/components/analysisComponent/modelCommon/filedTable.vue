@@ -9,7 +9,7 @@
           :key="index" @click="changeLi(item, index)">
           <i class="el-icon-date" style="margin-right:3px;margin-top:8px;"></i>
           <span class="tableTitle">{{item.alias}}</span>
-          <span class="filds" v-if="titleData[index]===dataList.fact_table.split('.')[1]">事实表</span>
+          <span class="filds" v-if="item.alias === dataList.fact_table.split('.')[1]">事实表</span>
         </li>
        </el-tooltip>
      </ul>
