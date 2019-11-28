@@ -80,6 +80,13 @@ const setFiled = {
     },
     normalFn ({ state }, list) {
       // 普通模式
+      // state.saveFiledNormalList = state.saveFiledNormalList.concat({
+      //   id: list.val.id,
+      //   dataType: list.val.dataType,
+      //   modeType: '1',
+      //   name: list.val.titName,
+      //   tableName: list.val.tableName
+      // })
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType,

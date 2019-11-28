@@ -33,6 +33,7 @@ export default {
       colors: 'red',
       ids: '',
       primary_key: '',
+      catchData: {},
       titleData: [], // 表名
       // 模拟数据
       dataList: {}
@@ -124,6 +125,10 @@ export default {
       // })
       // kelin
       // console.log(item, '====', this.dataList.fact_table)
+      this.catchData = {
+        data: item,
+        code: this.dataList.fact_table.split('.')[1]
+      }
       this.$root.eventBus.$emit('filedTable', item, this.dataList.fact_table.split('.')[1])
       // 存储事实表的所有字段
       if (index === 0) {
