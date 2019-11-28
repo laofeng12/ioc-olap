@@ -272,8 +272,6 @@ export default {
       if (type === 'construct') {
         if (params.flags === 5) {
           this.$message.error('模型构建中，请等待构建结果')
-        } else if (params.flags === 2) {
-          this.$message.error('模型已构建')
         } else {
           const info = {
             cubeName: params.name,
