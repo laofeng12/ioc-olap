@@ -270,16 +270,21 @@ export default {
         this.$refs[type].dialog(params)
       }
       if (type === 'construct') {
-        const info = {
-          cubeName: params.name,
-          models: params.model
+        if (params.flags === 5) {
+          this.$message.error('模型构建中，请等待构建结果')
+        } else {
+          const info = {
+            cubeName: params.name,
+            models: params.model
+          }
+          descDataList(info).then((res) => {
+            // this.dateType = res.
+            this.dateType = res.ModesList.partition_desc.partition_date_format
+            // console.log(this.dateType)
+          })
+          this.$refs['construct'].dialog(params)
         }
-        descDataList(info).then((res) => {
-          // this.dateType = res.
-          this.dateType = res.ModesList.partition_desc.partition_date_format
-          // console.log(this.dateType)
-        })
-        this.$refs['construct'].dialog(params)
+        
         // if (params.segments.length > 0 && params.partitionDateColumn) {
         // } else {
         //   return this.$confirm('是否构建该模型', {
@@ -300,14 +305,17 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
-        // if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
-        return this.$router.push({
-          path: '/analysisModel/createolap/selectStep',
-          query: {
-            cubeName: params.name, models: params.model
-          }
-        })
-        this.$refs[type].dialog(params)
+        if (params.flags === 5) {
+          this.$message.error('模型构建中，请等待构建结果')
+        } else {
+          return this.$router.push({
+            path: '/analysisModel/createolap/selectStep',
+            query: {
+              cubeName: params.name, models: params.model
+            }
+          })
+          this.$refs[type].dialog(params)
+        }
       }
       
     },
