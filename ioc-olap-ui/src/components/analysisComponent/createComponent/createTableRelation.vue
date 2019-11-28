@@ -397,6 +397,7 @@ export default {
       })
     },
     getFields (data = {}) {
+
       let join = data.join
       if (!join) return this.$message.error('请设置字段关系')
       let list = []
@@ -405,11 +406,11 @@ export default {
       let pk_type = join.pk_type || []
       let fk_type = join.fk_type || []
       let type = join.type
-
+      debugger
       primary_key.forEach((t, i) => {
         list.push({
-          primary_key: `${primary_key[i].split('.')[1]}`,
-          foreign_key: `${foreign_key[i].split('.')[1]}`,
+          primary_key: `${primary_key[i].includes('.') ? primary_key[i].split('.')[1] : primary_key[i]}`,
+          foreign_key: `${foreign_key[i].includes('.') ? foreign_key[i].split('.')[1] : foreign_key[i]}`,
           pk_type: pk_type[i],
           fk_type: fk_type[i],
           type

@@ -113,6 +113,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { searchCubeApi } from '../../../api/olapAnalysisList'
 import { newOlapFolderApi, deleteOlapFolderApi, getShareUserApi, saveShareApi } from '../../../api/instantInquiry'
 import { getUserListApi } from '../../../api/login'
 
@@ -300,35 +301,42 @@ export default {
     async getShareUserList (node, data) {
       this.shareLoading = true
       this.shareData = data
-      const shareId = data.attrs.realQueryId || data.attrs.analyzeId
-      if (shareId) {
-        this.shareId = shareId
-        this.shareVisible = true
-        const { rows, totalPage } = await getUserListApi()
-        this.totalPage = totalPage
-        this.userRows = rows
-        const res = await getShareUserApi({
-          sourceId: this.shareId,
-          sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
-        })
-        let shareList = []
-        res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
-        this.shareList = shareList
-        this.showShareList = shareList
-        const userList = rows.map(item => {
-          let disabled = false
-          res.forEach(v => {
-            if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
-              disabled = true
-            }
+      console.log(data.attrs.cubeId)
+      const params = { id: data.attrs ? data.attrs.cubeId : data.cubeId }
+      const res = await searchCubeApi(params)
+      if (res.flags) {
+        const shareId = data.attrs.realQueryId || data.attrs.analyzeId
+        if (shareId) {
+          this.shareId = shareId
+          this.shareVisible = true
+          const { rows, totalPage } = await getUserListApi()
+          this.totalPage = totalPage
+          this.userRows = rows
+          const res = await getShareUserApi({
+            sourceId: this.shareId,
+            sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
           })
-          return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
-        })
-        this.userList = userList
-        this.shareLoading = false
+          let shareList = []
+          res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
+          this.shareList = shareList
+          this.showShareList = shareList
+          const userList = rows.map(item => {
+            let disabled = false
+            res.forEach(v => {
+              if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
+                disabled = true
+              }
+            })
+            return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+          })
+          this.userList = userList
+          this.shareLoading = false
+        } else {
+          this.$message.error('分享失败')
+          this.shareLoading = false
+        }
       } else {
-        this.$message.error('分享失败')
-        this.shareLoading = false
+        this.$message.error('该立方体已禁用')
       }
     },
     async share () {
