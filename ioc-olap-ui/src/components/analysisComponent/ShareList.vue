@@ -62,13 +62,13 @@
            min-width="100%">
           <template slot-scope="scope">
             <div class="play">
-              <el-dropdown trigger="click" @command="handleCommand">
+              <el-button @click="showDetail(scope)">查看</el-button>
+              <!-- <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item :command="{type: 'lookShare', params: scope.row}">查看</el-dropdown-item>
-                  <!--<el-dropdown-item :command="{type: 'dels', params: scope.row}">删除</el-dropdown-item>-->
                 </el-dropdown-menu>
-              </el-dropdown>
+              </el-dropdown> -->
             </div>
           </template>
         </el-table-column>
@@ -131,6 +131,7 @@ export default {
   },
   methods: {
     async init (val) {
+      this.tableData = []
       this.getLoading = true
       const params = {
         limit: 15,
@@ -158,6 +159,11 @@ export default {
         message: '成功!'
       })
       this.dialogFormVisible = false
+    },
+    showDetail(scope) {
+      let row = scope.row
+      this.expands.push(row.uuid)
+      this.jsonData = { cubeName: row.name, models: row.model }
     },
     handleCommand (val) {
       const { type, params } = val
@@ -327,4 +333,11 @@ export default {
     cursor pointer
   }
 }
+</style>
+<style>
+    .play > .el-button{
+      border: none;
+      background: transparent;
+      color: #1877F1;
+    }
 </style>
