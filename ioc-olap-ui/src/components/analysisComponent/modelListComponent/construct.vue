@@ -17,6 +17,7 @@
           </el-form-item>
           <el-form-item label="结束时间" :label-width="formLabelWidth" prop="endTime">
             <el-date-picker
+              :format="dateType"
               v-model="form.endTime"
               value-format="timestamp"
               :picker-options="pickerOptions"

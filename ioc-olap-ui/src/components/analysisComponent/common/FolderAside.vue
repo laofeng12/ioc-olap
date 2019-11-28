@@ -8,7 +8,9 @@
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
              :empty-text="emptyText" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">
-        <div>
+        <div class="flex-box">
+           <i class="el-icon-folder diy-icon" v-show="node.level === 1"></i>
+           <i class="el-icon-tickets diy-icon" v-show="node.level === 2"></i>
            <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
            <template v-if="!data.virtualTableName">
@@ -343,6 +345,7 @@ export default {
         }
       })
       await saveShareApi(url, data)
+      this.$message.success('分享成功')
       this.shareVisible = false
       this.$emit('clickItem', this.shareData, 'share')
     },
@@ -446,26 +449,30 @@ export default {
         &.hideLongText:hover{
           .el-tree-node__content{
             .custom-tree-node{
+              .flex-box{
+                display: flex;
+                vertical-align: middle;
+                .diy-icon{
+                  margin-top: 9px;
+                }
+              }
               /deep/ .cus-node-title{
                 display: block;
-                width: 100px;
+                width: 180px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
               }
             }
-          }
-        // .custom-tree-node{
-        //   .cus-node-title{
-        //     display: block;
-        //     width: 100px;
-        //     overflow: hidden;
-        //     text-overflow: ellipsis;
-        //     white-space: nowrap;
-        //   }
-        // }
-        
-      }
+          } 
+        }
+        /deep/ .el-tree-node__expand-icon{
+          display: none;
+        }
+        /deep/ .diy-icon{
+          font-size: 14px;
+          margin-right: 6px;
+        }
       }
     }
     .cus-node-content {
@@ -481,7 +488,7 @@ export default {
       }
     }
     .custom-tree-node {
-      width: 84%;
+      width: 90%;
       overflow: hidden;
       text-overflow: ellipsis;
       .cus-node-title {
