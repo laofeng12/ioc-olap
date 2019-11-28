@@ -131,6 +131,7 @@ export default {
   },
   methods: {
     async init (val) {
+      this.tableData = []
       this.getLoading = true
       const params = {
         limit: 15,
