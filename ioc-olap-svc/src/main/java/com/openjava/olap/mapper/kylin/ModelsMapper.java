@@ -1,17 +1,20 @@
 package com.openjava.olap.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-
 @Getter
 @Setter
+@ApiModel("模型基础信息")
 public class ModelsMapper {
     @JSONField(name = "uuid")
+    @ApiModelProperty("唯一标识")
     public String uuid;
     @JSONField(name = "modelDescData")
+    @ApiModelProperty("模型详细信息消息体")
     public ModelsDescDataMapper modelDescData;
     @JSONField(name = "modelName")
     public String modelName;

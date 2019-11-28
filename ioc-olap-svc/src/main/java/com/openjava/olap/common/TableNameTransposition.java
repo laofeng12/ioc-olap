@@ -95,6 +95,43 @@ public class TableNameTransposition {
                 s.setId(tableName+"."+sr[1]);
             }
         });
+        body.getCube().getCubeDescData().getAggregation_groups().forEach(s->{
+            if (s.getSelect_rule().getMandatory_dims() != null){
+                List<String> mandatory = s.getSelect_rule().getMandatory_dims();
+                for (int i = 0;i<mandatory.size();i++){
+                    String[] sr = mandatory.get(i).split("\\.");
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        mandatory.set(i,tableName+"."+sr[1]);
+                    }
+                }
+            }
+
+            if (s.getSelect_rule().getJoint_dims() != null){
+                s.getSelect_rule().getJoint_dims().forEach(x->{
+                    if (x != null) {
+                        for (int i = 0;i<x.size();i++){
+                            String[] sr = x.get(i).split("\\.");
+                            if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                                x.set(i,tableName+"."+sr[1]);
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (s.getSelect_rule().getHierarchy_dims() != null){
+                s.getSelect_rule().getHierarchy_dims().forEach(x->{
+                    if (x != null) {
+                        for (int i = 0;i<x.size();i++){
+                            String[] sr = x.get(i).split("\\.");
+                            if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                                x.set(i,tableName+"."+sr[1]);
+                            }
+                        }
+                    }
+                });
+            }
+        });
 
         body.getCube().getCubeDescData().getMeasures().forEach(s->{
             String[]sr = s.getFunction().getParameter().getValue().split("\\.");

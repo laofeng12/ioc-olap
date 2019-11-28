@@ -49,6 +49,7 @@ export default {
         const params = {
           cubeName, models
         }
+        // 编辑
         descDataList(params).then(async res => {
           if (res.CubeList) {
             this.isLoading = false

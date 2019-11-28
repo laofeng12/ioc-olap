@@ -1,7 +1,7 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input suffix-icon="el-icon-search" v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
+      <el-input suffix-icon="el-icon-search" @keyup.enter="searchFetch(searchData)" v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
@@ -84,7 +84,7 @@
       </el-table>
     <div class="more" v-if="moreShow && tableData.length >= 15" @click="moreData">更多数据</div>
     <clones ref="clones"></clones>
-    <construct ref="construct"></construct>
+    <construct ref="construct" :dateType="dateType"></construct>
     <reloads ref="reloads"></reloads>
     <merge ref="merge"></merge>
     <sharedTable ref="sharedTable"></sharedTable>
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
+import { descDataList, getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import { filterTime, removeAllStorage, statusReviewFilter } from '@/utils/index'
 export default {
@@ -101,6 +101,7 @@ export default {
   },
   data () {
     return {
+      dateType: '',
       searchData: {
         cubeName: ''
       },
@@ -148,6 +149,9 @@ export default {
           dateType: 1, // 1：模型列表 2：构建列表
           ...val
         }
+        if (!params.cubeName) {
+         delete params.cubeName
+        }
         const { cubeMappers: res, next } = await getModelDataList(params)
         if (type === 'search') {
           this.tableData = res
@@ -167,6 +171,9 @@ export default {
         offset: 0,
         dateType: 1,
         ...val
+      }
+      if (!params.cubeName) {
+        delete params.cubeName
       }
       const { cubeMappers } = await getModelDataList(params)
       if (cubeMappers.length > 0) {
@@ -260,9 +267,24 @@ export default {
           }
           this.getLoading = false
         })
+        this.$refs[type].dialog(params)
       }
       if (type === 'construct') {
-        this.$refs['construct'].dialog(params)
+        if (params.flags === 5) {
+          this.$message.error('模型构建中，请等待构建结果')
+        } else {
+          const info = {
+            cubeName: params.name,
+            models: params.model
+          }
+          descDataList(info).then((res) => {
+            // this.dateType = res.
+            this.dateType = res.ModesList.partition_desc.partition_date_format
+            // console.log(this.dateType)
+          })
+          this.$refs['construct'].dialog(params)
+        }
+        
         // if (params.segments.length > 0 && params.partitionDateColumn) {
         // } else {
         //   return this.$confirm('是否构建该模型', {
@@ -283,15 +305,19 @@ export default {
         // }
       }
       if (type === 'lookUserModal') {
-        // if (params.segments.length < 1) return this.$message.warning('构建中、不能编辑~')
-        return this.$router.push({
-          path: '/analysisModel/createolap/selectStep',
-          query: {
-            cubeName: params.name, models: params.model
-          }
-        })
+        if (params.flags === 5) {
+          this.$message.error('模型构建中，请等待构建结果')
+        } else {
+          return this.$router.push({
+            path: '/analysisModel/createolap/selectStep',
+            query: {
+              cubeName: params.name, models: params.model
+            }
+          })
+          this.$refs[type].dialog(params)
+        }
       }
-      this.$refs[type].dialog(params)
+      
     },
     closeExpands () {
       this.expands = []

@@ -8,7 +8,9 @@
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
              :empty-text="emptyText" ref="alltree">
       <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">
-        <div>
+        <div class="flex-box">
+           <i class="el-icon-folder diy-icon" v-show="node.level === 1"></i>
+           <i class="el-icon-tickets diy-icon" v-show="node.level === 2"></i>
            <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
            <template v-if="!data.virtualTableName">
@@ -111,6 +113,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { searchCubeApi } from '../../../api/olapAnalysisList'
 import { newOlapFolderApi, deleteOlapFolderApi, getShareUserApi, saveShareApi } from '../../../api/instantInquiry'
 import { getUserListApi } from '../../../api/login'
 
@@ -298,35 +301,42 @@ export default {
     async getShareUserList (node, data) {
       this.shareLoading = true
       this.shareData = data
-      const shareId = data.attrs.realQueryId || data.attrs.analyzeId
-      if (shareId) {
-        this.shareId = shareId
-        this.shareVisible = true
-        const { rows, totalPage } = await getUserListApi()
-        this.totalPage = totalPage
-        this.userRows = rows
-        const res = await getShareUserApi({
-          sourceId: this.shareId,
-          sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
-        })
-        let shareList = []
-        res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
-        this.shareList = shareList
-        this.showShareList = shareList
-        const userList = rows.map(item => {
-          let disabled = false
-          res.forEach(v => {
-            if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
-              disabled = true
-            }
+      console.log(data.attrs.cubeId)
+      const params = { id: data.attrs ? data.attrs.cubeId : data.cubeId }
+      const res = await searchCubeApi(params)
+      if (res.flags) {
+        const shareId = data.attrs.realQueryId || data.attrs.analyzeId
+        if (shareId) {
+          this.shareId = shareId
+          this.shareVisible = true
+          const { rows, totalPage } = await getUserListApi()
+          this.totalPage = totalPage
+          this.userRows = rows
+          const res = await getShareUserApi({
+            sourceId: this.shareId,
+            sourceType: this.$route.name === 'instantInquiry' ? 'RealQuery' : 'Analyze'
           })
-          return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
-        })
-        this.userList = userList
-        this.shareLoading = false
+          let shareList = []
+          res.forEach(v => shareList.push({ key: v.shareUserId, label: v.shareUserName, disabled: false }))
+          this.shareList = shareList
+          this.showShareList = shareList
+          const userList = rows.map(item => {
+            let disabled = false
+            res.forEach(v => {
+              if (v.shareUserId === item.userid || item.userid == this.userInfo.userId) {
+                disabled = true
+              }
+            })
+            return Object.assign(item, { key: item.userid, label: item.fullname, disabled })
+          })
+          this.userList = userList
+          this.shareLoading = false
+        } else {
+          this.$message.error('分享失败')
+          this.shareLoading = false
+        }
       } else {
-        this.$message.error('分享失败')
-        this.shareLoading = false
+        this.$message.error('该立方体已禁用')
       }
     },
     async share () {
@@ -447,26 +457,30 @@ export default {
         &.hideLongText:hover{
           .el-tree-node__content{
             .custom-tree-node{
+              .flex-box{
+                display: flex;
+                vertical-align: middle;
+                .diy-icon{
+                  margin-top: 9px;
+                }
+              }
               /deep/ .cus-node-title{
                 display: block;
-                width: 100px;
+                width: 180px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
               }
             }
-          }
-        // .custom-tree-node{
-        //   .cus-node-title{
-        //     display: block;
-        //     width: 100px;
-        //     overflow: hidden;
-        //     text-overflow: ellipsis;
-        //     white-space: nowrap;
-        //   }
-        // }
-        
-      }
+          } 
+        }
+        /deep/ .el-tree-node__expand-icon{
+          display: none;
+        }
+        /deep/ .diy-icon{
+          font-size: 14px;
+          margin-right: 6px;
+        }
       }
     }
     .cus-node-content {
@@ -482,7 +496,7 @@ export default {
       }
     }
     .custom-tree-node {
-      width: 84%;
+      width: 90%;
       overflow: hidden;
       text-overflow: ellipsis;
       .cus-node-title {

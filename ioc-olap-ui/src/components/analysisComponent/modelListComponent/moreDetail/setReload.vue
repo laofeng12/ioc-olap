@@ -74,6 +74,7 @@ export default {
         this.descriptionData = this.jsonData.filterCondidion
         this.descriptionData.map((res, index) => { res.index = index + 1 })
       }
+      console.log(this.dataList)
     },
     frequencytypes (val) {
       let obj = ['', '小时', '天', '月']
