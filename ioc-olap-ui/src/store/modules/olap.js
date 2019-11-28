@@ -1,6 +1,7 @@
 import { setLocalStorage } from '@/utils/index'
 const common = {
   state: {
+    isEdit: false, // 是否编辑
     HeadNum: 1,
     ModelAllList: [], // 所有的数据集合
     /* 建立表关系 */
@@ -234,7 +235,8 @@ const common = {
       getters.jointResultData.fact_table = `${data.item.database || 'olap'}.${data.label}`
     },
     // 获取编辑的数据
-    async SaveModelAllList ({ getters, store, state, dispatch }, data) {
+    async SaveModelAllList ({ getters, store, state, dispatch, commit }, data) {
+      commit('SET_IS_EDIT', true)
       state.ModelAllList = data
       setLocalStorage('ModelAllList', data)
       // 赋值第一步已选择的表
@@ -321,6 +323,11 @@ const common = {
     },
     getGraphData ({ state }, data) {
       state.totalSaveData.graphData = data
+    }
+  },
+  mutations: {
+    SET_IS_EDIT (state, data) {
+      state.isEdit = data
     }
   }
 }

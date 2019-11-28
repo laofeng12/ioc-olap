@@ -66,7 +66,9 @@ export default {
       try {
         this.isLoading = true
         // 第二步初始化
-        this.$store.commit('INI_TABLE_RELATION')
+        if (!this.isEdit) {
+          this.$store.commit('INI_TABLE_RELATION')
+        }
         // await this.$store.dispatch('resetList')
         await this.$store.dispatch('getAllColumnInfo')
         const data = await this.$store.dispatch('batchCreateJob', params)
@@ -83,6 +85,7 @@ export default {
   computed: {
     ...mapGetters({
       selectTableTotal: 'selectTableTotal',
+      isEdit: 'isEdit'
     })
   }
 }

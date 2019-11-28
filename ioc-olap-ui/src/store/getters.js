@@ -1,4 +1,5 @@
 const getters = {
+  isEdit: state => state.olap.isEdit, // 是否编辑
   tableJoinType: state => state.selectStep.tableJoinType, // 表连接类型
   batchCreateJob: state => state.selectStep.batchCreateJob,
   sidebar: state => state.app.sidebar,
