@@ -398,7 +398,7 @@ export default {
     },
     getFields (data = {}) {
       let join = data.join
-      if (!join) return this.$message.text('请设置字段关系')
+      if (!join) return this.$message.error('请设置字段关系')
       let list = []
       let primary_key = join.primary_key || []
       let foreign_key = join.foreign_key || []
@@ -608,7 +608,7 @@ export default {
       if (Object.keys(this.ModelAllList).length === 0) {
         if (!this.isTableAssociate()) return this.$message.warning('请完善表关系~')
       }
-      if (!this.linkModal.join.type) {
+      if (!this.linkModal || !this.linkModal.join.type) {
           this.$message.warning('请选择表的关联关系~')
           return
       }

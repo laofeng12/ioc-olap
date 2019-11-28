@@ -1,7 +1,7 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input suffix-icon="el-icon-search" v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
+      <el-input suffix-icon="el-icon-search" @keyup.enter="searchFetch(searchData)" v-model="searchData.cubeName" size="small" placeholder="请输入关键字" clearable></el-input>
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
@@ -149,6 +149,9 @@ export default {
           dateType: 1, // 1：模型列表 2：构建列表
           ...val
         }
+        if (!params.cubeName) {
+         delete params.cubeName
+        }
         const { cubeMappers: res, next } = await getModelDataList(params)
         if (type === 'search') {
           this.tableData = res
@@ -168,6 +171,9 @@ export default {
         offset: 0,
         dateType: 1,
         ...val
+      }
+      if (!params.cubeName) {
+        delete params.cubeName
       }
       const { cubeMappers } = await getModelDataList(params)
       if (cubeMappers.length > 0) {
