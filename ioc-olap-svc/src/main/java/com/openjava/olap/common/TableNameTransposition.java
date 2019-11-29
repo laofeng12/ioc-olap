@@ -88,6 +88,17 @@ public class TableNameTransposition {
 
         });
 
+        if (body.getModels().getModelDescData().getPartition_desc() != null) {
+            String s = body.getModels().getModelDescData().getPartition_desc().getPartition_date_column();
+            if (s != null){
+                String[]sr = s.split("\\.");
+                if (sr.length == 2){
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        body.getModels().getModelDescData().getPartition_desc().setPartition_date_column( tableName + "." + sr[1]);
+                    }
+                }
+            }
+        }
         body.getCube().getCubeDescData().getAggregation_groups().forEach(s->{
             if (s.getIncludes() != null) {
                 for (int x = 0; x < s.getIncludes().size(); x++) {
