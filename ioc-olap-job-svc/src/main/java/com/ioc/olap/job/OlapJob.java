@@ -81,7 +81,7 @@ public class OlapJob {
         if (timingreFresh != null) {
             Calendar calendar = Calendar.getInstance();
             for (OlapTimingrefresh fc : timingreFresh) {
-                logger.info("定时构建：{}", JSON.toJSONString(fc));
+                logger.info("定时任务:{}",JSON.toJSONString(fc));
                 List<CubeHbaseMapper> hbases = cubeHttpClient.hbase(fc.getCubeName());
                 if (hbases.size() > 0){//已经构建过，取最新的一条记录的结束时间作为本次构建的开始时间
                     hbases.sort(Comparator.comparing(CubeHbaseMapper::getDateRangeEnd).reversed());
@@ -95,6 +95,7 @@ public class OlapJob {
                             OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
                             if (cube != null){
                                 //该方法会先判断模型状态是否满足构建
+                                logger.info("定时构建满足：{},{}", JSON.toJSONString(fc),JSON.toJSONString(cube));
                                 this.olapCubeBuildService.preBuild(cube.getName(),start,end);
                             }
                         }
@@ -105,6 +106,7 @@ public class OlapJob {
                             OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
                             if (cube != null){
                                 //该方法会先判断模型状态是否满足构建
+                                logger.info("定时构建满足：{},{}", JSON.toJSONString(fc),JSON.toJSONString(cube));
                                 this.olapCubeBuildService.preBuild(cube.getName(),start,end);
                             }
                         }
@@ -125,6 +127,7 @@ public class OlapJob {
                             OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
                             if (cube != null){
                                 //该方法会先判断模型状态是否满足构建
+                                logger.info("定时构建满足：{},{}", JSON.toJSONString(fc),JSON.toJSONString(cube));
                                 this.olapCubeBuildService.preBuild(cube.getName(),begin,end);
                             }
                         }
@@ -135,6 +138,7 @@ public class OlapJob {
                             OlapCube cube = this.olapCubeService.findTableInfo(fc.getCubeName());
                             if (cube != null){
                                 //该方法会先判断模型状态是否满足构建
+                                logger.info("定时构建满足：{},{}", JSON.toJSONString(fc),JSON.toJSONString(cube));
                                 this.olapCubeBuildService.preBuild(cube.getName(),start.getTime(),end.getTime());
                             }
                         }

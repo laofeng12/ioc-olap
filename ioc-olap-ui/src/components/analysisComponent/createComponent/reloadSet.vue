@@ -2,7 +2,7 @@
   <div class="reloadSet">
      <el-form :model="formData" :rules="rules" ref="formData">
       <h3 style="margin: 0 0 0 -8px;;padding: 0 0 5px 0;">刷新设置</h3>
-      <h4>自动刷新</h4>
+      <h4>自动刷新2</h4>
         <el-form-item label="自动刷新模型?">
           <template>
             <div>
@@ -18,7 +18,7 @@
         <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
-              <el-input type="number" v-model="formData.interval"></el-input>
+              <el-input-number controls-position="right"  v-model="formData.interval" :min="1"></el-input-number>
               <el-radio-group v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
@@ -63,7 +63,7 @@
         </el-form-item>
         <el-form-item label="日期字段" prop="data2b">
           <el-select v-model="formData.data2b" placeholder="请选择日期字段" clearable>
-            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.name" :value="item.name"></el-option>
+            <el-option v-for="(item, index) in textOptions" :key="index" :label="item.columnAlias" :value="item.definition"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期格式" prop="partition_time_format">
@@ -209,6 +209,7 @@ export default {
       // 默认调用根据表名去获取对应的字段名
       this.fetchDeac(this.tableOptions[0].label)
       this.formData = JSON.parse(JSON.stringify(this.reloadData))
+      // this.formData = this.catchForm
     },
     searchList () {
       // 获取已经设置保存过的刷新过滤数据
@@ -216,6 +217,7 @@ export default {
     },
     nextModel (val) {
       this.processReloadData()
+      this.$store.commit('SET_RELAOD_FILTER', this.formData)
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.$parent.getStepCountAdd(val)
@@ -223,7 +225,7 @@ export default {
         }
       })
     },
-
+    
     // 处理后端需要的数据
     processReloadData () {
       /**
@@ -231,6 +233,7 @@ export default {
        * ${partition_date_format} -- 赋值第一个字段表对应的时间格式
        * ${partition_type} -- 日期是否存在多列
        **/
+      this.totalSaveData.timingreFresh.autoReload = 
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
@@ -354,6 +357,9 @@ export default {
     >>>.el-form-item__error{
       left 200px
     }
+    >>>.el-radio-group {
+      margin-left:20px;
+    }
   }
   >>>.el-table__body, >>>.el-table__header{
     width auto!important
@@ -391,7 +397,7 @@ export default {
   .uplaodNum{
     float left
     >>>.el-input{
-      width 100px
+      margin-left: 0 !important;
     }
   }
   >>>.el-table__body tr:nth-child(even){

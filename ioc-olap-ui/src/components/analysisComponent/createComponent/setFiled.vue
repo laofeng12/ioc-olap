@@ -372,8 +372,9 @@ export default {
       this.$store.dispatch('changePushalias', val)
     },
     // 单选框触发
-    radioChange (val) {
-      this.$store.dispatch('changePushSelectFiled', val)
+    async radioChange (val) {
+      await this.$store.dispatch('changePushSelectFiled', val)
+      this.$root.eventBus.$emit('filedTable', this.$refs.filedTable.catchData.data, this.$refs.filedTable.catchData.code)
     }
   },
   computed: {
