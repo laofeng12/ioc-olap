@@ -11,24 +11,46 @@ const reloadSet = {
      * frequencytype 频率方式
      */
     reloadData: {
-      autoReload: false,
-      dataMany: false,
-      partition_date_column: '',
-      partition_date_format: '',
-      partition_time_format: '',
-      interval: '',
-      frequencytype: 1
+      // autoReload: false,
+      // dataMany: false,
+      // partition_date_column: '',
+      // partition_date_format: '',
+      // partition_time_format: '',
+      // interval: '',
+      // frequencytype: 1,
+      // 我看代码在最后一步有拿这个东西做处理, 为了返回上一步回显, 我把这个对象跟view 里面的formData 对象同步一样了
+        autoReload: false,
+        ispartition_type: false,
+        dataMany: false,
+        idx: 0,
+        data1a: '',
+        data1b: '',
+        data2a: '',
+        data2b: '',
+        partition_date_column: '', // 第一条数据表加字段
+        partition_date_format: '', // 第一条数据
+        partition_time_column: '',
+        partition_time_format: '',
+        interval: null,
+        frequencytype: 1
     }
   },
   actions: {
     resetList ({ state }) {
       state.relaodFilterList = []
+      // 同理这里也是一样处理
       state.reloadData = {
         autoReload: false,
+        ispartition_type: false,
         dataMany: false,
+        data1a: '',
+        data1b: '',
+        data2a: '',
+        data2b: '',
         partition_date_column: '',
         partition_date_format: '',
         partition_time_format: '',
+        partition_time_column: '',
         interval: '',
         frequencytype: 1
       }
@@ -54,6 +76,11 @@ const reloadSet = {
       state.relaodFilterList.forEach((item, index) => {
         item.ids === ids && state.relaodFilterList.splice(index, 1)
       })
+    }
+  },
+  mutations: {
+    SET_RELAOD_FILTER (state, data) {
+      state.reloadData = data
     }
   }
 }
