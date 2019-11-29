@@ -1,6 +1,7 @@
 package com.openjava.olap.mapper.kylin;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
+@ApiModel("模型详细信息消息体")
 public class ModelsDescDataMapper {
     @JSONField(name = "uuid")
     public String uuid;

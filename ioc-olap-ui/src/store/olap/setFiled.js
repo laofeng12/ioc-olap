@@ -257,7 +257,7 @@ const setFiled = {
         if (item.filed === '1') { item.mode = 1 }
         setTimeout(_ => {
           /**
-           * ${mode} =1 就是普通模式 
+           * ${mode} =1 就是普通模式
            * 普通模式需要传入column 普通模式需要传入derived
            */
           if (String(item.mode) === '1') {
