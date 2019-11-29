@@ -39,60 +39,85 @@ public class TableNameTransposition {
 
     public static void replaceAll(ModelingMapper body,String tableName,String virtualTableName){
         body.getCubeDatalaketableNew().forEach(s->{
-            s.getTableList().stream().filter(y->y.getTable_name().equalsIgnoreCase(virtualTableName))
-                .forEach(x->x.setTable_name(tableName));
+            if (s.getTableList() != null) {
+                s.getTableList().stream().filter(y -> y.getTable_name().equalsIgnoreCase(virtualTableName))
+                    .forEach(x -> x.setTable_name(tableName));
+            }
         });
         String factTable = body.getModels().getModelDescData().getFact_table();
-        String[] str = factTable.split("\\.");
-        if (str[1].equalsIgnoreCase(virtualTableName)){
-            body.getModels().getModelDescData().setFact_table(str[0]+"."+tableName);
+        if (factTable != null) {
+            String[] str = factTable.split("\\.");
+            if (str[1].equalsIgnoreCase(virtualTableName)) {
+                body.getModels().getModelDescData().setFact_table(str[0] + "." + tableName);
+            }
         }
         body.getModels().getModelDescData().getLookups().forEach(s->{
-            if (s.getAlias().equalsIgnoreCase(virtualTableName)){
+            if (s.getAlias() != null && s.getAlias().equalsIgnoreCase(virtualTableName)){
                 s.setAlias(tableName);
             }
-            if (s.getJoinAlias().equalsIgnoreCase(virtualTableName)){
+            if (s.getJoinAlias()!=null &&s.getJoinAlias().equalsIgnoreCase(virtualTableName)){
                 s.setJoinAlias(tableName);
             }
-            if (s.getJoinTable().equalsIgnoreCase(virtualTableName)){
+            if (s.getJoinTable()!=null && s.getJoinTable().equalsIgnoreCase(virtualTableName)){
                 s.setJoinTable(tableName);
             }
-            String[]srs = s.getTable().split("\\.");
-            if (srs[1].equalsIgnoreCase(virtualTableName)){
-                s.setTable(srs[0]+"."+tableName);
-            }
-            List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
-            for (int x=0;x<pks.size();x++) {
-                String[]sr = pks.get(x).split("\\.");
-                if (sr[0].equalsIgnoreCase(virtualTableName)) {
-                    pks.set(x,tableName+"."+sr[1]);
+            if (s.getTable() != null) {
+                String[] srs = s.getTable().split("\\.");
+                if (srs[1].equalsIgnoreCase(virtualTableName)) {
+                    s.setTable(srs[0] + "." + tableName);
                 }
             }
-            List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
-            for (int x=0;x<fks.size();x++) {
-                String[]sr = fks.get(x).split("\\.");
-                if (sr[0].equalsIgnoreCase(virtualTableName)) {
-                    fks.set(x,tableName+"."+sr[1]);
+            if (s.getJoin().getPrimary_key() != null) {
+                List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
+                for (int x = 0; x < pks.size(); x++) {
+                    String[] sr = pks.get(x).split("\\.");
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        pks.set(x, tableName + "." + sr[1]);
+                    }
+                }
+            }
+            if (s.getJoin().getForeign_key() != null) {
+                List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
+                for (int x = 0; x < fks.size(); x++) {
+                    String[] sr = fks.get(x).split("\\.");
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        fks.set(x, tableName + "." + sr[1]);
+                    }
                 }
             }
 
         });
 
+        if (body.getModels().getModelDescData().getPartition_desc() != null) {
+            String s = body.getModels().getModelDescData().getPartition_desc().getPartition_date_column();
+            if (s != null){
+                String[]sr = s.split("\\.");
+                if (sr.length == 2){
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        body.getModels().getModelDescData().getPartition_desc().setPartition_date_column( tableName + "." + sr[1]);
+                    }
+                }
+            }
+        }
         body.getCube().getCubeDescData().getAggregation_groups().forEach(s->{
-            for (int x =0;x<s.getIncludes().size();x++) {
-                String[] sr = s.getIncludes().get(x).split("\\.");
-                if (sr[0].equalsIgnoreCase(virtualTableName)) {
-                    s.getIncludes().set(x,tableName+"."+sr[1]);
+            if (s.getIncludes() != null) {
+                for (int x = 0; x < s.getIncludes().size(); x++) {
+                    String[] sr = s.getIncludes().get(x).split("\\.");
+                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                        s.getIncludes().set(x, tableName + "." + sr[1]);
+                    }
                 }
             }
         });
         body.getCube().getCubeDescData().getDimensions().forEach(s->{
-            if (s.getTable().equalsIgnoreCase(virtualTableName)){
+            if (s.getTable() != null && s.getTable().equalsIgnoreCase(virtualTableName)){
                 s.setTable(tableName);
             }
-            String[]sr = s.getId().split("\\.");
-            if (sr[0].equalsIgnoreCase(virtualTableName)){
-                s.setId(tableName+"."+sr[1]);
+            if (s.getId() != null) {
+                String[] sr = s.getId().split("\\.");
+                if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                    s.setId(tableName + "." + sr[1]);
+                }
             }
         });
         body.getCube().getCubeDescData().getAggregation_groups().forEach(s->{
