@@ -19,8 +19,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -45,6 +48,10 @@ public class OlapJob {
     private JobHttpClient jobHttpClient;
 
     private Logger logger = LoggerFactory.getLogger(OlapJob.class);
+
+    private DateTimeFormatter hour = DateTimeFormatter.ofPattern("yyyy-MM-dd HH",Locale.CHINA);
+    private DateTimeFormatter day = DateTimeFormatter.ofPattern("yyyy-MM-dd",Locale.CHINA);
+    private DateTimeFormatter month = DateTimeFormatter.ofPattern("yyyy-MM",Locale.CHINA);
 
     @Scheduled(cron = "${schedule.hour.hour}")
     public void cronJob() throws Exception {
@@ -149,23 +156,40 @@ public class OlapJob {
     }
 
     private boolean isNeedExecute(Calendar calendar, Integer frequencyType, Integer interval) {
-        Long nowTime = new Date().getTime();
+        LocalDateTime nowTime = LocalDateTime.now();
         switch (frequencyType) {
             case 1://小时
                 calendar.add(Calendar.HOUR, interval);
+                //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
+                //比较小时就行了
+                nowTime = LocalDate.parse(hour.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                if (calendar.getTimeInMillis() == nowTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli()) {
+                    calendar.setTime(new Date());
+                    return true;
+                }
                 break;
             case 2://天数
+                //比较天就行了
                 calendar.add(Calendar.DAY_OF_MONTH, interval);
+                //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
+                nowTime = LocalDate.parse(day.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                if (calendar.getTimeInMillis() == nowTime.toEpochSecond(ZoneOffset.ofHours(8))) {
+                    calendar.setTime(new Date());
+                    return true;
+                }
                 break;
             default://月
+                //比较月就行了
                 calendar.add(Calendar.MONTH, interval);
+                //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
+                nowTime = LocalDate.parse(month.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                if (calendar.getTimeInMillis() <= nowTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli()) {
+                    calendar.setTime(new Date());
+                    return true;
+                }
                 break;
         }
-        //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
-        if (calendar.getTimeInMillis() <= nowTime) {
-            calendar.setTime(new Date());
-            return true;
-        }
+
         return false;
     }
 
@@ -249,5 +273,20 @@ public class OlapJob {
                 }
             }
         }
+    }
+
+
+    public static void main(String...args)throws Exception{
+        DateTimeFormatter day = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDateTime now = LocalDateTime.now();
+        now = now.plusDays(1);
+
+        LocalDateTime tomorrow = LocalDate.parse(day.format(now), DateTimeFormatter.ISO_DATE).atStartOfDay();
+        System.out.println("日历输出："+ sf.parse(sf.format(calendar.getTime())).getTime()+",localdatetime输出："+tomorrow.toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
+
     }
 }
