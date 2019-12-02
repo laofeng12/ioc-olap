@@ -5,7 +5,7 @@ import fetch from '@/utils/fetch'
  */
 export function getMenuList (params) {
   return fetch({
-    url: '/admin/res/sysRes/myResources',
+    url: '/admin/res/sysRes/v2/myResources',
     method: 'get',
     params
   })

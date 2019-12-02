@@ -1,9 +1,12 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
     <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault" 
-    @clickItem="getTableById" 
-    @editFunc="editSave"
-                 vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading"></FolderAside>
+      @clickItem="getTableById" 
+      @editFunc="editSave"
+      vueType="saveResult" 
+      @deleteFunc="deleteFolder" 
+      :menuListLoading="menuListLoading">
+    </FolderAside>
     <div class="content dis-flex" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" 
         :showPublish="true"

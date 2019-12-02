@@ -21,10 +21,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
+        <el-table-column prop="exec_end_time" label="构建时间1" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>
-              {{scope.row.exec_end_time | formatDate}}
+              {{scope.row.last_modified | formatDate}}
             </div>
           </template>
         </el-table-column>

@@ -301,7 +301,6 @@ export default {
     async getShareUserList (node, data) {
       this.shareLoading = true
       this.shareData = data
-      console.log(data.attrs.cubeId)
       const params = { id: data.attrs ? data.attrs.cubeId : data.cubeId }
       const res = await searchCubeApi(params)
       if (res.flags) {
