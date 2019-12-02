@@ -162,7 +162,7 @@ public class OlapJob {
                 calendar.add(Calendar.HOUR, interval);
                 //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
                 //比较小时就行了
-                nowTime = LocalDate.parse(hour.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                nowTime = LocalDateTime.parse(hour.format(nowTime), hour);
                 if (calendar.getTimeInMillis() == nowTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli()) {
                     calendar.setTime(new Date());
                     return true;
@@ -172,7 +172,7 @@ public class OlapJob {
                 //比较天就行了
                 calendar.add(Calendar.DAY_OF_MONTH, interval);
                 //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
-                nowTime = LocalDate.parse(day.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                nowTime = LocalDateTime.parse(day.format(nowTime), day);
                 if (calendar.getTimeInMillis() == nowTime.toEpochSecond(ZoneOffset.ofHours(8))) {
                     calendar.setTime(new Date());
                     return true;
@@ -182,7 +182,7 @@ public class OlapJob {
                 //比较月就行了
                 calendar.add(Calendar.MONTH, interval);
                 //如果小于当前时间，就把结束时间设为当前时间，这样为了处理异常
-                nowTime = LocalDate.parse(month.format(nowTime), DateTimeFormatter.ISO_DATE).atStartOfDay();
+                nowTime = LocalDateTime.parse(month.format(nowTime), month);
                 if (calendar.getTimeInMillis() <= nowTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli()) {
                     calendar.setTime(new Date());
                     return true;
@@ -277,15 +277,16 @@ public class OlapJob {
 
 
     public static void main(String...args)throws Exception{
-        DateTimeFormatter day = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter day = DateTimeFormatter.ofPattern("yyyy-MM-dd HH",Locale.CHINA);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.DAY_OF_MONTH,1);
-        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH");
         LocalDateTime now = LocalDateTime.now();
         now = now.plusDays(1);
-
-        LocalDateTime tomorrow = LocalDate.parse(day.format(now), DateTimeFormatter.ISO_DATE).atStartOfDay();
+        String str = day.format(now);
+        LocalDateTime tomorrow = LocalDate.parse(str, day).atStartOfDay();
+        tomorrow = LocalDateTime.parse(str,day);
         System.out.println("日历输出："+ sf.parse(sf.format(calendar.getTime())).getTime()+",localdatetime输出："+tomorrow.toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
 
     }
