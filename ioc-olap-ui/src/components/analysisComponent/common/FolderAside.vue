@@ -302,8 +302,12 @@ export default {
       this.shareLoading = true
       this.shareData = data
       const params = { id: data.attrs ? data.attrs.cubeId : data.cubeId }
-      const res = await searchCubeApi(params)
-      if (res.flags) {
+      let res = ''
+      // 即席查询的时候不需要调用该接口
+      if (this.$route.name !== 'instantInquiry') {
+        res = await searchCubeApi(params)
+      }
+      if (res.flags || this.$route.name === 'instantInquiry') {
         const shareId = data.attrs.realQueryId || data.attrs.analyzeId
         if (shareId) {
           this.shareId = shareId
