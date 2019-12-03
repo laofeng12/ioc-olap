@@ -21,7 +21,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="exec_end_time" label="构建时间1" align="center" show-overflow-tooltip>
+        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>
               {{scope.row.last_modified | formatDate}}
@@ -169,7 +169,7 @@ export default {
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
       // 不明白这里为什么加个定时器
-      // this.setTimeout = setTimeout(this.update, 6000)
+      this.setTimeout = setTimeout(this.update, 5000)
       } catch (e) {
         console.log(e)
       } finally {
@@ -191,7 +191,7 @@ export default {
         this.moreShow = false
         this.$message.success('已加载全部数据')
       }
-      // this.update()
+      this.update()
       } catch (e) {
         console.log(e)
       } finally {
