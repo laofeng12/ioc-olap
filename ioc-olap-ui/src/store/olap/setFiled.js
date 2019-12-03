@@ -89,7 +89,7 @@ const setFiled = {
       // })
       state.saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
-        dataType: list.item.dataType,
+        dataType: list.item.dataType || list.item.type,
         modeType: '1',
         name: list.item.titName,
         tableName: list.item.tableName
@@ -107,7 +107,7 @@ const setFiled = {
       // 衍生模式
       state.saveFiledDerivativelList = state.saveFiledDerivativelList.concat({
         id: list.item.id,
-        dataType: list.item.dataType,
+        dataType: list.item.dataType || list.item.type,
         modeType: '2',
         name: list.item.titName,
         tableName: list.item.tableName
@@ -286,7 +286,7 @@ const setFiled = {
               name: item.name
             })
           }
-          state.dimensions = reduceObj(state.dimensions, 'tableId')
+          state.dimensions = reduceObj(state.dimensions, 'id')
         }, 300)
       })
     },
@@ -302,7 +302,7 @@ const setFiled = {
         result.map((item, index) => {
           getters.rowkeyData.rowkey_columns.map(res => {
             if (res.column === item.id) {
-              res['columns_Type'] = res.columns_Type ? res.columns_Type : 'dict'
+              res['encoding'] = res.columns_Type ? res.columns_Type : 'dict'
               res['lengths'] = res.lengths ? res.lengths : ''
               res['isShardBy'] = res.columns_Type ? String(res.isShardBy) : 'false'
             }
@@ -312,10 +312,9 @@ const setFiled = {
         result.map((item, index) => {
           arr.push({
             column: item.value,
-            encoding: '',
             lengths: '',
             code_types: item.type ? item.type : '',
-            columns_Type: item.columns_Type ? item.columns_Type : 'dict',
+            encoding: item.columns_Type ? item.columns_Type : 'dict',
             encoding_version: '1',
             isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
           })

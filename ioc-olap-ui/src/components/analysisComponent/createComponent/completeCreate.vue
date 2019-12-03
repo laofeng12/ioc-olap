@@ -192,37 +192,20 @@ export default {
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column ?  this.totalSaveData.timingreFresh.buildMode = 1 : this.totalSaveData.timingreFresh.buildMode = 0
     },
     changesEncoding () {
-      let list = []
-      let arr = []
       let dimensions = JSON.parse(JSON.stringify(this.dimensions))
       this.totalSaveData.cubeDatalaketableNew.map(res => {
         res.tableList = reduceObj(res.tableList, 'table_id')
       })
-      const foreignKey = this.totalSaveData.models.modelDescData.lookups[0].joinAlias
+      const rowkeyList = this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns
 
-      dimensions.forEach(v => {
-        if (v.table === foreignKey) {
-          list.push(v.tableId)
-        }
-      })
-      const joinAliasList = Array.from(new Set(list))
       dimensions.forEach(item => {
-        joinAliasList.forEach(v => {
-          if (item.tableId === v) {
-            arr.push({
-              column: item.id,
-              encoding: 'dict',
-              lengths: '',
-              code_types: item.type ? item.type : '',
-              encoding_version: '1',
-              isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
-            })
+        rowkeyList.forEach(v => {
+          if (item.id === v.column) {
             item.derived = null
           }
         })
       })
       this.realData = JSON.parse(JSON.stringify(this.totalSaveData))
-      Object.assign(this.realData.cube.cubeDescData.rowkey, { rowkey_columns: arr })
       Object.assign(this.realData.cube.cubeDescData, { dimensions })
     },
     nextModel (val) {

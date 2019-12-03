@@ -64,7 +64,7 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.columns_Type" placeholder="请选择"  @change="rowKeyChangeType(scope.row)"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.encoding" placeholder="请选择"  @change="rowKeyChangeType(scope.row)"  @visible-change="codingType(scope.row.code_types)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
