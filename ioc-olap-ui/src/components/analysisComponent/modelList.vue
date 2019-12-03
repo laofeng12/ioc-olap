@@ -18,7 +18,7 @@
         @row-click="clickTable"
         :header-cell-class-name="tableHead"
         stripe>
-        <el-table-column show-overflow-tooltip type="expand" min-width="100%">
+        <el-table-column show-overflow-tooltip type="expand">
           <template>
             <el-popover>
               <model-detail @closeExpands="closeExpands" :jsonData="jsonData"></model-detail>
@@ -58,7 +58,7 @@
             <div>自建</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="150px">
           <template slot-scope="scope">
             <div class="play">
               <el-dropdown trigger="click" @command="handleCommand">
