@@ -65,6 +65,7 @@
 .el-table__body td{
   border:none!important;
   padding:5px 0!important;
+  text-align: center;
 }
 .el-table__body tr:nth-child(even){
   background:#F2F2F2;
@@ -72,6 +73,7 @@
 .el-table__header th{
   background: #F2F2F2;
   padding: 8px 0;
+  text-align: center;
 }
 .el-table--group::after, >>>.el-table--border::after, >>>.el-table::before{
   content: '';
