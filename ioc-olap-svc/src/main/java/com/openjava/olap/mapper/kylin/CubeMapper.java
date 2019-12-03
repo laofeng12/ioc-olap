@@ -31,13 +31,19 @@ public class CubeMapper {
     @ApiModelProperty("模型id")
     public String model;
     public boolean is_streaming;
+    @ApiModelProperty("分区构建日期字段")
     public String partitionDateColumn;
+    @ApiModelProperty("分区构建开始时间")
     public Long partitionDateStart;
     public boolean isStandardPartitioned;
+    @ApiModelProperty("模型大小")
     public Integer size_kb;
     public Integer input_records_count;
     public Integer input_records_size;
     public String modelSource;
+    @ApiModelProperty("如果返回的是共享列表，则这个属性为共享id")
+    private String shareId;
+    @ApiModelProperty("模型业务主键id")
     public Long cubeId;
     /**状态名称**/
     @ApiModelProperty("状态名称")

@@ -57,7 +57,11 @@ public class OlapShareServiceImpl implements OlapShareService {
     }
 
     public void doDelete(Long id) {
-        olapShareRepository.deleteById(id);
+        //先查询，再删除，防止恶意乱传id导致报错
+        Optional<OlapShare> o = olapShareRepository.findById(id);
+        if (o.isPresent()) {
+            olapShareRepository.deleteById(id);
+        }
     }
 
     public void doRemove(String ids) {

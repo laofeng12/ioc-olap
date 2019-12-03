@@ -4,6 +4,7 @@ import com.openjava.admin.user.vo.OaUserVO;
 import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
+import com.openjava.olap.vo.ShareCubeVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,7 +25,12 @@ public interface OlapCubeService {
 
 	OlapCube findTableInfo(String cubeName);
 
-	List<OlapCube> getOlapShareByShareUserId(String shareUserId);
+	/**
+	 * 只返回必要的属性，然后再去查询麒麟接口
+	 * @param shareUserId
+	 * @return
+	 */
+	List<ShareCubeVo> getOlapShareByShareUserId(String shareUserId);
 
 	List<OlapCube> queryDataOnly(OlapCubeDBParam params, Pageable pageable);
 
@@ -45,7 +51,7 @@ public interface OlapCubeService {
 	ArrayList<OlapCube> getValidListByUserId(Long userId);
 
 	//保存OLAP_CUBE表
-	OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength,String graphData);
+	OlapCube saveCube(CubeDescMapper cube, Date date, OaUserVO userVO, Long dimensionLength, Long dimensionFiledLength, Long measureFiledLength, String graphData);
 
 	boolean saveTable(OlapCube olapCube, List<OlapCubeTable> cubeTablesList, List<OlapCubeTableRelation> olapcubeList,
 					  List<CubeDatalaketableNewMapper> cubeDatalaketableNew, CubeDescMapper cube, ModelsDescDataMapper modelDescData,

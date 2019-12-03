@@ -37,8 +37,13 @@ public interface OlapCubeRepository extends DynamicJpaRepository<OlapCube, Long>
     Optional<OlapCube> findTableInfo(@Param("cubeName") String cubeName);
 
 
-    @Query(value = "select c.* from OLAP_CUBE c inner join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId", nativeQuery = true)
-    List<OlapCube> getOlapShareByShareUserId(@Param("shareUserId") String shareUserId);
+    /**
+     * 固定返回立方体名称，创建人id，共享主键id
+     * @param shareUserId
+     * @return
+     */
+    @Query(value = "select c.NAME as cubeName ,c.create_id as createId,s.ID as shareId from OLAP_CUBE c inner join olap_share s  on c.ID=s.FK_ID where s.SHARE_USER_ID=:shareUserId", nativeQuery = true)
+    List<Object> getOlapShareByShareUserId(@Param("shareUserId") String shareUserId);
 
     @Query(value = "select c.NAME from OLAP_CUBE c where c.FLAGS=:flags",nativeQuery = true)
     List<String> getCubeNameByFlags(@Param("flags") Integer flags);
