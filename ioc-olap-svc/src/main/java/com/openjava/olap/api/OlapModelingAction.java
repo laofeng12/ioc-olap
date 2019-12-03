@@ -12,6 +12,7 @@ import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.service.*;
 import com.openjava.olap.vo.CubeListVo;
+import com.openjava.olap.vo.ShareCubeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -107,7 +108,7 @@ public class OlapModelingAction extends BaseAction {
         //0共享模型、1自建
         if (dateType == 0) {
             //查询出分享数据的前十五条
-            List<OlapCube> shareList = olapCubeService.getOlapShareByShareUserId(userVO.getUserId());
+            List<ShareCubeVo> shareList = olapCubeService.getOlapShareByShareUserId(userVO.getUserId());
             if (shareList.size() == 0 || offset > shareList.size()) {
                 return new CubeListVo(cubeList, false);
             } else {
@@ -120,10 +121,12 @@ public class OlapModelingAction extends BaseAction {
             }
 
             //循环在麒麟找到分享的数据并加入数据里
-            for (OlapCube o : shareList) {
+            for (ShareCubeVo o : shareList) {
                 List<CubeMapper> cubeListMa = cubeHttpClient.list(o.getName(), String.valueOf(o.getCreateId()), limit, offset);
                 Optional<CubeMapper> cubeEntity = cubeListMa.stream().filter(p -> p.getName().equals(o.getName())).findFirst();
                 if (cubeEntity.isPresent()) {
+                    //共享列表返回对应的OLAP_SHARE表的ID字段。用于在需要删除共享时可作为主键传递参数
+                    cubeEntity.get().setShareId(o.getShareId().toString());
                     cubeList.add(cubeEntity.get());
                 }
             }
