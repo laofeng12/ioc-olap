@@ -146,3 +146,12 @@ export function getTimingrefresh (params) {
     params
   })
 }
+// 分享列表删除
+export function batchDelete (params) {
+  return fetch({
+    url: '/olap/apis/olapShare/batchDelete',
+    method: 'post',
+    data: params
+  })
+}
+

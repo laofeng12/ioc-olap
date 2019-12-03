@@ -1,12 +1,12 @@
 <template>
   <div class="rename">
     <el-dialog title="构建模型" :visible.sync="dialogFormVisible">
-      <el-form :model="form" ref="form" :rules="rules">
+      <el-form :model="form" ref="form" :rules="rules" :label-width="formLabelWidth">
         <div v-if="dataList.partitionDateColumn">
-          <el-form-item label="日期字段" :label-width="formLabelWidth">
+          <el-form-item label="日期字段" >
             {{dataList.partitionDateColumn}}
           </el-form-item>
-          <el-form-item label="开始时间" :label-width="formLabelWidth" prop="startTime">
+          <el-form-item label="开始时间"  prop="startTime">
             <el-date-picker
               :format="dateType"
               v-model="form.startTime"
@@ -15,7 +15,7 @@
               placeholder="选择日期时间">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="结束时间" :label-width="formLabelWidth" prop="endTime">
+          <el-form-item label="结束时间"  prop="endTime">
             <el-date-picker
               :format="dateType"
               v-model="form.endTime"
@@ -38,11 +38,11 @@
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval"  style="margin-left:40px">
+        <el-form-item label="更新频率" v-if="formData.autoReload" prop="interval">
           <template>
             <div class="uplaodNum">
-              <el-input type="number" v-model="formData.interval"></el-input>
-              <el-radio-group v-model="formData.frequencytype">
+              <el-input-number type="number" v-model="formData.interval" :min="1"></el-input-number>
+              <el-radio-group  class="radio-box" v-model="formData.frequencytype">
                 <el-radio :label="1">小时</el-radio>
                 <el-radio :label="2">天</el-radio>
                 <el-radio :label="3">月</el-radio>
@@ -198,11 +198,12 @@ export default {
   >>>.el-dialog__body{
     padding 0px 20px
   }
+  >>>.radio-box {
+  margin-left 20px;
+}
   .uplaodNum{
-    // float left
-    margin-left 40px
     >>>.el-input{
-      width 100px
+      // width 100px
       margin-right 30px
     }
   }

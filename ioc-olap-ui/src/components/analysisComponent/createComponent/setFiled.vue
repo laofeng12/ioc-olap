@@ -464,7 +464,7 @@ export default {
       }
     }
     >>>.el-table .cell {
-      overflow inherit
+      overflow -webkit-paged-x
     }
   }
 }

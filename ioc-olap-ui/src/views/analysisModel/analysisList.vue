@@ -4,22 +4,22 @@
       <el-row class="left-tabs">
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
-            <FolderAside 
-            :menuList="myMenuList" 
-            :menuDefault="menuDefault" 
-            vueType="myOlap" 
+            <FolderAside
+            :menuList="myMenuList"
+            :menuDefault="menuDefault"
+            vueType="myOlap"
             @editFunc="edit"
-            @deleteFunc="deleteAnalysis" 
-            :menuListLoading="myLoading" 
+            @deleteFunc="deleteAnalysis"
+            :menuListLoading="myLoading"
             @clickItem="searchCube"
             @getAnalysisList="getFolderWithQuery">
             </FolderAside>
           </el-tab-pane>
 
           <el-tab-pane label="分享" name="share">
-            <FolderAside :menuList="shareMenuList" 
-            :menuDefault="menuDefault" 
-            vueType="shareOlap" 
+            <FolderAside :menuList="shareMenuList"
+            :menuDefault="menuDefault"
+            vueType="shareOlap"
             :showDo="false"
             :menuListLoading="shareLoading" @clickItem="searchCube" :needNewFolder="false"></FolderAside>
           </el-tab-pane>

@@ -17,9 +17,8 @@
         @row-click="clickTable"
         @selection-change="handleSelectionChange"
         :header-cell-class-name="tableHead"
-        stripe
-       >
-        <el-table-column  min-width="100%" show-overflow-tooltip type="expand">
+        stripe>
+        <el-table-column show-overflow-tooltip type="expand">
           <template>
             <el-popover>
               <model-detail @closeExpands="closeExpands" :jsonData="jsonData"></model-detail>
@@ -59,10 +58,11 @@
         </el-table-column>
         <el-table-column
           label="操作"
-           min-width="100%">
+           width="150px">
           <template slot-scope="scope">
             <div class="play">
               <el-button @click="showDetail(scope)">查看</el-button>
+              <el-button @click="handleDel(scope)" :loading="delLoading">删除</el-button>
               <!-- <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                 <el-dropdown-menu slot="dropdown">
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList } from '@/api/modelList'
+import { getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, descDataList, batchDelete } from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import elementPagination from '@/components/ElementPagination'
 import { filterTime,statusReviewFilter } from '@/utils/index'
@@ -100,6 +100,7 @@ export default {
       searchData: {
         cubeName: ''
       },
+      delLoading: false,
       getLoading: false,
       pageSize: 20,
       currentPage: 1,
@@ -145,6 +146,26 @@ export default {
       }
       this.moreShow = next
       this.getLoading = false
+    },
+    // 删除
+    handleDel (scope) {
+      let row = scope.row
+      this.$confirm(`确定删除模型名称为:"${row.name}"的分享吗？`, '删除模型分享', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        this.delLoading = true
+        let params = [row.shareId]
+        await batchDelete(params)
+        this.delLoading = false
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.init()
+      }).catch(() => {
+      })
     },
     searchFetch (val) {
       this.init(val)
@@ -304,7 +325,9 @@ export default {
   }
   >>>.el-table__row{
     .el-table__expand-column{
-      opacity 0
+      .cell{
+        visibility: hidden;
+      }
     }
   }
 

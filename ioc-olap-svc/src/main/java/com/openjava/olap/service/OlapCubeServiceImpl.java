@@ -6,6 +6,7 @@ import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeDBParam;
 import com.openjava.olap.repository.*;
+import com.openjava.olap.vo.ShareCubeVo;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -101,8 +102,22 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         olapCubeRepository.deleteCubeName(cubeName);
     }
 
-    public List<OlapCube> getOlapShareByShareUserId(String shareUserId) {
-        return olapCubeRepository.getOlapShareByShareUserId(shareUserId);
+
+    public List<ShareCubeVo> getOlapShareByShareUserId(String shareUserId) {
+        List<ShareCubeVo> result = new ArrayList<>();
+        List<Object> list = olapCubeRepository.getOlapShareByShareUserId(shareUserId);
+        if (list == null || list.isEmpty()){
+            return result;
+        }
+        list.forEach(obj->{
+            Object[] rows = (Object[]) obj;
+            ShareCubeVo vo = new ShareCubeVo();
+            vo.setName(rows[0].toString());
+            vo.setCreateId(Long.parseLong(rows[1].toString()));
+            vo.setShareId(Long.parseLong(rows[2].toString()));
+            result.add(vo);
+        });
+        return result;
     }
 
     public void doRemove(String ids) {
