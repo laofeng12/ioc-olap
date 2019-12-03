@@ -16,7 +16,8 @@
             <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
-            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
+            <div v-if="scope.row.job_status === 'RUNNING'" style="color:green;">运行中</div>
+            <div v-if="['PENDING'].includes(scope.row.job_status)">
               <el-progress :percentage="scope.row.progress"></el-progress>
             </div>
           </template>
@@ -42,12 +43,18 @@
             <div class="play">
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="text" size="small">操作<i class="el-icon-arrow-down el-icon--right"></i></el-button>
-                <el-dropdown-menu slot="dropdown">
+                <el-dropdown-menu slot="dropdown" class="drop-box">
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">查看日志</el-dropdown-item>
-                  <el-dropdown-item v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)" :command="{type: 'pauseJob', params: scope.row}">暂停</el-dropdown-item>
+                  <!-- 'PENDING', 'STOPPED', 'DISCARDED', 'FINISHED', 'RUNNING', 'ERROR' -->
+                  <el-dropdown-item :disabled="['FINISHED', 'DISCARDED', 'ERROR', 'STOPPED'].includes(scope.row.job_status)" :command="{type: 'pauseJob', params: scope.row}">暂停</el-dropdown-item>
+                  <el-dropdown-item :disabled="['FINISHED', 'DISCARDED', 'STOPPED'].includes(scope.row.job_status)" :command="{type: 'cancelJob', params: scope.row}">停止</el-dropdown-item>
+                  <el-dropdown-item :disabled="['FINISHED', 'DISCARDED', 'RUNNING'].includes(scope.row.job_status)" :command="{type: 'resumeJob', params: scope.row}">运行</el-dropdown-item>
+                  <el-dropdown-item :disabled="['ERROR', 'STOPPED', 'RUNNING', 'PENDING'].includes(scope.row.job_status)" :command="{type: 'delete', params: scope.row}">删除</el-dropdown-item>
+
+                  <!-- <el-dropdown-item v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)" :command="{type: 'pauseJob', params: scope.row}">暂停</el-dropdown-item>
                   <el-dropdown-item v-if="['PENDING', 'RUNNING', 'ERROR'].includes(scope.row.job_status)" :command="{type: 'cancelJob', params: scope.row}">停止</el-dropdown-item>
                   <el-dropdown-item v-if="['STOPPED', 'DISCARDED', 'ERROR'].includes(scope.row.job_status)" :command="{type: 'resumeJob', params: scope.row}">运行</el-dropdown-item>
-                  <el-dropdown-item v-if="['DISCARDED', 'FINISHED'].includes(scope.row.job_status)" :command="{type: 'delete', params: scope.row}">删除</el-dropdown-item>
+                  <el-dropdown-item v-if="['DISCARDED', 'FINISHED'].includes(scope.row.job_status)" :command="{type: 'delete', params: scope.row}">删除</el-dropdown-item> -->
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -168,8 +175,8 @@ export default {
       }
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
-      // 不明白这里为什么加个定时器
-      this.setTimeout = setTimeout(this.update, 5000)
+      // 10秒轮询
+      this.setTimeout = setTimeout(this.update, 1000 * 10)
       } catch (e) {
         console.log(e)
       } finally {
@@ -398,6 +405,13 @@ export default {
     margin-top 30px
     text-align center
     cursor pointer
+  }
+}
+.drop-box {
+  & /deep/ {
+    .el-dropdown-menu__item {
+      text-align: center;
+    }
   }
 }
 </style>
