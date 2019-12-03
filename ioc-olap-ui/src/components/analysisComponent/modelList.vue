@@ -87,6 +87,7 @@
     <construct ref="construct" :dateType="dateType"></construct>
     <reloads ref="reloads"></reloads>
     <merge ref="merge"></merge>
+    <!-- 共享 -->
     <sharedTable ref="sharedTable"></sharedTable>
   </div>
 </template>
@@ -225,6 +226,7 @@ export default {
         this.jsonData = { cubeName: params.name, models: params.model }
         return
       }
+      // 禁用/删除/启用
       if (['disableds', 'enable', 'dels'].includes(type)) {
         return this.$confirm(texts, {
           confirmButtonText: '确定',
@@ -269,6 +271,7 @@ export default {
         })
         this.$refs[type].dialog(params)
       }
+      // 构建
       if (type === 'construct') {
         if (params.flags === 5) {
           this.$message.error('模型构建中，请等待构建结果')
@@ -304,9 +307,11 @@ export default {
         //   })
         // }
       }
+      // 编辑
       if (type === 'lookUserModal') {
         if (params.flags === 5) {
           this.$message.error('模型构建中，请等待构建结果')
+          return
         } else {
           return this.$router.push({
             path: '/analysisModel/createolap/selectStep',
@@ -314,10 +319,12 @@ export default {
               cubeName: params.name, models: params.model
             }
           })
-          this.$refs[type].dialog(params)
         }
       }
-      
+      // 共享
+      if (type === 'sharedTable') {
+        this.$refs[type].dialog(params)
+      }
     },
     closeExpands () {
       this.expands = []
