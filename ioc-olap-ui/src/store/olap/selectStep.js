@@ -91,6 +91,21 @@ const selectStep = {
       // })
       state.saveSelectAllList.push(val)
     },
+    // 替换type
+    SET_SElECTAll_LISTONE (state, data = []) {
+      state.saveSelectAllList.forEach(t => {
+        data.forEach(d => {
+          if ( t.resourceTableName === d.virtualTableName) {
+            t.column.forEach(c => {
+              const target = d.meta.columns.find(m => c.name.toUpperCase() === m.name.toUpperCase() )
+              if (target) {
+                c.type = target.datatype
+              }
+            })
+          }
+        })
+      })
+    },
     // 存储已经建表对应的所有字段
     SaveSelectAllListtwo (state, val) {
       // let columId = val.map(item => { return item.resourceId })
