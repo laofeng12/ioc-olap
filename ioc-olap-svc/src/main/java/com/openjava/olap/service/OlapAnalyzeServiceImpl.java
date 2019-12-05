@@ -11,6 +11,8 @@ import com.openjava.olap.vo.AnalyzeAxisVo;
 import com.openjava.olap.vo.AnalyzeVo;
 import com.openjava.olap.vo.AnyDimensionCellVo;
 import com.openjava.olap.vo.AnyDimensionVo;
+import javafx.scene.layout.BackgroundRepeat;
+import org.apache.poi.hssf.record.PageBreakRecord;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -336,7 +338,8 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
         List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
-        List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
+        HashSet<String> axisXDatas = new HashSet<String>();
+        TreeSet<String> axisYDatas = new TreeSet<String>();
         List<String> xTemps, yTemps, dTemps;
         String axisXData, axisYData;
         ArrayList<AnyDimensionCellVo> rowCells;
@@ -384,7 +387,6 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             }
             if (!axisYDatas.contains(axisYData)) {
                 axisYDatas.add(axisYData);
-                axisYDatas.sort(Comparator.comparing(String::trim));
                 //写入Y轴
                 writeYData(results, measureAxises, yTemps);
 
@@ -404,9 +406,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         return anyDimensionVo;
     }
 
-    private void writeExistData(List<AnalyzeAxisVo> measureAxises, Integer axisXCount, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, List<Double> rowSummarys, List<Double> columnSummarys) {
+    private void writeExistData(List<AnalyzeAxisVo> measureAxises, Integer axisXCount, TreeSet<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, List<Double> rowSummarys, List<Double> columnSummarys) throws APIException {
         AnyDimensionCellVo cell;
-        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        Integer beginIndex = GetSetIndex(axisYDatas, axisYData) * measureAxises.size() + axisXCount;
         for (String dTemp : dTemps) {
             cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
             rowCells.set(beginIndex, cell);
@@ -416,9 +418,20 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
     }
 
-    private void writeNewData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount, Integer axisXCount, Integer begin, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, Integer dataIndex, List<Double> rowSummarys, List<Double> columnSummarys) {
+    private Integer GetSetIndex(TreeSet<String> treeSet, String searchVal) throws APIException {
+        Integer searchIndex = 0;
+        for (Iterator iter = treeSet.iterator(); iter.hasNext(); ) {
+            if (iter.next().equals(searchVal)) {
+                return searchIndex;
+            }
+            searchIndex++;
+        }
+        throw new APIException(400, "没有找到数据元素！");
+    }
+
+    private void writeNewData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount, Integer axisXCount, Integer begin, TreeSet<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, Integer dataIndex, List<Double> rowSummarys, List<Double> columnSummarys) throws APIException {
         AnyDimensionCellVo cell;
-        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        Integer beginIndex = GetSetIndex(axisYDatas, axisYData) * measureAxises.size() + axisXCount;
         for (String dTemp : dTemps) {
             for (Integer i = begin; i < dataIndex - 1; i++) {
                 Integer row = dataIndex - begin + axisYCount;
@@ -466,7 +479,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
     }
 
-    private void writeXData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, List<String> axisYDatas, ArrayList<AnyDimensionCellVo> rowCells, List<String> xTemps, List<Double> rowSummarys) {
+    private void writeXData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, TreeSet<String> axisYDatas, ArrayList<AnyDimensionCellVo> rowCells, List<String> xTemps, List<Double> rowSummarys) {
         String cellId;
         for (Integer i = 0; i < xTemps.size(); i++) {
             cellId = String.join("-", xTemps.subList(0, i + 1));
