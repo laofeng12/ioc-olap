@@ -11,6 +11,8 @@ import com.openjava.olap.vo.AnalyzeAxisVo;
 import com.openjava.olap.vo.AnalyzeVo;
 import com.openjava.olap.vo.AnyDimensionCellVo;
 import com.openjava.olap.vo.AnyDimensionVo;
+import javafx.scene.layout.BackgroundRepeat;
+import org.apache.poi.hssf.record.PageBreakRecord;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -56,7 +58,9 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Resource
     private OlapCubeRepository olapCubeRepository;
 
-    /**麒麟访问hive数据库的库名**/
+    /**
+     * 麒麟访问hive数据库的库名
+     **/
     @Value("${olap.kylin.databaseName:olap}")
     private String KYLIN_DATABASE_NAME;
 
@@ -148,11 +152,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                     }
                 }
             }
-            return p.getJoinType() + " join " + KYLIN_DATABASE_NAME+"."+p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
+            return p.getJoinType() + " join " + KYLIN_DATABASE_NAME + "." + p.getJoinTable() + " as " + p.getJoinTableAlias() + " on " + joinOn;
         }).collect(Collectors.toList());
         String where = filters.size() > 0 ? String.join(" and ", filters) : "1=1";
         String sql = MessageFormat.format("select {0} from {1} as {2} {3} where {4} group by {5} order by {5}", String.join(",", selectColumns),
-            KYLIN_DATABASE_NAME+"."+dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), where, String.join(",", groups));
+                KYLIN_DATABASE_NAME + "." + dict.getTableName(), dict.getTableAlias(), String.join(" ", joinTableSqls), where, String.join(",", groups));
         return sql;
     }
 
@@ -219,11 +223,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             writeJoinTable(dict, relations, joinTables, cubeTables, axis.getTableId());
             // 列名构建
             if (axis.getType() != 4) {
-                if (axis.getExpressionType() != null){
+                if (axis.getExpressionType() != null) {
                     //这里主要是为了防止SQL语法错误的问题
                     // ... as ... as后面的变量名不能是数字、关键字
-                    column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getExpressionType()+"_"+axis.getColumnChName()+"_");
-                }else {
+                    column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getExpressionType() + "_" + axis.getColumnChName() + "_");
+                } else {
 
                     column = MessageFormat.format(axis.getExpressionFull(), axis.getTableAlias(), axis.getColumnName(), axis.getColumnChName());
                 }
@@ -334,17 +338,17 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
         List<AnalyzeAxisVo> measureAxises = axises.stream().filter(p -> p.getType().equals(3)).collect(Collectors.toList());
-        Integer axisYCount = yAxises.size(), axisXCount = xAxises.size(), begin = 0, end = 0;
-        if (isPaging(pageIndex, pageSize)) {
-            begin = (pageIndex - 1) * pageSize;
-            end = pageIndex * pageSize;
-        }
-        List<String> axisXDatas = new ArrayList<String>(), axisYDatas = new ArrayList<String>();
-        String axisXData, axisYData, cellId;
+        HashSet<String> axisXDatas = new HashSet<String>();
+        TreeSet<String> axisYDatas = new TreeSet<String>();
+        List<String> xTemps, yTemps, dTemps;
+        String axisXData, axisYData;
         ArrayList<AnyDimensionCellVo> rowCells;
         AnyDimensionCellVo cell;
-        List<String> xTemps, yTemps, dTemps;
-        Integer dataIndex = axisYCount + 1;
+        Integer axisYCount = yAxises.size(), dataIndex = axisYCount - 1, axisXCount = xAxises.size(), begin = axisYCount, end = Integer.MAX_VALUE;
+        if (isPaging(pageIndex, pageSize)) {
+            begin = (pageIndex - 1) * pageSize + axisYCount;
+            end = pageIndex * pageSize + axisYCount;
+        }
         List<Double> rowSummarys = new ArrayList<>();
         List<Double> columnSummarys = new ArrayList<>();
         //定义y轴头部
@@ -371,13 +375,18 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             axisYData = String.join("-", yTemps);
             //写入X轴
             if (!axisXDatas.contains(axisXData)) {
-                rowCells = new ArrayList<AnyDimensionCellVo>();
-                writeXData(results, measureAxises, axisXDatas, axisYDatas, axisXData, rowCells, xTemps, rowSummarys);
+                axisXDatas.add(axisXData);
                 dataIndex++;
+                if (dataIndex >= begin && dataIndex < end) {
+                    rowCells = new ArrayList<AnyDimensionCellVo>();
+                    writeXData(results, measureAxises, axisYDatas, rowCells, xTemps, rowSummarys);
+                }
+            }
+            if (dataIndex < begin || dataIndex >= end) {
+                continue;
             }
             if (!axisYDatas.contains(axisYData)) {
                 axisYDatas.add(axisYData);
-                axisYDatas.sort(Comparator.comparing(String::trim));
                 //写入Y轴
                 writeYData(results, measureAxises, yTemps);
 
@@ -385,86 +394,62 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
                 writeMData(results, measureAxises, axisYCount);
 
                 // 写入数据轴
-                writeNewData(pageIndex, pageSize, results, measureAxises, axisYCount, axisXCount, begin, end, axisYDatas, axisYData, rowCells, dTemps, dataIndex, rowSummarys, columnSummarys);
+                writeNewData(results, measureAxises, axisYCount, axisXCount, begin, axisYDatas, axisYData, rowCells, dTemps, dataIndex, rowSummarys, columnSummarys);
             } else {
                 // 写入数据轴
-                writeExistData(pageIndex, pageSize, measureAxises, axisXCount, begin, end, axisYDatas, axisYData, rowCells, dTemps, rowSummarys, columnSummarys);
+                writeExistData(measureAxises, axisXCount, axisYDatas, axisYData, rowCells, dTemps, rowSummarys, columnSummarys);
             }
         }
-        // 数据分页
-        if (isPaging(pageIndex, pageSize)) {
-            List<ArrayList<AnyDimensionCellVo>> dataResults = new ArrayList<ArrayList<AnyDimensionCellVo>>();
-            dataResults.addAll(results.subList(0, axisYCount + 1));
-            if (rowSummarys.size() < end) {
-                dataResults.addAll(results.subList(begin + axisYCount + 1, results.size()));
-                rowSummarys = rowSummarys.subList(begin, rowSummarys.size());
-            } else {
-                dataResults.addAll(results.subList(begin + axisYCount + 1, end + axisYCount + 1));
-                rowSummarys = rowSummarys.subList(begin, end);
-            }
-            anyDimensionVo.setTotalRows(results.size() - 1 - axisYCount);
-            results = dataResults;
-        }
+        anyDimensionVo.setTotalRows(dataIndex - 1 - axisYCount);
         // 行列汇总
         rowAndColumnSummary(anyDimensionVo, results, axisYCount, axisXCount, rowSummarys, columnSummarys);
         return anyDimensionVo;
     }
 
-    private void writeExistData(Integer pageIndex, Integer pageSize, List<AnalyzeAxisVo> measureAxises, Integer axisXCount, Integer begin, Integer end, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, List<Double> rowSummarys, List<Double> columnSummarys) {
+    private void writeExistData(List<AnalyzeAxisVo> measureAxises, Integer axisXCount, TreeSet<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, List<Double> rowSummarys, List<Double> columnSummarys) throws APIException {
         AnyDimensionCellVo cell;
-        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        Integer beginIndex = GetSetIndex(axisYDatas, axisYData) * measureAxises.size() + axisXCount;
         for (String dTemp : dTemps) {
             cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
             rowCells.set(beginIndex, cell);
-            if (isPaging(pageIndex, pageSize)) {
-                if (rowSummarys.size() - 1 >= begin && rowSummarys.size() - 1 < end) {
-                    columnSummarys.set(beginIndex - axisXCount, columnSummarys.get(beginIndex - axisXCount) + Double.parseDouble(dTemp));
-                }
-            } else {
-                columnSummarys.set(beginIndex - axisXCount, columnSummarys.get(beginIndex - axisXCount) + Double.parseDouble(dTemp));
-            }
+            columnSummarys.set(beginIndex - axisXCount, columnSummarys.get(beginIndex - axisXCount) + Double.parseDouble(dTemp));
             rowSummarys.set(rowSummarys.size() - 1, rowSummarys.get(rowSummarys.size() - 1) + Double.parseDouble(dTemp));
             beginIndex++;
         }
     }
 
-    private void writeNewData(Integer pageIndex, Integer pageSize, List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount, Integer axisXCount, Integer begin, Integer end, List<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, Integer dataIndex, List<Double> rowSummarys, List<Double> columnSummarys) {
+    private Integer GetSetIndex(TreeSet<String> treeSet, String searchVal) throws APIException {
+        Integer searchIndex = 0;
+        for (Iterator iter = treeSet.iterator(); iter.hasNext(); ) {
+            if (iter.next().equals(searchVal)) {
+                return searchIndex;
+            }
+            searchIndex++;
+        }
+        throw new APIException(400, "没有找到数据元素！");
+    }
+
+    private void writeNewData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, Integer axisYCount, Integer axisXCount, Integer begin, TreeSet<String> axisYDatas, String axisYData, ArrayList<AnyDimensionCellVo> rowCells, List<String> dTemps, Integer dataIndex, List<Double> rowSummarys, List<Double> columnSummarys) throws APIException {
         AnyDimensionCellVo cell;
-        Integer beginIndex = axisYDatas.indexOf(axisYData) * measureAxises.size() + axisXCount;
+        Integer beginIndex = GetSetIndex(axisYDatas, axisYData) * measureAxises.size() + axisXCount;
         for (String dTemp : dTemps) {
-            for (Integer i = axisYCount + 1; i < dataIndex - 1; i++) {
-                if (results.get(i).size() > beginIndex) {
-                    results.get(i).add(beginIndex, null);
+            for (Integer i = begin; i < dataIndex - 1; i++) {
+                Integer row = dataIndex - begin + axisYCount;
+                if (results.get(row).size() > beginIndex) {
+                    results.get(row).add(beginIndex, null);
                 } else {
-                    results.get(i).add(null);
+                    results.get(row).add(null);
                 }
             }
             cell = new AnyDimensionCellVo(axisYData, 1, 1, String.format("%.2f", Double.parseDouble(dTemp)), 4);
             if (rowCells.size() > beginIndex) {
                 rowCells.add(beginIndex, cell);
-                if (isPaging(pageIndex, pageSize)) {
-                    if (rowSummarys.size() - 1 >= begin && rowSummarys.size() - 1 < end) {
-                        columnSummarys.add(beginIndex - axisXCount, Double.parseDouble(dTemp));
-                    } else {
-                        columnSummarys.add(beginIndex - axisXCount, 0.0);
-                    }
-                } else {
-                    columnSummarys.add(beginIndex - axisXCount, Double.parseDouble(dTemp));
-                }
+                columnSummarys.add(beginIndex - axisXCount, Double.parseDouble(dTemp));
                 rowSummarys.set(rowSummarys.size() - 1, rowSummarys.get(rowSummarys.size() - 1) + Double.parseDouble(dTemp));
             } else {
                 rowCells.add(cell);
-                if (isPaging(pageIndex, pageSize)) {
-                    if (rowSummarys.size() - 1 >= begin && rowSummarys.size() - 1 < end) {
-                        columnSummarys.add(Double.parseDouble(dTemp));
-                    } else {
-                        columnSummarys.add(0.0);
-                    }
-                } else {
-                    columnSummarys.add(Double.parseDouble(dTemp));
-                }
+                columnSummarys.add(Double.parseDouble(dTemp));
                 rowSummarys.set(rowSummarys.size() - 1, rowSummarys.get(rowSummarys.size() - 1) + Double.parseDouble(dTemp));
-
             }
             beginIndex++;
         }
@@ -494,7 +479,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
     }
 
-    private void writeXData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, List<String> axisXDatas, List<String> axisYDatas, String axisXData, ArrayList<AnyDimensionCellVo> rowCells, List<String> xTemps, List<Double> rowSummarys) {
+    private void writeXData(List<ArrayList<AnyDimensionCellVo>> results, List<AnalyzeAxisVo> measureAxises, TreeSet<String> axisYDatas, ArrayList<AnyDimensionCellVo> rowCells, List<String> xTemps, List<Double> rowSummarys) {
         String cellId;
         for (Integer i = 0; i < xTemps.size(); i++) {
             cellId = String.join("-", xTemps.subList(0, i + 1));
@@ -504,7 +489,6 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
             rowCells.add(null);
         }
         results.add(rowCells);
-        axisXDatas.add(axisXData);
         rowSummarys.add(0.0);
     }
 
