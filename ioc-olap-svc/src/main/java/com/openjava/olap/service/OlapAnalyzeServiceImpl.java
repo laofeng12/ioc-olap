@@ -11,8 +11,6 @@ import com.openjava.olap.vo.AnalyzeAxisVo;
 import com.openjava.olap.vo.AnalyzeVo;
 import com.openjava.olap.vo.AnyDimensionCellVo;
 import com.openjava.olap.vo.AnyDimensionVo;
-import javafx.scene.layout.BackgroundRepeat;
-import org.apache.poi.hssf.record.PageBreakRecord;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;

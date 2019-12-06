@@ -295,7 +295,7 @@ const setFiled = {
       state.saveNewSortListstructure = filterArrData(data) // 需要传给后端的数据结构
       state.saveNewSortList = filterArr(data)
     },
-    fristRowkeys ({ state, getters }) {
+    fristRowkeys ({ state, getters, commit }) {
       let result = JSON.parse(JSON.stringify(state.reloadNeedData))
       let arr = []
       if (getters.rowkeyData.rowkey_columns.length > 0 && getters.rowkeyData.rowkey_columns[0].adds) {
@@ -319,7 +319,10 @@ const setFiled = {
             isShardBy: item.isShardBy ? String(item.isShardBy) : 'false'
           })
         })
-        getters.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
+        // 20191205 调整
+        // getters.rowkeyData.rowkey_columns = reduceObj([...arr], 'column')
+        const data = reduceObj([...arr], 'column')
+        commit('SET_ROWKEY_DATA', data)
       }
     },
     // 选择维度的时候change对应的rowkey列表

@@ -80,6 +80,7 @@ export default {
           this.$message.warning(data.msg)
           return
         }
+        this.$store.commit('SET_SElECTAll_LISTONE', data.rows )
         this.$router.push('/analysisModel/createolap/createTableRelation')
         this.isLoading = false
       } catch(e) {

@@ -282,6 +282,12 @@ const advancedSet = {
     SetRowkeysData ({ state }, data) {
       state.rowkeyData.rowkey_columns = data
     }
+  },
+  mutations: {
+    // 设置rowkeys
+    SET_ROWKEY_DATA (state, data) {
+      state.rowkeyData.rowkey_columns = data
+    }
   }
 }
 

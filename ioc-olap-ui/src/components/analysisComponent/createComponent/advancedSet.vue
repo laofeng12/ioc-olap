@@ -15,22 +15,32 @@
             <div class="item_box">
               <span class="contain__box">包含维度</span>
               <div class="box_r" @click="getTotalModal(index, 1)">
-                <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>
-                  <h6>{{n}}</h6>
-                </el-tag>
+                  <el-tag type="" @close.stop="rmTag(index, 1, n)" v-for="(n, i) in item.includes" :key="i" closable>
+                    <el-tooltip :content="n" placement="top">
+                      <h6>{{n}}</h6>
+                     </el-tooltip>
+                  </el-tag>
               </div>
             </div>
             <div class="item_box">
               <span>必要维度</span>
               <div class="box_r" @click="getTotalModal(index, 2)">
-                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable><h6>{{n}}</h6></el-tag>
+                <el-tag type="" @close.stop="rmTag(index, 2, n)" v-for="(n, i) in item.select_rule.mandatory_dims" :key="i" closable>
+                  <el-tooltip :content="n" placement="top">
+                      <h6>{{n}}</h6>
+                     </el-tooltip>
+                  </el-tag>
               </div>
             </div>
             <div class="item_box noflex">
               <span>层级维度</span>
               <div class="adds" v-for="(itemData, i) in item.select_rule.hierarchy_dims" :key="i">
                 <div @click="getTotalModal(index, 3, i)">
-                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable><h6>{{n}}</h6></el-tag>
+                  <el-tag @close.stop="rmTag(index, 3, n, i)" v-for="(n, q) in itemData" :key="q" closable>
+                    <el-tooltip :content="n" placement="top">
+                      <h6>{{n}}</h6>
+                     </el-tooltip>
+                    </el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removelevelData(index, i)"></i>
@@ -42,7 +52,11 @@
               <span>联合维度</span>
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
-                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable><h6>{{x}}</h6></el-tag>
+                  <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable>
+                    <el-tooltip :content="n" placement="top">
+                      <h6>{{n}}</h6>
+                     </el-tooltip>
+                    </el-tag>
                 </div>
                 <p>
                   <i class="el-icon-remove" @click="removejointData(index, t)"></i>
@@ -64,7 +78,9 @@
             <el-table-column label="编码类型" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-select v-model="scope.row.encoding" placeholder="请选择"  @change="rowKeyChangeType(scope.row)"  @visible-change="codingType(scope.row.code_types)">
+                  <el-select v-model="scope.row.encoding" placeholder="请选择"
+                  @change="rowKeyChangeType(scope.row)"
+                  @visible-change="codingType(scope.row.code_types, scope.row)">
                     <el-option v-for="(item, index) in encodingOption" :key="index" :label="item" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
@@ -73,7 +89,7 @@
             <el-table-column label="长度" width="100" align="center">
               <template slot-scope="scope">
                 <el-form-item class="selects">
-                  <el-input type="text"  @change="rowKeyChangeLength(scope.row)" v-model="scope.row.lengths" :disabled="['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.columns_Type)?false:true"></el-input>
+                  <el-input type="text"  @change="rowKeyChangeLength(scope.row)" v-model="scope.row.lengths" :disabled="!['boolean', 'fixed_length', 'fixed_length_hex', 'integer'].includes(scope.row.encoding)"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -254,7 +270,7 @@ export default {
       this.$store.dispatch('SetEngine', val)
     },
     // 选择对应的编码类型
-    codingType (val) {
+    codingType (val, row) {
       for (let item in this.getAllcoding.data) {
         if (val.split('(')[0] === item) {
           this.encodingOption = this.getAllcoding.data[item]

@@ -1,7 +1,6 @@
 package com.openjava.olap.service;
 
 import com.openjava.olap.domain.OlapCubeTable;
-import com.openjava.olap.domain.OlapDatalaketable;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.query.OlapCubeTableDBParam;
 import com.openjava.olap.repository.OlapCubeTableRepository;
@@ -13,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 文件夹表业务层
@@ -92,7 +92,7 @@ public class OlapCubeTableServiceImpl implements com.openjava.olap.service.OlapC
         cubeTable.setTableAlias(factTable);//表别名
         cubeTable.setIsDict(1);//是否是事实表
         cubeTable.setDatabaseName(factDatabase);//数据库名称
-        LookupsMapper dictMapper = modelDescData.getLookups().stream().filter(p -> p.getJoinAlias().equals(factTable)).findFirst().orElse(null);
+        LookupsMapper dictMapper = modelDescData.getLookups().stream().filter(p -> p.getJoinAlias().equalsIgnoreCase(factTable)).findFirst().orElse(null);
         cubeTable.setSAxis(dictMapper.getSAxis());//S轴
         cubeTable.setYAxis(dictMapper.getYAxis());//Y轴
         cubeTable.setTableId(dictMapper.getJoinId());
