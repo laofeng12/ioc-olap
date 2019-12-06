@@ -98,11 +98,10 @@ olap:
     databaseName: olap
   datalake:
     #调用数据集模块的接口地址
-    host: http://219.135.182.2:31013
+    host: http://ioc-dataset-svc.ioc-platform.svc:8080
     querySyncJobStateUrl: /pds/datasync/dataSync/batchStatus
     batchCreateSyncJobUrl: /pds/datasync/dataSync/batchCreateJob
     batchActiveSyncJobUrl: /pds/datasync/dataSync/batchTriggerJob
 
 gateway:
-  address:  http://219.135.182.2:31012
-
+  address:  http://ioc-paas-svc.ioc-platform.svc:8080

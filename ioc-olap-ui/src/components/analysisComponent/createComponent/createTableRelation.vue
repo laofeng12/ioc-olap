@@ -178,11 +178,25 @@ export default {
       listeners.forEach(({ key, fn }) => this.editor.addListener(key, fn))
     },
     flowChange (obj) {
-     if (obj.name === 'delete') {
+      const graph = this.editor.getGraph()
+      if (obj.name === 'delete') {
         const nodeIndex = this.nodeList.findIndex(v => v.id === obj.itemIds[0])
         if (nodeIndex >= 0) this.nodeList.splice(nodeIndex, 1)
         const edgeIndex = this.edgeList.findIndex(v => v.id === obj.itemIds[0])
-        if (edgeIndex >= 0) this.edgeList.splice(edgeIndex, 1)
+        if (edgeIndex >= 0) {
+          this.edgeList.splice(edgeIndex, 1)
+          this.linkModalFields = []
+          this.linkModal = null
+          this.linkModalModel = null
+          this.removeEdge(obj.itemIds[0])
+          const jointResultData = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+          const { source, target } = obj.snapShot.edges.filter(v => v.id === obj.itemIds[0])[0]
+          const sourceAttrs = graph.find(source).model.item
+          const targetAttrs = graph.find(target).model.item
+          const index = jointResultData.lookups.findIndex(v => v.id === targetAttrs.id && v.joinId === sourceAttrs.id)
+          jointResultData.lookups.splice(index, 1)
+          this.$store.commit('SaveJointResult', jointResultData)
+        }
       }
     },
 
@@ -218,10 +232,16 @@ export default {
       const { graphData } = this.editor.getResult()
       const graph = this.editor.getGraph()
       graph.remove(id)
-      this.edgeList = graphData.edges
+      this.edgeList = graphData.edges || []
     },
     async addEdge (a, id, obj) {
       const graph = this.editor.getGraph()
+      const { graphData } = this.editor.getResult()
+      const being = graphData.edges.filter(v => obj.source === v.source && obj.target === v.target) || []
+      if (being.length > 1) {
+        this.removeEdge(id)
+        return this.$message.warning('请勿重复连线')
+      }
       const factTable = this.jointResult.fact_table
       this.linkModalFields = []
       const sourceAttrs = graph.find(obj.source).model.item
@@ -231,40 +251,7 @@ export default {
         const updateModel = Object.assign({}, graph.find(obj.target).model, { item: updateModelItem })
         await this.editor.updateNode(obj.target, updateModel)
         this.edgeList.push(obj)
-        const source = {
-          filed: 1,
-          label: sourceAttrs.label,
-          alias: sourceAttrs.alias || sourceAttrs.label,
-          id: sourceAttrs.id
-        }
-        const target = {
-          filed: 1,
-          label: `${targetAttrs.label}`,
-          alias: targetAttrs.alias || targetAttrs.label,
-          id: targetAttrs.id
-        }
-        const linkModal = {
-          'joinTable': source.label || '', // 主表名
-          'joinAlias': source.alias || '', // 主表别名
-          'joinId': source.id || '', // 主表id
-          'alias': target.alias || '', // 子表别名
-          'id': target.id || '', // 子表id
-          'edgeId': id || '', // 线id
-          'table': target.label || '', // 子表名
-          'kind': 'LOOKUP',
-          'join': {
-            'type': '', // 连接方式（left||inner）
-            'primary_key': [], // 子表与选择的字段
-            'foreign_key': [], // 主表与选择的字段
-            'isCompatible': [true],
-            'pk_type': [], // 子表字段对应的类型
-            'fk_type': [] // 主表字段对应的类型
-          }
-        }
-        this.addFields() // 调用添加关联字段
-        this.linkModal = linkModal
-
-        this.linkModalModel = graph.find(obj.source).model
+        this.initEdge(id, obj.source, obj.target)
       } else {
         this.removeEdge(id)
         this.$message.warning('只能事实表为源头')
@@ -272,14 +259,55 @@ export default {
     },
     edgeClick (model) {
       const graph = this.editor.getGraph()
-      let sourceAttrs = graph.find(model.item.model.source).model.item
-      let targetAttrs = graph.find(model.item.model.target).model.item
+      const sourceAttrs = graph.find(model.item.model.source).model.item
+      const targetAttrs = graph.find(model.item.model.target).model.item
       const data = this.jointResultData.lookups.filter(v => v.id === targetAttrs.id && v.joinId === sourceAttrs.id)
-      this.linkModal = data[0]
-      this.linkModalModel = graph.find(model.item.model.source).model
-      this.linkModalFields = this.getFields(data[0])
+      if (data && data.length > 0) {
+        this.linkModal = data[0]
+        this.linkModalModel = graph.find(model.item.model.source).model
+        this.linkModalFields = this.getFields(data[0])
+      } else {
+        this.initEdge(model.shape.id, model.item.model.source, model.item.model.target)
+      }
     },
-
+    initEdge (id, sourceData, targetData) {
+      const graph = this.editor.getGraph()
+      const sourceAttrs = graph.find(sourceData).model.item
+      const targetAttrs = graph.find(targetData).model.item
+      const source = {
+        filed: 1,
+        label: sourceAttrs.label,
+        alias: sourceAttrs.alias || sourceAttrs.label,
+        id: sourceAttrs.id
+      }
+      const target = {
+        filed: 1,
+        label: `${targetAttrs.label}`,
+        alias: targetAttrs.alias || targetAttrs.label,
+        id: targetAttrs.id
+      }
+      const linkModal = {
+        'joinTable': source.label || '', // 主表名
+        'joinAlias': source.alias || '', // 主表别名
+        'joinId': source.id || '', // 主表id
+        'alias': target.alias || '', // 子表别名
+        'id': target.id || '', // 子表id
+        'edgeId': id || '', // 线id
+        'table': target.label || '', // 子表名
+        'kind': 'LOOKUP',
+        'join': {
+          'type': '', // 连接方式（left||inner）
+          'primary_key': [], // 子表与选择的字段
+          'foreign_key': [], // 主表与选择的字段
+          'isCompatible': [true],
+          'pk_type': [], // 子表字段对应的类型
+          'fk_type': [] // 主表字段对应的类型
+        }
+      }
+      this.linkModalFields.length === 0 && this.addFields() // 调用添加关联字段
+      this.linkModal = linkModal
+      this.linkModalModel = graph.find(sourceData).model
+    },
     initJointResult (data) {
       if (!data) {
         return this.jointResult
@@ -397,24 +425,33 @@ export default {
       })
     },
     getFields (data = {}) {
-
       let join = data.join
-      if (!join) return this.$message.error('请设置字段关系')
       let list = []
-      let primary_key = join.primary_key || []
-      let foreign_key = join.foreign_key || []
-      let pk_type = join.pk_type || []
-      let fk_type = join.fk_type || []
-      let type = join.type
-      primary_key.forEach((t, i) => {
+      if (!join) {
         list.push({
-          primary_key: `${primary_key[i].includes('.') ? primary_key[i].split('.')[1] : primary_key[i]}`,
-          foreign_key: `${foreign_key[i].includes('.') ? foreign_key[i].split('.')[1] : foreign_key[i]}`,
-          pk_type: pk_type[i],
-          fk_type: fk_type[i],
-          type
+          primary_key: '',
+          foreign_key: '',
+          pk_type: '',
+          fk_type: '',
+          type: ''
         })
-      })
+        this.$message.error('请设置字段关系')
+      } else {
+        let primary_key = join.primary_key || []
+        let foreign_key = join.foreign_key || []
+        let pk_type = join.pk_type || []
+        let fk_type = join.fk_type || []
+        let type = join.type
+        primary_key.forEach((t, i) => {
+          list.push({
+            primary_key: `${primary_key[i].includes('.') ? primary_key[i].split('.')[1] : primary_key[i]}`,
+            foreign_key: `${foreign_key[i].includes('.') ? foreign_key[i].split('.')[1] : foreign_key[i]}`,
+            pk_type: pk_type[i],
+            fk_type: fk_type[i],
+            type
+          })
+        })
+      }
       return list
     },
     // 添加关联关系
@@ -449,7 +486,7 @@ export default {
         if (foreign_key && fk_type) {
           this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
         }
-        this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
+        // this.updateFields(this.linkModal.alias, this.linkModal.joinAlias, this.linkModalFields)
       }
     },
     // 选择主表对应的字段
