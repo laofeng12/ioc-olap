@@ -309,6 +309,10 @@ export default {
       }
       // 编辑
       if (type === 'lookUserModal') {
+        if (params.segments && params.segments.length) {
+          this.$message.error('该模型不能被编辑，请先删除已经构建的块')
+          return
+        }
         if (params.flags === 5) {
           this.$message.error('模型构建中，请等待构建结果')
           return
