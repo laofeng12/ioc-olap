@@ -210,7 +210,7 @@ export default {
                   let row = []
                   rowList.forEach(itemList => {
                     headLimit.cItems.forEach(v => {
-                      if (itemList[indexTd + addIndex].name === v.columnName) {
+                      if (itemList[indexTd + addIndex] && itemList[indexTd + addIndex].name === v.columnName) {
                         col.push(Object.assign({}, v, { selectValues: itemList[indexTd + addIndex].filter }))
                       }
                     })
