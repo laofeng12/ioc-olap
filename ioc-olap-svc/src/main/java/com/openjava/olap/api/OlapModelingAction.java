@@ -518,6 +518,12 @@ public class OlapModelingAction extends BaseAction {
                     throw new APIException(400, "主键列【" + pk + "】必须在维度中存在！");
                 }
             }
+            if (lookupsMapper.getJoinSAxis() == null || lookupsMapper.getJoinYAxis() == null ){
+                throw new APIException(400, "事实表的坐标轴不能为空！");
+            }
+            if (lookupsMapper.getSAxis() == null || lookupsMapper.getYAxis() == null ){
+                throw new APIException(400, "关联表的坐标轴不能为空！");
+            }
         }
 
         Long rowKeyCount = cube.getCubeDescData().getDimensions().stream().filter(p -> p.getDerived() == null).count();
@@ -643,12 +649,13 @@ public class OlapModelingAction extends BaseAction {
             l.setJoinTable(cubeEntity.get().getJoinTable());
             l.setId(cubeEntity.get().getTableId());
         }
-        Optional<OlapCubeTable> fact = cubetable.stream().filter(p -> p.getTableName().equals(factTable)).findFirst();
-        model.setSAxis(fact.get().getSAxis());
-        model.setYAxis(fact.get().getYAxis());
-        model.setJoinSAxis(fact.get().getJoinSAxis());
-        model.setJoinYAxis(fact.get().getJoinYAxis());
-
+        Optional<OlapCubeTable> fact = cubetable.stream().filter(p -> p.getTableName().equalsIgnoreCase(factTable)).findFirst();
+        if (fact.isPresent()) {
+            model.setSAxis(fact.get().getSAxis());
+            model.setYAxis(fact.get().getYAxis());
+            model.setJoinSAxis(fact.get().getJoinSAxis());
+            model.setJoinYAxis(fact.get().getJoinYAxis());
+        }
 
         //第四步
         //1、移除后端自动添加的_COUNT_   2、将原AVG转换成SUM的再次转换回AVG

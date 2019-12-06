@@ -97,7 +97,7 @@ const selectStep = {
         data.forEach(d => {
           if ( t.resourceTableName === d.virtualTableName) {
             t.column.forEach(c => {
-              const target = d.meta.columns.find(m => c.name.toUpperCase() === m.name.toUpperCase() )
+              const target = d.meta.columns.find(m => c.definition.toUpperCase() === m.name.toUpperCase() )
               if (target) {
                 c.type = target.datatype
               }
