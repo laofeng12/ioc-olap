@@ -342,10 +342,10 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         String axisXData, axisYData;
         ArrayList<AnyDimensionCellVo> rowCells;
         AnyDimensionCellVo cell;
-        Integer axisYCount = yAxises.size(), dataIndex = axisYCount - 1, axisXCount = xAxises.size(), begin = axisYCount, end = Integer.MAX_VALUE;
+        Integer axisYCount = yAxises.size(), dataIndex = axisYCount, axisXCount = xAxises.size(), begin = axisYCount + 1, end = Integer.MAX_VALUE;
         if (isPaging(pageIndex, pageSize)) {
-            begin = (pageIndex - 1) * pageSize + axisYCount;
-            end = pageIndex * pageSize + axisYCount;
+            begin += (pageIndex - 1) * pageSize;
+            end = pageIndex * pageSize + axisYCount + 1;
         }
         List<Double> rowSummarys = new ArrayList<>();
         List<Double> columnSummarys = new ArrayList<>();
@@ -431,8 +431,8 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         AnyDimensionCellVo cell;
         Integer beginIndex = GetSetIndex(axisYDatas, axisYData) * measureAxises.size() + axisXCount;
         for (String dTemp : dTemps) {
-            for (Integer i = begin; i < dataIndex - 1; i++) {
-                Integer row = dataIndex - begin + axisYCount;
+            for (Integer i = begin; i < dataIndex; i++) {
+                Integer row = dataIndex - i + axisYCount;
                 if (results.get(row).size() > beginIndex) {
                     results.get(row).add(beginIndex, null);
                 } else {
