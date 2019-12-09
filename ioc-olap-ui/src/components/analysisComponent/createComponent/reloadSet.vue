@@ -279,7 +279,7 @@ export default {
       this.saveSelectAllList.forEach((item, index) => {
         // let items = JSON.parse(item)
         if (item.resourceId === valId[0].id) {
-          const textOptions = item.column.filter(v => v.type === 'date')
+          const textOptions = item.column.filter(v => v.type === 'date' || v.type === 'timestamp' || v.type === 'datetime')
           this.textOptions = textOptions
         }
       })
