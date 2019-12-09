@@ -1,7 +1,10 @@
 <template>
  <div class="datalake">
+   <!-- 资源目录列表 -->
   <trees class="trees"></trees>
+  <!-- 表列表 -->
   <serch-table class="seachTable"></serch-table>
+  <!-- 表数据、字段说明 -->
   <div class="step_tab" v-loading="loadingPlan">
     <el-tabs v-model="activeName">
         <el-tab-pane label="表数据" name="1" class="el-tab-box">
