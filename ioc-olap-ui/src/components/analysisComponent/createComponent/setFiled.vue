@@ -248,7 +248,7 @@ export default {
       })
       // 组合第二步设置完的表名
       result = [ ...foreign_keys, ...primary_keys ]
-      // 遍历拿到的第二步数据 与 最终存储的字段盒子进行筛选 取到对应的数据
+      // 遍历拿到的第二步数据 与 ModelAllList最终存储的字段盒子进行筛选 取到对应的数据
       values.map((res, i) => {
         result.map(n => {
           // 找出设置为别名的数据push到总的数据中 替换对应的id
@@ -263,7 +263,7 @@ export default {
           if (res.id === n.id) {
             resultData = [...resultData, res]
             foreign_keys.map(val => {
-              if (val.id === res.id) {
+              if (val.id.toUpperCase() === res.id.toUpperCase()) {
                 Object.assign(res, { mode: '1', fuck: '1' })
               } else {
                 Object.assign(res, { mode: '2' })
