@@ -6,7 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.openjava.olap.common.DataLakeConfig;
 import com.openjava.olap.common.RestToken;
 import com.openjava.olap.common.kylin.HiveHttpClient;
+import com.openjava.olap.common.kylin.ProjectHttpClient;
 import com.openjava.olap.domain.OlapTableSync;
+import com.openjava.olap.mapper.kylin.OverrideKylinPropertiesMapper;
+import com.openjava.olap.mapper.kylin.ProjectDescDataMapper;
 import com.openjava.olap.mapper.kylin.TableStructureMapper;
 import com.openjava.olap.query.OlapTableSyncParam;
 import com.openjava.olap.repository.OlapTableSyncRepository;
@@ -42,14 +45,19 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
     private final DataLakeConfig dataLakeConfig;
     private final RestToken restToken;
     private final HiveHttpClient hiveHttpClient;
+    private final ProjectHttpClient projectHttpClient;
 
     public OlapTableSyncServiceImpl(
         OlapTableSyncRepository repository,
-        DataLakeConfig dataLakeConfig, RestToken restToken, HiveHttpClient hiveHttpClient) {
+        DataLakeConfig dataLakeConfig,
+        RestToken restToken,
+        HiveHttpClient hiveHttpClient,
+        ProjectHttpClient projectHttpClient) {
         this.repository = repository;
         this.dataLakeConfig = dataLakeConfig;
         this.restToken = restToken;
         this.hiveHttpClient = hiveHttpClient;
+        this.projectHttpClient = projectHttpClient;
     }
 
     /**
@@ -195,11 +203,21 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
      */
     @Security(session = true)
     private void queryHiveTableMeta(List<OlapTableSyncVo> list)throws Exception{
-        String project = ((UserVO)SsoContext.getUser()).getUserId();
+        UserVO userVO = ((UserVO)SsoContext.getUser());
+        ProjectDescDataMapper project = projectHttpClient.get(userVO.getUserId());
+        if (project == null) {
+            ProjectDescDataMapper projectDesc = new ProjectDescDataMapper();
+            projectDesc.setName(userVO.getUserId());
+            projectDesc.setDescription(userVO.getUserName());
+            OverrideKylinPropertiesMapper override = new OverrideKylinPropertiesMapper();
+            override.setAuthor(userVO.getUserName());
+            projectDesc.setOverride_kylin_properties(override);
+            projectHttpClient.create(projectDesc);
+        }
         if (list != null && !list.isEmpty()){
             for (OlapTableSyncVo s : list) {
-                this.hiveHttpClient.preloadTable(project,DATABASE_NAME,s.getWriterTableName());
-                TableStructureMapper meta = this.hiveHttpClient.getTableMeta(project, DATABASE_NAME, s.getWriterTableName());
+                this.hiveHttpClient.preloadTable(userVO.getUserId(),DATABASE_NAME,s.getWriterTableName());
+                TableStructureMapper meta = this.hiveHttpClient.getTableMeta(userVO.getUserId(), DATABASE_NAME, s.getWriterTableName());
                 s.setMeta(meta);
             }
         }
