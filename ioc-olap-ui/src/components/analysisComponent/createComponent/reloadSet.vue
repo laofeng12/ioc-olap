@@ -245,15 +245,20 @@ export default {
         this.totalSaveData.models.modelDescData.partition_desc.partition_time_format = this.formData.partition_time_format ? this.formData.partition_time_format : ''
       }
       // 如果选择了数据表 字段表就得变成必填
-      if (this.formData.data1a) this.rules.data1b[0].required = true
-      if (this.formData.data2a) this.rules.data2b[0].required = true
+      // if (this.formData.data1a) this.rules.data1b[0].required = true
+      // if (this.formData.data2a) this.rules.data2b[0].required = true
+      this.rules.data1b[0].required = !!this.formData.data1a
+      this.rules.data2b[0].required = !!this.formData.data2a
       // 如果选择了字段表 日期格式就得变成必填
-      if (this.formData.data1b) this.rules.partition_date_format[0].required = true
-      if (this.formData.data2b) this.rules.partition_time_format[0].required = true
+      // if (this.formData.data1b) this.rules.partition_date_format[0].required = true
+      // if (this.formData.data2b) this.rules.partition_time_format[0].required = true
+      this.rules.partition_date_format[0].required = !!this.formData.data1b
+      this.rules.partition_time_format[0].required = !!this.formData.data1b
       // 如果单独选择了日期格式  就要把日期字段变成必填
-      if (this.formData.partition_date_format) {
-        this.rules.data1a[0].required = true
-      }
+      // if (this.formData.partition_date_format) {
+      //   this.rules.data1a[0].required = true
+      // }
+      this.rules.data1a[0].required = !!this.formData.partition_date_format
     },
     prevModel (val) {
       this.$parent.getStepCountReduce(val)

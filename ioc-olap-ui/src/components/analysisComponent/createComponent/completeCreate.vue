@@ -197,10 +197,9 @@ export default {
         res.tableList = reduceObj(res.tableList, 'table_id')
       })
       const rowkeyList = this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns
-
       dimensions.forEach(item => {
         rowkeyList.forEach(v => {
-          if (item.id === v.column) {
+          if (item.id.toUpperCase() === v.column.toUpperCase()) {
             item.derived = null
           }
         })
