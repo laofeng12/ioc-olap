@@ -74,11 +74,26 @@ export default {
   methods: {
     initEvent () {
       // 弹出框移除数据
-      this.$root.eventBus.$on('modal-remove', data => {
+      this.$root.eventBus.$on('modal-remove', async data => {
         const checkedNodes = this.$refs.trees.getCheckedNodes()
-        checkedNodes.splice(checkedNodes.findIndex(t => t.id === data.id), 1)
-        this.defaultKey = checkedNodes
-        this.$refs.trees.setCheckedNodes(checkedNodes)
+        const startIndex = checkedNodes.findIndex(t => t.id === data.id)
+        // 删除的数据在当前树形列表存在：直接调用tree 自身的setCheckedNodes 去触发vuex 中的数据更新
+        if (startIndex > -1) {
+          checkedNodes.splice(startIndex, 1)
+          this.defaultKey = checkedNodes
+          this.$refs.trees.setCheckedNodes(checkedNodes)
+        } else {
+          // 提交到vuex 中处理(之前是这样处理的，这里也沿用这样的逻辑)
+          // 1、删除数据
+          // 2、定义一个对象传入当前勾选的状态type和选择的数据
+          let list = {
+            type: false,
+            delData: data
+          }
+          await this.$store.dispatch('delSelectTableList', list)
+          // 合并数据
+          await this.$store.dispatch('setSelectTableTotal')
+        }
       })
       // 获取资源信息列表
       this.$root.eventBus.$on('getserchTableList', (data) => this.getserchTableList(data))
