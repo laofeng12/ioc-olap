@@ -10,7 +10,7 @@
         <el-form>
           <el-table :data="tableData" v-loading="loading" ref="multipleTable" tooltip-effect="dark" class="statusDiv"
                     @select="selectcheck" @select-all="selectAllCheck" style="margin-top: 10px;">
-              <el-table-column type="selection" :selectable="isSelectable" width="30" prop="全选" align="center"></el-table-column>
+              <el-table-column type="selection" :selectable="isSelectable" width="50" prop="全选" align="center"></el-table-column>
               <el-table-column prop="titName" label="字段名称" align="center"></el-table-column>
               <el-table-column prop="type" label="字段类型" align="center"></el-table-column>
               <el-table-column prop="name" label="显示名称" align="center">
