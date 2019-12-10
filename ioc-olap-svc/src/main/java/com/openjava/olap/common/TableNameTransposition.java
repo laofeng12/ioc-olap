@@ -47,7 +47,7 @@ public class TableNameTransposition {
         String factTable = body.getModels().getModelDescData().getFact_table();
         if (factTable != null) {
             String[] str = factTable.split("\\.");
-            if (str[1].equalsIgnoreCase(virtualTableName)) {
+            if (str.length ==2 && str[1].equalsIgnoreCase(virtualTableName)) {
                 body.getModels().getModelDescData().setFact_table(str[0] + "." + tableName);
             }
         }
@@ -63,7 +63,7 @@ public class TableNameTransposition {
             }
             if (s.getTable() != null) {
                 String[] srs = s.getTable().split("\\.");
-                if (srs[1].equalsIgnoreCase(virtualTableName)) {
+                if (srs.length == 2 && srs[1].equalsIgnoreCase(virtualTableName)) {
                     s.setTable(srs[0] + "." + tableName);
                 }
             }
@@ -71,7 +71,7 @@ public class TableNameTransposition {
                 List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
                 for (int x = 0; x < pks.size(); x++) {
                     String[] sr = pks.get(x).split("\\.");
-                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                    if (sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                         pks.set(x, tableName + "." + sr[1]);
                     }
                 }
@@ -80,7 +80,7 @@ public class TableNameTransposition {
                 List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
                 for (int x = 0; x < fks.size(); x++) {
                     String[] sr = fks.get(x).split("\\.");
-                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                    if (sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                         fks.set(x, tableName + "." + sr[1]);
                     }
                 }
@@ -103,7 +103,7 @@ public class TableNameTransposition {
             if (s.getIncludes() != null) {
                 for (int x = 0; x < s.getIncludes().size(); x++) {
                     String[] sr = s.getIncludes().get(x).split("\\.");
-                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                    if (sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                         s.getIncludes().set(x, tableName + "." + sr[1]);
                     }
                 }
@@ -115,7 +115,7 @@ public class TableNameTransposition {
             }
             if (s.getId() != null) {
                 String[] sr = s.getId().split("\\.");
-                if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                if (sr.length ==2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                     s.setId(tableName + "." + sr[1]);
                 }
             }
@@ -125,7 +125,7 @@ public class TableNameTransposition {
                 List<String> mandatory = s.getSelect_rule().getMandatory_dims();
                 for (int i = 0;i<mandatory.size();i++){
                     String[] sr = mandatory.get(i).split("\\.");
-                    if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                    if (sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                         mandatory.set(i,tableName+"."+sr[1]);
                     }
                 }
@@ -136,7 +136,7 @@ public class TableNameTransposition {
                     if (x != null) {
                         for (int i = 0;i<x.size();i++){
                             String[] sr = x.get(i).split("\\.");
-                            if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                            if (sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                                 x.set(i,tableName+"."+sr[1]);
                             }
                         }
@@ -149,7 +149,7 @@ public class TableNameTransposition {
                     if (x != null) {
                         for (int i = 0;i<x.size();i++){
                             String[] sr = x.get(i).split("\\.");
-                            if (sr[0].equalsIgnoreCase(virtualTableName)) {
+                            if (sr.length ==2 && sr[0].equalsIgnoreCase(virtualTableName)) {
                                 x.set(i,tableName+"."+sr[1]);
                             }
                         }
@@ -173,13 +173,13 @@ public class TableNameTransposition {
 
         body.getCube().getCubeDescData().getMeasures().forEach(s->{
             String[]sr = s.getFunction().getParameter().getValue().split("\\.");
-            if(sr[0].equalsIgnoreCase(virtualTableName)){
+            if(sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)){
                 s.getFunction().getParameter().setValue(tableName+"."+sr[1]);
             }
         });
         body.getCube().getCubeDescData().getRowkey().getRowkey_columns().forEach(s->{
             String[]sr = s.getColumn().split("\\.");
-            if(sr[0].equalsIgnoreCase(virtualTableName)){
+            if(sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)){
                 s.setColumn(tableName+"."+sr[1]);
             }
         });
@@ -222,7 +222,7 @@ public class TableNameTransposition {
                         List<String> pks = Arrays.asList(s.getJoin().getPrimary_key());
                         for (int x = 0; x < pks.size(); x++) {
                             String[] sr4 = pks.get(x).split("\\.");
-                            if (sr4[0].equalsIgnoreCase(tableName)) {
+                            if (sr4.length == 2 && sr4[0].equalsIgnoreCase(tableName)) {
                                 pks.set(x, virtualTableName + "." + sr4[1]);
                             }
                         }
@@ -231,7 +231,7 @@ public class TableNameTransposition {
                         List<String> fks = Arrays.asList(s.getJoin().getForeign_key());
                         for (int x = 0; x < fks.size(); x++) {
                             String[] sr5 = fks.get(x).split("\\.");
-                            if (sr5[0].equalsIgnoreCase(tableName)) {
+                            if (sr5.length == 2 && sr5[0].equalsIgnoreCase(tableName)) {
                                 fks.set(x, virtualTableName + "." + sr5[1]);
                             }
                         }
@@ -251,7 +251,7 @@ public class TableNameTransposition {
                     }
                     if (s.getId() != null) {
                         String[] sr = s.getId().split("\\.");
-                        if (sr.length > 0 && sr[0].equalsIgnoreCase(tableName)) {
+                        if (sr.length == 2 && sr[0].equalsIgnoreCase(tableName)) {
                             s.setId(virtualTableName + "." + sr[1]);
                         }
                     }
@@ -259,7 +259,7 @@ public class TableNameTransposition {
                 c.getMeasures().forEach(s->{
                     if (s.getFunction().getParameter() != null && s.getFunction().getParameter().getValue() != null) {
                         String[] sr = s.getFunction().getParameter().getValue().split("\\.");
-                        if (sr.length > 0 && sr[0].equalsIgnoreCase(tableName)) {
+                        if (sr.length == 2 && sr[0].equalsIgnoreCase(tableName)) {
                             s.getFunction().getParameter().setValue(virtualTableName + "." + sr[1]);
                         }
                     }
@@ -267,7 +267,7 @@ public class TableNameTransposition {
                 c.getRowkey().getRowkey_columns().forEach(s->{
                     if (s.getColumn() != null) {
                         String[] sr = s.getColumn().split("\\.");
-                        if (sr.length > 0 && sr[0].equalsIgnoreCase(tableName)) {
+                        if (sr.length == 2 && sr[0].equalsIgnoreCase(tableName)) {
                             s.setColumn(virtualTableName + "." + sr[1]);
                         }
                     }
@@ -277,7 +277,7 @@ public class TableNameTransposition {
                         for (int x = 0; x < s.getIncludes().size(); x++) {
                             if (s.getIncludes().get(x) != null) {
                                 String[] sr = s.getIncludes().get(x).split("\\.");
-                                if (sr.length > 0 && sr[0].equalsIgnoreCase(tableName)) {
+                                if (sr.length == 2 && sr[0].equalsIgnoreCase(tableName)) {
                                     s.getIncludes().set(x, virtualTableName + "." + sr[1]);
                                 }
                             }
