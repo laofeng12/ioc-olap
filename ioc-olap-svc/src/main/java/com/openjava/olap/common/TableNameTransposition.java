@@ -158,6 +158,19 @@ public class TableNameTransposition {
             }
         });
 
+        if (body.getCube().getCubeDescData().getMandatory_dimension_set_list() != null){
+            List list = body.getCube().getCubeDescData().getMandatory_dimension_set_list();
+            for (int i =0; i < list.size();i++){
+                List item = (List) list.get(i);
+                for (int j = 0; j< item.size();j++){
+                    String[]sr = item.get(j).toString().split("\\.");
+                    if(sr.length == 2 && sr[0].equalsIgnoreCase(virtualTableName)){
+                        item.set(j,tableName+"."+sr[1]);
+                    }
+                }
+            }
+        }
+
         body.getCube().getCubeDescData().getMeasures().forEach(s->{
             String[]sr = s.getFunction().getParameter().getValue().split("\\.");
             if(sr[0].equalsIgnoreCase(virtualTableName)){

@@ -219,6 +219,13 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         for (AnalyzeAxisVo axis : axisVos) {
             // 连接查询构建
             writeJoinTable(dict, relations, joinTables, cubeTables, axis.getTableId());
+            //这里去掉列名带空格的情况，替换为下划线
+            if (axis.getColumnName()!=null){
+                axis.setColumnName(axis.getColumnName().replaceAll("\\s+","_"));
+            }
+            if (axis.getColumnChName()!=null){
+                axis.setColumnChName(axis.getColumnChName().replaceAll("\\s+","_"));
+            }
             // 列名构建
             if (axis.getType() != 4) {
                 if (axis.getExpressionType() != null) {

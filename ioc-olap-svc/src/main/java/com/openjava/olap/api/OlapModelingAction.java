@@ -703,7 +703,7 @@ public class OlapModelingAction extends BaseAction {
             Optional<OlapCubeTable> cubeEntity = cubetable.stream().filter(p -> p.getTableAlias().equalsIgnoreCase(dimension.getTable())).findFirst();
             //列信息
             Optional<OlapCubeTableColumn> columnEntity = olapCubeTableColumnService.findByCubeTableId(cubeEntity.get().getCubeTableId())
-                    .stream().filter(p -> p.getColumnAlias().equalsIgnoreCase(colmn)).findFirst();
+                    .stream().filter(p -> p.getColumnName().equalsIgnoreCase(colmn)).findFirst();
             RowkeyColumnMapper columnMapper = cube.getRowkey().getRowkey_columns().stream().filter(p -> p.getColumn().equalsIgnoreCase(full)).findFirst().orElse(null);
             //赋值列信息
             if (columnEntity.isPresent()) {
