@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.ioc</groupId>
             <artifactId>platform-framework</artifactId>
-            <version>2.1.8.R06c</version>
+            <version>2.1.8.R06f</version>
         </dependency>
         <!-- 引入其他几个模块，用来扩展定时任务 -->
         <dependency>
