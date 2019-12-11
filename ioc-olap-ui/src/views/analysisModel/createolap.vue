@@ -56,6 +56,7 @@ export default {
             await this.$store.dispatch('SaveModelAllList', res)
             const tempModelAllObj = res.TableList[0].tableList[0]
             if (this.$route.query.cubeName) {
+              // 编辑得时候第一步中间的表格默认查第一张表
               await this.$root.eventBus.$emit('getserchTableList', {
               orgId: tempModelAllObj.orgId,
               type: Number(tempModelAllObj.type),

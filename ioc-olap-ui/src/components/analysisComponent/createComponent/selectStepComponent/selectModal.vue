@@ -3,9 +3,9 @@
     <el-dialog title="已选择数据表" 
     :close-on-click-modal="false"
     :visible.sync="dialogFormVisible" @close="closeBtn">
-      <div class="main" v-if="tableData&&tableData.length">
-        <el-tooltip v-for="(item, index) in tableData" :key="index" class="item" effect="dark" :content="item.label" placement="top">
-          <el-tag type="" closable @close="removeTag(item)">{{item.label}}</el-tag>
+      <div class="main" v-if="tableData && tableData.length">
+        <el-tooltip v-for="(item, index) in tableData" :key="index" class="item" effect="dark" :content="item.resourceTableName" placement="top">
+          <el-tag type="" closable @close="removeTag(item)">{{item.resourceTableName}}</el-tag>
         </el-tooltip>
       </div>
       <div v-else style="text-align:center;margin-top:100px;">暂无数据</div>
@@ -46,7 +46,8 @@ export default {
     // 移除选择
     async removeTag (data) {
       await this.$store.commit('REMOVE_SETSELCT_TABLE_COUNT', data)
-      await this.$root.eventBus.$emit('modal-remove', data)
+      this.$emit('unselect', data)
+      // await this.$root.eventBus.$emit('modal-remove', data)
     }
   },
   computed: {
@@ -56,15 +57,14 @@ export default {
       saveLocalSelectTable: 'saveLocalSelectTable'
     }),
     tableData () {
+      return this.selectTableTotal.length ? this.selectTableTotal : []
       // return (this.selectTableTotal || getLocalStorage('selectTableTotal')).filter(res => {
       //   return res.label
       // })
-      if (this.selectTableTotal.length) {
-        return this.selectTableTotal.filter(res => {
-         return res.label
-      })
-      }
-      return []
+      // if (this.selectTableTotal.length) {
+      //   return this.selectTableTotal
+      // }
+      // return []
     }
   }
 }
