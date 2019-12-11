@@ -63,6 +63,17 @@ export default {
       flags: 0
     }
   },
+  computed: {
+    ...mapGetters([
+      'saveSelectFiled',
+      'reloadNeedData',
+      'saveNewSortListstructure',
+      'jointResultData',
+      'saveNewSortList',
+      'saveSelectAllListFiled',
+      'ModelAllList'
+    ])
+  },
   watch: {
     // '$route' () {
     //   this.$refs.filedTable.init()
@@ -144,15 +155,28 @@ export default {
                  * 匹配两者相同的id对应的数据放到${arr}
                  * 执行toggleSelection 存放匹配到的数据
                  */
-                this.tableData && this.tableData.forEach((item, i) => {
-                  this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
-                    if (val.id === item.id || val.id.toUpperCase() === item.id.toUpperCase() ) {
-                      this.tableData[i].name = String(val.name)
-                      this.tableData[i].mode = String(val.mode)
-                      arr.push(item)
-                    }
+                if (this.ModelAllList.CubeList) {
+                  this.tableData && this.tableData.forEach((item, i) => {
+                    this.ModelAllList && this.ModelAllList.CubeList.dimensions.forEach(val => {
+                      if (val.id === item.id) {
+                        this.tableData[i].name = String(val.name)
+                        this.tableData[i].mode = String(val.mode)
+                        arr.push(item)
+                      }
+                    })
                   })
-                })
+                } else {
+                  this.tableData && this.tableData.forEach((item, i) => {
+                    this.saveSelectFiled && this.saveSelectFiled.forEach(val => {
+                      if (val.id === item.id) {
+                        this.tableData[i].name = String(val.name)
+                        this.tableData[i].mode = String(val.mode)
+                        arr.push(item)
+                      }
+                    })
+                  })
+                }
+
                 this.toggleSelection(arr)
               }, 500)
             }
@@ -376,9 +400,6 @@ export default {
       await this.$store.dispatch('changePushSelectFiled', val)
       this.$root.eventBus.$emit('filedTable', this.$refs.filedTable.catchData.data, this.$refs.filedTable.catchData.code)
     }
-  },
-  computed: {
-    ...mapGetters([ 'saveSelectFiled', 'reloadNeedData', 'saveNewSortListstructure', 'jointResultData', 'saveNewSortList', 'saveSelectAllListFiled' ])
   },
   beforeDestroy () {
     this.$root.eventBus.$off('tableNameActive')

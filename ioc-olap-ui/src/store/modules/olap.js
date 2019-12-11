@@ -246,7 +246,6 @@ const common = {
           getters.saveSelectTable.push({  ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
         })
       })
-      console.log(getters.saveSelectTable)
       // 判断是否是编辑进来的，如实编辑进来的需要主动调用存储第一步的方法
       state.ModelAllList.TableList && await dispatch('SavestepSelectData', getters.ModelAllList.TableList)
       // 赋值第二步模型的表

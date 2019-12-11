@@ -53,8 +53,8 @@
               <div class="adds" v-for="(jsonData, t) in item.select_rule.joint_dims" :key="t">
                 <div @click="getTotalModal(index, 4, t)">
                   <el-tag @close.stop="rmTag(index, 4, x, t)" v-for="(x, y) in jsonData" :key="y" closable>
-                    <el-tooltip :content="n" placement="top">
-                      <h6>{{n}}</h6>
+                    <el-tooltip :content="x" placement="top">
+                      <h6>{{x}}</h6>
                      </el-tooltip>
                     </el-tag>
                 </div>
@@ -200,6 +200,22 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      saveSelectFiled: 'saveSelectFiled',
+      mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
+      selectDataidList: 'selectDataidList',
+      reloadNeedData: 'reloadNeedData',
+      totalSaveData: 'totalSaveData',
+      measureTableList: 'measureTableList',
+      dimensions: 'dimensions',
+      hbase_mapping: 'hbase_mapping', // 高级组合
+      aggregation_groups: 'aggregation_groups', // 聚合
+      rowkeyData: 'rowkeyData' // rowkeys
+    })
+  }
+
+
   watch: {
     // '$route' () {
     //   this.init()
@@ -367,20 +383,6 @@ export default {
     updateRowkeys (val) {
       this.$store.dispatch('ChangeRowkeyList', this.rowkeyData.rowkey_columns)
     }
-  },
-  computed: {
-    ...mapGetters({
-      saveSelectFiled: 'saveSelectFiled',
-      mandatory_dimension_set_list: 'mandatory_dimension_set_list', // 黑白名单
-      selectDataidList: 'selectDataidList',
-      reloadNeedData: 'reloadNeedData',
-      totalSaveData: 'totalSaveData',
-      measureTableList: 'measureTableList',
-      dimensions: 'dimensions',
-      hbase_mapping: 'hbase_mapping', // 高级组合
-      aggregation_groups: 'aggregation_groups', // 聚合
-      rowkeyData: 'rowkeyData' // rowkeys
-    })
   }
 }
 </script>
