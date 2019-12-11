@@ -70,16 +70,21 @@ const selectStep = {
     CHANGE_SERACHTYPE: (state, val) => {
       state.searchType = val
     },
-    // 选择数据表
+    // 选择的表相关逻辑初始化
+    SETSELCT_TABLE_INIT () {
+      state.selectTableTotal = []
+      state.state.selectTableTotal  =[]
+    },
+    // 存储选择数据表
     SETSELCT_TABLE_COUNT: (state, val) => {
       state.selectTableTotal = val.filter(item => { return item.label })
-      removeLocalStorage('selectTableTotal')
-      setLocalStorage('selectTableTotal', state.selectTableTotal)
+      // removeLocalStorage('selectTableTotal')
+      // setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
     // 移除选择的数据
     REMOVE_SETSELCT_TABLE_COUNT: (state, { id }) => {
       const index = state.selectTableTotal.findIndex(t => t.id === id)
-      state.selectTableTotal.splice(index, 1)
+      index !== -1  && state.selectTableTotal.splice(index, 1)
       // removeLocalStorage('selectTableTotal')
       // setLocalStorage('selectTableTotal', state.selectTableTotal)
     },
@@ -127,6 +132,18 @@ const selectStep = {
         item.tableName = list.list.joinTable
         return item
       })
+    },
+    // 存储选择的表
+    SET_SELECT_TALBE (state, data = []) {
+      // 合并现在跟之前的数据
+      // const tempData = data.concat(state.saveSelectTable)
+      const tempData = data
+      // 去重在赋值
+      state.saveSelectTable = reduceObj(tempData, 'id')
+    },
+    // 存储下一步已选择的表
+    SET_SELECT_STEP_LIST (state, data) {
+      state.selectStepList = data
     }
   },
   actions: {
@@ -146,10 +163,11 @@ const selectStep = {
         tableList: []
       }]
     },
-    // 获取所有选中的表列
+    // 获取所有选择表的列
     async getAllColumnInfo ({ state, commit }) {
       commit('SET_ALLLIISTONE')
       state.saveSelectTable.forEach(async ({resourceId, type, databaseId, isOnlyPermitted  = 2}) => {
+        // isOnlyPermitted  = 2 只显示有最大权限
         const { data } = await getNewResourceInfo({resourceId, type, databaseId, isOnlyPermitted})
         commit('SaveSelectAllListone', data)
       })
@@ -250,19 +268,10 @@ const selectStep = {
       commit('CHANGE_SERACHTYPE', val)
     },
     // 存储选择后的数据（传给后端的）
-    SelectStepList ({ state }, data) {
+    SelectStepList ({ state, commit }, data) {
       let map = {}
       let dest = []
-      data.map((item, i) => {
-        // 如果是本地上传的数据
-        // if (item.type === 2) {
-        //   localData.push({
-        //     orgId: item.orgId,
-        //     table_name: item.label,
-        //     type: item.type,
-        //     table_id: item.id
-        //   })
-        // } else {
+      data.forEach((item, i) => {
           // 如果是数据湖的数据
           if (!map[item.database]) {
             dest.push({
@@ -282,7 +291,7 @@ const selectStep = {
           }
         // }
       })
-      dest.map(res => {
+      dest.forEach(res => {
         res.tableList.map(n => {
           n.table_name = n.label
           n.table_id = n.id
@@ -290,27 +299,29 @@ const selectStep = {
           n.virtualTableName = n.label // 虚拟表名
         })
       })
-      state.selectStepList = dest
+      // commit mutions
+      commit('SET_SELECT_STEP_LIST', dest)
+      // state.selectStepList = dest
     },
     // 勾选触发--存储数据湖的数据
-    getSelectTableList ({ state, dispatch, getters }, data) {
-      data.map(item => {
-        if (!item.children) {
-          state.saveSelectTable = state.saveSelectTable.concat({
-            id: item.id,
-            label: item.label,
-            orgId: item.orgId,
-            resourceId: item.resourceId,
-            resourceName: item.resourceName,
-            database: item.database,
-            type: state.searchType,
-            databaseId: item.databaseId,
-            virtualTableName: item.label,
-            ...item
-          })
-        }
+    getSelectTableList ({ state, dispatch, getters, commit }, data) {
+      const tempSaveSelectTable = []
+      data.forEach(item => {
+        tempSaveSelectTable.push({
+          id: item.id,
+          label: item.label,
+          orgId: item.orgId,
+          resourceId: item.resourceId,
+          resourceName: item.resourceName,
+          database: item.database,
+          type: state.searchType,
+          databaseId: item.databaseId,
+          virtualTableName: item.label,
+          ...item
+        })
       })
-      state.saveSelectTable = reduceObj(state.saveSelectTable, 'id')
+      // commit vuex
+      commit('SET_SELECT_TALBE', tempSaveSelectTable)
       dispatch('SelectStepList', state.saveSelectTable).then(_ => {
         // 判断是否是编辑进来的，如实编辑进来的需要主动调用存储第一步的方法
         getters.ModelAllList.TableList && dispatch('SavestepSelectData', getters.ModelAllList.TableList)

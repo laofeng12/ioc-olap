@@ -240,13 +240,22 @@ const common = {
       state.ModelAllList = data
       setLocalStorage('ModelAllList', data)
       // 赋值第一步已选择的表
-      data.TableList.map((item, index) => {
-        item.tableList.map(res => {
-          getters.selectTableTotal.push({ ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
-          getters.saveSelectTable.push({  ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+      
+      const saveSelectTableTemp = []
+      data.TableList.forEach((item, index) => {
+        item.tableList.forEach(res => {
+          // 【弃用】
+          // getters.selectTableTotal.push({ ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          // getters.saveSelectTable.push({  ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          saveSelectTableTemp.push({ ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
         })
       })
-      console.log(getters.saveSelectTable)
+      // 保存第一步选择表的数据
+      commit('SETSELCT_TABLE_INIT')
+      // 保存 saveSelectTable
+      commit('SET_SELECT_TALBE', saveSelectTableTemp)
+      // 保存 selectTableTotal
+      commit('setSelectTableTotal')
       // 判断是否是编辑进来的，如实编辑进来的需要主动调用存储第一步的方法
       state.ModelAllList.TableList && await dispatch('SavestepSelectData', getters.ModelAllList.TableList)
       // 赋值第二步模型的表
