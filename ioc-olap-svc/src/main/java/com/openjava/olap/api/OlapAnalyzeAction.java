@@ -273,6 +273,7 @@ public class OlapAnalyzeAction {
                     axisVo.setVirtualTableName(table.getTableName());//换为真实表名，以备后患
                     axisVo.setCubeId(table.getCubeId());
                     axisVo.setName(table.getName());
+                    axisVo.setIsInclude(1);
                     axisVo.setColumnId(column.getCubeTableColumnId());
                     axisVo.setTableId(column.getTableId());
                     leafNode.setId(column.getId().toString());
