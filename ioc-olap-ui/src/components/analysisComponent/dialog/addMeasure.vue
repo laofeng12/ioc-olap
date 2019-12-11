@@ -253,7 +253,7 @@ export default {
           if (item.resourceId === n.id) {
             item.column.forEach((k, i) => {
               AllData.push({
-                label: n.columnAlias + '.' + k.name,
+                label: n.alias + '.' + k.name,
                 id: k.id,
                 dataType: k.type
               })
