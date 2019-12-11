@@ -98,7 +98,9 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                 if (sync != null){
                     if (sync.getSuccess() == null || sync.getSuccess() ==0){//失败的就拿去请求
                         param.setWriterTableSource(sync.getTableName());
+                        param.setBusinessId(sync.getBusinessId());
                         OlapTableSyncVo vo = new OlapTableSyncVo();
+                        vo.setBusinessId(sync.getBusinessId());
                         vo.setDatabaseId(param.getDatabaseId());
                         vo.setResourceId(param.getResourceId());
                         vo.setVirtualTableName(sync.getVirtualTableName());
@@ -111,6 +113,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                         vo.setDatabaseId(param.getDatabaseId());
                         vo.setResourceId(param.getResourceId());
                         vo.setSuccess(true);
+                        vo.setBusinessId(sync.getBusinessId());
                         vo.setVirtualTableName(sync.getVirtualTableName());
                         vo.setWriterTableName(sync.getTableName());
                         results.add(vo);
@@ -119,9 +122,12 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                 }else {//从未请求过的也拿去请求
                     //这里设置目标表名的生成规则;虚拟表名+自定义id
                     // 如果是该服务作为分布式部署，则这里的id生成需要分布式支持
-                    String tableName = param.getVirtualTableName()+"_"+ConcurrentSequence.getInstance().getSequence();
+                    Long id = ConcurrentSequence.getInstance().getSequence();
+                    String tableName = param.getVirtualTableName()+"_"+id;
                     param.setWriterTableSource(tableName);
+                    param.setBusinessId(id.toString());
                     OlapTableSyncVo vo = new OlapTableSyncVo();
+                    vo.setBusinessId(id.toString());
                     vo.setDatabaseId(param.getDatabaseId());
                     vo.setResourceId(param.getResourceId());
                     vo.setVirtualTableName(param.getVirtualTableName());
@@ -151,6 +157,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             oo.setTableName(b.getWriterTableName());//设置真实表名
                             oo.setDatabaseId(b.getDatabaseId());
                             oo.setResourceId(b.getResourceId());
+                            oo.setBusinessId(b.getBusinessId());
                             oo.setVirtualTableName(b.getVirtualTableName());
                             b.setSuccess(item.getBoolean("success"));
                             b.setMessage(item.getString("message"));
@@ -161,7 +168,6 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             if (item.getBoolean("success") == null || !item.getBoolean("success")){
                                 if (item.getBoolean("repeatCreate") != null && item.getBoolean("repeatCreate")){
                                     b.setSuccess(true);
-                                    oo.setSuccess(1);
                                 }else {
                                     sb.append("[表:")
                                         .append(b.getVirtualTableName())
@@ -171,10 +177,14 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                                 }
                             }
                             oo.setIsNew(b.getIsNew());
-                            oo.setSuccess(item.getBoolean("success")?1:0);
+                            oo.setSuccess(b.getSuccess()?1:0);
                             oo.setCreateBy(user.getUserId());
                             //不为空的时候，就是更新，为空则新增
-                            oo.setSyncId(b.getSyncId() == null? ConcurrentSequence.getInstance().getSequence():b.getSyncId());
+                            if (b.getIsNew()) {
+                                oo.setSyncId(ConcurrentSequence.getInstance().getSequence());
+                            }else {
+                                oo.setSyncId(b.getSyncId());
+                            }
                             log.debug("保存记录:{}",JSON.toJSONString(oo));
                             this.save(oo);//保存记录
                         });
@@ -222,6 +232,7 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
             }
         }
     }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
