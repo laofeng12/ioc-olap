@@ -92,6 +92,7 @@ export default {
       noMore: false,
       serachvalue: '',
       loading: false,
+      isAllowTrigger: true, // 是否允许触发
       defaultKey: [], 
       dataList: [] // 数据源
     }
@@ -210,13 +211,11 @@ export default {
       // let list = {
       //   delData: data
       // }
-      await this.$store.dispatch('getSelectTableList', row)
-    //  if (type) {
-    //     await this.$store.dispatch('getSelectTableList', nodeData)
-    //   } else {
-    //     await this.$store.dispatch('delSelectTableList', list)
-    //   }
-      await this.$store.dispatch('setSelectTableTotal')
+      // 编辑时不触发
+      if (this.isAllowTrigger) {
+        await this.$store.dispatch('getSelectTableList', row)
+        await this.$store.dispatch('setSelectTableTotal')
+      }
     },
     // 【已弃用】
     // setDefualtKey () {
@@ -236,9 +235,12 @@ export default {
       this.$refs['tableSearchList'].clearSelection()
       this.dataList.forEach(t => {
         if (this.saveSelectTable.find(i => t.resourceId === i.resourceId)) {
+          // 编辑时候的勾选不触发状态改变
+          this.isAllowTrigger = false
           this.$refs.tableSearchList.toggleRowSelection(t, true)
         }
       })
+      this.isAllowTrigger = true
     },
     // 获取资源列表
     async getserchTableList ({orgId, type, databaseType}) {
@@ -282,22 +284,23 @@ export default {
       if (data.label === '全选') return
       this.$root.eventBus.$emit('getTableHeadList', data)
     },
+    // 【弃用】
     // 勾选框的选择
-    async handleCheckChange (data, type, node) {
-      // 拿到当前勾选的数据
-      let nodeData = this.$refs.trees.getCheckedNodes()
-      // 定义一个对象传入当前勾选的状态type和选择的数据
-      let list = {
-        type: type,
-        delData: data
-      }
-     if (type) {
-        await this.$store.dispatch('getSelectTableList', nodeData)
-      } else {
-        await this.$store.dispatch('delSelectTableList', list)
-      }
-      await this.$store.dispatch('setSelectTableTotal')
-    }
+    // async handleCheckChange (data, type, node) {
+    //   // 拿到当前勾选的数据
+    //   let nodeData = this.$refs.trees.getCheckedNodes()
+    //   // 定义一个对象传入当前勾选的状态type和选择的数据
+    //   let list = {
+    //     type: type,
+    //     delData: data
+    //   }
+    //  if (type) {
+    //     await this.$store.dispatch('getSelectTableList', nodeData)
+    //   } else {
+    //     await this.$store.dispatch('delSelectTableList', list)
+    //   }
+    //   await this.$store.dispatch('setSelectTableTotal')
+    // }
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')

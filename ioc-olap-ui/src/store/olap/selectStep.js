@@ -71,9 +71,9 @@ const selectStep = {
       state.searchType = val
     },
     // 选择的表相关逻辑初始化
-    SETSELCT_TABLE_INIT () {
+    SETSELCT_TABLE_INIT (state) {
       state.selectTableTotal = []
-      state.state.selectTableTotal  =[]
+      state.saveSelectTable = []
     },
     // 存储选择数据表
     SETSELCT_TABLE_COUNT: (state, val) => {
@@ -135,8 +135,12 @@ const selectStep = {
     },
     // 存储选择的表
     SET_SELECT_TALBE (state, data = []) {
-      // 合并现在跟之前的数据
-      // const tempData = data.concat(state.saveSelectTable)
+      const tempData = data
+      // 去重在赋值
+      state.saveSelectTable = reduceObj(tempData, 'id')
+    },
+    // 删除触发存储选择的表
+    SET_SELECT_TALBE_DELETE (state, data = []) {
       const tempData = data
       // 去重在赋值
       state.saveSelectTable = reduceObj(tempData, 'id')
