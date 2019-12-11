@@ -213,8 +213,7 @@ export default {
       aggregation_groups: 'aggregation_groups', // 聚合
       rowkeyData: 'rowkeyData' // rowkeys
     })
-  }
-
+  },
 
   watch: {
     // '$route' () {
