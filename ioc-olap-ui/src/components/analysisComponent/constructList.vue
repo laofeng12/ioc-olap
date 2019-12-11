@@ -10,7 +10,7 @@
         :header-cell-class-name="tableHead" stripe>
         <el-table-column prop="name" label="工程名称" align="center" show-overflow-tooltip> </el-table-column>
         <el-table-column prop="related_cube" label="模型名称" align="center" show-overflow-tooltip> </el-table-column>
-        <el-table-column prop="progress" label="构建状态" align="center" show-overflow-tooltip>
+        <el-table-column prop="progress" label="构建状态" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.job_status === 'FINISHED'" style="color:green;">成功</div>
             <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
@@ -22,14 +22,14 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="exec_end_time" label="构建时间" align="center" show-overflow-tooltip>
+        <el-table-column prop="exec_end_time" label="构建时间" align="center">
           <template slot-scope="scope">
             <div>
               {{scope.row.last_modified | formatDate}}
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="duration" label="构建时长" align="center" show-overflow-tooltip>
+        <el-table-column prop="duration" label="构建时长" align="center">
           <template slot-scope="scope">
             <div>
               {{Conversion(scope.row.duration)}}
@@ -167,7 +167,7 @@ export default {
   methods: {
     async update (val, type) {
       try {
-        this.getLoading = true
+        // this.getLoading = true
         const params = {
         limit: type === 'search' ? 15 : this.tableData.length,
         offset: 0,
@@ -175,12 +175,12 @@ export default {
       }
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
-      // 10秒轮询
-      this.setTimeout = setTimeout(this.update, 1000 * 10)
+      // 2秒轮询
+      this.setTimeout = setTimeout(this.update, 1000 * 2)
       } catch (e) {
         console.log(e)
       } finally {
-        this.getLoading = false
+        // this.getLoading = false
       }
     },
     async init () {
