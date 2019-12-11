@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 public class OlapTableSyncParam {
 
+    private String businessId;
     @ApiModelProperty("数据库id")
     private String databaseId;
     @ApiModelProperty("资源id")
