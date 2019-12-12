@@ -250,7 +250,7 @@ export default {
               ? this.$message.warning('该模型已禁用~')
               : await disableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已禁用')
-                // this.update()
+                this.init()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -265,7 +265,7 @@ export default {
               ? this.$message.warning('该模型已启用~')
               : await enableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已启用')
-                // this.update()
+                this.init()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -273,7 +273,7 @@ export default {
           if (type === 'dels') {
             await deleteCubeModeling({ cubeName: params.name }).then(res => {
               this.$message.success('删除成功~')
-              // this.update()
+              this.init()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -345,25 +345,25 @@ export default {
       this.expands = []
     },
     // 【已废弃】
-    // handleCurrentChange (val) {
-    //   this.currentPage = val
-    //   this.init()
-    // },
-    // handleSizeChange (val) {
-    //   this.pageSize = val
-    //   this.init()
-    // },
-    // changeLoading () {
-    //   this.getLoading = true
-    // },
-    // closeChangeLoading () {
-    //   this.tableData = []
-    //   this.getLoading = false
-    //   this.init()
-    // },
-    // closeChangeLoadingLoser () {
-    //   this.getLoading = false
-    // },
+    handleCurrentChange (val) {
+      this.currentPage = val
+      this.init()
+    },
+    handleSizeChange (val) {
+      this.pageSize = val
+      this.init()
+    },
+    changeLoading () {
+      this.getLoading = true
+    },
+    closeChangeLoading () {
+      this.tableData = []
+      this.getLoading = false
+      this.init()
+    },
+    closeChangeLoadingLoser () {
+      this.getLoading = false
+    },
     moreData () {
       this.offset += 15
       this.init()
