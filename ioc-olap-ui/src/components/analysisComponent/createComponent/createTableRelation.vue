@@ -181,7 +181,20 @@ export default {
       const graph = this.editor.getGraph()
       if (obj.name === 'delete') {
         const nodeIndex = this.nodeList.findIndex(v => v.id === obj.itemIds[0])
-        if (nodeIndex >= 0) this.nodeList.splice(nodeIndex, 1)
+        if (nodeIndex >= 0) {
+          this.nodeList.splice(nodeIndex, 1)
+          this.linkModalFields = []
+          this.linkModal = null
+          this.linkModalModel = null
+          this.removeNode(obj.itemIds[0])
+          const jointResultData = this.initJointResult(JSON.parse(JSON.stringify(this.jointResultData)))
+          const { source, target } = obj.snapShot.edges.filter(v => v.id === obj.itemIds[0])[0]
+          const sourceAttrs = graph.find(source).model.item
+          const targetAttrs = graph.find(target).model.item
+          const index = jointResultData.lookups.findIndex(v => v.id === targetAttrs.id && v.joinId === sourceAttrs.id)
+          jointResultData.lookups.splice(index, 1)
+          this.$store.commit('SaveJointResult', jointResultData)
+        }
         const edgeIndex = this.edgeList.findIndex(v => v.id === obj.itemIds[0])
         if (edgeIndex >= 0) {
           this.edgeList.splice(edgeIndex, 1)
@@ -207,7 +220,7 @@ export default {
       }
       if (graphData.nodes.length > 1) {
         if (graphData.nodes[0].label === node.addModel.label) {
-          this.removeData()
+          this.removeNode()
           this.$message.warning('事实表是唯一存在的，请选择其他表')
         } else {
           graphData.nodes.forEach(async (v, i) => {
@@ -222,10 +235,14 @@ export default {
       }
       this.nodeList = graphData.nodes
     },
-    removeData () {
+    removeNode (id) {
       const { graphData } = this.editor.getResult()
       const graph = this.editor.getGraph()
-      graph.remove(graphData.nodes[graphData.nodes.length-1].id)
+      if (id) {
+        graph.remove(id)
+      } else {
+        graph.remove(graphData.nodes[graphData.nodes.length-1].id)
+      }
       this.nodeList = graphData.nodes
     },
     removeEdge (id) {
@@ -304,7 +321,8 @@ export default {
           'fk_type': [] // 主表字段对应的类型
         }
       }
-      this.linkModalFields.length === 0 && this.addFields() // 调用添加关联字段
+      this.linkModalFields = []
+      this.addFields()
       this.linkModal = linkModal
       this.linkModalModel = graph.find(sourceData).model
     },
