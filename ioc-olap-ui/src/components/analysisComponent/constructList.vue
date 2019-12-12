@@ -1,7 +1,7 @@
 <template>
   <div class="modelList">
     <header>
-      <el-input suffix-icon="el-icon-search" v-model="searchData.cubeName"  size="small" placeholder="请输入关键字" clearable></el-input>
+      <el-input suffix-icon="el-icon-search" v-model.trim="searchData.cubeName"  size="small" placeholder="请输入关键字" clearable></el-input>
       <div class="nhc-elbtnwarp">
         <el-button type="primary" size="small" @click.native="searchFetch(searchData)">搜索</el-button>
       </div>
@@ -130,6 +130,7 @@ export default {
       searchData: {
         cubeName: ''
       },
+      type: 'all',
       getLoading: false,
       like_catalogName: '',
       pageSize: 20,
@@ -143,7 +144,8 @@ export default {
       logDetails: '',
       offset: 0,
       moreShow: true,
-      setTimeout: null
+      setTimeout: null,
+      setIntervalNum: null
     }
   },
   filters: {
@@ -162,29 +164,33 @@ export default {
     })
   },
   beforeDestroy () {
-    clearTimeout(this.setTimeout)
+    clearInterval(this.setIntervalNum)
   },
   methods: {
-    async update (val, type) {
+    async update () {
       try {
         // this.getLoading = true
         const params = {
-        limit: type === 'search' ? 15 : this.tableData.length,
+        limit: this.type === 'search' ? 15 : this.tableData.length > 15 ? this.tableData.length : 15,
         offset: 0,
-        ...val
+        cubeName: this.searchData.cubeName
       }
+      // 为空查询条件删掉，这个是get 拼接在后面
+      !params.cubeName && delete params.cubeName
+      // debugger
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
-      // 2秒轮询
-      this.setTimeout = setTimeout(this.update, 1000 * 2)
       } catch (e) {
         console.log(e)
       } finally {
         // this.getLoading = false
+        // 2秒轮询
+        // this.setTimeout = setTimeout(this.update(val, type), 1000 * 2)
+        // console.log(this.setTimeout)
       }
     },
     async init () {
-      clearTimeout(this.setTimeout)
+      clearInterval(this.setIntervalNum)
       try {
         this.getLoading = true
         const params = {
@@ -198,7 +204,7 @@ export default {
         this.moreShow = false
         this.$message.success('已加载全部数据')
       }
-      this.update()
+      this.setIntervalNum = setInterval(this.update, 1000 * 1)
       } catch (e) {
         console.log(e)
       } finally {
@@ -206,8 +212,8 @@ export default {
       }
     },
     searchFetch (val) {
-      clearTimeout(this.setTimeout)
-      this.update(val, 'search')
+      this.type = 'search'
+      this.update()
     },
     // 操作
     handleCommand (val) {
@@ -259,8 +265,8 @@ export default {
           if (type === 'pauseJob') {
             await pauseJobListModeling(list).then(res => {
               this.$message.success('已暂停')
-              clearTimeout(this.setTimeout)
-              this.update()
+              // clearTimeout(this.setTimeout)
+              // this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -268,8 +274,8 @@ export default {
           if (type === 'cancelJob') {
             await cancelJobListModeling(list).then(res => {
               this.$message.success('已停止')
-              clearTimeout(this.setTimeout)
-              this.update()
+              // clearTimeout(this.setTimeout)
+              // this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -277,8 +283,8 @@ export default {
           if (type === 'resumeJob') {
             await resumeJobListModeling(list).then(res => {
               this.$message.success('已运行')
-              clearTimeout(this.setTimeout)
-              this.update()
+              // clearTimeout(this.setTimeout)
+              // this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -286,8 +292,8 @@ export default {
           if (type === 'delete') {
             await deleteJobListModeling(list).then(res => {
               this.$message.success('已删除')
-              clearTimeout(this.setTimeout)
-              this.update()
+              // clearTimeout(this.setTimeout)
+              // this.update()
             }).catch(_ => {
               this.getLoading = false
             })

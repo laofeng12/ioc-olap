@@ -106,6 +106,7 @@ export default {
       searchData: {
         cubeName: ''
       },
+      type: 'all',
       getLoading: false,
       pageSize: 20,
       currentPage: 1,
@@ -119,6 +120,7 @@ export default {
       jsonData: {},
       offset: 0,
       moreShow: true,
+      setIntervalNum: null,
       statusReviewFilter: statusReviewFilter // 调用方法
     }
   },
@@ -133,6 +135,9 @@ export default {
   },
   mounted () {
   },
+  beforeDestroy () {
+    clearInterval(this.setIntervalNum)
+  },
   methods: {
     init (val, type) {
       this.getModelList(val, type)
@@ -142,6 +147,7 @@ export default {
       if (type === 'search') {
         this.offset = 0
       }
+      clearInterval(this.setIntervalNum)
       try {
         this.getLoading = true
         const params = {
@@ -150,9 +156,11 @@ export default {
           dateType: 1, // 1：模型列表 2：构建列表
           ...val
         }
-        if (!params.cubeName) {
-         delete params.cubeName
-        }
+        // if (!params.cubeName) {
+        //  delete params.cubeName
+        // }
+        // 为空查询条件删掉，这个是get 拼接在后面
+        !params.cubeName && delete params.cubeName
         const { cubeMappers: res, next } = await getModelDataList(params)
         if (type === 'search') {
           this.tableData = res
@@ -160,22 +168,23 @@ export default {
           this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
         }
         this.moreShow = next
+        this.setIntervalNum = setInterval(this.update, 1000 * 1)
       } catch(e) {
       } finally {
         this.getLoading = false
       }
     },
-    async update (val) {
-      this.getLoading = true
+    async update () {
+      // this.getLoading = true
       const params = {
-        limit: this.tableData.length,
+        limit: this.type === 'search' ? 15 : this.tableData.length > 15 ? this.tableData.length : 15,
         offset: 0,
         dateType: 1,
-        ...val
+        cubeName: this.searchData.cubeName
       }
-      if (!params.cubeName) {
-        delete params.cubeName
-      }
+      // 为空查询条件删掉，这个是get 拼接在后面
+      !params.cubeName && delete params.cubeName
+
       const { cubeMappers } = await getModelDataList(params)
       if (cubeMappers.length > 0) {
         this.tableData = cubeMappers.sort((a, b) => b.create_time_utc - a.create_time_utc)
@@ -183,10 +192,12 @@ export default {
         this.moreShow = false
         // this.$message.success('已加载所有数据')
       }
-      this.getLoading = false
+      // this.getLoading = false
     },
-    searchFetch (val) {
-      this.init(val, 'search')
+    searchFetch () {
+      // this.init(val, 'search')
+      this.type = 'search'
+      this.update()
     },
     createolap () {
       removeAllStorage() // 新增的时候清除本地存储
@@ -239,7 +250,7 @@ export default {
               ? this.$message.warning('该模型已禁用~')
               : await disableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已禁用')
-                this.update()
+                // this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -254,7 +265,7 @@ export default {
               ? this.$message.warning('该模型已启用~')
               : await enableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已启用')
-                this.update()
+                // this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -262,7 +273,7 @@ export default {
           if (type === 'dels') {
             await deleteCubeModeling({ cubeName: params.name }).then(res => {
               this.$message.success('删除成功~')
-              this.update()
+              // this.update()
             }).catch(_ => {
               this.getLoading = false
             })
@@ -333,25 +344,26 @@ export default {
     closeExpands () {
       this.expands = []
     },
-    handleCurrentChange (val) {
-      this.currentPage = val
-      this.init()
-    },
-    handleSizeChange (val) {
-      this.pageSize = val
-      this.init()
-    },
-    changeLoading () {
-      this.getLoading = true
-    },
-    closeChangeLoading () {
-      this.tableData = []
-      this.getLoading = false
-      this.init()
-    },
-    closeChangeLoadingLoser () {
-      this.getLoading = false
-    },
+    // 【已废弃】
+    // handleCurrentChange (val) {
+    //   this.currentPage = val
+    //   this.init()
+    // },
+    // handleSizeChange (val) {
+    //   this.pageSize = val
+    //   this.init()
+    // },
+    // changeLoading () {
+    //   this.getLoading = true
+    // },
+    // closeChangeLoading () {
+    //   this.tableData = []
+    //   this.getLoading = false
+    //   this.init()
+    // },
+    // closeChangeLoadingLoser () {
+    //   this.getLoading = false
+    // },
     moreData () {
       this.offset += 15
       this.init()
