@@ -55,6 +55,7 @@ service.interceptors.response.use(
           if (code === 20019 || code === 20020) {
             authFailure(data)
           } else {
+            Message.closeAll()
             Message({
               message: message || '请求错误',
               type: 'error',
@@ -69,6 +70,7 @@ service.interceptors.response.use(
     }
   },
   error => {
+    Message.closeAll()
     if (!error.response) {
       Message({
         message: '请求超时',

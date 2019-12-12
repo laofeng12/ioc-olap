@@ -1,7 +1,7 @@
 <template>
   <div class="serchTable">
     <div @click="handleSelect" class="selctNum">已选择：<i>{{selectTableTotal.length || '请选择数据'}}</i></div>
-     <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model="serachvalue" clearable :maxlength="20"></el-input>
+     <el-input type="text" placeholder="请输入关键词" suffix-icon="el-icon-search" v-model.trim="serachvalue" clearable :maxlength="20"></el-input>
      <div class="trees" ref="treesBox" v-loading="loading">
        <el-scrollbar style="height:100%">
            <el-table
@@ -112,7 +112,7 @@ export default {
       if (!this.serachvalue) {
         return this.dataList
       } else {
-        return this.dataList.filter(t => String(t.resourceTableName).toLowerCase().includes(this.serachvalue))
+        return this.dataList.filter(t => String(t.resourceTableName).toLowerCase().includes(this.serachvalue.toLowerCase()))
       }
     }
   },

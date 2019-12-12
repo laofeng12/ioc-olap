@@ -22,7 +22,7 @@
             </el-option>
           </el-select>
           <h4 class="itemTableTitle">
-            <span>{{linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span>
+            <span>{{linkModal.table.split(".")[1] || linkModal.table}}</span><span @click="lookDetailData(linkModal.id)">查看</span>
           </h4>
           <el-select name="public-choice" value-key="name" v-model="linkModalFields[index].primary_key"
                      placeholder="请选择关联字段" @visible-change="getModalDataList(linkModal.id)"
