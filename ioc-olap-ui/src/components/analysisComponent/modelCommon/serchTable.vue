@@ -112,7 +112,7 @@ export default {
       if (!this.serachvalue) {
         return this.dataList
       } else {
-        return this.dataList.filter(t => String(t.resourceTableName).toLowerCase().includes(this.serachvalue))
+        return this.dataList.filter(t => String(t.resourceTableName).toLowerCase().includes(this.serachvalue.toLowerCase()))
       }
     }
   },

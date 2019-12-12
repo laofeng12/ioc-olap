@@ -168,7 +168,7 @@ export default {
           this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
         }
         this.moreShow = next
-        this.setIntervalNum = setInterval(this.update, 1000 * 1)
+        this.setIntervalNum = setInterval(this.update, 1000 * 30)
       } catch(e) {
       } finally {
         this.getLoading = false

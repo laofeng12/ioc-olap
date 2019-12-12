@@ -204,7 +204,7 @@ export default {
         this.moreShow = false
         this.$message.success('已加载全部数据')
       }
-      this.setIntervalNum = setInterval(this.update, 1000 * 1)
+      this.setIntervalNum = setInterval(this.update, 1000 * 30)
       } catch (e) {
         console.log(e)
       } finally {
