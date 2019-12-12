@@ -11,7 +11,7 @@
       <el-tab-pane label="可用字段" name="3"  class="el-tab-box" v-if="isShow">
         <el-scrollbar style="height:100%">
           <div class="desc">说明：表字段同时拥有查阅权限、不脱敏权限、解密权限时，才可使用，若需要更多字段的使用权限，请到资源目录进行。
-            <el-button type="text" @click="gotoSubscription">订阅</el-button>
+            <el-button type="text" @click="gotoSubscription" :disabled="catchTable && !!catchTable.fullPermitLevel">订阅</el-button>
           </div>
            <element-table v-if="powerPlanHead && powerPlanHead.length" :tableData="powerPlanHead" :colConfigs="descriptionHead"></element-table>
            <div v-else class="null_data">暂无数据</div>
@@ -55,7 +55,7 @@
 import serchTable from '@/components/analysisComponent/modelCommon/serchTable'
 import trees from '@/components/analysisComponent/modelCommon/trees'
 import elementTable from '@/components/ElementTable/index'
-import { getResourceData, getResourceInfo } from '@/api/newOlapModel'
+import { getResourceData, getResourceInfo, subscribePermission } from '@/api/newOlapModel'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -84,6 +84,7 @@ export default {
       managementHead: [], // 表数据-头
       managementData: [], // 表数据
       descriptionData: [], // 字段说明
+      catchTable: null, // 换成点击的表格
       // 表格字段说明
       descriptionHead: [
         { prop: 'columnAlias', label: '字段名称', align: 'center' },
@@ -107,10 +108,33 @@ export default {
   methods: {
     init () {
       // 获取资源信息
-      this.$root.eventBus.$on('getTableHeadList', (params) => this.getTableHeadList(params))
+      this.$root.eventBus.$on('getTableHeadList', (params) => {
+        this.catchTable = params
+        this.getTableHeadList(params)
+      })
     },
     // 订阅
-    gotoSubscription () {
+    async gotoSubscription () {
+      try {
+        let params = {
+          resourceId: this.catchTable.resourceId
+        }
+        const { data } = await subscribePermission(params)
+        // 307 重定向 有url 要跳转
+        // 200 自动审批 url 空 不用跳
+        // 400 已订阅未审批，有url，建议不跳，跳过去也会在页面返回已订阅未审批的提示
+        if (data.code === 307) {
+          window.open(data.dataLakeApplyPageUrl, '_blank')
+        } else if (data.code === 200) {
+          this.$message.warning('权限订阅成功')
+          this.getserchTableList(this.catchCategory)
+        } else if (data.code === 400) {
+          this.$message.warning('已订阅未审批，请等待...')
+          return
+        }
+      } catch(e) {
+        console.log(e)
+      }
     },
     // 获取 非数据胡资 源信息-表头 权限（0：显示全部，1：只显示有权限部分 2 只显示有最大权限）
     async getTableHeadList ({resourceId, type, databaseId, isOnlyPermitted = 0 }) {

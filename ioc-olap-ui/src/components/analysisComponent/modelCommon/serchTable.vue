@@ -43,7 +43,7 @@
                 prop="address"
                 label="操作">
                  <template slot-scope="scope">
-                   <el-button size="mini" type="text" @click="gotoSubscription(scope.row)">订阅此表字段</el-button>
+                   <el-button size="mini" type="text" @click.stop="gotoSubscription(scope.row)" :disabled="!!scope.row.fullPermitLevel">订阅此表字段</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -81,7 +81,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
-import { getResourceList } from '@/api/newOlapModel'
+import { getResourceList, subscribePermission } from '@/api/newOlapModel'
 import selectModal from '@/components/analysisComponent/createComponent/selectStepComponent/selectModal'
 
 export default {
@@ -93,6 +93,7 @@ export default {
       serachvalue: '',
       loading: false,
       isAllowTrigger: true, // 是否允许触发
+      catchCategory: null, // 当前点击的资源目录数据
       defaultKey: [], 
       dataList: [] // 数据源
     }
@@ -131,9 +132,37 @@ export default {
     this.init()
   },
   methods: {
+    // 数据订阅
+    async gotoSubscription ({ resourceId }) {
+      try {
+        let params = {
+          resourceId
+        }
+        const { data } = await subscribePermission(params)
+        // 307 重定向 有url 要跳转
+        // 200 自动审批 url 空 不用跳
+        // 400 已订阅未审批，有url，建议不跳，跳过去也会在页面返回已订阅未审批的提示
+        if (data.code === 307) {
+          window.open(data.dataLakeApplyPageUrl, '_blank')
+        } else if (data.code === 200) {
+          this.$message.warning('权限订阅成功')
+          this.getserchTableList(this.catchCategory)
+        } else if (data.code === 400) {
+          this.$message.warning('已订阅未审批，请等待...')
+          return
+        }
+      } catch(e) {
+        console.log(e)
+      }
+    },
     initEvent () {
+      // 获取资源信息列表
+      this.$root.eventBus.$on('getserchTableList', (data) => {
+        this.catchCategory = data
+        this.getserchTableList(data)
+      })
       // 弹出框移除数据
-      const _that = this
+      // const _that = this
       /* 【已弃用】 */
       // 弹出层移出事件
       // this.$root.eventBus.$on('modal-remove', async data => {
@@ -158,8 +187,6 @@ export default {
         //   await this.$store.dispatch('setSelectTableTotal')
         // }
       // })
-      // 获取资源信息列表
-      this.$root.eventBus.$on('getserchTableList', (data) => this.getserchTableList(data))
       // 接收已选择的复选框数据
       // this.$root.eventBus.$on('saveSelectTables', _ => {
       //   this.setDefualtKey()
@@ -181,6 +208,11 @@ export default {
     },
     // 行点击
     handleRowClick (row) {
+      // 全部都没有权限的不调用
+      if (!row.fullPermitLevel) {
+        this.$message.warning(`在${row.resourceTableName || ''}表中，未订阅一个拥有全部权限的字段，请先订阅`)
+        return
+      } 
       this.$root.eventBus.$emit('getTableHeadList', row)
     },
     // 允许勾选

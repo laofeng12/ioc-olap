@@ -68,5 +68,12 @@ export function delPublish ({ analyzeId, operateModule }) {
     method: 'delete'
   })
 }
+// 数据湖-权限订阅
+export function subscribePermission ({ resourceId }) {
+  return fetch({
+    url: `/pds/datalake/dataLake/subscribePermission/${resourceId}`,
+    method: 'get'
+  })
+}
 
 
