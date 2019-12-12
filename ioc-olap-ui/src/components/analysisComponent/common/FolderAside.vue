@@ -475,7 +475,7 @@ export default {
                 white-space: nowrap;
               }
             }
-          } 
+          }
         }
         /deep/ .el-tree-node__expand-icon{
           display: none;
