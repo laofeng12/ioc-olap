@@ -3,12 +3,25 @@
     <el-input suffix-icon="el-icon-search" type="text" placeholder="输入关键词" v-model="serachvalue"  clearable></el-input>
     <div class="trees">
       <el-scrollbar style="height:100%">
-        <el-tree ref="tree" lazy :indent="12" :data="treeList" :load="getChildTreeList" v-loading="treeLoading"
-          auto-expand-parent node-key="id" @node-click="getCurrents" highlight-current :default-expanded-keys="defaultOpenKeys"
-          :filter-node-method="filterNode" :props="defaultProps">
+        <el-tree 
+          ref="tree" 
+          lazy 
+          :indent="12" 
+          :data="treeList" 
+          :load="getChildTreeList" 
+          v-loading="treeLoading"
+          auto-expand-parent node-key="id" 
+          @node-click="getCurrents" 
+          highlight-current 
+          :default-expanded-keys="defaultOpenKeys"
+          :filter-node-method="filterNode" 
+          :props="defaultProps">
           <span class="custom-tree-node" slot-scope='{ node }'>
-            <el-tooltip v-if="node.label.length >= 18" class="node__item-tip" effect="dark"
-            :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
+            <el-tooltip v-if="node.label.length >= 18" 
+              class="node__item-tip" 
+              effect="dark" 
+              :enterable="false"
+              :content="node.label ? node.label : ''" placement="top" popper-class="my-dep-toolTip">
               <span class="show-ellipsis">{{ node.label }}</span>
             </el-tooltip>
               <span v-else  class="show-ellipsis">{{node.label}}</span>
@@ -103,6 +116,7 @@ export default {
         }
       } catch (e) {
         console.log(e)
+        this.treeLoading = false
       } finally {
         this.treeLoading = false
       }
@@ -138,6 +152,7 @@ export default {
           const { data } = await getDtalakeTreeList(params)
           data ? resolve(data) : []
         } catch (e) {
+          this.treeLoading = false
         } finally {
           this.treeLoading = false
         }

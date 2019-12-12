@@ -16,8 +16,8 @@
             <div v-if="scope.row.job_status === 'STOPPED'" style="color:yellow;">已暂停</div>
             <div v-if="scope.row.job_status === 'DISCARDED'" style="color:pink;">已停止</div>
             <div v-if="scope.row.job_status === 'ERROR'" style="color:red;">失败</div>
-            <div v-if="scope.row.job_status === 'RUNNING'" style="color:green;">运行中</div>
-            <div v-if="['PENDING'].includes(scope.row.job_status)">
+            <!-- <div v-if="scope.row.job_status === 'RUNNING'" style="color:green;">运行中</div> -->
+            <div v-if="['PENDING', 'RUNNING'].includes(scope.row.job_status)">
               <el-progress :percentage="scope.row.progress"></el-progress>
             </div>
           </template>

@@ -240,12 +240,42 @@ const common = {
       state.ModelAllList = data
       setLocalStorage('ModelAllList', data)
       // 赋值第一步已选择的表
-      data.TableList.map((item, index) => {
-        item.tableList.map(res => {
-          getters.selectTableTotal.push({ ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
-          getters.saveSelectTable.push({  ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+      
+      const saveSelectTableTemp = []
+      data.TableList.forEach((item, index) => {
+        item.tableList.forEach(res => {
+          // 【弃用】
+          // getters.selectTableTotal.push({ ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          // getters.saveSelectTable.push({  ...res, label: res.table_name, id: res.table_id, resourceId: res.resourceId, database: item.orgName, orgId: item.orgId })
+          // 根据新增的时候需要构建这些属性
+          saveSelectTableTemp.push({ 
+            ...res, 
+            resourceTableName: res.virtualTableName || res.table_name, 
+            resourceName: res.resourceName, 
+            databaseId: res.databaseId, 
+            label: res.table_name, 
+            id: res.table_id, 
+            resourceId: res.resourceId, 
+            database: item.orgName, 
+            orgId: item.orgId 
+          })
+          // id: item.id,
+          // label: item.label,
+          // orgId: item.orgId,
+          // resourceId: item.resourceId,
+          // resourceName: item.resourceName,
+          // database: item.database,
+          // type: state.searchType,
+          // databaseId: item.databaseId,
+          // virtualTableName: item.label,
         })
       })
+      // 保存第一步选择表的数据
+      commit('SETSELCT_TABLE_INIT')
+      // 保存 saveSelectTable
+      commit('SET_SELECT_TALBE', saveSelectTableTemp)
+      // 保存 selectTableTotal
+      commit('SETSELCT_TABLE_COUNT', saveSelectTableTemp)
       // 判断是否是编辑进来的，如实编辑进来的需要主动调用存储第一步的方法
       state.ModelAllList.TableList && await dispatch('SavestepSelectData', getters.ModelAllList.TableList)
       // 赋值第二步模型的表
