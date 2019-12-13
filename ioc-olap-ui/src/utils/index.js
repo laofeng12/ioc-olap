@@ -182,6 +182,7 @@ export function getArrDifference (arr1, arr2) {
 
 // 转换时间戳
 export function filterTime (time) {
+  if (time === 0) return '暂无时间'
   var re = /-?\d+/
   var m = re.exec(time)
   var d = new Date(parseInt(m[0]))
