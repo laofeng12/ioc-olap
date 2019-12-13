@@ -247,7 +247,7 @@ export default {
       this.loading = false
     },
     async saveOlap (data) {
-      if (!this.cubeId || !this.reqDataList) {
+      if (!this.cubeId || !(this.reqDataList && this.reqDataList.length > 0)) {
         return this.$message.error('请先查询数据')
       }
       const reqData = {
@@ -270,6 +270,7 @@ export default {
     },
     reset () {
       this.realTableData = []
+      this.reqDataList = []
       this.tableData = []
       this.pageData = {
         totalRows: 1,
