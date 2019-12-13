@@ -294,9 +294,12 @@ export default {
           descDataList(info).then((res) => {
             // this.dateType = res.
             this.dateType = res.ModesList.partition_desc.partition_date_format
+            this.$refs['construct'].dialog(params)
             // console.log(this.dateType)
+          }).catch(_ => {
+            this.$message.success('获取模型详情数据失败~')
+            return
           })
-          this.$refs['construct'].dialog(params)
         }
         
         // if (params.segments.length > 0 && params.partitionDateColumn) {

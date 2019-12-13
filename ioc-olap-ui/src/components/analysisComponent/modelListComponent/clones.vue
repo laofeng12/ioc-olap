@@ -33,10 +33,11 @@ export default {
       this.$parent.changeLoading()
       await cloneModeling({ cubeNameClone: this.form.name, cubeName: this.cubeName }).then(res => {
         this.$message.success('复制成功~')
-        this.$parent.closeChangeLoading()
+        // this.$parent.closeChangeLoading()
         this.$parent.update()
       }).catch(_ => {
-        this.$parent.closeChangeLoading()
+        this.$parent.update()
+        // this.$parent.closeChangeLoading()
       })
     },
     dialog (data) {
