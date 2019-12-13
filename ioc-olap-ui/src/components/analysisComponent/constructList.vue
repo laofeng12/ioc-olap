@@ -177,7 +177,6 @@ export default {
       }
       // 为空查询条件删掉，这个是get 拼接在后面
       !params.cubeName && delete params.cubeName
-      // debugger
       const res = await this.$store.dispatch('SaveCubeObjListData', params)
       this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
       } catch (e) {
