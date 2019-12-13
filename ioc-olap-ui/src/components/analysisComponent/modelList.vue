@@ -139,26 +139,23 @@ export default {
     clearInterval(this.setIntervalNum)
   },
   methods: {
-    init (val, type) {
-      this.getModelList(val, type)
+    init (type) {
+      this.getModelList(type)
     },
     // 模型列表
-    async getModelList (val, type) {
+    async getModelList (type) {
       if (type === 'search') {
         this.offset = 0
+        this.getLoading = true
       }
       clearInterval(this.setIntervalNum)
       try {
-        this.getLoading = true
         const params = {
           limit: 15,
           offset: this.offset,
           dateType: 1, // 1：模型列表 2：构建列表
-          ...val
+          cubeName: this.searchData.cubeName
         }
-        // if (!params.cubeName) {
-        //  delete params.cubeName
-        // }
         // 为空查询条件删掉，这个是get 拼接在后面
         !params.cubeName && delete params.cubeName
         const { cubeMappers: res, next } = await getModelDataList(params)
@@ -175,7 +172,6 @@ export default {
       }
     },
     async update () {
-      // this.getLoading = true
       const params = {
         limit: this.type === 'search' ? 15 : this.tableData.length > 15 ? this.tableData.length : 15,
         offset: 0,
@@ -184,7 +180,7 @@ export default {
       }
       // 为空查询条件删掉，这个是get 拼接在后面
       !params.cubeName && delete params.cubeName
-
+      this.getLoading = false
       const { cubeMappers } = await getModelDataList(params)
       if (cubeMappers.length > 0) {
         this.tableData = cubeMappers.sort((a, b) => b.create_time_utc - a.create_time_utc)
@@ -196,8 +192,8 @@ export default {
     },
     searchFetch () {
       // this.init(val, 'search')
-      this.type = 'search'
-      this.update()
+      // this.type = 'search'
+      this.init('search')
     },
     createolap () {
       removeAllStorage() // 新增的时候清除本地存储
@@ -250,7 +246,8 @@ export default {
               ? this.$message.warning('该模型已禁用~')
               : await disableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已禁用')
-                this.init()
+                this.type = 'all'
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -265,7 +262,8 @@ export default {
               ? this.$message.warning('该模型已启用~')
               : await enableModeling({ cubeName: params.name }).then(res => {
                 this.$message.success('已启用')
-                this.init()
+                this.type = 'all'
+                this.update()
               }).catch(_ => {
                 this.getLoading = false
               })
@@ -273,7 +271,7 @@ export default {
           if (type === 'dels') {
             await deleteCubeModeling({ cubeName: params.name }).then(res => {
               this.$message.success('删除成功~')
-              this.init()
+              this.init('search')
             }).catch(_ => {
               this.getLoading = false
             })
@@ -347,7 +345,7 @@ export default {
     closeExpands () {
       this.expands = []
     },
-    // 【已废弃】
+    //
     handleCurrentChange (val) {
       this.currentPage = val
       this.init()
