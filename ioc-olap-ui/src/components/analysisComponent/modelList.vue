@@ -337,7 +337,7 @@ export default {
         }
       }
       // 共享
-      if (type === 'sharedTable') {
+      if (this.$refs[type] || type === 'sharedTable') {
         this.$refs[type].dialog(params)
       }
     },

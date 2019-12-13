@@ -89,7 +89,7 @@ export default {
           return list
         })
         this.shareList = shareList
-        this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit }
+        this.exportData = { sql: folderData.attrs.sql, limit: folderData.attrs.limit, project: folderData.attrs.createId }
         this.tableData = [...[columnMetasList], ...resultsList]
         if (type !== 'share') {
           this.$message.success('查询完成')
