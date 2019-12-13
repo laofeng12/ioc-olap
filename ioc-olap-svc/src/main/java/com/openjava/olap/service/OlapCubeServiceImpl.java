@@ -281,7 +281,8 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         SequenceService ss = ConcurrentSequence.getInstance();
 
         OlapCube cloneCube = new OlapCube();
-        cloneCube.setFlags(0);
+        //默认克隆出来的模型的状态为就绪状态
+        cloneCube.setFlags(CubeFlags.READY.getFlags());
         cloneCube.setIsNew(true);
         cloneCube.setName(cloneCubeName);
         cloneCube.setCubeId(ss.getSequence());
