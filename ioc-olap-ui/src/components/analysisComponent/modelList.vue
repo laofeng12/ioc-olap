@@ -298,7 +298,7 @@ export default {
           })
           this.$refs['construct'].dialog(params)
         }
-        
+
         // if (params.segments.length > 0 && params.partitionDateColumn) {
         // } else {
         //   return this.$confirm('是否构建该模型', {

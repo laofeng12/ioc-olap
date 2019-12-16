@@ -249,8 +249,15 @@ export default {
       })
     },
     nextModel (val) {
-      if (this.judgeSuccess()) {
-        return
+      let canGo = true
+      this.rowkeyData.rowkey_columns.forEach(v => {
+        if (v.lengths && !/^[1-9]\d*$/.test(v.lengths)) {
+          this.$message.warning('Rowkey长度为正整数')
+          canGo = false
+        }
+      })
+      if (!canGo || this.judgeSuccess()) {
+        return false
       }
       this.$parent.getStepCountAdd(val)
       this.$router.push('/analysisModel/createolap/completeCreate')
