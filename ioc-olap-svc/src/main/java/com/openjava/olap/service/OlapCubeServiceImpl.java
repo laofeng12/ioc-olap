@@ -294,7 +294,9 @@ public class OlapCubeServiceImpl implements OlapCubeService {
         cloneCube.setCreateName(loginUser.getUserAccount());
         cloneCube.setCreateTime(new Date());
         olapCubeRepository.save(cloneCube);
-
+        //key为旧表id，value为新表id
+        //在循环olapcubeList这个集合，插入表关联关系时，用key来查找原模型的关联关系，找到后就拿value赋值
+        Map<Long,Long> replicateRelate = new HashMap<>();
 
         for (OlapCubeTable cubeTable : cubeTablesList) {
             OlapCubeTable olapCubecTable = new OlapCubeTable();
@@ -311,6 +313,7 @@ public class OlapCubeServiceImpl implements OlapCubeService {
                 olapCubecTableColumn.setIsNew(true);
                 olapCubeTableColumnRepository.save(olapCubecTableColumn);
             }
+            replicateRelate.putIfAbsent(cubeTable.getId(),tableId);
             olapCubecTable.setCubeTableId(tableId);
             olapCubecTable.setCubeId(cloneCube.getCubeId());
             olapCubecTable.setIsNew(true);
@@ -344,6 +347,8 @@ public class OlapCubeServiceImpl implements OlapCubeService {
             olapCubeTableRelation.setId(ss.getSequence());
             olapCubeTableRelation.setCubeId(cloneCube.getCubeId());
             olapCubeTableRelation.setIsNew(true);
+            olapCubeTableRelation.setTableId(replicateRelate.getOrDefault(relationEntity.getTableId(),relationEntity.getTableId()));
+            olapCubeTableRelation.setJoinTableId(replicateRelate.getOrDefault(relationEntity.getJoinTableId(),relationEntity.getJoinTableId()));
             olapCubeTableRelationRepository.save(olapCubeTableRelation);
         }
 
