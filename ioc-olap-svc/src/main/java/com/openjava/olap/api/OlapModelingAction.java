@@ -579,7 +579,7 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
-
+        cube.getCubeDescData().validateRowKeyEncoding();
         return cubeDescDataMapper;
     }
 
@@ -724,6 +724,7 @@ public class OlapModelingAction extends BaseAction {
             olapFilterCondidions = olapFilterCondidionService.findByFilterId(olapFilter.getId());
         }
 
+        cube.separateEncodingAndLength();
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ModesList", model);
