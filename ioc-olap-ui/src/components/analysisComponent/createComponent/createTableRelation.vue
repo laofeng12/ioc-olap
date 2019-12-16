@@ -164,7 +164,8 @@ export default {
         el: 'editorContainer', // 容器id
         baseInfo: '', // 基础信息，标题，描述，状态等
         pannelList: this.factTable, // 左边数据源和功能组件
-        graphData // 初始化数据
+        graphData, // 初始化数据
+        toolbarList: ['zoomIn', 'zoomOut', 'autoZoom', 'resetZoom']
       })
       const listeners = [
         { key: 'addNode', fn: this.addNode },
