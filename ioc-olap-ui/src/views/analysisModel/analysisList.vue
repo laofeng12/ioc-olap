@@ -172,8 +172,8 @@ export default {
     },
     async exportFile () {
       const data = {
-        analyzeId: this.fileData.attrs.analyzeId,
-        cubeId: this.fileData.attrs.cubeId,
+        analyzeId: this.fileData.attrs ? this.fileData.attrs.analyzeId : this.fileData.analyzeId,
+        cubeId: this.fileData.attrs ? this.fileData.attrs.cubeId : this.fileData.cubeId,
         pageIndex: this.page,
         pageSize: this.size
       }
