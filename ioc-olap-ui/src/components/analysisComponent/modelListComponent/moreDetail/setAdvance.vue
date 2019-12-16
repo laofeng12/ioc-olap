@@ -119,7 +119,7 @@ export default {
             index: index + 1,
             column: item.column,
             encodingType: item.encoding.indexOf('.') !== -1 ? item.encoding.split('.')[0] : item.encoding,
-            encodingLen: item.encoding.indexOf('.') !== -1 ? item.encoding.split('.')[1] : '无',
+            encodingLen: item.lengths ? item.lengths : '无',
             isShardBy: item.isShardBy
           }
         })
