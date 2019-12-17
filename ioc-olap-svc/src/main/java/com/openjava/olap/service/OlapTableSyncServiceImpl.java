@@ -162,19 +162,23 @@ public class OlapTableSyncServiceImpl implements OlapTableSyncService,Initializi
                             b.setSuccess(item.getBoolean("success"));
                             b.setMessage(item.getString("message"));
                             //第一步，先判断success是否为false
-                            //如果是false,再判断repeatCreate是否为true，为true表示该资源已经创建过同步任务了
-                            //在success=false，repeatCreate=false的情况下，就可以认为资源创建同步任务失败了
+                            //如果是false,再判断repeatWriterTableName是否为true，为true表示该资源对应的目标表名已经创建过同步任务了
+                            //在success=false，repeatWriterTableName=false的情况下，就可以认为资源创建同步任务失败了
+                            //repeatWriterTableName用来表示同个目标表名多次请求时则返回true
                             //这里采集错误信息，统一返回给前端
                             if (item.getBoolean("success") == null || !item.getBoolean("success")){
-                                if (item.getBoolean("repeatCreate") != null && item.getBoolean("repeatCreate")){
+                                if (item.getBoolean("repeatWriterTableName") != null && item.getBoolean("repeatWriterTableName")){
                                     b.setSuccess(true);
                                 }else {
+                                    b.setSuccess(false);
                                     sb.append("[表:")
                                         .append(b.getVirtualTableName())
                                         .append("加载失败,")
                                         .append(item.getString("message"))
                                         .append("]\n");
                                 }
+                            }else {
+                                b.setSuccess(true);
                             }
                             oo.setIsNew(b.getIsNew());
                             oo.setSuccess(b.getSuccess()?1:0);

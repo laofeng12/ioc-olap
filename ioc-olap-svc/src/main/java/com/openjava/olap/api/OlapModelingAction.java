@@ -507,6 +507,8 @@ public class OlapModelingAction extends BaseAction {
             cube.getCubeDescData().setLast_modified(cubeDescDataMapper.getLast_modified());
         }
 
+        cube.getCubeDescData().validateRowKeyEncoding();
+
         for (LookupsMapper lookupsMapper : models.modelDescData.getLookups()) {
             for (String fk : lookupsMapper.join.getForeign_key()) {
                 if (cube.getCubeDescData().getDimensions().stream().filter(p -> p.getId().equalsIgnoreCase(fk) && p.getDerived() == null).count() == 0) {
@@ -579,7 +581,7 @@ public class OlapModelingAction extends BaseAction {
                 }
             }
         }
-        cube.getCubeDescData().validateRowKeyEncoding();
+
         return cubeDescDataMapper;
     }
 
