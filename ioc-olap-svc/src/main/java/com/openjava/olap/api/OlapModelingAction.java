@@ -541,7 +541,8 @@ public class OlapModelingAction extends BaseAction {
 
             boolean isSetting = false;
             for (AggregationGroupMapper groupMapper : cube.getCubeDescData().getAggregation_groups()) {
-                if (groupMapper.includes.contains(rowKey.column) == true) {
+                long count = groupMapper.includes.stream().filter(s->s.equalsIgnoreCase(rowKey.column)).count();
+                if (count == 1) {
                     isSetting = true;
                     break;
                 }

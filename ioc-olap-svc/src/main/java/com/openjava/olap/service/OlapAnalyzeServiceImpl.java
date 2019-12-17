@@ -335,7 +335,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         }
         QueryResultMapper resultMapper;
         try {
-            resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, userId);
+            resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, cube.getCreateId().toString());
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }
