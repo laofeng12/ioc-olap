@@ -3,7 +3,8 @@
     <h4>模型基本信息</h4>
     <div>
       <span>事实表</span>
-      <span>{{jsonData.ModesList.fact_table}}</span>
+      <span>{{jsonData.ModesList.fact_table.includes('.') ? jsonData.ModesList.fact_table.split('.')[1]
+        : jsonData.ModesList.fact_table}}</span>
     </div>
     <div>
       <span>维度表</span>
