@@ -241,7 +241,8 @@ const setFiled = {
       let val = []
       let idval = []
       data.map(res => {
-        val.push(res.value)
+        // val.push(res.value) //value是描述 应该传id
+        val.push(res.id)
         idval.push(res.id)
       })
       getters.aggregation_groups[0].includes = val
@@ -311,7 +312,7 @@ const setFiled = {
       } else {
         result.map((item, index) => {
           arr.push({
-            column: item.value,
+            column: item.value.includes(' ') ? item.id : item.value,
             lengths: '',
             code_types: item.type ? item.type : '',
             encoding: item.columns_Type ? item.columns_Type : 'dict',
