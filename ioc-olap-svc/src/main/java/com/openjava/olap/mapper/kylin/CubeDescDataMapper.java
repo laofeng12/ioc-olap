@@ -78,22 +78,34 @@ public class CubeDescDataMapper {
             for (RowkeyColumnMapper s : this.rowkey.getRowkey_columns()) {
                 String type = s.getEncoding();
                 if (EncodingType.INTEGER.getType().equalsIgnoreCase(type)) {
+                    if (s.getLengths() == null || "".equals(s.getLengths())){
+                        throw new APIException(400,"integer长度不能为空");
+                    }
                     Integer length = Integer.parseInt(s.getLengths());
                     if (EncodingType.INTEGER.min > length || EncodingType.INTEGER.max < length) {
                         throw new APIException(400,String.format("integer长度必须在%s~%s",EncodingType.INTEGER.min,EncodingType.INTEGER.max));
                     }
                 }else if (EncodingType.BOOLEAN.getType().equalsIgnoreCase(type)){
+                    if (s.getLengths() == null || "".equals(s.getLengths())){
+                        throw new APIException(400,"boolean长度不能为空");
+                    }
                     Integer length = Integer.parseInt(s.getLengths());
                     if (EncodingType.BOOLEAN.min > length || EncodingType.BOOLEAN.max < length) {
                         throw new APIException(400,String.format("boolean长度必须在%s~%s",EncodingType.BOOLEAN.min,EncodingType.BOOLEAN.max));
                     }
                 }else if (EncodingType.DATE.getType().equalsIgnoreCase(type)){
+                    if (s.getLengths() == null || "".equals(s.getLengths())){
+                        throw new APIException(400,"date长度不能为空");
+                    }
                     Integer length = Integer.parseInt(s.getLengths());
                     if (EncodingType.DATE.min > length || EncodingType.DATE.max < length) {
                         throw new APIException(400,String.format("date长度必须在%s~%s",EncodingType.DATE.min,EncodingType.DATE.max));
                     }
                 }
                 else if (EncodingType.TIME.getType().equalsIgnoreCase(type)){
+                    if (s.getLengths() == null || "".equals(s.getLengths())){
+                        throw new APIException(400,"time长度不能为空");
+                    }
                     Integer length = Integer.parseInt(s.getLengths());
                     if (EncodingType.TIME.min > length || EncodingType.TIME.max < length) {
                         throw new APIException(400,String.format("time长度必须在%s~%s",EncodingType.TIME.min,EncodingType.TIME.max));
