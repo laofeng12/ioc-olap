@@ -85,40 +85,34 @@ public class CubeDescDataMapper {
                     if (EncodingType.INTEGER.min > length || EncodingType.INTEGER.max < length) {
                         throw new APIException(400,String.format("integer长度必须在%s~%s",EncodingType.INTEGER.min,EncodingType.INTEGER.max));
                     }
+                    s.setEncoding(s.getEncoding().concat(":").concat(s.getLengths()));
                 }else if (EncodingType.BOOLEAN.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() == null || "".equals(s.getLengths())){
-                        throw new APIException(400,"boolean长度不能为空");
-                    }
-                    Integer length = Integer.parseInt(s.getLengths());
-                    if (EncodingType.BOOLEAN.min > length || EncodingType.BOOLEAN.max < length) {
-                        throw new APIException(400,String.format("boolean长度必须在%s~%s",EncodingType.BOOLEAN.min,EncodingType.BOOLEAN.max));
+                    if (s.getLengths() == null){
+                        throw new APIException(400,"boolean长度不允许设置");
                     }
                 }else if (EncodingType.DATE.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() == null || "".equals(s.getLengths())){
-                        throw new APIException(400,"date长度不能为空");
-                    }
-                    Integer length = Integer.parseInt(s.getLengths());
-                    if (EncodingType.DATE.min > length || EncodingType.DATE.max < length) {
-                        throw new APIException(400,String.format("date长度必须在%s~%s",EncodingType.DATE.min,EncodingType.DATE.max));
+                    if (s.getLengths() == null){
+                        throw new APIException(400,"date长度不允许设置");
                     }
                 }
                 else if (EncodingType.TIME.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() == null || "".equals(s.getLengths())){
-                        throw new APIException(400,"time长度不能为空");
+                    if (s.getLengths() != null){
+                        throw new APIException(400,"time长度不允许设置");
                     }
-                    Integer length = Integer.parseInt(s.getLengths());
-                    if (EncodingType.TIME.min > length || EncodingType.TIME.max < length) {
-                        throw new APIException(400,String.format("time长度必须在%s~%s",EncodingType.TIME.min,EncodingType.TIME.max));
-                    }
+                }else if (EncodingType.FIXED_LENGTH.getType().equalsIgnoreCase(type) || EncodingType.FIXED_LENGTH_HEX.getType().equalsIgnoreCase(type)){
+                    s.setEncoding(s.getEncoding().concat(":").concat(s.getLengths()));
                 }
-                s.setEncoding(s.getEncoding().concat(":").concat(s.getLengths()));
             }
         }
     }
 
+    /**
+     * 目前已知kylin里的encoding参数包含的类型有以下几种。0代表不需要设置长度，-1的话是没限制
+     */
     public enum EncodingType{
 
-        INTEGER(1,"INTEGER",8),BOOLEAN(0,"BOOLEAN",0),DATE(0,"DATE",0),TIME(0,"TIME",0);
+        INTEGER(1,"INTEGER",8),BOOLEAN(0,"BOOLEAN",0),DATE(0,"DATE",0),TIME(0,"TIME",0),
+        FIXED_LENGTH(-1,"FIXED_LENGTH",-1),FIXED_LENGTH_HEX(-1,"FIXED_LENGTH_HEX",-1);
 
         private Integer min;
         private String type;
