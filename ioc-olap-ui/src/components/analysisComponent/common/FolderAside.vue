@@ -11,8 +11,6 @@
         <div class="flex-box">
            <i class="el-icon-folder diy-icon" v-show="node.level === 1"></i>
            <i class="el-icon-tickets diy-icon" v-show="node.level === 2"></i>
-           <!-- <span class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
-           <span class="cus-node-title"  :title="data.name" v-else>{{ data.name}}-{{ data.virtualTableName }}</span> -->
            <template v-if="!data.virtualTableName">
              <span  class="cus-node-title"  :title="data.name" v-if="!data.virtualTableName">{{ data.name }}</span>
            </template>
@@ -23,15 +21,8 @@
            <span  class="cus-node-title"  v-else>{{ data.virtualTableName }} - {{ data.name}}</span>
           </el-tooltip>
         </div>
-        <!-- <div v-else>
-          <span class="cus-node-title"  :title="data.name">{{ data.name }}</span>
-          <span class="cus-node-title"  :title="data.name-data.virtualTableName" v-if="data.virtualTableName">-{{ data.virtualTableName }}</span>
-        </div> -->
         <span class="cus-node-content" v-if="showDo" @click.stop>
           <el-dropdown size="mini" @command="handleCommand($event, node, data)">
-            <!--<el-button type="primary" size="mini">-->
-              <!--操作<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
-            <!--</el-button>-->
             <div style="color: #0486FE">操作</div>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="4" v-if="vueType === 'myOlap' && !node.parent.parent">新建</el-dropdown-item>
@@ -40,6 +31,10 @@
               <el-dropdown-item command="3">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+        </span>
+        <span class="cus-node-content1" v-else-if="data.showCheckbox" @click.stop>
+          <el-checkbox v-model="checkName" :true-label="data.name" false-label=""
+                       :checked="checkName === data.name"></el-checkbox>
         </span>
       </span>
     </el-tree>
@@ -131,6 +126,10 @@ export default {
       type: Boolean,
       default: true
     },
+    showCheckbox: {
+      type: Boolean,
+      default: true
+    },
     menuDefault: {
       // type: Array,
       required: true
@@ -152,6 +151,10 @@ export default {
       required: false,
       default: '暂无数据'
     },
+    cubeName: {
+      type: String,
+      required: false
+    }
   },
   data () {
     return {
@@ -190,7 +193,11 @@ export default {
       searchUser: '',
       searchShare: '',
       userPage: 0,
-      totalPage: 0
+      totalPage: 0,
+      sheetTitle: '',
+      sheetDataId: '',
+      sheetShare: '',
+      checkName: ''
     }
   },
   computed: {
@@ -199,23 +206,31 @@ export default {
   watch: {
     searchKey (val) {
       this.$refs.alltree.filter(val)
+    },
+    checkName (val) {
+      this.$emit('clickItem', val)
+    },
+    cubeName (val) {
+      this.checkName = val
     }
+  },
+  activated () {
+    this.checkName = this.cubeName
   },
   methods: {
     enterNode(e) {
       e.target.parentElement.parentElement.classList.add('hideLongText')
     },
     clickTreeItem (data, node, self) {
-      let that = this
       if (node.parent.parent || this.vueType === 'shareResult' || this.vueType === 'shareOlap') {
         // 子节点才进入
-        that.sheetTitle = data.name
-        that.sheetDataId = data.id
-        that.sheetShare = data.isShare
+        this.sheetTitle = data.name
+        this.sheetDataId = data.id
+        this.sheetShare = data.isShare
         // 渲染表格数据
-        if (this.vueType !== 'queries') {
-          this.$emit('clickItem', data, 'search')
-        }
+        this.$emit('clickItem', data, 'search')
+      // } else if (this.vueType === 'queries' && this.checkName === data.name) {
+      //   this.$emit('clickItem', data.name)
       }
     },
     filterAll (value, data) {
@@ -491,6 +506,14 @@ export default {
       opacity: 0;
       filter: Alpha(opacity=0);
       transition: opacity .5s;
+      position: absolute;
+      right: 5px;
+      top: 2px;
+      .el-button {
+        padding: 4px 6px;
+      }
+    }
+    .cus-node-content1 {
       position: absolute;
       right: 5px;
       top: 2px;
