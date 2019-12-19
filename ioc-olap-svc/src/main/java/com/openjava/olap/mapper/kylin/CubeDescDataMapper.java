@@ -87,18 +87,12 @@ public class CubeDescDataMapper {
                     }
                     s.setEncoding(s.getEncoding().concat(":").concat(s.getLengths()));
                 }else if (EncodingType.BOOLEAN.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() == null){
-                        throw new APIException(400,"boolean长度不允许设置");
-                    }
+
                 }else if (EncodingType.DATE.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() == null){
-                        throw new APIException(400,"date长度不允许设置");
-                    }
+
                 }
                 else if (EncodingType.TIME.getType().equalsIgnoreCase(type)){
-                    if (s.getLengths() != null){
-                        throw new APIException(400,"time长度不允许设置");
-                    }
+
                 }else if (EncodingType.FIXED_LENGTH.getType().equalsIgnoreCase(type) || EncodingType.FIXED_LENGTH_HEX.getType().equalsIgnoreCase(type)){
                     s.setEncoding(s.getEncoding().concat(":").concat(s.getLengths()));
                 }
