@@ -302,10 +302,14 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiOperation(value = "导出即时查询", nickname = "export", notes = "报文格式：content-type=application/download")
     @RequestMapping(value = "/export", method = RequestMethod.POST)
     @Security(session = true, allowResources = {"OlapRealQuery"})
-    public void export(String sql, Integer limit, String project, HttpServletResponse response) throws Exception {
+    public void export(@RequestParam String sql, Integer limit, @RequestParam String cubeName, HttpServletResponse response) throws Exception {
         try {
+            OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
+            if (cube == null){
+                throw new APIException(400,"查询不到该记录对应的模型，请检查该模型是否有效");
+            }
             String formatSql = formatSql(sql,true);
-            QueryResultMapper mapper = cubeHttpClient.query(formatSql, 0, limit, project);
+            QueryResultMapper mapper = cubeHttpClient.query(formatSql, 0, limit, cube.getCreateId().toString());
             Export.dualDate(mapper, response);
         } catch (Exception ex) {
             throw new APIException(400, "导出失败！");
@@ -319,7 +323,7 @@ public class OlapRealQueryAction extends BaseAction {
                 {
                     add(sql);
                     add(limit);
-                    add(project);
+                    add(cubeName);
                 }
             },new ArrayList<Object>(){{}});
         this.auditComponentProxy.saveAudit(param);
