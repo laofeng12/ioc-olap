@@ -93,7 +93,8 @@ export default {
         this.exportData = {
           sql: folderData.attrs.sql,
           limit: folderData.attrs.limit,
-          project: folderData.attrs.createId
+          cubeName: folderData.attrs.cubeName
+          // project: folderData.attrs.createId
         }
         this.tableData = [...[columnMetasList], ...resultsList]
         if (type !== 'share') {

@@ -158,7 +158,7 @@ export default {
       const data = {
         limit: this.checked ? this.lineNumber : -1,
         sql: this.textarea,
-        project: this.userInfo.userId,
+        // project: this.userInfo.userId, // 后端说暂时废弃
         cubeName: this.cubeName
       }
       this.exportData = data
