@@ -457,7 +457,6 @@ export default {
           div{
             flex 1
             margin-left 80px
-            height 32px
             margin-bottom 20px
             border: 1px solid #D9D9D9;
             min-height 32px
