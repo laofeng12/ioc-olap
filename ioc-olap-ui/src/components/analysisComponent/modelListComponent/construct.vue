@@ -7,22 +7,17 @@
             {{dataList.partitionDateColumn}}
           </el-form-item>
           <el-form-item label="开始时间"  prop="startTime">
-            <el-date-picker
-              :format="dateType"
-              v-model="form.startTime"
-              value-format="timestamp"
-              type="datetime"
-              placeholder="选择日期时间">
+            <!--<el-date-picker :format="dateType" v-model="form.startTime" value-format="timestamp" type="datetime"-->
+                            <!--placeholder="选择日期时间">-->
+              <el-date-picker :format="dateType" v-model="form.startTime" value-format="timestamp"
+                              placeholder="选择日期时间">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="结束时间"  prop="endTime">
-            <el-date-picker
-              :format="dateType"
-              v-model="form.endTime"
-              value-format="timestamp"
-              :picker-options="pickerOptions"
-              type="datetime"
-              placeholder="选择日期时间">
+            <!--<el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"-->
+                            <!--:picker-options="pickerOptions" type="datetime" placeholder="选择日期时间">-->
+              <el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"
+                              :picker-options="pickerOptions" placeholder="选择日期时间">
             </el-date-picker>
           </el-form-item>
         </div>
@@ -63,24 +58,8 @@
 import { buildModeling, getTimingrefresh } from '@/api/modelList'
 export default {
   data () {
-    // const checkNumber = (rule, val, callback) => {
-    //   const value = Number(val)
-    //   if (!value) {
-    //     return callback(new Error('频率不能为空'))
-    //   }
-    //   setTimeout(() => {
-    //     if (!Number.isInteger(value)) {
-    //       callback(new Error('请输入数字值'))
-    //     } else {
-    //       if (value <= 0) {
-    //         callback(new Error('必须为正整数'))
-    //       } else {
-    //         callback()
-    //       }
-    //     }
-    //   }, 1)
-    // }
     return {
+      test: '',
       dataList: {},
       formData: {},
       form: {
@@ -102,11 +81,6 @@ export default {
           { required: true, message: '请选择结束时间', trigger: 'change' }
         ]
       }
-      // formDataRules: {
-      //   interval: [
-      //     { validator: checkNumber, trigger: 'blur' }
-      //   ]
-      // }
     }
   },
   props: {

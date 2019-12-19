@@ -253,7 +253,8 @@ export default {
           if (item.resourceId === n.id) {
             item.column.forEach((k, i) => {
               AllData.push({
-                label: n.alias + '.' + k.name,
+                // label: n.alias + '.' + k.name, // name为描述
+                label: k.id,
                 id: k.id,
                 dataType: k.type
               })

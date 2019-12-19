@@ -2,7 +2,8 @@
   <div class="completeCreate"  v-loading="isLoading">
     <el-form :model="totalSaveData" ref="formData"  :rules="rules" >
        <el-form-item label="模板基本信息" class="item_line"></el-form-item>
-       <el-form-item label="事实表">{{jointResultData.fact_table}}</el-form-item>
+       <el-form-item label="事实表">{{jointResultData.fact_table.includes('.') ?
+         jointResultData.fact_table.split('.')[1] : jointResultData.fact_table}}</el-form-item>
        <el-form-item label="维度表">{{jointResultData.lookups.length}}</el-form-item>
        <el-form-item label="维度字段">{{saveSelectFiled.length}}</el-form-item>
        <el-form-item label="度量字段">{{measureTableList.length}}</el-form-item>
