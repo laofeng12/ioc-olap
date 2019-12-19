@@ -252,9 +252,13 @@ public class OlapRealQueryAction extends BaseAction {
         if (m.getSql() != null){
             m.setSql(formatSql(m.getSql(),true));
         }
+        OlapCube cube = this.olapCubeService.findTableInfo(m.getCubeName());
+        if (cube == null){
+            throw new APIException(400,"查询不到该记录对应的模型，请检查该模型是否有效");
+        }
         QueryResultMapper mapper;
         try {
-            mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), m.getCreateId().toString());//获取数据
+            mapper = cubeHttpClient.query(m.getSql(), 0, m.getLimit(), cube.getCreateId().toString());//获取数据
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }
