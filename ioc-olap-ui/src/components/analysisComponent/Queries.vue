@@ -1,23 +1,11 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <FolderAside :menuList="menuList" :menuDefault="menuDefault" iconType="cube"
-                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading"
+    <FolderAside :menuList="menuList" :menuDefault="menuDefault" iconType="cube" @clickItem="selectCheckbox"
+                 :needNewFolder="false" vueType="queries" :menuListLoading="menuListLoading" :cubeName="cubeName"
                  :showDo="false" emptyText="无可用的OLAP模型，请先创建/构建可用的模型"></FolderAside>
     <div class="content">
       <div class="editSql">
         <div class="editor">
-          <!-- <div class="number">
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-            <div>4</div>
-            <div>5</div>
-            <div>6</div>
-            <div>7</div>
-            <div>8</div>
-            <div>9</div>
-            <div>10</div>
-          </div> -->
           <el-input id="codeTextarea" class="textarea" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea"></el-input>
         </div>
         <div class="bottom">
@@ -59,6 +47,7 @@ export default {
       tableData: [],
       dialogFormVisible: false,
       formLabelWidth: '120px',
+      cubeName: '',
       menuList: [],
       menuDefault: {
         children: 'children', // 子集的属性
@@ -83,10 +72,11 @@ export default {
     ...mapGetters(['userInfo'])
   },
   watch: {
-    editInfo: function (val) {
+    editInfo (val) {
       if (val && val.sql) {
         this.textarea = val.sql
         this.lineNumber = val.limit
+        this.cubeName = val.cubeName
         this.formData = {
           folder: val.folderId.toString(),
           resultName: val.name
@@ -113,7 +103,7 @@ export default {
         if(string.length>0) string = string + '<br>';
         string = string + num;
       }
-      obj.style.top = (lineObjOffsetTop - ta.scrollTop) + 'px'; 
+      obj.style.top = (lineObjOffsetTop - ta.scrollTop) + 'px';
       obj.innerHTML = string;
     },
     // 动态生成左边代码行数
@@ -151,17 +141,25 @@ export default {
     async getAsideList () {
       this.menuListLoading = true
       const res = await getCubeTreeApi()
-      this.menuList = res
+      // this.menuList = res
+      this.menuList = res.map(v => {
+        return Object.assign(v, { showCheckbox: true })
+      })
       this.menuListLoading = false
     },
     async searchOlap () {
+      if (this.cubeName.length <= 0) {
+        this.$message.warning('请选择模型')
+        return false
+      }
       if (this.textarea.length <= 0) return this.$message.error('请先填写sql语句')
       if (!/^[1-9]|[1-9][0-9]*$/.test(this.lineNumber)) return this.$message.error('请正确填写限制行数')
       this.loading = true
       const data = {
         limit: this.checked ? this.lineNumber : -1,
         sql: this.textarea,
-        project: this.userInfo.userId
+        project: this.userInfo.userId,
+        cubeName: this.cubeName
       }
       this.exportData = data
       try {
@@ -188,13 +186,18 @@ export default {
       this.loading = false
     },
     async saveOlap (callbackData) {
+      if (this.cubeName.length <= 0) {
+        this.$message.warning('请选择模型')
+        return false
+      }
       const data = {
         limit: this.checked ? this.lineNumber : '',
-        flags: 0 // 标志 0：正常 1：共享
+        flags: 0, // 标志 0：正常 1：共享
+        cubeName: this.cubeName
       }
       let reqData = {}
       if (this.editInfo && this.editInfo.sql) {
-        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false }, { sql: this.textarea })
+        reqData = Object.assign({}, data, this.editInfo, callbackData, { isNew: false, sql: this.textarea, cubeName: this.cubeName })
       } else {
         reqData = Object.assign({}, data, callbackData, { sql: this.textarea })
       }
@@ -228,6 +231,9 @@ export default {
       } else {
         navigator.msSaveBlob(blob, fileName)
       }
+    },
+    selectCheckbox (name) {
+      this.cubeName = name
     }
   }
 }

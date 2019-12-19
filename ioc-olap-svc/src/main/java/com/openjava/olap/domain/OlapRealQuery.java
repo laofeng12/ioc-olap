@@ -1,18 +1,15 @@
 package com.openjava.olap.domain;
 
-import java.util.Date;
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.data.domain.Persistable;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.data.domain.Persistable;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 实体
@@ -25,6 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 public class OlapRealQuery implements Persistable<Long>,Serializable {
 	@ApiModelProperty("主键")
 	private Long realQueryId;
+	@ApiModelProperty("模型名称")
+	@Column(name = "CUBE_NAME")
+	private String cubeName;
 	@ApiModelProperty("文件夹ID")
 	private Long folderId;
 	@ApiModelProperty("查询结果名称")
@@ -192,4 +192,11 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
 		this.limit = limit;
 	}
 
+	public String getCubeName() {
+		return cubeName;
+	}
+
+	public void setCubeName(String cubeName) {
+		this.cubeName = cubeName;
+	}
 }

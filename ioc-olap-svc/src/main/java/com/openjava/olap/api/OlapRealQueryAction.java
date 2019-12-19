@@ -97,6 +97,9 @@ public class OlapRealQueryAction extends BaseAction {
     public OlapRealQuery doSave(@RequestBody OlapRealQuery body) throws APIException {
         Date date = new Date();
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
+        if (body.getCubeName() ==null || "".equals(body.getCubeName())){
+            throw new APIException(400,"模型名称不能为空");
+        }
         if (body.getIsNew() == null || body.getIsNew()) {
             SequenceService ss = ConcurrentSequence.getInstance();
             body.setRealQueryId(ss.getSequence());
@@ -207,12 +210,19 @@ public class OlapRealQueryAction extends BaseAction {
     @ApiOperation(value = "查询数据")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @Security(session = true, allowResources = {"OlapRealQuery"})
-    public QueryResultMapper query(String sql, Integer limit) throws APIException {
+    public QueryResultMapper query(
+        @ApiParam(value = "查询SQL语句",name = "sql",required = true)@RequestParam String sql,
+        @ApiParam(value = "限制行数",name = "limit")@RequestParam(required = false) Integer limit,
+        @ApiParam(value = "模型名称",name = "cubeName",required = true)@RequestParam String cubeName) throws APIException {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
-        // 统一给查询表名或join表名加上前缀数据库名
-        if (limit == -1) {
+        OlapCube record = this.olapCubeService.findTableInfo(cubeName);
+        if (record == null){
+            throw new APIException(400,"查询不到关联的模型");
+        }
+        if (limit == null || limit == -1) {
             limit = Integer.MAX_VALUE;
         }
+        // 统一给查询表名或join表名加上前缀数据库名
         // 主要加库名
         String formatSql = formatSql(sql,true);
         //已保存结果-查询数据
@@ -227,7 +237,7 @@ public class OlapRealQueryAction extends BaseAction {
             },new ArrayList<Object>(){{}});
         this.auditComponentProxy.saveAudit(param);
         try {
-            return cubeHttpClient.query(formatSql, 0, limit, userVO.getUserId());
+            return cubeHttpClient.query(formatSql, 0, limit, record.getCreateId().toString());
         } catch (Exception ex) {
             throw new APIException(400, "查询失败！");
         }
