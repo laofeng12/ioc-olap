@@ -222,7 +222,18 @@ public class OlapModelingAction extends BaseAction {
 
         //设置完整的过滤SQL
         models.getModelDescData().setFilter_condition(makeFilterSql(body.getFilterCondidion()));
-
+        //先判断模型是不是增量构建
+        //再判断是否传了partition_date_format值
+        if (body.getTimingreFresh() != null
+            && body.getTimingreFresh().getBuildMode() != null
+            && body.getTimingreFresh().getBuildMode() == OlapTimingrefresh.BUILD_DELTA){
+            if (body.getModels().getModelDescData().getPartition_desc().getPartition_date_format() == null
+                || "".equals(body.getModels().getModelDescData().getPartition_desc().getPartition_date_format())){
+                throw new APIException(400,"增量构建的模型，必须指定日期字段的日期格式");
+            }
+            //在这里提取日期格式，该属性用于页面上点击构建时，返回给前端做判断日期格式
+            body.getTimingreFresh().setColumnFormatSign(body.getModels().getModelDescData().getPartition_desc().getPartition_date_format());
+        }
         //构建需要保存的数据
         OlapCube olapCube = olapCubeService.saveCube(cube, date, userVO, body.getDimensionLength(), body.getDimensionFiledLength(), body.getMeasureFiledLength(), body.getGraphData());
         List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
