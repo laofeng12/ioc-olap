@@ -109,9 +109,10 @@ public class OlapTimingrefresh implements Persistable<Long>,Serializable {
 	@Column(name = "BUILD_MODE")
 	private Integer buildMode;
 
-	@ApiModelProperty("时间格式，当为增量时，需要指定一个日期字段的时间格式，0:yyyy-MM-dd HH:mm:ss,1:yyyy-MM-dd")
+	@ApiModelProperty("时间格式，当为增量时，需要指定一个日期字段的时间格式，yyyy-MM-dd HH:mm:ss,yyyy-MM-dd")
 	@Column(name = "COLUMN_FORMAT_SIGN")
-	private Integer columnFormatSign;
+	@Length(max = 100)
+	private String columnFormatSign;
 
 	@ApiModelProperty("是否新增")
 	@Transient
