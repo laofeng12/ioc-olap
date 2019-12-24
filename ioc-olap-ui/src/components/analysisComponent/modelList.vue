@@ -160,7 +160,7 @@ export default {
         !params.cubeName && delete params.cubeName
         const { cubeMappers: res, next } = await getModelDataList(params)
         if (type === 'search') {
-          this.tableData = res
+          this.tableData = res.sort((a, b) => b.create_time_utc - a.create_time_utc)
         } else if (res && res.length > 0) {
           this.tableData = [...this.tableData, ...res].sort((a, b) => b.create_time_utc - a.create_time_utc)
         }
@@ -290,7 +290,7 @@ export default {
             models: params.model
           }
           descDataList(info).then((res) => {
-            // this.dateType = res.
+            // console.info('res', res)
             this.dateType = res.ModesList.partition_desc.partition_date_format
             this.$refs['construct'].dialog(params)
             // console.log(this.dateType)

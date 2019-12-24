@@ -225,7 +225,7 @@ export default {
         }
       })
     },
-    
+
     // 处理后端需要的数据
     processReloadData () {
       /**
@@ -233,7 +233,7 @@ export default {
        * ${partition_date_format} -- 赋值第一个字段表对应的时间格式
        * ${partition_type} -- 日期是否存在多列
        **/
-      this.totalSaveData.timingreFresh.autoReload = 
+      // this.totalSaveData.timingreFresh.autoReload =
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_column = this.formData.data1a ? `${this.formData.data1a}.${this.formData.data1b}` : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_date_format = this.formData.partition_date_format ? this.formData.partition_date_format : ''
       this.totalSaveData.models.modelDescData.partition_desc.partition_type = 'APPEND'
@@ -346,7 +346,6 @@ export default {
     font-size: 14px;
     color: #444444;
     letter-spacing: 0;
-    line-height: 12px;
     width 100%
     border-bottom 1px solid #D9D9D9
     height 30px

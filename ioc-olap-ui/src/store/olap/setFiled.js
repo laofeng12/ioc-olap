@@ -145,6 +145,7 @@ const setFiled = {
         // 如果为全选的时候 就需要遍历${val}取到对应的id
         // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
         if (val.length) {
+          // console.info('111', val, item)
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
@@ -158,6 +159,7 @@ const setFiled = {
           })
         } else {
           // 单选勾选框的时候
+          // console.info('222', val, item)
           if (val.id === item.id) {
             state.saveSelectFiled[index].mode = val.mode
           }
