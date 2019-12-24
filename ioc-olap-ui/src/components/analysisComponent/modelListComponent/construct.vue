@@ -7,17 +7,17 @@
             {{dataList.partitionDateColumn}}
           </el-form-item>
           <el-form-item label="开始时间"  prop="startTime">
-            <!--<el-date-picker :format="dateType" v-model="form.startTime" value-format="timestamp" type="datetime"-->
-                            <!--placeholder="选择日期时间">-->
-              <el-date-picker :format="dateType" v-model="form.startTime" value-format="timestamp"
-                              placeholder="选择日期时间">
+            <el-date-picker v-model="form.startTime" value-format="timestamp" :type="format"
+                            placeholder="选择日期时间">
+              <!--<el-date-picker :format="dateType" v-model="form.startTime" value-format="timestamp"-->
+                              <!--placeholder="选择日期时间">-->
             </el-date-picker>
           </el-form-item>
           <el-form-item label="结束时间"  prop="endTime">
-            <!--<el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"-->
-                            <!--:picker-options="pickerOptions" type="datetime" placeholder="选择日期时间">-->
-              <el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"
-                              :picker-options="pickerOptions" placeholder="选择日期时间">
+            <el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"
+                            :picker-options="pickerOptions" :type="format" placeholder="选择日期时间">
+              <!--<el-date-picker :format="dateType" v-model="form.endTime" value-format="timestamp"-->
+                              <!--:picker-options="pickerOptions" placeholder="选择日期时间">-->
             </el-date-picker>
           </el-form-item>
         </div>
@@ -60,6 +60,7 @@ export default {
   data () {
     return {
       test: '',
+      format: 'date',
       dataList: {},
       formData: {},
       form: {
@@ -87,6 +88,24 @@ export default {
     dateType: {
       type: String,
       default: 'yyyy-MM-dd'
+    }
+  },
+  watch: {
+    dateType (val) {
+      switch (val) {
+        case 'yyyy-MM-dd hh:mm:ss':
+          this.format = 'datetime'
+          break
+        case 'yyyy-MM-dd':
+          this.format = 'date'
+          break
+        case 'hh:mm:ss':
+          this.format = 'datetime'
+          break
+        default:
+          this.format = 'date'
+          break
+      }
     }
   },
   methods: {
@@ -140,6 +159,7 @@ export default {
     },
     dialog (val) {
       this.dataList = val
+      // console.info('val', val)
       this.dialogFormVisible = true
       val.segments.forEach(item => {
         // 根据后端的需求开始的时间需要多加上 1 S
