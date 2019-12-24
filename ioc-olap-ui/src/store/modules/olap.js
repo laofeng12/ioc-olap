@@ -283,13 +283,15 @@ const common = {
 
       getters.jointResultData.fact_table = data.ModesList.fact_table
       // 赋值第三步
+      // console.info('data.ModesList.dimensions', data.ModesList.dimensions)
       data.ModesList.dimensions.map(res => {
         getters.saveNewSortListstructure.push(res)
       })
+      // console.info('data.CubeList.dimensions', data.CubeList.dimensions)
       data.CubeList.dimensions.map((res, i) => {
         getters.saveSelectFiled.push({
           titName: res.name,
-          name: res.column ? res.column : res.name,
+          name: res.id.split('.') ? res.id.split('.')[1] : (res.column || res.name),
           dataType: res.column_type,
           tableName: res.table,
           filed: res.table === data.ModesList.fact_table.split('.')[1] ? '1' : '0',
@@ -304,6 +306,7 @@ const common = {
       })
       // 赋值第五步
       if (data.timingreFresh) {
+        // console.info('111', data.timingreFresh)
         getters.reloadData.frequencytype = data.timingreFresh.frequencytype
         getters.reloadData.autoReload = !!data.timingreFresh.interval
         getters.reloadData.interval = Number(data.timingreFresh.interval)
