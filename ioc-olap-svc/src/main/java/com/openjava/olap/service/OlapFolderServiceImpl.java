@@ -1,9 +1,5 @@
 package com.openjava.olap.service;
 
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Resource;
-
 import com.openjava.olap.domain.OlapFolder;
 import com.openjava.olap.query.OlapFolderDBParam;
 import com.openjava.olap.repository.OlapFolderRepository;
@@ -11,6 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 文件夹表业务层
@@ -69,13 +69,13 @@ public class OlapFolderServiceImpl implements OlapFolderService {
     }
 
     @Override
-    public boolean checkExsitName(String name, Long userId) {
-        return checkExsitName(name, 0L, userId);
+    public boolean checkExsitName(String name, Long userId,String type) {
+        return checkExsitName(name, 0L, userId,type);
     }
 
     @Override
-    public boolean checkExsitName(String name, Long folderId, Long userId) {
-        List<OlapFolder> folder = olapFolderRepository.findByName(name, folderId, userId);
+    public boolean checkExsitName(String name, Long folderId, Long userId,String type) {
+        List<OlapFolder> folder = olapFolderRepository.findByName(name, folderId, userId,type);
         if (folder.size() > 0) {
             return true;
         }

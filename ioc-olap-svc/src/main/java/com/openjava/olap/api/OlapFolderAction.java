@@ -52,7 +52,7 @@ public class OlapFolderAction extends BaseAction {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         AuditLogParam param = null;
         if (body.getIsNew() == null || body.getIsNew()) {
-            if (olapFolderService.checkExsitName(body.getName(), Long.parseLong(userVO.getUserId()))) {
+            if (olapFolderService.checkExsitName(body.getName(), Long.parseLong(userVO.getUserId()),body.getType())) {
                 throw new APIException(400, "名称已经存在！");
             }
             SequenceService ss = ConcurrentSequence.getInstance();
@@ -85,7 +85,7 @@ public class OlapFolderAction extends BaseAction {
                 this.auditComponentProxy.saveAudit(param);
             }
         } else {
-            if (olapFolderService.checkExsitName(body.getName(), body.getFolderId(), Long.parseLong(userVO.getUserId()))) {
+            if (olapFolderService.checkExsitName(body.getName(), body.getFolderId(), Long.parseLong(userVO.getUserId()),body.getType())) {
                 throw new APIException(400, "名称已经存在！");
             }
             OlapFolder db = olapFolderService.get(body.getId());
