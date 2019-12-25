@@ -20,6 +20,7 @@ public class DataLakeJobQueryParam {
     private String resourceId;
     private String type;
     private String syncSource;
+    private String businessId;
     @JsonIgnore
     private String cubeName;
 }

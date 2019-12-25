@@ -9,9 +9,11 @@ import com.openjava.olap.common.RestToken;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.domain.OlapCube;
 import com.openjava.olap.domain.OlapDatalaketable;
+import com.openjava.olap.domain.OlapTableSync;
 import com.openjava.olap.domain.OlapTimingrefresh;
 import com.openjava.olap.query.DataLakeJobQueryParam;
 import com.openjava.olap.repository.OlapDatalaketableRepository;
+import com.openjava.olap.repository.OlapTableSyncRepository;
 import com.openjava.olap.vo.DataLakeQueryJobStatusVo;
 import com.openjava.olap.vo.DataLakeTriggerJobVo;
 import com.openjava.olap.vo.OlapCubeBuildVo;
@@ -49,6 +51,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     /**保存构建时间**/
     private final OlapTimingrefreshService olapTimingrefreshService;
     private final OlapDatalaketableRepository olapDatalaketableRepository;
+    private final OlapTableSyncRepository olapTableSyncRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -61,12 +64,15 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         List<DataLakeJobQueryParam> list = new ArrayList<>();
         //一次性封装好所有待查询同步任务状态的表的参数消息体
         result.forEach((key,value)-> value.forEach(s->{
+            OlapTableSync record = this.olapTableSyncRepository.getByDatabaseIdAndResourceIdAndTableName(s.getDatabaseId(),
+                s.getResourceId(),s.getTable_name());
             list.add(DataLakeJobQueryParam.builder()
                 .resourceId(s.getResourceId())
                 .syncSource(syncSource)
                 .type(s.getType())
                 .databaseId(s.getDatabaseId())
                 .cubeName(s.getCubeName())
+                .businessId(record.getBusinessId())
                 .build());
         }));
         return list;
@@ -85,13 +91,18 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
                 add(cubeName);
             }
         });
-        result.forEach(s-> list.add(DataLakeJobQueryParam.builder()
+        result.forEach(s->
+        {
+            OlapTableSync record = this.olapTableSyncRepository.getByDatabaseIdAndResourceIdAndTableName(s.getDatabaseId(),
+                s.getResourceId(),s.getTable_name());
+            list.add(DataLakeJobQueryParam.builder()
             .resourceId(s.getResourceId())
             .syncSource(syncSource)
             .type(s.getType())
             .databaseId(s.getDatabaseId())
+                .businessId(record.getBusinessId())
             .cubeName(s.getCubeName())
-            .build()));
+            .build());});
         return list;
     }
 
