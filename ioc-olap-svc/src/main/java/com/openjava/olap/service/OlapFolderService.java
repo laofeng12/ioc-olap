@@ -1,11 +1,11 @@
 package com.openjava.olap.service;
 
-import java.util.List;
-
 import com.openjava.olap.domain.OlapFolder;
 import com.openjava.olap.query.OlapFolderDBParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * 文件夹表业务层接口
@@ -29,7 +29,7 @@ public interface OlapFolderService {
 
     List<OlapFolder> getListByTypeAndCreateId(Long userId, String type);
 
-    boolean checkExsitName(String name, Long userId);
+    boolean checkExsitName(String name, Long userId,String type);
 
-    boolean checkExsitName(String name, Long folderId, Long userId);
+    boolean checkExsitName(String name, Long folderId, Long userId,String type);
 }

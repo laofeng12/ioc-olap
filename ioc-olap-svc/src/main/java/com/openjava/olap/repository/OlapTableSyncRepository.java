@@ -15,4 +15,6 @@ public interface OlapTableSyncRepository extends DynamicJpaRepository<OlapTableS
 
     @Query(value = "select SYNC_ID from OLAP_TABLE_SYNC where DATABASE_ID=:databaseId and RESOURCE_ID=:resourceId",nativeQuery = true)
     Long exist(@Param("databaseId") String databaseId,@Param("resourceId") String resourceId);
+
+    OlapTableSync getByDatabaseIdAndResourceIdAndTableName(String databaseId,String resourceId,String tableName);
 }
