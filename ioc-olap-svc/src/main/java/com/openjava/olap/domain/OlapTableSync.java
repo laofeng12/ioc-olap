@@ -40,7 +40,7 @@ public class OlapTableSync implements Persistable<Long>,Serializable{
     private String virtualTableName;
 
     @Column(name = "TABLE_NAME")
-    @ApiModelProperty("真实表名，后端统一格式为:OLAP_{resourceId}")
+    @ApiModelProperty("真实表名，后端统一格式为:虚拟表名_随机id")
     private String tableName;
 
     @Column(name = "SUCCESS")
