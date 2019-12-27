@@ -119,7 +119,7 @@ const selectStep = {
       // })
       state.saveSelectAllListFiled = []
       val.forEach(t => {
-        const target = state.saveSelectAllList.find(item => String(item.resourceId)  === String(t))
+        const target = state.saveSelectAllList.find(item => String(item.resourceId) === String(t))
         if (target) {
           state.saveSelectAllListFiled.push(target)
         }

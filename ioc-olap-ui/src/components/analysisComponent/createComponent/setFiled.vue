@@ -23,8 +23,8 @@
               <el-table-column label="维度组合名称" align="center">
                 <template slot-scope="scope">
                   <div class="play">
-                    <el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode"
-                                    @change="radioChange(scope.row)"
+                    <!--<el-radio-group v-model="scope.row.filed === '1' ? '1' : scope.row.mode"-->
+                    <el-radio-group v-model="scope.row.mode" @change="radioChange(scope.row)"
                                     :disabled="scope.row.filed === '1' || scope.row.defaultVal === 'n'">
                       <el-radio label="1">正常模式</el-radio>
                       <el-radio label="2">衍生模式</el-radio>
@@ -80,7 +80,7 @@ export default {
     // }
   },
   activated () {
-    this.$refs.filedTable.init()
+    // this.$refs.filedTable.init()
     this.init()
   },
   methods: {
@@ -160,7 +160,7 @@ export default {
                     this.ModelAllList && this.ModelAllList.CubeList.dimensions.forEach(val => {
                       if (val.id === item.id) {
                         this.tableData[i].name = String(val.name)
-                        this.tableData[i].mode = String(val.mode)
+                        this.tableData[i].mode = String(val.derived) === 'null' ? '1' : '2'
                         arr.push(item)
                       }
                     })
@@ -176,7 +176,6 @@ export default {
                     })
                   })
                 }
-
                 this.toggleSelection(arr)
               }, 500)
             }
