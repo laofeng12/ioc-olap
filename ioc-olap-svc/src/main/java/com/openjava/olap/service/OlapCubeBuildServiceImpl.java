@@ -19,6 +19,7 @@ import com.openjava.olap.vo.DataLakeTriggerJobVo;
 import com.openjava.olap.vo.OlapCubeBuildVo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ljdp.secure.annotation.Security;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
 
     /**
      * <p>自身类的preBuild方法调用</p>
-     * <p>用于手动点击构建和定时构建循环模型时调用</p>
+     * <p>用于手动点击构建、定时构建循环模型、重新同步时调用</p>
      * @param cubeName
      * @return
      */
@@ -260,6 +261,35 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         olapTimingrefresh.setBegin(begin);
         olapTimingrefresh.setEnd(end);
         this.olapTimingrefreshService.doSave(olapTimingrefresh);
+        cube.setFlags(CubeFlags.ON_SYNC.getFlags());
+        cube.setUpdateTime(new Date());
+        this.olapCubeService.doSave(cube);
+        return vo;
+    }
+
+    @Override
+    @Security(session = true)
+    public OlapCubeBuildVo retrySync(String cubeName) throws Exception {
+        OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
+        OlapCubeBuildVo vo = new OlapCubeBuildVo();
+        vo.setStatus(1);
+        vo.setMsg("请求同步成功");
+        if (cube == null){
+            vo.setMsg("查询不到该模型，请检查参数有效性");
+            vo.setStatus(0);
+            return vo;
+        }
+        if (
+            assertCubeStatus(CubeFlags.SYNC_FAILED.getFlags(),cube.getFlags())){
+            vo.setMsg("请求被拒绝，该模型的状态为：["+CubeFlags.getByFlags(cube.getFlags())
+                +"],只有状态为\"同步失败\"的模型才能执行\"重新同步\"操作");
+            vo.setStatus(0);
+            vo.setMsg("状态不满足重新同步的条件");
+            return vo;
+        }
+        List<DataLakeJobQueryParam> params = queryJobQueryParamsByCubeName(cubeName);
+        //批量调用触发同步任务接口，开始同步数据
+        this.batchTriggerJob(params);
         cube.setFlags(CubeFlags.ON_SYNC.getFlags());
         cube.setUpdateTime(new Date());
         this.olapCubeService.doSave(cube);
