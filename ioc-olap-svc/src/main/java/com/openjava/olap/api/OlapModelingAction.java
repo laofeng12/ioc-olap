@@ -239,48 +239,46 @@ public class OlapModelingAction extends BaseAction {
         List<OlapCubeTable> cubeTablesList = olapCubeTableService.saveCubeTable(models, cube, olapCube.getCubeId(), body.cubeDatalaketableNew);
         List<OlapCubeTableRelation> olapcubeList = olapCubeTableRelationService.saveCubeTableRelation(cube, models, olapCube.getCubeId(), cubeTablesList);
 
-        synchronized (lock) {
-            //处理逻辑如下：
-            //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
-            if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
-                modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
-                models.modelDescData.setName(modelName);
-                models.modelDescData.setVersion(null);
-                models.setProject(userVO.getUserId());
-                modelMap = modelHttpClient.create(models);
-                try {
-                    cube.cubeDescData.setModel_name(modelName);
-                    cube.cubeDescData.setVersion(null);
-                    cube.cubeDescData.setStorage_type("2");
-                    cube.setCubeName(cubeName);
-                    cube.setProject(userVO.getUserId());
-                    Thread.sleep(500);
-                    cubeMap = cubeHttpClient.create(cube);
-                } catch (Exception ex) {
-                    CubeDescDataMapper newErrorCube = cubeHttpClient.desc(cubeName);
-                    if (newErrorCube != null) {
-                        cubeHttpClient.delete(cubeName);
-                    }
-                    modelHttpClient.delete(modelName);
-                    throw ex;
+        //处理逻辑如下：
+        //1、通过uuid去判断是否为新增或编辑,然后进行相应操作.
+        if (StringUtils.isBlank(body.getCube().getCubeDescData().getUuid())) {
+            modelName = String.valueOf(ConcurrentSequence.getInstance().getSequence());
+            models.modelDescData.setName(modelName);
+            models.modelDescData.setVersion(null);
+            models.setProject(userVO.getUserId());
+            modelMap = modelHttpClient.create(models);
+            try {
+                cube.cubeDescData.setModel_name(modelName);
+                cube.cubeDescData.setVersion(null);
+                cube.cubeDescData.setStorage_type("2");
+                cube.setCubeName(cubeName);
+                cube.setProject(userVO.getUserId());
+                Thread.sleep(500);
+                cubeMap = cubeHttpClient.create(cube);
+            } catch (Exception ex) {
+                CubeDescDataMapper newErrorCube = cubeHttpClient.desc(cubeName);
+                if (newErrorCube != null) {
+                    cubeHttpClient.delete(cubeName);
                 }
-            } else {
-                modelName = models.getModelDescData().getName();
-                oldModel = modelHttpClient.entity(models.getModelDescData().getName());
-                models.getModelDescData().setVersion(oldModel.getVersion());
-                models.getModelDescData().setLast_modified(oldModel.getLast_modified());
-                modelMap = modelHttpClient.update(models);
-                try {
-                    cube.project = userVO.getUserId();
-                    cube.cubeName = cube.cubeDescData.getName();
-                    cube.cubeDescData.setModel_name(models.modelDescData.getName());
-                    cube.cubeDescData.setStorage_type("2");
-                    Thread.sleep(500);
-                    cubeMap = cubeHttpClient.update(cube);
-                } catch (Exception ex) {
-                    restoreModel(modelMap, oldModel);
-                    throw ex;
-                }
+                modelHttpClient.delete(modelName);
+                throw ex;
+            }
+        } else {
+            modelName = models.getModelDescData().getName();
+            oldModel = modelHttpClient.entity(models.getModelDescData().getName());
+            models.getModelDescData().setVersion(oldModel.getVersion());
+            models.getModelDescData().setLast_modified(oldModel.getLast_modified());
+            modelMap = modelHttpClient.update(models);
+            try {
+                cube.project = userVO.getUserId();
+                cube.cubeName = cube.cubeDescData.getName();
+                cube.cubeDescData.setModel_name(models.modelDescData.getName());
+                cube.cubeDescData.setStorage_type("2");
+                Thread.sleep(500);
+                cubeMap = cubeHttpClient.update(cube);
+            } catch (Exception ex) {
+                restoreModel(modelMap, oldModel);
+                throw ex;
             }
         }
 
