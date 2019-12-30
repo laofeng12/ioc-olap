@@ -40,9 +40,6 @@ export default {
   //     jointResultData: 'jointResultData'
   //   })
   // },
-  // mounted () {
-  //   console.info('this.selectTableTotal', this.selectTableTotal)
-  // },
   methods: {
     // init () {
     //   this.options = this.selectTableTotal

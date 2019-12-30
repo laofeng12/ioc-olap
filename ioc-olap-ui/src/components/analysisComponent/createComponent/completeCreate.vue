@@ -103,9 +103,6 @@ export default {
       this.totalSaveData.cube.cubeDescData.measures = this.measureTableList
       this.totalSaveData.cube.cubeDescData.rowkey = this.rowkeyData
       this.totalSaveData.filterCondidion = this.relaodFilterList // 刷新过滤
-
-      // console.info('this.reloadData', this.reloadData)
-
       this.totalSaveData.timingreFresh.interval = Number(this.reloadData.interval)
       this.totalSaveData.timingreFresh.frequencytype = this.reloadData.frequencytype
       this.totalSaveData.timingreFresh.autoReload = this.reloadData.autoReload === true ? 1 : 0
