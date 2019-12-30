@@ -12,6 +12,7 @@ import com.openjava.olap.domain.*;
 import com.openjava.olap.mapper.kylin.*;
 import com.openjava.olap.service.*;
 import com.openjava.olap.vo.CubeListVo;
+import com.openjava.olap.vo.OlapCubeBuildVo;
 import com.openjava.olap.vo.ShareCubeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,10 +25,9 @@ import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -798,7 +798,10 @@ public class OlapModelingAction extends BaseAction {
         timingrefresh.setUpdateId(Long.parseLong(userVO.getUserId()));
         timingrefresh.setUpdateName(userVO.getUserAccount());
         timingrefresh.setUpdateTime(new Date());
-        olapCubeBuildService.preBuild(cubeName,start,end);
+        OlapCubeBuildVo vo = olapCubeBuildService.preBuild(cubeName,start,end);
+        if (vo.getStatus() == 0){
+            throw new APIException(400,vo.getMsg());
+        }
         //模型列表-构建
         AuditLogParam param = new AuditLogParam(SsoContext.getRequestId(),(UserVO)SsoContext.getUser(), AuditLogEnum.LOG_SERVICE_NAME,
             AuditLogEnum.LOG_MODULES_OLAP_MODEL,AuditLogEnum.LOG_OLAP_MODEL_TITLE_LEVEL_PRIMARY_MODEL_LIST,
@@ -1189,4 +1192,26 @@ public class OlapModelingAction extends BaseAction {
         return olapTimingrefreshService.findTableInfo(cubeName);
     }
 
+
+    @ApiOperation(value = "重新同步")
+    @GetMapping(value = "/retrySync")
+    @Security(session = true,allowResources = {"OlapModel"})
+    public Object retrySync(@RequestParam String cubeName){
+        ResponseEntity<OlapCubeBuildVo>responseEntity = ResponseEntity.ok(new OlapCubeBuildVo());
+        try {
+            OlapCubeBuildVo vo = this.olapCubeBuildService.retrySync(cubeName);
+            if (vo.getStatus() == 0){
+                responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(vo);
+            }else {
+                responseEntity.getBody().setMsg(vo.getMsg());
+                responseEntity.getBody().setStatus(vo.getStatus());
+            }
+        } catch (Exception e) {
+            log.error("重新同步失败",e);
+            responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new OlapCubeBuildVo());
+            responseEntity.getBody().setMsg("重新同步失败");
+            responseEntity.getBody().setStatus(0);
+        }
+        return responseEntity;
+    }
 }

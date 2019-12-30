@@ -76,4 +76,16 @@ public interface OlapCubeBuildService {
      */
     OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end)throws Exception;
 
+    /**
+     * <p>重新同步，指的是那些同步数据失败的模型</p>
+     * <p>重新同步时，会直接封装好OlapTableSync同步记录里的参数，拿去触发同步任务，再者就是定时任务的流程了</p>
+     * <p>定时任务查询同步任务状态，更新模型状态，如果同步任务全部成功，则会拿上一次的构建开始、结束时间来构建模型</p>
+     * <p>这里不用担心上一次的构建开始、结束时间会被“构建操作”覆盖，因为点击重新同步后，会更新模型为数据同步中</p>
+     * <p>数据同步中，不会允许用户再构建模型了</p>
+     * @param cubeName 模型名称
+     * @return
+     * @throws Exception
+     */
+    OlapCubeBuildVo retrySync(String cubeName)throws Exception;
+
 }
