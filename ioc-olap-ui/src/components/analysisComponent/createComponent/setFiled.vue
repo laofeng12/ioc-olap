@@ -144,6 +144,7 @@ export default {
               })
               // 获取对应的字段赋值到列表
               this.tableData = item.column
+              console.info('this.tableData', this.tableData)
               // 调用获取默认勾选的方法
               this.processData(code, data.alias)
               let arr = []
@@ -180,6 +181,7 @@ export default {
               }, 500)
             }
           })
+          console.info('222', this.tableData)
         }
       })
       // 判断有乜选择事实表
