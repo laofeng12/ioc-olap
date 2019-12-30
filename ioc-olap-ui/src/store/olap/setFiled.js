@@ -145,7 +145,6 @@ const setFiled = {
         // 如果为全选的时候 就需要遍历${val}取到对应的id
         // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
         if (val.length) {
-          // console.info('111', val, item)
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
@@ -159,15 +158,14 @@ const setFiled = {
           })
         } else {
           // 单选勾选框的时候
-          // console.info('222', val, item)
           if (val.id === item.id) {
             state.saveSelectFiled[index].mode = val.mode
           }
           // 如果mode===1 或者为事实表的时候 就存储到普通模式列表中 否则的话就存储到衍生模式列表中
           if ((String(val.mode) === '1' && String(item.mode) === '1') || item.filed === '1') {
-            dispatch('normalFn', { item: item, val: val, model: 1 })
+            dispatch('normalFn', { item, val, model: 1 })
           } else if (String(val.mode) === '2' && String(item.mode) === '2') {
-            dispatch('derivativeFn', { item: item, val: val, model: 2 })
+            dispatch('derivativeFn', { item, val, model: 2 })
           }
         }
       })

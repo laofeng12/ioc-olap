@@ -290,7 +290,6 @@ export default {
             models: params.model
           }
           descDataList(info).then((res) => {
-            // console.info('res', res)
             this.dateType = res.ModesList.partition_desc.partition_date_format
             this.$refs['construct'].dialog(params)
             // console.log(this.dateType)
