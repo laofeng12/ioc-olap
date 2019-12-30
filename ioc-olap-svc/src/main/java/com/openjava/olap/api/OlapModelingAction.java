@@ -1199,14 +1199,14 @@ public class OlapModelingAction extends BaseAction {
         try {
             OlapCubeBuildVo vo = this.olapCubeBuildService.retrySync(cubeName);
             if (vo.getStatus() == 0){
-                responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(vo);
+                responseEntity = ResponseEntity.status(HttpStatus.OK).body(vo);
             }else {
                 responseEntity.getBody().setMsg(vo.getMsg());
                 responseEntity.getBody().setStatus(vo.getStatus());
             }
         } catch (Exception e) {
             log.error("重新同步失败",e);
-            responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new OlapCubeBuildVo());
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(new OlapCubeBuildVo());
             responseEntity.getBody().setMsg("重新同步失败");
             responseEntity.getBody().setStatus(0);
         }
