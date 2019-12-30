@@ -111,6 +111,12 @@ export default {
       this.$root.eventBus.$on('getTableHeadList', (params) => {
         this.catchTable = params
         this.getTableHeadList(params)
+      }),
+      // 没有数据显示空白
+      this.$root.eventBus.$on('no-data', _ => {
+       ['powerPlanHead','descriptionData', 'managementHead', 'managementData'].forEach(t => {
+         this[t] = []
+       })
       })
     },
     // 订阅
@@ -223,6 +229,7 @@ export default {
   },
   beforeDestroy () {
     this.$root.eventBus.$off('getTableHeadList')
+    this.$root.eventBus.$off('no-data')
   }
 }
 </script>
