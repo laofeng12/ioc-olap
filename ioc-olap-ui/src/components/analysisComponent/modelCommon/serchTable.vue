@@ -292,6 +292,10 @@ export default {
          })
          // 默认查第一个表
          this.dataList.length && this.$root.eventBus.$emit('getTableHeadList', this.dataList[0])
+         // 没有数据显示为空
+         if (!data || !data.length) {
+           this.$root.eventBus.$emit('no-data')
+         }
          // 编辑
          if (this.$route.query.cubeName) {
            // 设置勾选状态
@@ -314,7 +318,7 @@ export default {
     // 点击节点
     handleNodeClick (data) {
       if (data.label === '全选') return
-      this.$root.eventBus.$emit('getTableHeadList', data)
+       this.$root.eventBus.$emit('getTableHeadList', data)
     },
     // 【弃用】
     // 勾选框的选择
@@ -337,6 +341,8 @@ export default {
   beforeDestroy () {
     this.$root.eventBus.$off('getserchTableList')
     this.$root.eventBus.$off('getTableHeadList')
+    this.$root.eventBus.$off('no-data')
+    
     // this.$root.eventBus.$off('saveSelectTables')
     // this.$root.eventBus.$off('modal-remove')
   }

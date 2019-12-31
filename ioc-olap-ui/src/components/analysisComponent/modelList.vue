@@ -68,6 +68,7 @@
                   <el-dropdown-item :command="{type: 'lookUserModal', params: scope.row}">编辑</el-dropdown-item>
                   <!-- 1：成功，-1：失败，0：进行中 :disabled="scope.row.syncStatus !== 1" -->
                   <el-dropdown-item :command="{type: 'construct', params: scope.row}" >构建</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.flags === 4" :command="{type: 'retrySync', params: scope.row}" >重新同步</el-dropdown-item>
                   <el-dropdown-item :command="{type: 'reloads', params: scope.row}">刷新</el-dropdown-item>
                   <el-dropdown-item v-if="scope.row.status === 'DISABLED'"
                                     :command="{type: 'enable', params: scope.row}">启用</el-dropdown-item>
@@ -93,7 +94,9 @@
 </template>
 
 <script>
-import { descDataList, getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling } from '@/api/modelList'
+import {
+  descDataList, getModelDataList, buildModeling, disableModeling, deleteCubeModeling, enableModeling, retrySyncApi
+} from '@/api/modelList'
 import { modelDetail, clones, construct, reloads, merge, sharedTable } from '@/components/analysisComponent/modelListComponent'
 import { filterTime, removeAllStorage, statusReviewFilter } from '@/utils/index'
 export default {
@@ -339,6 +342,22 @@ export default {
       // 共享
       if (this.$refs[type] || type === 'sharedTable') {
         this.$refs[type].dialog(params)
+      }
+      // 重新同步
+      if (type === 'retrySync') {
+        this.retrySync(params.name)
+      }
+    },
+    async retrySync (name) {
+      try {
+        const res = await retrySyncApi({ cubeName: name })
+        if (res.status) {
+          this.$message.success('已启用')
+        } else {
+          this.$message.error(res.msg)
+        }
+      } catch (e) {
+        this.$message.error(e.data.msg)
       }
     },
     closeExpands () {

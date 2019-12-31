@@ -155,3 +155,11 @@ export function batchDelete (params) {
   })
 }
 
+// 重新同步
+export function retrySyncApi (params) {
+  return fetch({
+    url: '/olap/apis/OlapModeling/retrySync',
+    method: 'get',
+    params
+  })
+}
