@@ -94,7 +94,7 @@ const selectStep = {
       // getselectColumn(columId).then(res => {
       //   state.saveSelectAllList = res
       // })
-      state.saveSelectAllList.push(val)
+      state.saveSelectAllList.push(JSON.parse(JSON.stringify(val)))
     },
     // 替换type
     SET_SElECTAll_LISTONE (state, data = []) {

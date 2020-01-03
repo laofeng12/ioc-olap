@@ -101,7 +101,7 @@ export default {
             this.saveSelectAllListFiled.forEach((item, index) => {
               // let items = JSON.parse(item)
               item.column && item.column.map((n, i) => {
-                n.mode = n.mode ? n.mode : '2'
+                n.mode = n.mode ? n.mode : (data.alias === code ? '1' : '2')
                 n.derived = n.definition
                 n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
@@ -134,7 +134,7 @@ export default {
             if (item.resourceId === data.id) { // 根据id获取对应数据
             // if (items.name === data.joinTable) { // 根据name获取对应数据
               item.column && item.column.map((n, i) => {
-                n.mode = n.mode ? n.mode : '2' // 默认衍生模式
+                n.mode = n.mode ? n.mode : (data.alias === code ? '1' : '2') // 默认衍生模式
                 n.derived = n.definition
                 n.titName = n.definition // 字段名称
                 n.tableName = data.alias ? data.alias : ''
@@ -144,7 +144,6 @@ export default {
               })
               // 获取对应的字段赋值到列表
               this.tableData = item.column
-              console.info('this.tableData', this.tableData)
               // 调用获取默认勾选的方法
               this.processData(code, data.alias)
               let arr = []
@@ -179,9 +178,9 @@ export default {
                 }
                 this.toggleSelection(arr)
               }, 500)
+
             }
           })
-          console.info('222', this.tableData)
         }
       })
       // 判断有乜选择事实表
@@ -217,7 +216,7 @@ export default {
             titName: res.columnAlias,
             id: `${item.resourceTableName}.${res.columnAlias}`,
             resid: item.resourceId,
-            mode: item.code ? item.code : '2',
+            mode: item.code ? item.code : (item.name === code ? '1' : '2'),
             derived: res.columnAlias,
             type: res.type,
             filed: item.name === code ? '1' : '0'
@@ -285,7 +284,7 @@ export default {
       })
       values.map((res, i) => {
         result.map(n => {
-          if (res.id === n.id) {
+          if (res.id.toUpperCase() === n.id.toUpperCase()) {
             resultData = [...resultData, res]
             foreign_keys.map(val => {
               if (val.id.toUpperCase() === res.id.toUpperCase()) {
@@ -298,7 +297,11 @@ export default {
           }
         })
       })
-      selectRows.map(res => { if (res.fuck) res.mode = '1' })
+      selectRows.map(res => {
+        if (res.fuck) {
+          res.mode = '1'
+        }
+      })
       this.tableData && this.tableData.map((item, i) => {
         // 筛选出是否为外键 如果是外键就要加上唯一标识${defaultVal} === 'n'
         foreign_keys.map(val => {
