@@ -87,19 +87,21 @@ const setFiled = {
       //   name: list.val.titName,
       //   tableName: list.val.tableName
       // })
-      state.saveFiledNormalList = state.saveFiledNormalList.concat({
+      const saveFiledNormalList = state.saveFiledNormalList.concat({
         id: list.item.id,
         dataType: list.item.dataType || list.item.type,
         modeType: '1',
         name: list.item.titName,
         tableName: list.item.tableName
       })
-      let data = reduceJson(state.saveFiledNormalList, 'id')
+      let data = reduceJson(saveFiledNormalList, 'id')
       state.saveFiledNormalList = data
+      // console.info('state.saveFiledNormalList', state.saveFiledNormalList)
       // 删除选择的衍生模式
       state.saveFiledDerivativelList && state.saveFiledDerivativelList.forEach((item, index) => {
         if (item.id === list.val.id) {
           state.saveFiledDerivativelList.splice(index, 1)
+          // console.info('state.saveFiledDerivativelList', state.saveFiledDerivativelList)
         }
       })
     },
