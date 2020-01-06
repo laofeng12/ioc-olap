@@ -132,6 +132,11 @@ export default {
                 this.$parent.closeChangeLoadingLoser()
                 return this.$message.error('频率必须为正整数')
               }
+
+              if (typeof this.formData.autoReload === 'boolean') {
+                this.formData.autoReload ? Object.assign(this.formData, { autoReload: 1 })
+                  : Object.assign(this.formData, { autoReload: 0 })
+              }
               await buildModeling(this.formData, parmas).then(res => {
                 this.$message.success('构建成功~')
                 this.form.startTime = ''
