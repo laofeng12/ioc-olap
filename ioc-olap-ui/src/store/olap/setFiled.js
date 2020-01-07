@@ -96,12 +96,10 @@ const setFiled = {
       })
       let data = reduceJson(saveFiledNormalList, 'id')
       state.saveFiledNormalList = data
-      // console.info('state.saveFiledNormalList', state.saveFiledNormalList)
       // 删除选择的衍生模式
       state.saveFiledDerivativelList && state.saveFiledDerivativelList.forEach((item, index) => {
         if (item.id === list.val.id) {
           state.saveFiledDerivativelList.splice(index, 1)
-          // console.info('state.saveFiledDerivativelList', state.saveFiledDerivativelList)
         }
       })
     },
@@ -186,7 +184,6 @@ const setFiled = {
        * 3、取出对应的表对应的foreign_key
        * 4、如果对应的${foreign_key}是多个的话就绪遍历
        */
-      // console.log(resultVal, '获取已经选择的数据', state.saveSelectFiled, '========', getters.jointResultData.lookups)
       getters.jointResultData.lookups.map((item, index) => {
         resultVal.map((n, i) => {
           if (item.alias === n.tableName) {
@@ -222,7 +219,8 @@ const setFiled = {
           id: res.id,
           type: res.dataType,
           modeType: res.modeType,
-          value: res.tableName + '.' + res.name
+          // value: res.tableName + '.' + res.name
+          value: res.id
         })
       })
       let result = reduceObj([...nomrlData, ...datas], 'value')
@@ -266,10 +264,12 @@ const setFiled = {
           if (String(item.mode) === '1') {
             state.dimensions.push({
               table: item.tableName,
-              tableId: `${item.tableName}.${item.name}`,
-              column: item.titName,
+              // tableId: `${item.tableName}.${item.name}`,
+              // column: item.titName.includes(' ') ? item.name : item.titName,
+              tableId: item.id,
+              column: item.id.split('.')[1],
               id: item.id,
-              derived: item.titName.split(','),
+              derived: item.titName.includes(' ') ? item.name.split(',') : item.titName.split(','),
               column_type: item.dataType || item.type,
               name: item.name
             })
@@ -284,8 +284,7 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType || item.type,
               id: item.id,
-              derived: item.mode === '1' ? null : item.titName.split(','),
-              // derived: item.mode === '1' ? null : item.titName,
+              derived: item.mode === '1' ? null : (item.titName.includes(' ') ? item.name.split(',') : item.titName.split(',')),
               name: item.name
             })
           }
