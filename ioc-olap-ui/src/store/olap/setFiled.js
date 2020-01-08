@@ -144,7 +144,7 @@ const setFiled = {
       state.saveSelectFiled.map((item, index) => {
         // 如果为全选的时候 就需要遍历${val}取到对应的id
         // 如果已选择的字段的id===勾选过的id 就赋值勾选的mode到已存储的数据中
-        if (val.length) {
+        if (Array.isArray(val)) {
           val.map(res => {
             if (res.id === item.id) {
               state.saveSelectFiled[index].mode = res.mode
