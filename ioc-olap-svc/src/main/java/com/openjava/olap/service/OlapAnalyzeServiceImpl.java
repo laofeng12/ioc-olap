@@ -11,6 +11,7 @@ import com.openjava.olap.vo.AnalyzeAxisVo;
 import com.openjava.olap.vo.AnalyzeVo;
 import com.openjava.olap.vo.AnyDimensionCellVo;
 import com.openjava.olap.vo.AnyDimensionVo;
+import lombok.extern.slf4j.Slf4j;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
+@Slf4j
 public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
 
     @Resource
@@ -337,8 +339,11 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         try {
             resultMapper = cubeHttpClient.query(sql, 0, Integer.MAX_VALUE, cube.getCreateId().toString());
         } catch (Exception ex) {
+            log.error("查询麒麟接口返回报错", ex);
             throw new APIException(400, "查询失败！");
         }
+        long start = System.currentTimeMillis();
+        log.info("计算坐标轴开始时间：{}",start);
         MyBeanUtils.copyPropertiesNotBlank(anyDimensionVo, resultMapper);
         List<AnalyzeAxisVo> yAxises = axises.stream().filter(p -> p.getType().equals(2)).collect(Collectors.toList());
         List<AnalyzeAxisVo> xAxises = axises.stream().filter(p -> p.getType().equals(1)).collect(Collectors.toList());
@@ -408,6 +413,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
         anyDimensionVo.setTotalRows(dataIndex - 1 - axisYCount);
         // 行列汇总
         rowAndColumnSummary(anyDimensionVo, results, axisYCount, axisXCount, rowSummarys, columnSummarys);
+        log.info("计算坐标轴总耗时：{}ms",(System.currentTimeMillis()-start));
         return anyDimensionVo;
     }
 
