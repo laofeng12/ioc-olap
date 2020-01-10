@@ -20,7 +20,7 @@ spring:
 #    password: Ch#123456
     # 用Oracle
     driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(FTFu5gxTmQ5lL8aXEAGovm3mKRHhjWM5hYqHunezVjTXevsfdOPQ7cTEiALoOAilT6TgKJbU3fQ=)
+    url: ENC(ktuKGyd1oKOzj2FklvP4GQ9ZZJzeI1C7tYooKRexTImW3ai3WjKERqH74elz2UrxA+hR7fvuBc4=)
     username: ENC(d6EfBImsJThWtN5tcSZ4//75KioUpNwk)
     password: ENC(oIHxQRkxxfxmuxio3qxBXhxSuSZFO/+r)
     druid:
