@@ -212,14 +212,14 @@ export default {
                   let row = []
                   rowList.forEach(itemList => {
                     headLimit.cItems.forEach(v => {
-                      if (itemList[indexTd + addIndex] && itemList[indexTd + addIndex].name === v.columnName) {
+                      if (itemList[indexTd + addIndex] && itemList[indexTd + addIndex].name === v.columnChName) {
                         col.push(Object.assign({}, v, { selectValues: itemList[indexTd + addIndex].filter }))
                       }
                     })
                   })
                   colList[index].forEach(value => {
                     headLimit.rItems.forEach(v => {
-                      if (value.name === v.columnName) {
+                      if (value.name === v.columnChName) {
                         row.push(Object.assign({}, v, { selectValues: value.filter }))
                       }
                     })
