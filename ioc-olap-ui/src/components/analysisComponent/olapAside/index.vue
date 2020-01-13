@@ -8,7 +8,7 @@
             <shirink-pannel name="OLAP模型">
               <div slot="content">
                 <el-form-item class="m-b-0">
-                  <el-select v-model="selectCubeId" placeholder="请选择olap模型" size="small">
+                  <el-select v-model="selectCubeId" placeholder="请选择olap模型" size="small" @change="handleCubeId">
                     <el-option v-for="(item, index) in menuList" :key="index" :label="item.name" :value="item.cubeId">
                     </el-option>
                   </el-select>
@@ -319,7 +319,7 @@ export default {
     },
     selectCubeId (val) {
       this.getCubes(val)
-      this.cleanAllList()
+      // this.cleanAllList()
     },
     editData (val) {
       this.selectCubeId = val.cubeId
@@ -379,7 +379,6 @@ export default {
         })
       })
       this.dimensuresList = dimensuresList
-      console.log(this.dimensuresList)
       this.measuresList = measuresList
     },
     // 删除维度行
@@ -640,6 +639,9 @@ export default {
       this.bItems = []
       this.rItems = []
       this.cItems = []
+    },
+    handleCubeId () {
+      this.cleanAllList()
     }
   }
 }
