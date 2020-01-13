@@ -13,6 +13,7 @@ import com.openjava.olap.vo.QueryResultMapperVo;
 import com.openjava.olap.vo.TreeNodeVo;
 import com.openjava.olap.vo.TreeVo;
 import io.swagger.annotations.*;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
@@ -213,7 +214,7 @@ public class OlapRealQueryAction extends BaseAction {
     public QueryResultMapper query(
         @ApiParam(value = "查询SQL语句",name = "sql",required = true)@RequestParam String sql,
         @ApiParam(value = "限制行数",name = "limit")@RequestParam(required = false) Integer limit,
-        @ApiParam(value = "模型名称",name = "cubeName",required = true)@RequestParam String cubeName) throws APIException {
+        @ApiParam(value = "模型名称",name = "cubeName",required = true)@RequestParam String cubeName) throws Exception {
         OaUserVO userVO = (OaUserVO) SsoContext.getUser();
         OlapCube record = this.olapCubeService.findTableInfo(cubeName);
         if (record == null){
@@ -224,6 +225,7 @@ public class OlapRealQueryAction extends BaseAction {
         }
         // 统一给查询表名或join表名加上前缀数据库名
         // 主要加库名
+        sql = StringEscapeUtils.unescapeHtml(sql);
         String formatSql = formatSql(sql,true);
         //已保存结果-查询数据
         //新建查询-查询，两个一级标题联合了
@@ -232,7 +234,7 @@ public class OlapRealQueryAction extends BaseAction {
             AuditLogEnum.LOG_REAL_TIME_QUERY_TITLE_LEVEL_SECONDARY_SAVED_RESULT_QUERY_DATA, AuditLogEnum.AuditLogEvent.LOG_EVENT_QUERY,
             new ArrayList<Object>(){
                 {
-                    add(sql);
+                    add(formatSql);
                 }
             },new ArrayList<Object>(){{}});
         this.auditComponentProxy.saveAudit(param);
