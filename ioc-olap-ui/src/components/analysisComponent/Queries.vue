@@ -148,7 +148,7 @@ export default {
       this.menuListLoading = false
     },
     async searchOlap () {
-      if (this.cubeName.length <= 0) {
+      if (typeof this.cubeName !== 'string' || this.cubeName.length <= 0) {
         this.$message.warning('请选择模型')
         return false
       }
