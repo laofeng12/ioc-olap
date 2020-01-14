@@ -9,6 +9,10 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.poi.xssf.streaming.*;
 
 public class Export {
     public static void dualDate(QueryResultMapper queryResult, HttpServletResponse response) throws Exception {
@@ -41,9 +44,10 @@ public class Export {
 
         for (int m = 0; m < results.size(); m++) {//最外层 循环
             Object date = results.get(m);  //获取一行数据
+            ArrayList rowData = (ArrayList) date;
             Map<String, Object> map = new HashMap<String, Object>();
-            for (int n = 0; n < ((ArrayList) date).size(); n++) {
-                map.put(columnIt[n], ((ArrayList) date).get(n).toString());//获取一行数据 的具体一个数据
+            for (int n = 0; n < rowData.size(); n++) {
+                map.put(columnIt[n], rowData.get(n)==null?"":rowData.get(n).toString());//获取一行数据 的具体一个数据
             }
             listMap.add(map);//数据集
         }

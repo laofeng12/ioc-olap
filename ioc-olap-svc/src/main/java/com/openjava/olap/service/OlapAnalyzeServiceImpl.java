@@ -540,7 +540,7 @@ public class OlapAnalyzeServiceImpl implements OlapAnalyzeService {
     @Override
     public AnyDimensionVo query(Long analyzeId, Long cubeId) throws APIException {
         AnalyzeVo analyzeVo = getVo(analyzeId);
-        return query(analyzeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), 0, 0);
+        return query(cubeId, analyzeVo.getOlapAnalyzeAxes(), analyzeVo.getCreateId().toString(), analyzeVo.getSql(), 0, 0);
     }
 
     @Override
