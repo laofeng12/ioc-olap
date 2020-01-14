@@ -29,7 +29,7 @@
     </el-dialog>
     <el-dialog title="下钻数据展示" :visible.sync="tableVisible" width="70%">
       <DynamicTable class="mar-center" :tableData="visibleTableData" :isPop="true" :pageData="downPageData"
-                    @handlePage="handleDownPage" :page="page"></DynamicTable>
+                    @handlePage="handleDownPage" :page="downPage"></DynamicTable>
       <div slot="footer" class="dialog-footer">
         <el-button @click="tableVisible = false">关 闭</el-button>
       </div>
@@ -119,7 +119,9 @@ export default {
       this.saveFolderList = res
     },
     async getOlapAnalyzeDetails () {
-      const { olapAnalyzeAxes, name, cubeId, flags, folderId, isSummation, analyzeId } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
+      const {
+        olapAnalyzeAxes, name, cubeId, flags, folderId, isSummation, analyzeId
+      } = await getOlapAnalyzeDetailsApi({ id: this.$route.query.dataId })
       this.editData = {
         olapAnalyzeAxes,
         cubeId,
@@ -210,14 +212,14 @@ export default {
                   let row = []
                   rowList.forEach(itemList => {
                     headLimit.cItems.forEach(v => {
-                      if (itemList[indexTd + addIndex] && itemList[indexTd + addIndex].name === v.columnName) {
+                      if (itemList[indexTd + addIndex] && itemList[indexTd + addIndex].name === v.columnChName) {
                         col.push(Object.assign({}, v, { selectValues: itemList[indexTd + addIndex].filter }))
                       }
                     })
                   })
                   colList[index].forEach(value => {
                     headLimit.rItems.forEach(v => {
-                      if (value.name === v.columnName) {
+                      if (value.name === v.columnChName) {
                         row.push(Object.assign({}, v, { selectValues: value.filter }))
                       }
                     })
