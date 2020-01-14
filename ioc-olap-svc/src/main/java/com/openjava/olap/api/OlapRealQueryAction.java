@@ -13,6 +13,7 @@ import com.openjava.olap.vo.QueryResultMapperVo;
 import com.openjava.olap.vo.TreeNodeVo;
 import com.openjava.olap.vo.TreeVo;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ljdp.common.bean.MyBeanUtils;
@@ -40,6 +41,7 @@ import java.util.List;
  */
 @Api(tags = "即时查询接口")
 @RestController
+@Slf4j
 @RequestMapping("/olap/apis/olapRealQuery")
 public class OlapRealQueryAction extends BaseAction {
     @Resource
@@ -314,6 +316,7 @@ public class OlapRealQueryAction extends BaseAction {
             QueryResultMapper mapper = cubeHttpClient.query(formatSql, 0, limit, cube.getCreateId().toString());
             Export.dualDate(mapper, response);
         } catch (Exception ex) {
+            log.error("导出失败",ex);
             throw new APIException(400, "导出失败！");
         }
         //已保存结果-导出结果
