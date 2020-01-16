@@ -91,7 +91,7 @@ custom:
   #service-id: 801490971320024
 
 kylin:
-  address:  http://19.104.59.1:7070
+  address:  http://19.104.50.1:6080
   account:  ADMIN
   pwd:  KYLIN
   authorization:  Basic QURNSU46S1lMSU4=
