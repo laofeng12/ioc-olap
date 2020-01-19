@@ -201,7 +201,8 @@ const common = {
       dimensionFiledLength: '',
       measureFiledLength: '',
       graphData: ''
-    }
+    },
+    selectStepChange: false // 第一步是否改变
   },
   actions: {
     resetList ({ state }) {
@@ -352,11 +353,21 @@ const common = {
     },
     getGraphData ({ state }, data) {
       state.totalSaveData.graphData = data
+    },
+    CleanNext ({ commit }, data) {
+      commit('CLEAN_NEXT', data)
     }
   },
   mutations: {
     SET_IS_EDIT (state, data) {
       state.isEdit = data
+    },
+    CLEAN_NEXT (state, data) {
+      const { step, boolean } = data
+      switch (step) {
+        case 1:
+          state.selectStepChange = boolean
+      }
     }
   }
 }
