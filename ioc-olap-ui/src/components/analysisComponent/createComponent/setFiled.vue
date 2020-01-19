@@ -80,7 +80,7 @@ export default {
     // }
   },
   activated () {
-    // this.$refs.filedTable.init()
+    this.$refs.filedTable.init()
     this.init()
   },
   methods: {

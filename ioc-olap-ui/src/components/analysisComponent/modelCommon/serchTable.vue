@@ -94,7 +94,7 @@ export default {
       loading: false,
       isAllowTrigger: true, // 是否允许触发
       catchCategory: null, // 当前点击的资源目录数据
-      defaultKey: [], 
+      defaultKey: [],
       dataList: [] // 数据源
     }
   },
@@ -212,7 +212,7 @@ export default {
       if (!row.fullPermitLevel) {
         this.$message.warning(`在${row.resourceTableName || ''}表中，未订阅一个拥有全部权限的字段，请先订阅`)
         return
-      } 
+      }
       this.$root.eventBus.$emit('getTableHeadList', row)
     },
     // 允许勾选
@@ -234,6 +234,8 @@ export default {
     },
     // 选择勾选
     handleSelectRow (selection, row) {
+      this.$store.dispatch('setSelectTableTotal')
+      this.$store.dispatch('CleanNext', { step: 1, boolean: true })
     },
     // 勾选状态发生改变
     async handleSelectionChange (row) {

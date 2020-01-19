@@ -101,7 +101,8 @@ export default {
       saveSelectFiled: 'saveSelectFiled',
       ModelAllList: 'ModelAllList',
       selectStepList: 'selectStepList',
-      jointResultData: 'jointResultData'
+      jointResultData: 'jointResultData',
+      selectStepChange: 'selectStepChange'
     })
   },
   watch: {
@@ -120,6 +121,14 @@ export default {
         this.editor.updatePannelList(this.factTable)
       },
       deep: true
+    }
+  },
+  activated () {
+    if (this.selectStepChange) {
+      const graph = this.editor.getGraph()
+      this.$store.dispatch('CleanNext', { step: 1, boolean: false })
+      graph.clear()
+      this.linkModal = null
     }
   },
   mounted () {

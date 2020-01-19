@@ -75,7 +75,7 @@ export default {
       }
     }
   },
-  mounted () {
+  activated () {
     this.init()
   },
   methods: {
