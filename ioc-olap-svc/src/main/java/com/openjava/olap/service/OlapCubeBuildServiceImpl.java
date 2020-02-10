@@ -279,8 +279,7 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
             vo.setStatus(0);
             return vo;
         }
-        if (
-            assertCubeStatus(CubeFlags.SYNC_FAILED.getFlags(),cube.getFlags())){
+        if (!assertCubeStatus(CubeFlags.SYNC_FAILED.getFlags(),cube.getFlags())){
             vo.setMsg("请求被拒绝，该模型的状态为：["+CubeFlags.getByFlags(cube.getFlags())
                 +"],只有状态为\"同步失败\"的模型才能执行\"重新同步\"操作");
             vo.setStatus(0);
