@@ -4,16 +4,17 @@
       <el-row class="left-tabs">
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
-            <FolderAside
-            :menuList="myMenuList"
-            :menuDefault="menuDefault"
-            vueType="myOlap"
-            @editFunc="edit"
-            @deleteFunc="deleteAnalysis"
-            :menuListLoading="myLoading"
-            @clickItem="searchCube"
-            @getAnalysisList="getFolderWithQuery">
-            </FolderAside>
+            <Draggable
+              :menuList="myMenuList"
+              :menuListTree="menuListTree"
+              :menuDefault="menuDefault"
+              vueType="myOlap"
+              @editFunc="edit"
+              @deleteFunc="deleteAnalysis"
+              :menuListLoading="myLoading"
+              @clickItem="searchCube"
+              @getAnalysisList="getFolderWithQuery">
+            </Draggable>
           </el-tab-pane>
 
           <el-tab-pane label="分享" name="share">
@@ -43,6 +44,7 @@
 
 <script>
 import FolderAside from '@/components/analysisComponent/common/FolderAside'
+import Draggable from '@/components/analysisComponent/common/Draggable'
 import ResultBox from '@/components/analysisComponent/common/ResultBox'
 import {
   getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi,
@@ -50,12 +52,13 @@ import {
 } from '@/api/olapAnalysisList'
 
 export default {
-  components: { FolderAside, ResultBox },
+  components: { FolderAside, ResultBox, Draggable },
   data () {
     return {
       analyzeId: '', // analyzeId
       activeTab: 'my',
       myMenuList: [],
+      menuListTree: [],
       shareMenuList: [],
       myLoading: false,
       shareLoading: false,
@@ -92,6 +95,20 @@ export default {
       this.myLoading = true
       const res = await getFolderWithQueryApi()
       this.myMenuList = res
+      let menuListTree = []
+      res.forEach((v, i) => {
+        let arr = []
+        arr.push(v)
+        const obj = {
+          attrs: {},
+          children: arr,
+          id: i,
+          name: '',
+          virtualTableName: null
+        }
+        menuListTree.push(obj)
+      })
+      this.menuListTree = menuListTree
       this.myLoading = false
     },
     async getQueryShare () {
