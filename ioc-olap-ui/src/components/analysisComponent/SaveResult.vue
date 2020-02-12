@@ -64,6 +64,12 @@ export default {
   computed: {
     ...mapGetters({ saveFolderList: 'saveFolderList' })
   },
+  watch: {
+    saveFolderList () {
+      this.menuListLoading = true
+      this.getMenuListTree()
+    }
+  },
   mounted () {
     this.getAsideList()
   },
@@ -71,6 +77,9 @@ export default {
     async getAsideList () {
       this.menuListLoading = true
       await this.$store.dispatch('getSaveFolderListAction')
+      this.getMenuListTree()
+    },
+    getMenuListTree () {
       let menuListTree = []
       this.saveFolderList.forEach((v, i) => {
         let arr = []
