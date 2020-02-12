@@ -2,6 +2,7 @@ package com.openjava.olap.service;
 
 import com.openjava.olap.domain.OlapFolder;
 import com.openjava.olap.query.OlapFolderDBParam;
+import com.openjava.olap.query.OlapFolderSortParam;
 import com.openjava.olap.repository.OlapFolderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 文件夹表业务层
@@ -44,7 +46,33 @@ public class OlapFolderServiceImpl implements OlapFolderService {
     }
 
     public OlapFolder doSave(OlapFolder m) {
+        if (m.getIsNew() == Boolean.TRUE){
+            // 如果是分布式服务，则需要使用分布式锁加锁查询最大值
+            Integer max = this.olapFolderRepository.queryMaxSortNum(m.getCreateId(),m.getType());
+            if (max != null){
+                m.setSortNum(max+1);
+            }else {
+                m.setSortNum(0);
+            }
+        }
         return olapFolderRepository.save(m);
+    }
+
+    @Transactional
+    @Override
+    public void batchUpdateSortNum(List<OlapFolderSortParam> list){
+        List<Long> ids = list.stream().map(OlapFolderSortParam::getFolderId).collect(Collectors.toList());
+        List<OlapFolder> record = this.olapFolderRepository.findAllById(ids);
+        if (record.isEmpty()){
+            return;
+        }
+        record.forEach(s->{
+            OlapFolderSortParam param =list.stream().filter(x->x.getFolderId().equals(s.getFolderId())).findFirst().orElse(null);
+            if (param != null){
+                s.setSortNum(param.getSortNum());
+            }
+        });
+        this.olapFolderRepository.saveAll(record);
     }
 
     public void doDelete(Long id) {
@@ -65,7 +93,7 @@ public class OlapFolderServiceImpl implements OlapFolderService {
 
     @Override
     public List<OlapFolder> getListByTypeAndCreateId(Long userId, String type) {
-        return olapFolderRepository.findByCreateIdAndTypeOrderBySortNumDesc(userId, type);
+        return olapFolderRepository.findByCreateIdAndTypeOrderBySortNumAsc(userId, type);
     }
 
     @Override

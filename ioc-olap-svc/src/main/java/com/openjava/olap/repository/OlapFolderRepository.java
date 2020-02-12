@@ -15,7 +15,10 @@ import java.util.List;
 public interface OlapFolderRepository extends DynamicJpaRepository<OlapFolder, Long>, OlapFolderRepositoryCustom {
     public List<OlapFolder> findByCreateIdOrderBySortNumDesc(Long userId);
 
-    List<OlapFolder> findByCreateIdAndTypeOrderBySortNumDesc(Long userId, String type);
+    List<OlapFolder> findByCreateIdAndTypeOrderBySortNumAsc(Long userId, String type);
+
+    @Query(nativeQuery = true,value = "select MAX(t.sort_num)  from olap_folder t where t.create_id=:userId and t.TYPE=:type")
+    Integer queryMaxSortNum(@Param("userId") Long userId,@Param("type")String type);
 
     @Query(value = "select t.* from olap_folder t where t.name=:name and t.id!=:folderId and t.create_id=:userId and t.TYPE=:type", nativeQuery = true)
      List<OlapFolder> findByName(@Param("name") String name, @Param("folderId") Long folderId, @Param("userId") Long userId,@Param("type")String type);

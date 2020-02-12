@@ -5,11 +5,9 @@ import com.openjava.olap.common.AuditComponentProxy;
 import com.openjava.olap.common.AuditLogEnum;
 import com.openjava.olap.common.AuditLogParam;
 import com.openjava.olap.domain.OlapFolder;
+import com.openjava.olap.query.OlapFolderSortParam;
 import com.openjava.olap.service.OlapFolderService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.ljdp.common.bean.MyBeanUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.component.sequence.ConcurrentSequence;
@@ -17,12 +15,11 @@ import org.ljdp.component.sequence.SequenceService;
 import org.ljdp.plugin.sys.vo.UserVO;
 import org.ljdp.secure.annotation.Security;
 import org.ljdp.secure.sso.SsoContext;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -89,6 +86,7 @@ public class OlapFolderAction extends BaseAction {
                 throw new APIException(400, "名称已经存在！");
             }
             OlapFolder db = olapFolderService.get(body.getId());
+            body.setSortNum(null);//更新时防止sortNum被更改。sortNum的值只在新增时系统自动加1或者拖拽排序批量更新
             MyBeanUtils.copyPropertiesNotBlank(db, body);
             db.setIsNew(false);
             db.setUpdateTime(date);
@@ -172,5 +170,14 @@ public class OlapFolderAction extends BaseAction {
     @RequestMapping(value = "/folder", method = RequestMethod.GET)
     public OlapFolder folder(Long id) {
         return olapFolderService.get(id);
+    }
+
+    @ApiOperation(value = "拖拽后文件夹序号批量更新", nickname = "folder")
+    @Security(session = true, allowResources = {"OlapAnalyze", "OlapRealQuery"})
+    @PostMapping(value = "/sortNum/batchUpdate")
+    public Object batchUpdateSortNum(@ApiParam(name = "list",value = "拖拽排序后的文件夹参数体")@RequestBody List<OlapFolderSortParam> list){
+        ResponseEntity<Map> responseEntity = ResponseEntity.ok(new HashMap());
+        this.olapFolderService.batchUpdateSortNum(list);
+        return responseEntity;
     }
 }
