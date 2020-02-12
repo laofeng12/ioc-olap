@@ -48,9 +48,6 @@
         <el-form-item label="文件夹名称" label-width="105px" prop="name">
           <el-input v-model="folderForm.name" maxlength="20" show-word-limit></el-input>
         </el-form-item>
-        <el-form-item label="文件夹序号" label-width="105px" prop="sortNum">
-          <el-input v-model="folderForm.sortNum" maxlength="10" show-word-limit></el-input>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newVisible = false">取 消</el-button>
@@ -220,6 +217,17 @@ export default {
     },
     cubeName (val) {
       this.checkName = val
+    },
+    menuListTree (val) {
+      const list = []
+      val.forEach((v, i) => {
+        const obj = {
+          folderId: v.children[0].id,
+          sortNum: i + 1
+        }
+        list.push(obj)
+      })
+      this.$emit('changeSortNum', list)
     }
   },
   activated () {
@@ -287,7 +295,7 @@ export default {
     },
     newFolder () {
       this.newVisible = true
-      this.folderForm = { isNew: true,  name: '', sortNum: '' }
+      this.folderForm = { isNew: true,  name: '' }
     },
     edit (node, data) {
       if (node.parent.parent) {
@@ -297,8 +305,7 @@ export default {
         this.folderForm = {
           folderId: data.id,
           isNew: false,
-          name: data.name,
-          sortNum: data.attrs.sortNum
+          name: data.name
         }
       }
       // this.$emit('editFunc', this.folderForm)
@@ -480,6 +487,8 @@ export default {
     position: relative;
     .draggable {
       height: calc(100vh - 315px);
+      overflow: auto;
+      margin: 15px 0;
     }
     .handle {
       cursor: move;
