@@ -103,3 +103,11 @@ export function exportExcelApi (data) {
     data
   })
 }
+
+export function changeSortNumApi (data) {
+  return fetch({
+    url: '/olap/apis/olapFolder/sortNum/batchUpdate',
+    method: 'post',
+    data
+  })
+}

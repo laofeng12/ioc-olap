@@ -1,7 +1,8 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <Draggable :menuList="saveFolderList" :menuListTree="menuListTree" :menuDefault="menuDefault" @clickItem="getTableById" @editFunc="editSave"
-                 vueType="saveResult" @deleteFunc="deleteFolder" :menuListLoading="menuListLoading">
+    <Draggable :menuList="saveFolderList" :menuListTree="menuListTree" :menuDefault="menuDefault"
+               @clickItem="getTableById" @editFunc="editSave" vueType="saveResult" @deleteFunc="deleteFolder"
+               :menuListLoading="menuListLoading" @changeSortNum="changeSortNum">
     </Draggable>
     <div class="content dis-flex" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :showPublish="true" :analyzeId="analyzeId" publishType="olapRealQuery"
@@ -18,7 +19,7 @@
 import { mapGetters } from 'vuex'
 import Draggable from './common/Draggable'
 import ResultBox from './common/ResultBox'
-import { deleteOlapApi, searchOlapByIdApi, exportExcelApi } from '../../api/instantInquiry'
+import { deleteOlapApi, searchOlapByIdApi, exportExcelApi, changeSortNumApi } from '../../api/instantInquiry'
 
 export default {
   components: { Draggable, ResultBox },
@@ -150,6 +151,9 @@ export default {
       } else {
         navigator.msSaveBlob(blob, fileName)
       }
+    },
+    async changeSortNum (list) {
+      await changeSortNumApi(list)
     }
   }
 }

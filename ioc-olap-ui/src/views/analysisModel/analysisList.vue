@@ -13,7 +13,8 @@
               @deleteFunc="deleteAnalysis"
               :menuListLoading="myLoading"
               @clickItem="searchCube"
-              @getAnalysisList="getFolderWithQuery">
+              @getAnalysisList="getFolderWithQuery"
+              @changeSortNum="changeSortNum">
             </Draggable>
           </el-tab-pane>
 
@@ -50,6 +51,7 @@ import {
   getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi,
   searchCubeApi
 } from '@/api/olapAnalysisList'
+import { changeSortNumApi } from '@/api/instantInquiry'
 
 export default {
   components: { FolderAside, ResultBox, Draggable },
@@ -225,6 +227,9 @@ export default {
       } catch (e) {
         console.error(e)
       }
+    },
+    async changeSortNum (list) {
+      await changeSortNumApi(list)
     }
   }
 }
