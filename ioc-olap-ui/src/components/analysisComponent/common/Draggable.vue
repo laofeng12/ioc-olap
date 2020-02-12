@@ -262,10 +262,7 @@ export default {
       Object.assign(data, this.folderForm)
       this.$refs.folderForm.validate(async (valid) => {
         if (valid) {
-          if (!(/^\d{1,}$/.test(this.folderForm.sortNum))) {
-            this.$message.error('文件夹序号必须为数字')
-          } else {
-            try {
+          try {
             await newOlapFolderApi(data)
             this.$message.success('操作成功')
             this.newVisible = false
@@ -276,7 +273,6 @@ export default {
             }
           } catch (e) {
             console.error(e)
-          }
           }
         }
       })
