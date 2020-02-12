@@ -2,6 +2,7 @@ package com.openjava.olap.service;
 
 import com.openjava.olap.domain.OlapFolder;
 import com.openjava.olap.query.OlapFolderDBParam;
+import com.openjava.olap.query.OlapFolderSortParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,4 +33,6 @@ public interface OlapFolderService {
     boolean checkExsitName(String name, Long userId,String type);
 
     boolean checkExsitName(String name, Long folderId, Long userId,String type);
+
+    void batchUpdateSortNum(List<OlapFolderSortParam> list);
 }
