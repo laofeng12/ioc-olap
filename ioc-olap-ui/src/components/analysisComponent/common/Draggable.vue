@@ -5,7 +5,7 @@
                 v-model="searchKey"></el-input>
     </el-row>
     <draggable class="draggable" :list="menuListTree" handle=".handle">
-      <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="item.children"
+      <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube1' : 'el-icon-folder1'" :data="item.children"
                :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
                :empty-text="emptyText" ref="alltree" v-for="item in menuListTree" style="padding: 0!important;">
       <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">

@@ -10,6 +10,7 @@
               :data="tableList"
               tooltip-effect="dark"
               style="width: 100%"
+              highlight-current-row
               current-row-key="resourceId"
               :reserve-selection="true"
               row-key='resourceId'
