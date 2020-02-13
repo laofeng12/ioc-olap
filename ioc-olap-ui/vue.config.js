@@ -1,6 +1,7 @@
 // const baseUrl = process.env.NODE_ENV === 'production' ? '/' : '/'
 const baseUrl = '/olapweb'
 const path = require('path')
+const StatsPlugin = require('stats-webpack-plugin')
 function resolve (dir) {
   return path.join(__dirname, '.', dir)
 }
@@ -63,5 +64,21 @@ module.exports = {
 
     config.resolve.alias
       .set('@P', resolve('./node_modules/nhc-portal/packages'))
+
+    config.output.library('olapweb').libraryTarget('window').end()
+
+    config.plugin('stats').use(StatsPlugin, [
+      'manifest.json',
+      {
+        chunkModules: false,
+        entrypoints: true,
+        source: false,
+        chunks: false,
+        modules: false,
+        assets: false,
+        children: false,
+        exclude: [/node_modules/]
+      }
+    ])
   }
 }
