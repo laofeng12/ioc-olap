@@ -15,6 +15,7 @@ import './icons'
 import '@/styles/index.scss'
 import 'vue-task-node/dist/css/vnode.css'
 import fullscreen from 'vue-fullscreen'
+import '@/permission' // permission control
 import singleSpaVue from 'single-spa-vue'
 
 Vue.use(ElementUI)
@@ -45,7 +46,6 @@ const vueOptions = {
 
 // 判断当前页面使用singleSpa应用,不是就渲染
 if (!window.singleSpaNavigate) {
-  require('./permission') // permission control
   delete vueOptions.el
   new Vue(vueOptions).$mount('#app')
 }

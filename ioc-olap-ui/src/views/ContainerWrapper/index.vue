@@ -46,7 +46,7 @@ export default {
       'menuList', // 后台请求回来的菜单
       'userInfo' // 用户信息
     ]),
-    singleSpaNavigate() {
+    singleSpaNavigate () {
       return window.singleSpaNavigate
     }
   },
@@ -90,5 +90,9 @@ export default {
   padding: 24px;
   background:#F2F2F2;
   min-height: $containerWrapperMinHeight;
+}
+.app-container {
+  min-height: $containerMinHeight;
+  box-sizing: border-box;
 }
 </style>
