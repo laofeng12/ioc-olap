@@ -1,9 +1,9 @@
 <template>
   <div class="folderAside folderAside-draggable" v-loading="menuListLoading">
-    <el-row class="left-search">
-      <el-input size="small" suffix-icon="el-icon-search" placeholder="请输入关键词" maxlength="20"
-                v-model="searchKey"></el-input>
-    </el-row>
+    <!--<el-row class="left-search">-->
+      <!--<el-input size="small" suffix-icon="el-icon-search" placeholder="请输入关键词" maxlength="20"-->
+                <!--v-model="searchKey"></el-input>-->
+    <!--</el-row>-->
     <draggable class="draggable" :list="menuListTree" handle=".handle">
       <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube1' : 'el-icon-folder1'" :data="item.children"
                :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
@@ -210,7 +210,9 @@ export default {
   },
   watch: {
     searchKey (val) {
-      this.$refs.alltree.filter(val)
+      this.$refs.alltree.forEach(v => {
+        v.filter(val)
+      })
     },
     checkName (val) {
       this.$emit('clickItem', val)
@@ -249,9 +251,34 @@ export default {
       //   this.$emit('clickItem', data.name)
       }
     },
-    filterAll (value, data) {
+    filterAll (value, data, node) {
       if (!value) return true
-      return data.name.indexOf(value) !== -1
+      if (data.name.indexOf(value) !== -1) {
+        return true
+      }
+      return this.checkBelongToChooseNode(value, data, node)
+    },
+    checkBelongToChooseNode (value, data, node) {
+      const level = node.level
+      // 如果传入的节点本身就是一级节点就不用校验了
+      if (level === 1) {
+        return false
+      }
+      // 先取当前节点的父节点
+      let parentData = node.parent
+      // 遍历当前节点的父节点
+      let index = 0
+      while (index < level - 1) {
+        // 如果匹配到直接返回
+        if (parentData.data.name.indexOf(value) !== -1) {
+          return true
+        }
+        // 否则的话再往上一层做匹配
+        parentData = parentData.parent
+        index ++
+      }
+      // 没匹配到返回false
+      return false
     },
     submitFolder () {
       const data = { // RealQuery（即席查询） Analyze（Olap分析）
@@ -484,7 +511,7 @@ export default {
     .draggable {
       height: calc(100vh - 315px);
       overflow: auto;
-      margin: 15px 0;
+      margin-bottom: 15px;
     }
     .handle {
       cursor: move;
