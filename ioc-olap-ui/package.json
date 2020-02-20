@@ -24,6 +24,7 @@
     "nhc-portal": "^0.4.8",
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
+    "postcss-selector-namespace": "^3.0.1",
     "qs.js": "^0.1.12",
     "single-spa-vue": "^1.8.0",
     "sortablejs": "^1.10.0-rc3",

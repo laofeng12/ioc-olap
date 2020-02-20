@@ -11,6 +11,9 @@ NProgress.configure({ showSpinner: false })// NProgress configuration
 // single-spa 模式下，路由拦截只设置用户信息，路由判断由外围统一处理
 if (window.singleSpaNavigate) {
   router.beforeEach((to, from, next) => {
+    // 把路由挂在 window，让外围拿到数据
+    let baseUrl = (process.env.VUE_APP_BASE_API || process.env.BASE_URL || '').replace(/(\w+)\//, '$1')
+    window.router = { to, from, baseUrl }
     const info = getSessionStorage('userInfo')
     let userInfo = info ? JSON.parse(info) : {}
     store.commit('SET_USERINFO', userInfo)
