@@ -6,7 +6,8 @@
     </el-row>
     <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList"
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
-             :empty-text="emptyText" ref="alltree">
+             :empty-text="emptyText" ref="alltree" :draggable="draggable" :allow-drag="allowDrag" :allow-drop="allowDrop"
+             @node-drop="handleDrop">
       <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">
         <div class="flex-box">
            <i class="el-icon-folder diy-icon" v-show="node.level === 1"></i>
@@ -154,6 +155,10 @@ export default {
     cubeName: {
       type: String,
       required: false
+    },
+    draggable: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -262,6 +267,23 @@ export default {
     // 没匹配到返回false
     return false
   },
+    allowDrag (draggingNode) {
+      return draggingNode.level === 1
+    },
+    allowDrop (draggingNode, dropNode, type) {
+      return !!dropNode.data.attrs.canDrop && type !== 'inner'
+    },
+    handleDrop () {
+      const list = []
+      this.menuList.forEach((v, i) => {
+        const obj = {
+          folderId: v.id,
+          sortNum: i + 1
+        }
+        list.push(obj)
+      })
+      this.$emit('changeSortNum', list)
+    },
     submitFolder () {
       const data = { // RealQuery（即席查询） Analyze（Olap分析）
         flags: 0,
