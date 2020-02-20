@@ -4,9 +4,8 @@
       <el-row class="left-tabs">
         <el-tabs class="cus-tabs" v-model="activeTab" :stretch="true">
           <el-tab-pane label="我的" name="my">
-            <Draggable
+            <FolderAside
               :menuList="myMenuList"
-              :menuListTree="menuListTree"
               :menuDefault="menuDefault"
               vueType="myOlap"
               @editFunc="edit"
@@ -14,8 +13,9 @@
               :menuListLoading="myLoading"
               @clickItem="searchCube"
               @getAnalysisList="getFolderWithQuery"
-              @changeSortNum="changeSortNum">
-            </Draggable>
+              @changeSortNum="changeSortNum"
+              :draggable="true">
+            </FolderAside>
           </el-tab-pane>
 
           <el-tab-pane label="分享" name="share">
@@ -45,7 +45,6 @@
 
 <script>
 import FolderAside from '@/components/analysisComponent/common/FolderAside'
-import Draggable from '@/components/analysisComponent/common/Draggable'
 import ResultBox from '@/components/analysisComponent/common/ResultBox'
 import {
   getFolderWithQueryApi, getQueryShareApi, getQueryTableApi,olapAnalyzeExportExistApi, olapAnalyzeDeleteApi,
@@ -54,13 +53,12 @@ import {
 import { changeSortNumApi } from '@/api/instantInquiry'
 
 export default {
-  components: { FolderAside, ResultBox, Draggable },
+  components: { FolderAside, ResultBox },
   data () {
     return {
       analyzeId: '', // analyzeId
       activeTab: 'my',
       myMenuList: [],
-      menuListTree: [],
       shareMenuList: [],
       myLoading: false,
       shareLoading: false,
@@ -96,21 +94,19 @@ export default {
     async getFolderWithQuery () {
       this.myLoading = true
       const res = await getFolderWithQueryApi()
-      this.myMenuList = res
-      let menuListTree = []
-      res.forEach((v, i) => {
-        let arr = []
-        arr.push(v)
+      let myMenuList = []
+      res.forEach(v => {
+        const attrs = Object.assign({}, v.attrs, { canDrop: true })
         const obj = {
-          attrs: {},
-          children: arr,
-          id: i,
-          name: '',
-          virtualTableName: null
+          attrs,
+          children: v.children,
+          id: v.id,
+          name: v.name,
+          virtualTableName: v.virtualTableName
         }
-        menuListTree.push(obj)
+        myMenuList.push(obj)
       })
-      this.menuListTree = menuListTree
+      this.myMenuList = myMenuList
       this.myLoading = false
     },
     async getQueryShare () {

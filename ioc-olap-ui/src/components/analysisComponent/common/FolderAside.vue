@@ -6,7 +6,8 @@
     </el-row>
     <el-tree class="filter-tree" :icon-class="iconType === 'cube' ? 'icon-cube' : 'el-icon-folder'" :data="menuList"
              :props="menuDefault" default-expand-all :filter-node-method="filterAll" @node-click="clickTreeItem"
-             :empty-text="emptyText" ref="alltree">
+             :empty-text="emptyText" ref="alltree" :draggable="draggable" :allow-drag="allowDrag" :allow-drop="allowDrop"
+             @node-drop="handleDrop">
       <span class="custom-tree-node" slot-scope="{ node, data }" @mouseenter="enterNode">
         <div class="flex-box">
            <i class="el-icon-folder diy-icon" v-show="node.level === 1"></i>
@@ -154,6 +155,10 @@ export default {
     cubeName: {
       type: String,
       required: false
+    },
+    draggable: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -233,9 +238,51 @@ export default {
       //   this.$emit('clickItem', data.name)
       }
     },
-    filterAll (value, data) {
+    filterAll (value, data, node) {
       if (!value) return true
-      return data.name.indexOf(value) !== -1
+      if (data.name.indexOf(value) !== -1) {
+        return true
+      }
+      return this.checkBelongToChooseNode(value, data, node)
+    },
+    checkBelongToChooseNode (value, data, node) {
+      const level = node.level
+      // 如果传入的节点本身就是一级节点就不用校验了
+      if (level === 1) {
+        return false
+      }
+    // 先取当前节点的父节点
+    let parentData = node.parent
+    // 遍历当前节点的父节点
+    let index = 0
+    while (index < level - 1) {
+      // 如果匹配到直接返回
+      if (parentData.data.name.indexOf(value) !== -1) {
+        return true
+      }
+      // 否则的话再往上一层做匹配
+      parentData = parentData.parent
+      index ++
+    }
+    // 没匹配到返回false
+    return false
+  },
+    allowDrag (draggingNode) {
+      return draggingNode.level === 1
+    },
+    allowDrop (draggingNode, dropNode, type) {
+      return !!dropNode.data.attrs.canDrop && type !== 'inner'
+    },
+    handleDrop () {
+      const list = []
+      this.menuList.forEach((v, i) => {
+        const obj = {
+          folderId: v.id,
+          sortNum: i + 1
+        }
+        list.push(obj)
+      })
+      this.$emit('changeSortNum', list)
     },
     submitFolder () {
       const data = { // RealQuery（即席查询） Analyze（Olap分析）
