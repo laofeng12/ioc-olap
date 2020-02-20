@@ -1,9 +1,9 @@
 <template>
   <div class="queries f-s-14 c-333 dis-flex">
-    <Draggable :menuList="saveFolderList" :menuListTree="menuListTree" :menuDefault="menuDefault"
+    <FolderAside :menuList="saveFolderList" :menuDefault="menuDefault"
                @clickItem="getTableById" @editFunc="editSave" vueType="saveResult" @deleteFunc="deleteFolder"
-               :menuListLoading="menuListLoading" @changeSortNum="changeSortNum">
-    </Draggable>
+               :menuListLoading="menuListLoading" @changeSortNum="changeSortNum" :draggable="true">
+    </FolderAside>
     <div class="content dis-flex" v-loading="loading">
       <ResultBox v-if="tableData.length > 0" :showPublish="true" :analyzeId="analyzeId" publishType="olapRealQuery"
                  :tableData="tableData" @exportFunc="exportFile" :shareList="shareList">
@@ -17,12 +17,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Draggable from './common/Draggable'
+import FolderAside from './common/FolderAside'
 import ResultBox from './common/ResultBox'
 import { deleteOlapApi, searchOlapByIdApi, exportExcelApi, changeSortNumApi } from '../../api/instantInquiry'
 
 export default {
-  components: { Draggable, ResultBox },
+  components: { FolderAside, ResultBox },
   data () {
     return {
       analyzeId: '', // analyzeId
@@ -57,18 +57,11 @@ export default {
       menuListLoading: false,
       exportData: {},
       loading: false,
-      shareList: [],
-      menuListTree: []
+      shareList: []
     }
   },
   computed: {
     ...mapGetters({ saveFolderList: 'saveFolderList' })
-  },
-  watch: {
-    saveFolderList () {
-      this.menuListLoading = true
-      this.getMenuListTree()
-    }
   },
   mounted () {
     this.getAsideList()
@@ -77,23 +70,6 @@ export default {
     async getAsideList () {
       this.menuListLoading = true
       await this.$store.dispatch('getSaveFolderListAction')
-      this.getMenuListTree()
-    },
-    getMenuListTree () {
-      let menuListTree = []
-      this.saveFolderList.forEach((v, i) => {
-        let arr = []
-        arr.push(v)
-        const obj = {
-          attrs: {},
-          children: arr,
-          id: i,
-          name: '',
-          virtualTableName: null
-        }
-        menuListTree.push(obj)
-      })
-      this.menuListTree = menuListTree
       this.menuListLoading = false
     },
     async getTableById (folderData, type) {
