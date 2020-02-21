@@ -27,9 +27,8 @@ if (window.singleSpaNavigate) {
         return
       }
     }
-    console.log('olapweb to', JSON.stringify(to))
     // 把路由挂在 window，让外围拿到数据
-    window.router = { to: JSON.parse(JSON.stringify(to)), baseUrl: '/olapweb' }
+    window.router = { to, baseUrl: '/olapweb' }
     const info = getSessionStorage('userInfo')
     let userInfo = info ? JSON.parse(info) : {}
     store.commit('SET_USERINFO', userInfo)
