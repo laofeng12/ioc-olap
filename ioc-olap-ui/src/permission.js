@@ -11,9 +11,25 @@ NProgress.configure({ showSpinner: false })// NProgress configuration
 // single-spa 模式下，路由拦截只设置用户信息，路由判断由外围统一处理
 if (window.singleSpaNavigate) {
   router.beforeEach((to, from, next) => {
+    const objectList = [
+      '/dataminingweb',
+      '/datacollisionweb',
+      '/datatagweb',
+      '/platformweb',
+      '/datalakeweb',
+      '/visualweb',
+      '/olapweb',
+      '/biweb',
+      '/dsweb'
+    ]
+    for (let obj of objectList) {
+      if (to.path.match(new RegExp('^' + obj))) {
+        return
+      }
+    }
+    console.log('olapweb to', JSON.stringify(to))
     // 把路由挂在 window，让外围拿到数据
-    let baseUrl = (process.env.VUE_APP_BASE_API || process.env.BASE_URL || '').replace(/(\w+)\//, '$1')
-    window.router = { to, from, baseUrl }
+    window.router = { to: JSON.parse(JSON.stringify(to)), baseUrl: '/olapweb' }
     const info = getSessionStorage('userInfo')
     let userInfo = info ? JSON.parse(info) : {}
     store.commit('SET_USERINFO', userInfo)
