@@ -34,7 +34,19 @@ export const analysis = {
   actions: {
     async getSaveFolderListAction ({ commit }) {
       const res = await getFolderWithQueryApi()
-      commit('GET_SAVE_FOLDER_LIST', res)
+      let list = []
+      res.forEach(v => {
+        const attrs = Object.assign({}, v.attrs, { canDrop: true })
+        const obj = {
+          attrs,
+          children: v.children,
+          id: v.id,
+          name: v.name,
+          virtualTableName: v.virtualTableName
+        }
+        list.push(obj)
+      })
+      commit('GET_SAVE_FOLDER_LIST', list)
     },
     getCubeDataAction ({ commit }, cubeData) {
       commit('GET_CUBE_DATA', cubeData)
