@@ -106,7 +106,9 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'cubeData'
+      'cubeData',
+      'newFilterList',
+      'newRowList'
     ])
   },
   mounted () {
@@ -297,7 +299,16 @@ export default {
       this.selectDimensuresList = []
       this.selectMeasuresList = []
       this.tdClickType = type
-      const list = [...data.attrs.col, ...data.attrs.row]
+      let num = []
+      let list = [...this.newRowList, ...this.newFilterList, ...data.attrs.col, ...data.attrs.row]
+      list.forEach((item, index) => {
+        list.forEach((v, i) => {
+          if (item.columnId === v.columnId && index !== i) num.push(index)
+        })
+      })
+      num.forEach(v => {
+        list.splice(v, 1)
+      })
       const obj = {
         type: 4,
         isInclude: 1
