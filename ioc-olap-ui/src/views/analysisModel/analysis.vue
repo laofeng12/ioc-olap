@@ -300,6 +300,7 @@ export default {
       this.selectMeasuresList = []
       this.tdClickType = type
       let num = []
+      // let list = [...data.attrs.col, ...data.attrs.row]
       let list = [...this.newRowList, ...this.newFilterList, ...data.attrs.col, ...data.attrs.row]
       list.forEach((item, index) => {
         list.forEach((v, i) => {
