@@ -7,7 +7,7 @@ import fetch from '@/utils/fetch'
  */
 export function login (userAccount, userPwd) {
   return fetch({
-    url: '/admin/user/sysUser/login',
+    url: '/admin/user/sysUser/v2/login',
     method: 'post',
     contentType: 'application/x-www-form-urlencoded',
     data: {
