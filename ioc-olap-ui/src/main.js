@@ -16,7 +16,7 @@ import '@/styles/index.scss'
 import 'vue-task-node/dist/css/vnode.css'
 import fullscreen from 'vue-fullscreen'
 import '@/permission' // permission control
-import singleSpaVue from 'single-spa-vue'
+import singleSpaVue from './single-spa-vue.js'
 
 Vue.use(ElementUI)
 Vue.use(Layout)
