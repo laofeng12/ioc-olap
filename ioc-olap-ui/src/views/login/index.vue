@@ -1,5 +1,13 @@
 <template>
-  <ch-login :bgData="bgData" :loading="loading" :login="login" :sliderInfos="sliderInfos" :autoplay="10000" :loginInfo="loginInfo"></ch-login>
+  <ch-login
+    :bgData="bgData"
+    :loading="loading"
+    :login="login"
+    :sliderInfos="sliderInfos"
+    :autoplay="10000"
+    :portalInfo="portalInfo"
+    left="left"
+  ></ch-login>
 </template>
 
 <script>

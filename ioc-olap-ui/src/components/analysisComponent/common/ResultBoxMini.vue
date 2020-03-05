@@ -179,7 +179,7 @@ export default {
   methods: {
     analysisSearch () {
       if (this.newRowList.length <= 0) return this.$message.error('至少填入一个x轴维度值')
-      if (this.newColList.length <= 0) return this.$message.error('至少填入一个y轴维度值')
+      // if (this.newColList.length <= 0) return this.$message.error('至少填入一个y轴维度值')
       // if (this.newColList.length <= 0 && this.newRowList.length <= 0) return this.$message.error('至少填入一个维度值')
       if (this.newValueList.length <= 0) return this.$message.error('至少填入一个数值')
       const newValueList = this.newValueList.length > 0 ? this.newValueList.map(v => Object.assign({}, v, { type: 3 })) : []
