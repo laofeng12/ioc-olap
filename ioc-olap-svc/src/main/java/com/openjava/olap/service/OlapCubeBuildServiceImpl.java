@@ -28,8 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
  * OlapCubeBuildService的实现类
+ *
  * @author linchuangang
  * @create 2019-11-07 14:28
  * @see com.openjava.olap.service.OlapCubeBuildService
@@ -37,19 +37,31 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,InitializingBean {
+public class OlapCubeBuildServiceImpl implements OlapCubeBuildService, InitializingBean {
 
-    /**同步来源，固定值，3代表是OLAP组**/
+    /**
+     * 同步来源，固定值，3代表是OLAP组
+     **/
     public static final String syncSource = "3";
-    /**数据集系统相关接口地址**/
+    /**
+     * 数据集系统相关接口地址
+     **/
     private final DataLakeConfig dataLakeConfig;
-    /**调用数据湖子模块系统的http简单封装**/
+    /**
+     * 调用数据湖子模块系统的http简单封装
+     **/
     private final RestToken restToken;
-    /**构建cube时调用**/
+    /**
+     * 构建cube时调用
+     **/
     private final CubeHttpClient cubeAction;
-    /**用于更新cube状态**/
+    /**
+     * 用于更新cube状态
+     **/
     private final OlapCubeService olapCubeService;
-    /**保存构建时间**/
+    /**
+     * 保存构建时间
+     **/
     private final OlapTimingrefreshService olapTimingrefreshService;
     private final OlapDatalaketableRepository olapDatalaketableRepository;
     private final OlapTableSyncRepository olapTableSyncRepository;
@@ -61,20 +73,20 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
 
     @Override
     public List<DataLakeJobQueryParam> queryCubeByFlags(Integer flags) {
-        Map<String,List<OlapDatalaketable>> result = this.olapCubeService.queryByFlags(flags);
+        Map<String, List<OlapDatalaketable>> result = this.olapCubeService.queryByFlags(flags);
         List<DataLakeJobQueryParam> list = new ArrayList<>();
         //一次性封装好所有待查询同步任务状态的表的参数消息体
-        result.forEach((key,value)-> value.forEach(s->{
+        result.forEach((key, value) -> value.forEach(s -> {
             OlapTableSync record = this.olapTableSyncRepository.getByDatabaseIdAndResourceIdAndTableName(s.getDatabaseId(),
-                s.getResourceId(),s.getTable_name());
+                    s.getResourceId(), s.getTable_name());
             list.add(DataLakeJobQueryParam.builder()
-                .resourceId(s.getResourceId())
-                .syncSource(syncSource)
-                .type(s.getType())
-                .databaseId(s.getDatabaseId())
-                .cubeName(s.getCubeName())
-                .businessId(record.getBusinessId())
-                .build());
+                    .resourceId(s.getResourceId())
+                    .syncSource(syncSource)
+                    .type(s.getType())
+                    .databaseId(s.getDatabaseId())
+                    .cubeName(s.getCubeName())
+                    .businessId(record.getBusinessId())
+                    .build());
         }));
         return list;
     }
@@ -82,49 +94,51 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     /**
      * <p>自身类的preBuild方法调用</p>
      * <p>用于手动点击构建、定时构建循环模型、重新同步时调用</p>
+     *
      * @param cubeName
      * @return
      */
-    private List<DataLakeJobQueryParam> queryJobQueryParamsByCubeName(String cubeName){
+    private List<DataLakeJobQueryParam> queryJobQueryParamsByCubeName(String cubeName) {
         List<DataLakeJobQueryParam> list = new ArrayList<>();
-        List<OlapDatalaketable> result = this.olapDatalaketableRepository.queryListInCubeNameList(new ArrayList<String>(){
+        List<OlapDatalaketable> result = this.olapDatalaketableRepository.queryListInCubeNameList(new ArrayList<String>() {
             {
                 add(cubeName);
             }
         });
-        result.forEach(s->
+        result.forEach(s ->
         {
             OlapTableSync record = this.olapTableSyncRepository.getByDatabaseIdAndResourceIdAndTableName(s.getDatabaseId(),
-                s.getResourceId(),s.getTable_name());
+                    s.getResourceId(), s.getTable_name());
             list.add(DataLakeJobQueryParam.builder()
-            .resourceId(s.getResourceId())
-            .syncSource(syncSource)
-            .type(s.getType())
-            .databaseId(s.getDatabaseId())
-                .businessId(record.getBusinessId())
-            .cubeName(s.getCubeName())
-            .build());});
+                    .resourceId(s.getResourceId())
+                    .syncSource(syncSource)
+                    .type(s.getType())
+                    .databaseId(s.getDatabaseId())
+                    .businessId(record.getBusinessId())
+                    .cubeName(s.getCubeName())
+                    .build());
+        });
         return list;
     }
 
     @Override
     public List<DataLakeTriggerJobVo> batchTriggerJob(List<DataLakeJobQueryParam> params) throws Exception {
         List<DataLakeTriggerJobVo> list = new ArrayList<>();
-        if (params == null || params.size() == 0){
+        if (params == null || params.size() == 0) {
             return list;
         }
         log.info("请求批量触发同步任务接口参数:{}", JSON.toJSONString(params));
-        String result = this.restToken.postJson(this.dataLakeConfig.getHost()+this.dataLakeConfig.getBatchActiveSyncJobUrl(),
-            params);
+        String result = this.restToken.postJson(this.dataLakeConfig.getHost() + this.dataLakeConfig.getBatchActiveSyncJobUrl(),
+                params);
 
-        log.info("请求批量触发同步任务接口返回:{}",result);
+        log.info("请求批量触发同步任务接口返回:{}", result);
         JSONArray array;
         JSONObject object = JSONObject.parseObject(result);
-        if (object != null && object.containsKey("rows") && (array = object.getJSONArray("rows")) != null){
-            array.forEach(s->{
+        if (object != null && object.containsKey("rows") && (array = object.getJSONArray("rows")) != null) {
+            array.forEach(s -> {
                 JSONObject item = (JSONObject) s;
                 DataLakeTriggerJobVo vo = new DataLakeTriggerJobVo();
-                BeanUtils.copyProperties(item,vo);
+                BeanUtils.copyProperties(item, vo);
                 list.add(vo);
             });
         }
@@ -134,20 +148,20 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     @Override
     public List<DataLakeQueryJobStatusVo> batchQueryJobStatus(List<DataLakeJobQueryParam> params) throws Exception {
         List<DataLakeQueryJobStatusVo> list = new ArrayList<>();
-        if (params == null || params.size() == 0){
+        if (params == null || params.size() == 0) {
             return list;
         }
-        log.info("批量查询同步任务状态参数:{}",JSON.toJSONString(params));
-        String result = this.restToken.postJson(this.dataLakeConfig.getHost()+this.dataLakeConfig.getQuerySyncJobStateUrl(),params);
-        log.info("批量查询同步任务状态结果:{}",result);
+        log.info("批量查询同步任务状态参数:{}", JSON.toJSONString(params));
+        String result = this.restToken.postJson(this.dataLakeConfig.getHost() + this.dataLakeConfig.getQuerySyncJobStateUrl(), params);
+        log.info("批量查询同步任务状态结果:{}", result);
         JSONArray array;
         JSONObject object = JSONObject.parseObject(result);
-        if (object != null && object.containsKey("data") && (array = object.getJSONArray("data")) != null){
-            array.forEach(s->{
+        if (object != null && object.containsKey("data") && (array = object.getJSONArray("data")) != null) {
+            array.forEach(s -> {
 
                 JSONObject item = (JSONObject) s;
                 Optional<DataLakeJobQueryParam> optional = params.stream()
-                    .filter(a->a.getResourceId().equals(item.getString("resourceId"))).findFirst();
+                        .filter(a -> a.getResourceId().equals(item.getString("resourceId"))).findFirst();
                 DataLakeQueryJobStatusVo vo = new DataLakeQueryJobStatusVo();
                 vo.setStatus(item.getInteger("status"));
                 vo.setResourceId(item.getString("resourceId"));
@@ -164,32 +178,32 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     @Override
     public List<String> updateCubeStatus(List<DataLakeQueryJobStatusVo> result) throws Exception {
         List<String> cubeNameList = new ArrayList<>();
-        if (result != null && result.size() > 0){
-            Map<String,List<DataLakeQueryJobStatusVo>> map = result.stream()
-                .collect(Collectors.groupingBy(DataLakeQueryJobStatusVo::getCubeName));
-            map.forEach((key,value)->{
+        if (result != null && result.size() > 0) {
+            Map<String, List<DataLakeQueryJobStatusVo>> map = result.stream()
+                    .collect(Collectors.groupingBy(DataLakeQueryJobStatusVo::getCubeName));
+            map.forEach((key, value) -> {
                 int status = -1;
                 //统计成功同步的总数
-                long suc = value.stream().filter(s->s.getStatus() != null && s.getStatus() == 4).count();
+                long suc = value.stream().filter(s -> s.getStatus() != null && s.getStatus() == 4).count();
                 //统计同步失败的总数
-                long failed = value.stream().filter(s->s.getStatus() != null && s.getStatus() == 5).count();
+                long failed = value.stream().filter(s -> s.getStatus() != null && s.getStatus() == 5).count();
                 //统计异常状态的总数
-                long error = value.stream().filter(s->s.getStatus() ==null || s.getStatus() == 500).count();
+                long error = value.stream().filter(s -> s.getStatus() == null || s.getStatus() == 500).count();
 
-                if (value.size() == suc){
+                if (value.size() == suc) {
                     //全部表同步成功，cube才能设为构建中
                     status = CubeFlags.BUILDING.getFlags();
                     cubeNameList.add(key);
                 }
-                if (failed>0 || error>0){
+                if (failed > 0 || error > 0) {
                     //只要有一个失败，这个cube就相当于同步失败
                     status = CubeFlags.SYNC_FAILED.getFlags();
                 }
                 OlapCube cube = this.olapCubeService.findTableInfo(key);
-                if (cube != null && status != -1){
+                if (cube != null && status != -1) {
                     cube.setFlags(status);
                     cube.setUpdateTime(new Date());
-                    log.info("更新立方体:{}",JSON.toJSONString(cube));
+                    log.info("更新立方体:{}", JSON.toJSONString(cube));
                     this.olapCubeService.doSave(cube);
                 }
             });
@@ -198,21 +212,21 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     }
 
     @Override
-    public OlapCubeBuildVo doBuildCube(String cubeName,OlapTimingrefresh olapTimingrefresh) throws Exception {
+    public OlapCubeBuildVo doBuildCube(String cubeName, OlapTimingrefresh olapTimingrefresh) throws Exception {
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
         olapTimingrefresh.setFinalExecutionTime(new Date());
         log.info("构建模型时的参数:{},{},{},{}",
-            cubeName,olapTimingrefresh.getBegin(),olapTimingrefresh.getEnd(),JSON.toJSONString(olapTimingrefresh));
+                cubeName, olapTimingrefresh.getBegin(), olapTimingrefresh.getEnd(), JSON.toJSONString(olapTimingrefresh));
         try {
-            cubeAction.build(cubeName,olapTimingrefresh.getBegin(),olapTimingrefresh.getEnd());
+            cubeAction.build(cubeName, olapTimingrefresh.getBegin(), olapTimingrefresh.getEnd());
             this.olapTimingrefreshService.doSave(olapTimingrefresh);
             vo.setMsg("构建操作请求成功");
             vo.setStatus(1);
-        }catch (Exception var1){
+        } catch (Exception var1) {
             vo.setMsg("构建操作请求失败");
             vo.setStatus(0);
             OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
-            if (cube != null){
+            if (cube != null) {
                 //如果构建这里出现了异常，就把模型状态恢复到“数据同步中”，这样“定时查询同步任务”下一次会再次尝试构建该模型
                 //暂时的处理，这里涉及逻辑过于复杂
                 cube.setFlags(CubeFlags.ON_SYNC.getFlags());
@@ -229,28 +243,28 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
     }
 
     @Override
-    public OlapCubeBuildVo preBuild(String cubeName,Long begin, Long end) throws Exception {
+    public OlapCubeBuildVo preBuild(String cubeName, Long begin, Long end) throws Exception {
         OlapCube cube = this.olapCubeService.findTableInfo(cubeName);
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
         vo.setStatus(1);
         vo.setMsg("请求成功");
-        if (cube == null){
+        if (cube == null) {
             vo.setMsg("查询不到该模型，请检查参数有效性");
             vo.setStatus(0);
             return vo;
         }
         if (
-            assertCubeStatus(CubeFlags.DISABLED.getFlags(),cube.getFlags())
-                || assertCubeStatus(CubeFlags.ON_SYNC.getFlags(),cube.getFlags())
-            || assertCubeStatus(CubeFlags.BUILDING.getFlags(),cube.getFlags())
-            ){
-            vo.setMsg("请求被拒绝，该模型的状态为：["+CubeFlags.getByFlags(cube.getFlags())
-                +"],状态为\"禁用\"或\"数据同步中\"或\"构建中\"的模型不能进行构建操作");
+                assertCubeStatus(CubeFlags.DISABLED.getFlags(), cube.getFlags())
+                        || assertCubeStatus(CubeFlags.ON_SYNC.getFlags(), cube.getFlags())
+                        || assertCubeStatus(CubeFlags.BUILDING.getFlags(), cube.getFlags())
+        ) {
+            vo.setMsg("请求被拒绝，该模型的状态为：[" + CubeFlags.getByFlags(cube.getFlags())
+                    + "],状态为\"禁用\"或\"数据同步中\"或\"构建中\"的模型不能进行构建操作");
             vo.setStatus(0);
             return vo;
         }
         OlapTimingrefresh olapTimingrefresh = this.olapTimingrefreshService.findTableInfo(cubeName);
-        if (olapTimingrefresh == null){
+        if (olapTimingrefresh == null) {
             vo.setMsg("查询不到该模型对应的构建配置");
             vo.setStatus(0);
             return vo;
@@ -274,14 +288,14 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         OlapCubeBuildVo vo = new OlapCubeBuildVo();
         vo.setStatus(1);
         vo.setMsg("请求同步成功");
-        if (cube == null){
+        if (cube == null) {
             vo.setMsg("查询不到该模型，请检查参数有效性");
             vo.setStatus(0);
             return vo;
         }
-        if (!assertCubeStatus(CubeFlags.SYNC_FAILED.getFlags(),cube.getFlags())){
-            vo.setMsg("请求被拒绝，该模型的状态为：["+CubeFlags.getByFlags(cube.getFlags())
-                +"],只有状态为\"同步失败\"的模型才能执行\"重新同步\"操作");
+        if (!assertCubeStatus(CubeFlags.SYNC_FAILED.getFlags(), cube.getFlags())) {
+            vo.setMsg("请求被拒绝，该模型的状态为：[" + CubeFlags.getByFlags(cube.getFlags())
+                    + "],只有状态为\"同步失败\"的模型才能执行\"重新同步\"操作");
             vo.setStatus(0);
             vo.setMsg("状态不满足重新同步的条件");
             return vo;
@@ -289,6 +303,52 @@ public class OlapCubeBuildServiceImpl implements OlapCubeBuildService,Initializi
         List<DataLakeJobQueryParam> params = queryJobQueryParamsByCubeName(cubeName);
         //批量调用触发同步任务接口，开始同步数据
         this.batchTriggerJob(params);
+        cube.setFlags(CubeFlags.ON_SYNC.getFlags());
+        cube.setUpdateTime(new Date());
+        this.olapCubeService.doSave(cube);
+        return vo;
+    }
+
+    @Override
+    public OlapCubeBuildVo preBuild(OlapTimingrefresh olapTimingrefresh) throws Exception {
+        OlapCube cube = this.olapCubeService.findTableInfo(olapTimingrefresh.getCubeName());
+        OlapCubeBuildVo vo = new OlapCubeBuildVo();
+        vo.setStatus(1);
+        vo.setMsg("请求成功");
+        if (cube == null) {
+            vo.setMsg("查询不到该模型，请检查参数有效性");
+            vo.setStatus(0);
+            return vo;
+        }
+        if (
+                assertCubeStatus(CubeFlags.DISABLED.getFlags(), cube.getFlags())
+                        || assertCubeStatus(CubeFlags.ON_SYNC.getFlags(), cube.getFlags())
+                        || assertCubeStatus(CubeFlags.BUILDING.getFlags(), cube.getFlags())
+        ) {
+            vo.setMsg("请求被拒绝，该模型的状态为：[" + CubeFlags.getByFlags(cube.getFlags())
+                    + "],状态为\"禁用\"或\"数据同步中\"或\"构建中\"的模型不能进行构建操作");
+            vo.setStatus(0);
+            return vo;
+        }
+        OlapTimingrefresh timingrefresh = this.olapTimingrefreshService.findTableInfo(olapTimingrefresh.getCubeName());
+        if (timingrefresh == null) {
+            vo.setMsg("查询不到该模型对应的构建配置");
+            vo.setStatus(0);
+            return vo;
+        }
+        List<DataLakeJobQueryParam> params = queryJobQueryParamsByCubeName(olapTimingrefresh.getCubeName());
+        //批量调用触发同步任务接口，开始同步数据
+        this.batchTriggerJob(params);
+        timingrefresh.setBegin(olapTimingrefresh.getBegin());
+        timingrefresh.setEnd(olapTimingrefresh.getEnd());
+        timingrefresh.setAutoReload(olapTimingrefresh.getAutoReload());
+        timingrefresh.setFrequencytype(olapTimingrefresh.getFrequencytype());
+        timingrefresh.setInterval(olapTimingrefresh.getInterval());
+        timingrefresh.setIsNew(false);
+        timingrefresh.setUpdateId(olapTimingrefresh.getUpdateId());
+        timingrefresh.setUpdateName(olapTimingrefresh.getUpdateName());
+        timingrefresh.setUpdateTime(olapTimingrefresh.getUpdateTime());
+        this.olapTimingrefreshService.doSave(timingrefresh);
         cube.setFlags(CubeFlags.ON_SYNC.getFlags());
         cube.setUpdateTime(new Date());
         this.olapCubeService.doSave(cube);
