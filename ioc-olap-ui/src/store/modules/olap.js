@@ -295,7 +295,8 @@ const common = {
           tableName: res.table,
           filed: res.table === data.ModesList.fact_table.split('.')[1] ? '1' : '0',
           id: res.id,
-          mode: res.derived ? '2' : '1'
+          mode: res.derived ? '2' : '1',
+          derived: res.derived
         })
       })
       dispatch('SaveSelectFiled', getters.saveSelectFiled)

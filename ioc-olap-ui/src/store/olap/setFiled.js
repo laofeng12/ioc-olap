@@ -284,7 +284,7 @@ const setFiled = {
               tableId: `${item.tableName}.${item.name}`,
               column_type: item.dataType || item.type,
               id: item.id,
-              derived: item.mode === '1' ? null : (item.titName.includes(' ') ? item.name.split(',') : item.titName.split(',')),
+              derived: item.derived,
               name: item.name
             })
           }

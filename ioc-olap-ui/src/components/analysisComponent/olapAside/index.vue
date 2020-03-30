@@ -152,8 +152,8 @@
           </div>
         </div>
         <div class="centerButton">
-          <el-button icon="el-icon-arrow-left" circle @click="reduceFilter"></el-button>
-          <el-button icon="el-icon-arrow-right" circle @click="addFilter"></el-button>
+          <el-button icon="el-icon-arrow-left" @click="reduceFilter"></el-button>
+          <el-button icon="el-icon-arrow-right" @click="addFilter"></el-button>
         </div>
         <div class="box">
           <div class="title dis-flex">
