@@ -47,6 +47,8 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
 	private Integer flags;
 	@ApiModelProperty("查询行数")
 	private Integer limit;
+	@ApiModelProperty("查询编码")
+	private String queryCode;
 
 	@ApiModelProperty("是否新增")
     private Boolean isNew;
@@ -195,8 +197,15 @@ public class OlapRealQuery implements Persistable<Long>,Serializable {
 	public String getCubeName() {
 		return cubeName;
 	}
-
 	public void setCubeName(String cubeName) {
 		this.cubeName = cubeName;
+	}
+
+	@Column(name = "QUERYCODE")
+	public String getqueryCode() {
+		return queryCode;
+	}
+	public void setqueryCode(String queryCode) {
+		this.queryCode = queryCode;
 	}
 }
