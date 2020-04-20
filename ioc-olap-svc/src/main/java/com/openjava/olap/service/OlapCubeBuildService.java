@@ -88,4 +88,14 @@ public interface OlapCubeBuildService {
      */
     OlapCubeBuildVo retrySync(String cubeName)throws Exception;
 
+    /**
+     * <p>手动构建时，先判断状态是否满足</p>
+     * <p>保存OLAP_TIMINGREFRESH</p>
+     * <p>调用触发同步任务方法</p>
+     * @param olapTimingrefresh 构建对象
+     * @return
+     * @throws Exception
+     */
+    OlapCubeBuildVo preBuild(OlapTimingrefresh olapTimingrefresh)throws Exception;
+
 }

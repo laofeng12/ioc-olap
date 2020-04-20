@@ -217,7 +217,7 @@ export default {
             id: `${item.resourceTableName}.${res.columnAlias}`,
             resid: item.resourceId,
             mode: item.code ? item.code : (item.name === code ? '1' : '2'),
-            derived: res.columnAlias,
+            derived: res.definition,
             type: res.type,
             filed: item.name === code ? '1' : '0'
           })

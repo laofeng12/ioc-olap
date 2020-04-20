@@ -3,11 +3,10 @@ import fetch from '@/utils/fetch'
 /**
  * 获取菜单列表
  */
-export function getMenuList (params) {
+export function getMenuList () {
   return fetch({
-    url: '/admin/res/sysRes/v2/myResources',
-    method: 'get',
-    params
+    url: '/admin/res/sysRes/v2/myResources?systemids=10000082780009',
+    method: 'get'
   })
 }
 
