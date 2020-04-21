@@ -222,7 +222,9 @@ export default {
     async submitNewForm () {
       const data = {
         isNew: !this.noFolderPop,
-        ...this.newForm
+        folderId: this.newForm.folder,
+        name: this.newForm.resultName,
+        queryCode: this.newForm.queryCode
       }
       try {
         await this.$confirm(`确认保存数据吗？`, '提示', {
