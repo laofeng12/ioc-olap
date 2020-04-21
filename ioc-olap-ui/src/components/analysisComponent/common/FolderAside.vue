@@ -237,7 +237,7 @@ export default {
     },
     filterAll (value, data, node) {
       if (!value) return true
-      if (data.name.indexOf(value) !== -1) {
+      if (data.attrs.name.indexOf(value) !== -1 || (data.attrs.queryCode && data.attrs.queryCode.indexOf(value) !== -1)) {
         return true
       }
       return this.checkBelongToChooseNode(value, data, node)
