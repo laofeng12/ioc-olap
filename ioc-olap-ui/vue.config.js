@@ -10,6 +10,12 @@ module.exports = {
   productionSourceMap: false,
   devServer: {
     proxy: {
+      '/platformweb/admin/': {
+        target: 'http://219.135.182.2:31075', // 公司测试环境
+        // target: 'http://19.104.40.36', // 政务内网
+        pathRewrite: { '^/platformweb/admin/': '/admin/' },
+        changeOrigin: true
+      },
       '/olapweb/admin/': {
         target: 'http://219.135.182.2:31075', // 公司测试环境
         // target: 'http://19.104.40.36', // 政务内网
@@ -40,6 +46,12 @@ module.exports = {
         target: 'http://219.135.182.3:30003', // 麒麟测试环境
         // target: 'http://192.168.1.124:8081', // 林传港
         pathRewrite: { '^/olapweb/olap/': '/olap/' },
+        changeOrigin: true
+      },
+      '/olapweb/dts/': {
+        target: 'http://219.135.182.2:30003', // 麒麟测试环境
+        // target: 'http://192.168.1.124:8081', // 林传港
+        // pathRewrite: { '^/olapweb/olap/': '/olap/' },
         changeOrigin: true
       }
     }

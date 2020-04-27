@@ -10,7 +10,7 @@ export function getToken () {
   const cookiesToken = Cookies.get(TokenKey)
 
   cookiesToken && store.dispatch('SetToken', cookiesToken)
-  const access_token = cookiesToken || sessionStorage.getItem('token')
+  const access_token = cookiesToken || localStorage.getItem('token')
 
   return access_token
 }
@@ -21,7 +21,7 @@ export function setToken (token) {
 
 export function removeToken () {
   Cookies.remove(TokenKey)
-  sessionStorage.removeItem('token')
+  localStorage.removeItem('token')
 }
 
 export function setUserInfo (userInfo) {
@@ -29,5 +29,5 @@ export function setUserInfo (userInfo) {
 }
 
 export function removeUserInfo () {
-  sessionStorage.removeItem('userInfo')
+  localStorage.removeItem('userInfo')
 }
