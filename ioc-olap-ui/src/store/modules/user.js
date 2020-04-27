@@ -22,6 +22,7 @@ const user = {
     SetUserInfo ({ commit, dispatch }, userInfo) {
       commit('SET_USERINFO', userInfo)
       setUserInfo(userInfo)
+
     },
 
     // 登录
@@ -32,7 +33,7 @@ const user = {
         login(userAccount, userPwd).then(res => {
           const user = res.user
           const token = user.tokenId
-
+          debugger
           user.avatar = user.headImg ? user.headImg : defaultAvatar
           dispatch('SetToken', token)
           dispatch('SetUserInfo', user)
