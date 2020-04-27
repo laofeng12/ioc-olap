@@ -3,7 +3,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from './utils/auth'
 import store from '@/store'
-import { getSessionStorage } from '@/utils'
+import { getCookiesUser } from '@/utils'
 import Cookies from 'js-cookie'
 
 NProgress.configure({ showSpinner: false })// NProgress configuration
@@ -12,8 +12,7 @@ const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
   NProgress.start()
 
-  const info = getSessionStorage('userInfo')
-  let userInfo = info ? JSON.parse(info) : {}
+  const userInfo = getCookiesUser('userInfo')
   store.commit('SET_USERINFO', userInfo)
 
   const access_token = getToken()

@@ -1,7 +1,9 @@
+import Cookies from 'js-cookie'
+
 export const WEBSOCKET_TOKEN_PREFIX = 'bearer.authorization.platform.dgzsj.com'
 
 export function removeSessionStorage (item) {
-  sessionStorage.removeItem(item)
+  localStorage.removeItem(item)
 }
 
 export function removeAllStorage () {
@@ -14,7 +16,7 @@ export function removeLocalStorage (item) {
 
 export function setSessionStorage (item, value) {
   let stringValue = typeof value === 'string' ? value : JSON.stringify(value)
-  return sessionStorage.setItem(item, stringValue)
+  return localStorage.setItem(item, stringValue)
 }
 
 export function setLocalStorage (item, value) {
@@ -22,8 +24,9 @@ export function setLocalStorage (item, value) {
   return localStorage.setItem(item, stringValue)
 }
 
-export function getSessionStorage (item) {
-  return sessionStorage.getItem(item)
+export function getCookiesUser () {
+  const cookiesUserInfo = Cookies.get('userInfo') ? JSON.parse(Cookies.get('userInfo')) : null
+  return cookiesUserInfo
 }
 
 export function getLocalStorage (item) {
