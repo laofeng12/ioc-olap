@@ -3,7 +3,7 @@
     <div class="header-button">
       <el-button type="primary" size="small" @click="goAdd">新增数据库</el-button>
     </div>
-    <el-table class="m-t-16" :data="tableData" v-loading="getLoading">
+    <el-table class="m-t-16" :data="tableData" v-loading="loading">
       <el-table-column min-width="100%" prop="databaseName" label="数据库名称" show-overflow-tooltip> </el-table-column>
       <el-table-column min-width="100%" prop="databaseTypeName" label="数据库类型" show-overflow-tooltip></el-table-column>
       <el-table-column min-width="100%" prop="url" label="链接地址" show-overflow-tooltip></el-table-column>
@@ -28,7 +28,8 @@ export default {
       tableData: [],
       total: 0,
       currentPage: 1,
-      size: 20
+      size: 20,
+      loading: false
     }
   },
   mounted () {
@@ -36,10 +37,12 @@ export default {
   },
   methods: {
     async getTable () {
+      this.loading = true
       const params = { size: this.size, page: this.currentPage - 1 }
       const { data: { rows, total } } = await searchApi(params)
       this.tableData = rows
       this.total = total
+      this.loading = false
     },
     goAdd () {
       this.$router.push('/addDataOrigin')

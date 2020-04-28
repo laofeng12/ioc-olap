@@ -51,9 +51,9 @@
       </el-form-item>
       <el-form-item label="连通测试">
         <div class="dis-flex">
-          <el-button type="primary" @click="testLink">连通测试</el-button>
+          <el-button type="primary" @click="testLink" :loading="linkLoading">连通测试</el-button>
           <div class="linkTip c-blue" v-if="form.linkStatus === 1">已连通</div>
-          <div class="linkTip c-red" v-else>未连通</div>
+          <div class="linkTip c-red" v-else-if="form.linkStatus === 2">未连通</div>
         </div>
       </el-form-item>
       <el-form-item label="数据库描述">
@@ -67,7 +67,7 @@
       </el-form-item>
     </el-form>
     <div class="text-center">
-      <el-button type="primary" @click="submit">提交</el-button>
+      <el-button type="primary" @click="submit" :loading="submitLoading">提交</el-button>
     </div>
   </div>
 </template>
@@ -130,7 +130,7 @@ export default {
         description: '',
         contactPerson: '',
         contactTelephone: '',
-        linkStatus: 2
+        linkStatus: 0
       },
       databaseTypeList: [
         {
@@ -211,7 +211,9 @@ export default {
         label: 'orgName',
         children: 'children',
         isLeaf: 'isLeaf'
-      })
+      }),
+      linkLoading: false,
+      submitLoading: false
     }
   },
   mounted () {
@@ -226,19 +228,25 @@ export default {
       this.form.databaseType = databaseType
     },
     async testLink () {
+      this.linkLoading = true
       const data = {
         databaseType: this.form.databaseType,
         url: this.form.url,
         username: this.form.userName,
         password: this.form.password
       }
-      const { message } = await linkTestApi(data)
-      if (message === '连通成功') {
-        this.$message.success(message)
-        this.form.linkStatus = 1
-      } else {
-        this.$message.error(message)
-        this.form.linkStatus = 2
+      try {
+        const { message } = await linkTestApi(data)
+        if (message === '连通成功') {
+          this.$message.success(message)
+          this.form.linkStatus = 1
+        } else {
+          this.$message.error(message)
+          this.form.linkStatus = 2
+        }
+        this.linkLoading = false
+      } catch (e) {
+        this.linkLoading = false
       }
     },
     handleOrgIdClick (orgId, orgName) {
@@ -253,12 +261,18 @@ export default {
     submit () {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
-          const { message } = await doSaveApi(this.form)
-          if (message === '保存成功') {
-            this.$message.success(message)
-            this.$router.back()
-          } else {
-            this.$message.error(message)
+          this.submitLoading = true
+          try {
+            const { message } = await doSaveApi(this.form)
+            if (message === '保存成功') {
+              this.$message.success(message)
+              this.$router.back()
+            } else {
+              this.$message.error(message)
+            }
+            this.submitLoading = false
+          } catch (e) {
+            this.submitLoading = false
           }
         } else {
           this.$message.error('请完成所有选项')
