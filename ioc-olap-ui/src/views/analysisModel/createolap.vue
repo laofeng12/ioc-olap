@@ -3,7 +3,9 @@
     <header></header>
     <head-box :selectId="selectStep"></head-box>
     <div v-loading="isLoading">
-      <router-view></router-view>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </div>
   </div>
 </template>
