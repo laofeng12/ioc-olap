@@ -57,6 +57,9 @@
         <el-form-item class="w-100" label="结果名称" label-width="100px" prop="resultName">
           <el-input v-model="newForm.resultName" auto-complete="off"></el-input>
         </el-form-item>
+        <el-form-item class="w-100" label="编码" label-width="100px" prop="queryCode">
+          <el-input v-model="newForm.queryCode" auto-complete="off"></el-input>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newFormVisible = false">取 消</el-button>
@@ -138,7 +141,7 @@ export default {
       default: false
     }
   },
-  components: { 
+  components: {
     DynamicTable,
     publish
      },
@@ -150,11 +153,15 @@ export default {
       isFullscreen: false,
       newForm: {
         folder: '',
-        resultName: ''
+        resultName: '',
+        queryCode: ''
       },
       newFormRules: {
         resultName: [
           { required: true, message: '请输入查询结果名称', trigger: 'blur' }
+        ],
+        queryCode: [
+          { required: true, message: '请输入编码', trigger: 'blur' }
         ],
         folder: [
           { required: true, message: '请选择文件夹', trigger: 'change' }
@@ -216,7 +223,8 @@ export default {
       const data = {
         isNew: !this.noFolderPop,
         folderId: this.newForm.folder,
-        name: this.newForm.resultName
+        name: this.newForm.resultName,
+        queryCode: this.newForm.queryCode
       }
       try {
         await this.$confirm(`确认保存数据吗？`, '提示', {

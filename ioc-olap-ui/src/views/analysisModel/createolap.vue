@@ -3,9 +3,7 @@
     <header></header>
     <head-box :selectId="selectStep"></head-box>
     <div v-loading="isLoading">
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -51,9 +49,9 @@ export default {
             if (this.$route.query.cubeName) {
               // 编辑得时候第一步中间的表格默认查第一张表
               await this.$root.eventBus.$emit('getserchTableList', {
-              orgId: tempModelAllObj.orgId,
-              type: Number(tempModelAllObj.type),
-              databaseType: Number(tempModelAllObj.databaseType) }, 1)
+                orgId: tempModelAllObj.orgId,
+                type: Number(tempModelAllObj.type),
+                databaseType: Number(tempModelAllObj.databaseType) }, 1)
               // this.$root.eventBus.$emit('saveSelectTables')
             }
           }

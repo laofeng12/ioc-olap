@@ -199,6 +199,7 @@ export default {
         res.tableList = reduceObj(res.tableList, 'table_id')
       })
       const rowkeyList = this.totalSaveData.cube.cubeDescData.rowkey.rowkey_columns
+      let rowkey_columns = []
       dimensions.forEach(item => {
         rowkeyList.forEach(v => {
           if (item.id.toUpperCase() === v.column.toUpperCase()) {
@@ -206,8 +207,16 @@ export default {
           }
         })
       })
+      rowkeyList.forEach((item, index) => {
+        rowkeyList.forEach((v, i) => {
+          if (v.column.toUpperCase() === item.column.toUpperCase() && index !== i) {
+            rowkeyList.splice(i, 1)
+          }
+        })
+      })
       this.realData = JSON.parse(JSON.stringify(this.totalSaveData))
       Object.assign(this.realData.cube.cubeDescData, { dimensions })
+      Object.assign(this.realData.cube.cubeDescData.rowkey, { rowkey_columns: rowkeyList })
     },
     nextModel (val) {
       if (!this.totalSaveData.cube.cubeDescData.name.length) {

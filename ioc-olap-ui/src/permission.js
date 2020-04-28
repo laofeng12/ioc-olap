@@ -3,7 +3,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from './utils/auth'
 import store from '@/store'
-import { getSessionStorage } from '@/utils'
+import { getCookiesUser } from '@/utils'
 import Cookies from 'js-cookie'
 
 NProgress.configure({ showSpinner: false })// NProgress configuration
@@ -11,27 +11,15 @@ NProgress.configure({ showSpinner: false })// NProgress configuration
 // single-spa 模式下，路由拦截只设置用户信息，路由判断由外围统一处理
 if (window.singleSpaNavigate) {
   router.beforeEach((to, from, next) => {
-    const objectList = [
-      '/dataminingweb',
-      '/datacollisionweb',
-      '/datatransferweb',
-      '/datatagweb',
-      '/platformweb',
-      '/datalakeweb',
-      '/visualweb',
-      '/olapweb',
-      '/biweb',
-      '/dsweb'
-    ]
+    const objectList = Object.keys(window.singleSpaConfig.spaProjects)
     for (let obj of objectList) {
       if (to.path.match(new RegExp('^' + obj))) {
         return
       }
     }
     // 把路由挂在 window，让外围拿到数据
-    window.router = { to, baseUrl: '/olapweb' }
-    const info = getSessionStorage('userInfo')
-    let userInfo = info ? JSON.parse(info) : {}
+    window.singleSpaConfig.router = { to, baseUrl: '/olapweb' }
+    const userInfo = getCookiesUser('userInfo')
     store.commit('SET_USERINFO', userInfo)
     next()
   })
@@ -40,8 +28,7 @@ if (window.singleSpaNavigate) {
   router.beforeEach((to, from, next) => {
     NProgress.start()
 
-    const info = getSessionStorage('userInfo')
-    let userInfo = info ? JSON.parse(info) : {}
+    const userInfo = getCookiesUser('userInfo')
     store.commit('SET_USERINFO', userInfo)
 
     const access_token = getToken()

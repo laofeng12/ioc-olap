@@ -17,7 +17,9 @@ import 'vue-task-node/dist/css/vnode.css'
 import fullscreen from 'vue-fullscreen'
 import '@/permission' // permission control
 import singleSpaVue from './single-spa-vue.js'
+import UrlKeepAlive from '@/components/UrlKeepAlive'
 
+Vue.component('url-keep-alive', UrlKeepAlive)
 Vue.use(ElementUI)
 Vue.use(Layout)
 Vue.use(fullscreen)

@@ -20,7 +20,7 @@
       </div>
     </ch-layout>
     <div v-else class="container-wrapper">
-      <keep-alive><router-view></router-view></keep-alive>
+      <router-view></router-view>
     </div>
   </div>
 </template>

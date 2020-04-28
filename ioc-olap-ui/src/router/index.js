@@ -132,6 +132,26 @@ export default new Router({
           component: () => import('@/views/analysisModel/analysis.vue')
         }
       ]
+    },
+    {
+      path: '/',
+      name: 'dataOrigin',
+      component: ContainerWrapper,
+      redirect: '/dataOrigin',
+      children: [
+        {
+          path: '/dataOrigin',
+          name: 'dataOriginIndex',
+          meta: { title: '数据源' },
+          component: () => import('@/views/dataOrigin/index')
+        },
+        {
+          path: '/addDataOrigin',
+          name: 'dataOriginAdd',
+          meta: { title: '新增数据库' },
+          component: () => import('@/views/dataOrigin/add')
+        }
+      ]
     }
   ]
 })
