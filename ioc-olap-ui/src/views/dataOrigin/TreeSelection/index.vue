@@ -8,8 +8,6 @@
     :popper-append-to-body="isBody"
     v-bind="$attrs"
     v-on="$listeners"
-    filterable
-    :filter-method="selectFilterHandler"
   >
     <el-option :value="valueName" :label="valueName">
       <el-tree
@@ -117,7 +115,7 @@ export default {
       selectListeners: {}
     };
   },
-  
+
   mounted() {
   },
   methods: {
@@ -146,7 +144,7 @@ export default {
     selectFilterHandler(text) {
       this.$refs.selectTree.filter(text);
     }
-   
+
   }
 
   // watch: {
@@ -168,6 +166,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+>>>.el-tree-node__content {
+  margin: 0 0 4px
+}
+
 .m-custom-left {
   >>>.el-select-dropdown {
     left: auto !important;
