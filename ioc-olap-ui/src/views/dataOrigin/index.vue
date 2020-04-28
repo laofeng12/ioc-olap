@@ -12,18 +12,23 @@
       <el-table-column min-width="100%" prop="createTime" label="创建时间" show-overflow-tooltip></el-table-column>
       <el-table-column min-width="100%" label="连通状态" prop="linkStatusName" show-overflow-tooltip></el-table-column>
     </el-table>
+    <div class="page dis-flex w-100">
+      <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="size"
+                     :total="total" :hide-on-single-page="size > total" layout="prev, pager, next">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
 <script>
 import { searchApi } from '@/api/dataOrigin'
 export default {
-  components: {
-    // modelDetail, clones, construct, reloads, merge, sharedTable
-  },
   data () {
     return {
-      tableData: []
+      tableData: [],
+      total: 0,
+      currentPage: 1,
+      size: 20
     }
   },
   mounted () {
@@ -31,11 +36,17 @@ export default {
   },
   methods: {
     async getTable () {
-      const { data = [] } = await searchApi()
-      this.tableData = data
+      const params = { size: this.size, page: this.currentPage - 1 }
+      const { data: { rows, total } } = await searchApi(params)
+      this.tableData = rows
+      this.total = total
     },
     goAdd () {
       this.$router.push('/addDataOrigin')
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val
+      this.getTable()
     }
   }
 }
@@ -52,5 +63,8 @@ export default {
     flex-direction: row-reverse;
     width: 100%;
     padding-right: 16px;
+  }
+  .page {
+    justify-content: center;
   }
 </style>

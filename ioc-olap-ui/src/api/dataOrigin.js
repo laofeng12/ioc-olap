@@ -1,9 +1,10 @@
 import fetch from '@/utils/fetch'
 
-export function searchApi () {
+export function searchApi (params) {
   return fetch({
     url: '/dts/dtsDatasource/findAll',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 

@@ -52,7 +52,7 @@
       <el-form-item label="连通测试">
         <div class="dis-flex">
           <el-button type="primary" @click="testLink">连通测试</el-button>
-          <div class="linkTip c-blue" v-if="isLink">已连通</div>
+          <div class="linkTip c-blue" v-if="form.linkStatus === 1">已连通</div>
           <div class="linkTip c-red" v-else>未连通</div>
         </div>
       </el-form-item>
@@ -129,7 +129,8 @@ export default {
         password: '',
         description: '',
         contactPerson: '',
-        contactTelephone: ''
+        contactTelephone: '',
+        linkStatus: 2
       },
       databaseTypeList: [
         {
@@ -210,8 +211,7 @@ export default {
         label: 'orgName',
         children: 'children',
         isLeaf: 'isLeaf'
-      }),
-      isLink: false
+      })
     }
   },
   mounted () {
@@ -235,10 +235,10 @@ export default {
       const { message } = await linkTestApi(data)
       if (message === '连通成功') {
         this.$message.success(message)
-        this.isLink = true
+        this.form.linkStatus = 1
       } else {
         this.$message.error(message)
-        this.isLink = false
+        this.form.linkStatus = 2
       }
     },
     handleOrgIdClick (orgId, orgName) {
