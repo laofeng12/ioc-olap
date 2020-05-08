@@ -15,10 +15,12 @@
         </ul>
       </el-form-item>
       <el-form-item label="数据库类型" prop="databaseTypeName" v-if="form.databaseType === ''">
-        <el-input v-model="form.databaseTypeName" placeholder="请输入数据库类型" clearable></el-input>
+        <el-input v-model="form.databaseTypeName" maxlength="20" placeholder="请输入数据库类型"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="数据库名称" prop="databaseName">
-        <el-input v-model="form.databaseName" placeholder="请输入数据库名称" clearable></el-input>
+        <el-input v-model="form.databaseName" maxlength="20" placeholder="请输入数据库名称"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="数据库来源" prop="databaseSource">
         <TreeSelection
@@ -35,21 +37,26 @@
         ></TreeSelection>
       </el-form-item>
       <el-form-item label="关联项目名称" prop="projectName">
-        <el-input v-model="form.projectName" placeholder="请输入关联项目名称" clearable></el-input>
+        <el-input v-model="form.projectName" maxlength="20" placeholder="请输入关联项目名称"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="关联系统名称" prop="systemNames">
-        <el-input v-model="form.systemNames" placeholder="请输入关联系统名称" clearable></el-input>
+        <el-input v-model="form.systemNames" maxlength="20" placeholder="请输入关联系统名称"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="JDBC URL" prop="url">
-        <el-input v-model="form.url" placeholder="示例：jdbc:mysql://192.168.4.238:3306/test" clearable></el-input>
+        <el-input v-model="form.url" maxlength="100" placeholder="示例：jdbc:mysql://192.168.4.238:3306/test"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="用户名" prop="userName">
-        <el-input v-model="form.userName" placeholder="请输入用户名" clearable></el-input>
+        <el-input v-model="form.userName" maxlength="20" placeholder="请输入用户名"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="form.password" placeholder="请输入密码" clearable show-password></el-input>
+        <el-input v-model="form.password" maxlength="30" placeholder="请输入密码" clearable
+                  show-password></el-input>
       </el-form-item>
-      <el-form-item label="连通测试">
+      <el-form-item label="连通测试" prop="linkStatus">
         <div class="dis-flex">
           <el-button type="primary" @click="testLink" :loading="linkLoading">连通测试</el-button>
           <div class="linkTip c-blue" v-if="form.linkStatus === 1">已连通</div>
@@ -57,13 +64,16 @@
         </div>
       </el-form-item>
       <el-form-item label="数据库描述">
-        <el-input v-model="form.description" type="textarea" placeholder="请输入数据库描述" clearable></el-input>
+        <el-input v-model="form.description" maxlength="200" type="textarea"
+                  placeholder="请输入数据库描述" clearable></el-input>
       </el-form-item>
       <el-form-item label="联系人" prop="contactPerson">
-        <el-input v-model="form.contactPerson" placeholder="请输入联系人" clearable></el-input>
+        <el-input v-model="form.contactPerson" maxlength="20" placeholder="请输入联系人"
+                  clearable></el-input>
       </el-form-item>
       <el-form-item label="联系电话" prop="contactTelephone">
-        <el-input v-model="form.contactTelephone" placeholder="请输入联系电话" clearable></el-input>
+        <el-input v-model="form.contactTelephone" maxlength="11" placeholder="请输入联系电话"
+                  clearable></el-input>
       </el-form-item>
     </el-form>
     <div class="text-center">
@@ -113,6 +123,13 @@ export default {
         } else {
           callback()
         }
+      }
+    }
+    const linkRule = (rule, value, callback) => {
+      if (value === 0) {
+        callback(new Error('请点击连通测试'))
+      } else {
+        callback()
       }
     }
     return {
@@ -172,7 +189,8 @@ export default {
       ],
       rules: {
         databaseType: [
-          { validator: typeRule }
+          { validator: typeRule },
+          { required: true }
         ],
         databaseTypeName: [
           { validator: newTypeRule }
@@ -198,11 +216,16 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' }
         ],
+        linkStatus: [
+          { validator: linkRule },
+          { required: true }
+        ],
         contactPerson: [
           { required: true, message: '请输入联系人', trigger: 'blur' }
         ],
         contactTelephone: [
-          { validator: phoneRule }
+          { validator: phoneRule },
+          { required: true, message: '请输入联系电话', trigger: 'blur' }
         ]
       },
       treeData: [],
@@ -246,6 +269,7 @@ export default {
         }
         this.linkLoading = false
       } catch (e) {
+        this.form.linkStatus = 2
         this.linkLoading = false
       }
     },
