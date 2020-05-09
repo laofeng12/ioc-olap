@@ -14,7 +14,8 @@
           </li>
         </ul>
       </el-form-item>
-      <el-form-item label="数据库类型" prop="databaseTypeName" v-if="form.databaseType === ''">
+      <el-form-item label="数据库类型" prop="databaseTypeName" v-if="form.databaseType === '99'"
+                    :required="true">
         <el-input v-model="form.databaseTypeName" maxlength="20" placeholder="请输入数据库类型"
                   clearable></el-input>
       </el-form-item>
@@ -53,7 +54,7 @@
                   clearable></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="form.password" maxlength="30" placeholder="请输入密码" clearable
+        <el-input v-model="form.password" maxlength="30" placeholder="请输入密码" clearable auto-complete="new-password"
                   show-password></el-input>
       </el-form-item>
       <el-form-item label="连通测试" prop="linkStatus">
@@ -95,20 +96,19 @@ export default {
   components: { TreeSelection },
   data () {
     const typeRule = (rule, value, callback) => {
-      if (value === '99') {
+      if (value === '') {
         callback(new Error('请选择数据库类型'))
       } else {
         callback()
       }
     }
     const newTypeRule = (rule, value, callback) => {
-      if (this.form.databaseType === '') {
+      if (this.form.databaseType === '99') {
         if (value === '') {
           callback(new Error('请选择数据库类型'))
         } else {
           callback()
         }
-        // callback(new Error('请填写新数据库类型'))
       } else {
         callback()
       }
@@ -134,7 +134,7 @@ export default {
     }
     return {
       form: {
-        databaseType: '99',
+        databaseType: '0',
         databaseTypeName: '',
         databaseName: '',
         databaseSource: '',
@@ -181,7 +181,7 @@ export default {
           pcodeid: 0
         },
         {
-          codeDef: '',
+          codeDef: '99',
           codename: 'other',
           iconPath: otherPath,
           pcodeid: 0
@@ -190,7 +190,7 @@ export default {
       rules: {
         databaseType: [
           { validator: typeRule },
-          { required: true }
+          { required: true, trigger: 'blur' }
         ],
         databaseTypeName: [
           { validator: newTypeRule }
