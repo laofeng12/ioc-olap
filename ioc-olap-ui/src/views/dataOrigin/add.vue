@@ -85,6 +85,7 @@
 
 <script>
 import { linkTestApi, getTreeApi, doSaveApi } from '@/api/dataOrigin'
+import { encrypt } from '../../utils/pass.js'
 import TreeSelection from './TreeSelection'
 const oracleIconPath = require('@/assets/oracle.png')
 const mysqlIconPath = require('@/assets/mysql.png')
@@ -286,6 +287,9 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
           this.submitLoading = true
+          // form.password
+          let password = encrypt(this.form.password)
+          this.form.password = password
           try {
             const { message } = await doSaveApi(this.form)
             if (message === '保存成功') {
