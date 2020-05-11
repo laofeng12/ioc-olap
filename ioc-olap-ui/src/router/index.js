@@ -29,6 +29,7 @@ export default new Router({
       path: '/analysisModel',
       name: 'analysisModel',
       component: ContainerWrapper,
+      meta: { title: 'BI分析报表' },
       redirect: '/analysisModel/Configuration',
       children: [
         {
@@ -94,6 +95,7 @@ export default new Router({
       path: '/',
       name: 'queries1',
       component: ContainerWrapper,
+      meta: { title: 'BI分析报表' },
       redirect: '/instantInquiry',
       children: [
         {
@@ -114,6 +116,7 @@ export default new Router({
       path: '/',
       name: 'queries2',
       component: ContainerWrapper,
+      meta: { title: 'BI分析报表' },
       redirect: '/analysisList',
       children: [
         {
