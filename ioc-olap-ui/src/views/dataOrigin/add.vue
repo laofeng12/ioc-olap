@@ -49,8 +49,8 @@
         <el-input v-model="form.url" maxlength="100" placeholder="示例：jdbc:mysql://192.168.4.238:3306/test"
                   clearable></el-input>
       </el-form-item>
-      <el-form-item label="用户名" prop="userName">
-        <el-input v-model="form.userName" maxlength="20" placeholder="请输入用户名"
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="form.username" maxlength="20" placeholder="请输入用户名"
                   clearable></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
@@ -85,7 +85,7 @@
 
 <script>
 import { linkTestApi, getTreeApi, doSaveApi } from '@/api/dataOrigin'
-import { encrypt } from '../../utils/pass.js'
+import { encrypt, decrypt } from '../../utils/pass.js'
 import TreeSelection from './TreeSelection'
 const oracleIconPath = require('@/assets/oracle.png')
 const mysqlIconPath = require('@/assets/mysql.png')
@@ -143,7 +143,7 @@ export default {
         projectName: '',
         systemNames: '',
         url: '',
-        userName: '',
+        username: '',
         password: '',
         description: '',
         contactPerson: '',
@@ -211,7 +211,7 @@ export default {
         url: [
           { required: true, message: '请输入JDBC URL', trigger: 'blur' }
         ],
-        userName: [
+        username: [
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
         password: [
@@ -253,10 +253,12 @@ export default {
     },
     async testLink () {
       this.linkLoading = true
+      let testPassword = encrypt(this.form.password)
+      this.form.password = testPassword
       const data = {
         databaseType: this.form.databaseType,
         url: this.form.url,
-        username: this.form.userName,
+        username: this.form.username,
         password: this.form.password
       }
       try {
@@ -264,14 +266,20 @@ export default {
         if (message === '连通成功') {
           this.$message.success(message)
           this.form.linkStatus = 1
+          const res = decrypt(this.form.password)
+          this.form.password = res
         } else {
           this.$message.error(message)
           this.form.linkStatus = 2
+          const res = decrypt(this.form.password)
+          this.form.password = res
         }
         this.linkLoading = false
       } catch (e) {
         this.form.linkStatus = 2
         this.linkLoading = false
+        const res = decrypt(this.form.password)
+        this.form.password = res
       }
     },
     handleOrgIdClick (orgId, orgName) {
