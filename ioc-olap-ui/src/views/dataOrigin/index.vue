@@ -8,6 +8,8 @@
       <el-table-column min-width="100%" prop="databaseTypeName" label="数据库类型" show-overflow-tooltip></el-table-column>
       <el-table-column min-width="100%" prop="url" label="链接地址" show-overflow-tooltip></el-table-column>
       <el-table-column min-width="100%" prop="description" label="数据库描述" show-overflow-tooltip></el-table-column>
+      <el-table-column min-width="100%" prop="createName" label="创建人" show-overflow-tooltip></el-table-column>
+      <el-table-column min-width="100%" prop="orgName" label="所属部门/单位" show-overflow-tooltip></el-table-column>
       <!--<el-table-column min-width="100%" prop="databaseUseName" label="数据库用途" show-overflow-tooltip></el-table-column>-->
       <el-table-column min-width="100%" prop="createTime" label="创建时间" show-overflow-tooltip></el-table-column>
       <el-table-column min-width="100%" label="连通状态" prop="linkStatusName" show-overflow-tooltip></el-table-column>
