@@ -1,7 +1,7 @@
 <template>
   <div class="container bg-fff">
     <div class="text-center">
-      <h3 class="c-333 f-s-28">证数局数据库收集填报</h3>
+      <h3 class="c-333 f-s-28">政数局数据库收集填报</h3>
     </div>
     <el-form ref="form" :model="form" :rules="rules" label-width="120px" >
       <el-form-item label="数据库类型" prop="databaseType">

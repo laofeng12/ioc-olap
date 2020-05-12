@@ -27,7 +27,8 @@ export default {
         { title: '可视化组件', describe: '自己的展示自己定' }
       ],
       loading: false,
-      loginInfo: { logo: require('../../assets/img/logo.png') }
+      loginInfo: { logo: require('../../assets/img/logo.png') },
+      portalInfo: { platformName: '大数据服务平台' }
     }
   },
   methods: {
