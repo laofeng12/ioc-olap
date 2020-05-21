@@ -23,6 +23,15 @@ if (window.singleSpaNavigate) {
     store.commit('SET_USERINFO', userInfo)
     next()
   })
+  router.afterEach((to, from) => {
+    setTimeout(() => {
+      let pathindex = ['', 'selectStep', 'createTableRelation', 'setFiled', 'setMeasure', 'reloadSet', 'advancedSet', 'completeCreate']
+      store.state.olap.HeadNum = pathindex.indexOf(to.name);
+      if (pathindex.indexOf(from.name) !== -1 && from.path !== '/') {
+        window.nhcPortal.closeTagByPath(`/olapweb${from.path}`);
+      }
+    }, 1000);
+  });
 } else {
   const whiteList = ['/login'] // 不重定向白名单
   router.beforeEach((to, from, next) => {
