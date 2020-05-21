@@ -9,7 +9,7 @@
     v-bind="$attrs"
     v-on="$listeners"
   >
-    <el-option :value="valueName" :label="valueName">
+    <el-option :value="valueName" :label="valueName" style="height: auto;">
       <el-tree
         id="tree-option"
         v-loading="loadingTree"
