@@ -37,6 +37,9 @@ export default {
   mounted () {
     this.getTable()
   },
+  activated () {
+    this.getTable()
+  },
   methods: {
     async getTable () {
       this.loading = true
