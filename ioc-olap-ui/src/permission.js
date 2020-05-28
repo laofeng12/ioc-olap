@@ -13,7 +13,7 @@ if (window.singleSpaNavigate) {
   router.beforeEach((to, from, next) => {
     const objectList = Object.keys(window.singleSpaConfig.spaProjects)
     for (let obj of objectList) {
-      if (to.path.match(new RegExp('^' + '/' +  obj))) {
+      if (to.path.match(new RegExp('^' + '/' + obj))) {
         return
       }
     }
@@ -26,12 +26,12 @@ if (window.singleSpaNavigate) {
   router.afterEach((to, from) => {
     setTimeout(() => {
       let pathindex = ['', 'selectStep', 'createTableRelation', 'setFiled', 'setMeasure', 'reloadSet', 'advancedSet', 'completeCreate']
-      store.state.olap.HeadNum = pathindex.indexOf(to.name);
+      store.state.olap.HeadNum = pathindex.indexOf(to.name)
       if (pathindex.indexOf(from.name) !== -1 && from.path !== '/') {
-        window.nhcPortal.closeTagByPath(`/olapweb${from.path}`);
+        window.nhcPortalSpa.closeTagByPath(`/olapweb${from.path}`)
       }
-    }, 1000);
-  });
+    }, 1000)
+  })
 } else {
   const whiteList = ['/login'] // 不重定向白名单
   router.beforeEach((to, from, next) => {
