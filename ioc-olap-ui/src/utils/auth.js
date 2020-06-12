@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 import store from '@/store'
 import { setSessionStorage } from '@/utils'
+import { mySessionStorage } from './sessionStorage.js'
 // import { GetQueryString } from './index'
 
 const TokenKey = 'authority-token'
@@ -24,10 +25,15 @@ export function removeToken () {
   localStorage.removeItem('token')
 }
 
+export function getUserInfo () {
+  return mySessionStorage.getItem('userInfo')
+}
+
 export function setUserInfo (userInfo) {
-  setSessionStorage('userInfo', userInfo)
+  mySessionStorage.setItem('userInfo', userInfo)
 }
 
 export function removeUserInfo () {
-  localStorage.removeItem('userInfo')
+  Cookies.remove('userInfo')
+  mySessionStorage.removeItem('userInfo')
 }
