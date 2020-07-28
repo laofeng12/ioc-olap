@@ -38,6 +38,7 @@ jasypt:
 
 iocplatform:
   url:
+    ioc-admin: http://ioc-admin-svc:8080
     # 跨局的附件下载的网关地址
     file-download-gateway:
       # 这里的url要用外网的地址，不能用服务名的方式
