@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.ioc</groupId>
             <artifactId>platform-framework</artifactId>
-            <version>2.1.15.R01</version>
+            <version>2.1.8.R06c</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.69</version>
+            <version>1.2.54</version>
             <scope>compile</scope>
         </dependency>
 
@@ -145,32 +145,26 @@
             <artifactId>ezmorph</artifactId>
             <version>1.0.6</version>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.2.3</version>
-            <classifier>jdk15</classifier>&lt;!&ndash; 指定jdk版本 &ndash;&gt;
-        </dependency>-->
+            <classifier>jdk15</classifier><!-- 指定jdk版本 -->
+        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>3.17</version>
         </dependency>
-       <!-- <dependency>
+        <dependency>
             <groupId>org.apache.poi.wso2</groupId>
             <artifactId>poi-scratchpad</artifactId>
             <version>3.5.0.wso2v1</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
-        </dependency>
-        <!--okhttp使用-->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>3.10.0</version>
         </dependency>
 
     </dependencies>
