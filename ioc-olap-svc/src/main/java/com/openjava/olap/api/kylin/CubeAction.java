@@ -1,8 +1,5 @@
 package com.openjava.olap.api.kylin;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.openjava.olap.common.HttpClient;
 import com.openjava.olap.common.kylin.CubeHttpClient;
 import com.openjava.olap.common.kylin.ModelHttpClient;
 import com.openjava.olap.mapper.kylin.*;
@@ -10,18 +7,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 import org.ljdp.component.exception.APIException;
 import org.ljdp.secure.annotation.Security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
 
-import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.*;
 
 @Api(tags = "立方体接口")

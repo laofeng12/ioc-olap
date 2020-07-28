@@ -1,6 +1,7 @@
 package com.openjava.olap.common;
 
-import net.sf.json.JSONObject;
+//import net.sf.json.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import org.ljdp.component.exception.APIException;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
@@ -73,7 +74,8 @@ public class HttpClient {
             return response.getBody();
         }
         catch (HttpServerErrorException ex){
-            JSONObject errorEntity = JSONObject.fromObject(ex.getResponseBodyAsString());
+            JSONObject errorEntity = JSONObject.parseObject(ex.getResponseBodyAsString());
+//            JSONObject errorEntity = JSONObject.fromObject(ex.getResponseBodyAsString());
             String info = String.valueOf(errorEntity.get("msg"));
             throw new APIException(10002, info);
         }
