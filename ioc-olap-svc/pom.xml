@@ -156,11 +156,11 @@
             <artifactId>poi</artifactId>
             <version>3.17</version>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>org.apache.poi.wso2</groupId>
             <artifactId>poi-scratchpad</artifactId>
             <version>3.5.0.wso2v1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
